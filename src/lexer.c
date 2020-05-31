@@ -18,8 +18,9 @@ Token* tokenize(char* buffer) {
     TokenType tt;
     unsigned int tl;
 
-    Token *tokens = pmalloc(sizeof (Token) * 10);
     unsigned int tc = 0;
+    unsigned int capacity = CLUE_INITIAL_TOKEN_ARRAY_SIZE;
+    Token* tokens = pmalloc(sizeof (Token) * capacity);
 
     unsigned int line = 1;
     unsigned int column = 1;
@@ -88,6 +89,8 @@ Token* tokenize(char* buffer) {
             tk = pmalloc(sizeof (char) * tl);
             snprintf(tk, tl + 1, "%s", buffer - tl - 1);
 
+            // column += 2; // do this here or below?
+
         } else {
             tt = OPERATOR;
             tl = 1;
@@ -138,18 +141,17 @@ Token* tokenize(char* buffer) {
 
                 // non-numeric, non-quote mark, non-alphabetic, invalid symbol character encountered.
                 default:
-                    tk = pmalloc(sizeof (char));
-                    snprintf(tk, 2, "?");
-                    break;
+                    fprintf(stderr, "ur ugly\n");
             }
         }
 
         // we have a token. add it to the array, realloc'ing as necessary
-        if (sizeof tokens < tc) {
-            tokens = realloc(tokens, sizeof (Token) + tc);
+        if (capacity < tc) {
+            capacity *= 2;
+            tokens = realloc(tokens, sizeof (Token) * capacity);
 
             if (!tokens) {
-                printf("failed to realloc tokens. exiting...\n");
+                fprintf(stderr, "failed to realloc tokens. exiting...\n");
                 exit(1);
             }
         }
@@ -163,7 +165,19 @@ Token* tokenize(char* buffer) {
 
         // increment the column based on the token's length
         column += strlen(tk);
+
+        if (tt == STRING) {
+            column += 2;
+        }
     }
+
+    // sentinel token for end of stream
+    tokens[tc] = (Token) {
+        tk = " ",
+        tt = NO_OP,
+        line = -1,
+        column = -1
+    };
 
     return tokens;
 }

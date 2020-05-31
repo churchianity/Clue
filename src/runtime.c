@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "token.h"
 #include "lexer.h"
@@ -11,7 +12,6 @@ void debug() {
     char s[80];
 
     while (1) {
-        // prompt and get string from user
         printf(">>> ");
 
         if (fgets(s, 80, stdin) == NULL) {
@@ -22,9 +22,13 @@ void debug() {
         Token* tokens = tokenize(s);
 
         printf("Printing Tokens:\n");
-        for (int i = 0; i < 10; i++) {
-            printf("%2d,%2d | tt: %d, tk: %s\n", tokens[i].line, tokens[i].column, tokens[i].tt, tokens[i].tk);
+
+        int i = 0;
+        while (!(tokens[i].tt == NO_OP)) {
+            printToken(tokens[i++]);
         }
+
+        free(tokens);
     }
 }
 
@@ -33,7 +37,6 @@ void debug() {
  */
 int main(int argc, char* argv[]) {
     debug();
-
     return 0;
 }
 

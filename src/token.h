@@ -2,6 +2,8 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include <stdbool.h>
+
 typedef enum TokenType {
     BAD_STRING   = -4,
     BAD_NUMERIC  = -3,
@@ -14,12 +16,14 @@ typedef enum TokenType {
     STRING       =  4
 } TokenType;
 
-typedef struct Token {
+typedef struct {
     char* tk;
     TokenType tt;
     unsigned int line;
     unsigned int column;
 } Token;
+
+void printToken(Token token);
 
 #endif
 

@@ -6,7 +6,7 @@ void *pmalloc(size_t size) {
     void *p = malloc(size);
 
     if (!p) {
-        printf("out of memory... zzz...\n");
+        fprintf(stderr, "out of memory... zzz...\n");
         exit(1);
     }
 
