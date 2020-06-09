@@ -3,7 +3,9 @@
 #include <stdlib.h>
 
 #include "token.h"
+#include "node.h"
 #include "lexer.h"
+#include "parser.h"
 
 /**
  *
@@ -27,6 +29,10 @@ void debug() {
         while (!(tokens[i].tt == NO_OP)) {
             printToken(tokens[i++]);
         }
+
+        Node* root = parse(tokens);
+        printf("traverse here lmao\n");
+        // traverse here lmao
 
         free(tokens);
     }

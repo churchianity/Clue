@@ -152,6 +152,7 @@ Token* tokenize(char* buffer) {
 
             if (!tokens) {
                 fprintf(stderr, "failed to realloc tokens. exiting...\n");
+                free(tokens); // <-- DO I NEED TO DO THIS??????
                 exit(1);
             }
         }
@@ -173,7 +174,7 @@ Token* tokenize(char* buffer) {
 
     // sentinel token for end of stream
     tokens[tc] = (Token) {
-        tk = " ",
+        tk = "END_OF_STREAM",
         tt = NO_OP,
         line = -1,
         column = -1
