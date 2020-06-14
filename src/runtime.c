@@ -26,13 +26,17 @@ void debug() {
         printf("Printing Tokens:\n");
 
         int i = 0;
-        while (!(tokens[i].tt == NO_OP)) {
+        while (!(tokens[i].tt == TT_NO_OP)) {
             printToken(tokens[i++]);
         }
 
         Node* root = parse(tokens);
-        printf("traverse here lmao\n");
-        // traverse here lmao
+        if (root) {
+            printf("traverse here lmao\n");
+            traverse(root);
+        }
+
+
 
         free(tokens);
     }
@@ -43,6 +47,7 @@ void debug() {
  */
 int main(int argc, char* argv[]) {
     debug();
+
     return 0;
 }
 

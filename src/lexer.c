@@ -40,7 +40,7 @@ Token* tokenize(char* buffer) {
             continue;
 
         } else if (isalpha(c)) {
-            tt = SYMBOL;
+            tt = TT_SYMBOL;
 
             tl = 1;
             do {
@@ -56,7 +56,7 @@ Token* tokenize(char* buffer) {
             snprintf(tk, tl + 1, "%s", buffer - tl);
 
         } else if (isdigit(c)) {
-            tt = NUMERIC;
+            tt = TT_NUMERIC;
 
             tl = 1;
             do {
@@ -72,7 +72,7 @@ Token* tokenize(char* buffer) {
             snprintf(tk, tl + 1, "%s", buffer - tl);
 
         } else if (c == '"' || c == '\'') {
-            tt = STRING;
+            tt = TT_STRING;
             char quotemark = c;
 
             tl = 0;
@@ -92,7 +92,7 @@ Token* tokenize(char* buffer) {
             // column += 2; // do this here or below?
 
         } else {
-            tt = OPERATOR;
+            tt = TT_OPERATOR;
             tl = 1;
 
             switch (c) {
@@ -139,9 +139,16 @@ Token* tokenize(char* buffer) {
                     snprintf(tk, 2, "%c", c);
                     break;
 
-                // non-numeric, non-quote mark, non-alphabetic, invalid symbol character encountered.
+                case '.':
+                    tk = pmalloc(2 * sizeof (char));
+                    snprintf(tk, 2, "%c", c);
+                    break;
+
                 default:
-                    fprintf(stderr, "ur ugly\n");
+                    fprintf(stderr, "non-numeric, non-quote mark, non-alphabetic, invalid symbol character encountered.\n");
+                    tk = pmalloc(10 * sizeof (char));
+                    snprintf(tk, 10, "uhohstinky");
+                    break;
             }
         }
 
@@ -152,7 +159,6 @@ Token* tokenize(char* buffer) {
 
             if (!tokens) {
                 fprintf(stderr, "failed to realloc tokens. exiting...\n");
-                free(tokens); // <-- DO I NEED TO DO THIS??????
                 exit(1);
             }
         }
@@ -167,7 +173,9 @@ Token* tokenize(char* buffer) {
         // increment the column based on the token's length
         column += strlen(tk);
 
-        if (tt == STRING) {
+        // it would be cool if we could move this inside the 'string' case of the lexer
+        // but that makes the column counter for the position of the token 2 greater than it should be
+        if (tt == TT_STRING) {
             column += 2;
         }
     }
@@ -175,7 +183,7 @@ Token* tokenize(char* buffer) {
     // sentinel token for end of stream
     tokens[tc] = (Token) {
         tk = "END_OF_STREAM",
-        tt = NO_OP,
+        tt = TT_NO_OP,
         line = -1,
         column = -1
     };

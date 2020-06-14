@@ -5,15 +5,15 @@
 #include <stdbool.h>
 
 typedef enum TokenType {
-    BAD_STRING   = -4,
-    BAD_NUMERIC  = -3,
-    BAD_OPERATOR = -2,
-    BAD_SYMBOL   = -1,
-    NO_OP        =  0,
-    SYMBOL       =  1,
-    OPERATOR     =  2,
-    NUMERIC      =  3,
-    STRING       =  4
+    TT_BAD_STRING   = -4,
+    TT_BAD_NUMERIC  = -3,
+    TT_BAD_OPERATOR = -2,
+    TT_BAD_SYMBOL   = -1,
+    TT_NO_OP        =  0,
+    TT_SYMBOL       =  1,
+    TT_OPERATOR     =  2,
+    TT_NUMERIC      =  3,
+    TT_STRING       =  4
 } TokenType;
 
 typedef struct {
@@ -24,6 +24,8 @@ typedef struct {
 } Token;
 
 void printToken(Token token);
+
+char* tokenTypeToString(TokenType tt);
 
 #endif
 
