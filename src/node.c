@@ -12,10 +12,10 @@ void traverse(Node* head) {
         traverse(head->right);
 
     } else if (head->token) {
-        printToken(*head->token);
+        head->token->print(head->token);
 
     } else {
-        printf("AST is empty lmao\n");
+        printf("AST is empty as fuck lmao\n");
     }
 }
 

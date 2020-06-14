@@ -4,7 +4,7 @@
 
 #include <stdbool.h>
 
-typedef enum TokenType {
+typedef enum TokenTypeEnum {
     TT_BAD_STRING   = -4,
     TT_BAD_NUMERIC  = -3,
     TT_BAD_OPERATOR = -2,
@@ -14,18 +14,19 @@ typedef enum TokenType {
     TT_OPERATOR     =  2,
     TT_NUMERIC      =  3,
     TT_STRING       =  4
-} TokenType;
+} TokenTypeEnum;
 
-typedef struct {
-    char* tk;
-    TokenType tt;
+typedef struct Token {
     unsigned int line;
     unsigned int column;
+    TokenTypeEnum tt;
+    const char* tk;
+
+    void (*print) (const struct Token*);
 } Token;
 
-void printToken(Token token);
-
-char* tokenTypeToString(TokenType tt);
+Token* newToken(unsigned int line, unsigned int column, TokenTypeEnum tt, const char* tk);
+char* tokenTypeToString(TokenTypeEnum tt);
 
 #endif
 

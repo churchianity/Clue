@@ -27,7 +27,8 @@ void debug() {
 
         int i = 0;
         while (!(tokens[i].tt == TT_NO_OP)) {
-            printToken(tokens[i++]);
+            tokens[i].print(&tokens[i]);
+            i++;
         }
 
         Node* root = parse(tokens);

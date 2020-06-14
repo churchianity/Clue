@@ -2,12 +2,9 @@
 #include <stdio.h>
 
 #include "token.h"
+#include "util.h"
 
-void printToken(Token token) {
-    printf("line: %d, col: %d | tt: %s, tk: %s\n", token.line, token.column, tokenTypeToString(token.tt), token.tk);
-}
-
-char* tokenTypeToString(TokenType tt) {
+char* tokenTypeToString(TokenTypeEnum tt) {
     switch (tt) {
         case TT_BAD_SYMBOL: return "BAD SYMBOL"; break;
         case TT_BAD_OPERATOR: return "BAD OPERATOR"; break;
@@ -23,4 +20,25 @@ char* tokenTypeToString(TokenType tt) {
     }
 }
 
+static void print(const Token* self) {
+    printf("line: %d, col: %d | tt: %s, tk: %s\n", self->line, self->column, tokenTypeToString(self->tt), self->tk);
+}
+
+Token* newToken(unsigned int line, unsigned int col, TokenTypeEnum tt, const char* tk) {
+    Token* token = pmalloc(sizeof (Token));
+
+    if (!token) {
+        return NULL;
+    }
+
+    *token = (Token) {
+        .line = line,
+        .column = col,
+        .tt = tt,
+        .tk = tk,
+        .print = &print
+    };
+
+    return token;
+}
 

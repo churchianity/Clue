@@ -45,25 +45,6 @@ Node* parse(Token* tokens) {
 Node* parse(Token* tokens) {
     Stack* exprStack = newStack(10);
     Stack* operatorStack = newStack(10);
-    Token* token = tokens;
-
-    printf("size: %d\n", exprStack->size(exprStack));
-    printf("isEmpty: %d\n", exprStack->isEmpty(exprStack));
-    printf("isFull: %d\n", exprStack->isFull(exprStack));
-
-    printf("pushin'\n");
-    exprStack->push(exprStack, token);
-    printf("size: %d\n", exprStack->size(exprStack));
-
-    printf("peekin'\n");
-    token = exprStack->peek(exprStack);
-    printToken(*token);
-    printf("size: %d\n", exprStack->size(exprStack));
-
-    printf("poppin'\n");
-    token = exprStack->pop(exprStack);
-    printToken(*token);
-    printf("size: %d\n", exprStack->size(exprStack));
 
     return NULL;
 }

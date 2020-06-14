@@ -15,7 +15,7 @@
 Token* tokenize(char* buffer) {
     char c;
     char* tk;
-    TokenType tt;
+    TokenTypeEnum tt;
     unsigned int tl;
 
     unsigned int tc = 0;
@@ -154,7 +154,7 @@ Token* tokenize(char* buffer) {
 
         // we have a token. add it to the array, realloc'ing as necessary
         if (capacity < tc) {
-            capacity *= 2;
+            capacity *= 2; // @TODO I don't know what the optimal growth rate is
             tokens = realloc(tokens, sizeof (Token) * capacity);
 
             if (!tokens) {
@@ -163,30 +163,20 @@ Token* tokenize(char* buffer) {
             }
         }
 
-        tokens[tc++] = (Token) {
-            tk = tk,
-            tt = tt,
-            line = line,
-            column = column
-        };
+        tokens[tc++] = *newToken(line, column, tt, tk);
 
         // increment the column based on the token's length
-        column += strlen(tk);
+        column += tl;
 
         // it would be cool if we could move this inside the 'string' case of the lexer
-        // but that makes the column counter for the position of the token 2 greater than it should be
+        // but that makes the column counter for the position of the token be 2 greater than it should be
         if (tt == TT_STRING) {
             column += 2;
         }
     }
 
     // sentinel token for end of stream
-    tokens[tc] = (Token) {
-        tk = "END_OF_STREAM",
-        tt = TT_NO_OP,
-        line = -1,
-        column = -1
-    };
+    tokens[tc] = *newToken(-1, -1, TT_NO_OP, "END_OF_STREAM");
 
     return tokens;
 }
