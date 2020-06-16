@@ -8,20 +8,23 @@
 #include "lexer.h"
 #include "parser.h"
 
-void execute(const Node* node) {
+/**
+ * Evaluates a node.
+ */
+void evaluate(const Node* node) {
     char *endptr;
 
     if (strcmp(node->token->tk, "+") == 0) {
         printf("\nresult lmao: %lu\n"
-               , strtol(node->children[0].token->tk, &endptr, 10) + strtol(node->children[1].token->tk, &endptr, 10));
+                , strtol(node->children[0].token->tk, &endptr, 10) + strtol(node->children[1].token->tk, &endptr, 10));
     }
 }
 
 
 /**
- *
+ * This will eventually become the 'interactive' mode of the language.
  */
-void debug() {
+void interactive() {
     char s[80];
 
     do {
@@ -33,6 +36,7 @@ void debug() {
         }
 
         if (s[0] == '.') {
+            printf("Bye!\n");
             return;
         }
 
@@ -48,15 +52,15 @@ void debug() {
         }
 
         // PARSING //
-         Node* root = parse(tokens);
+        Node* root = parse(tokens);
 
         if (root) {
             printf("\nTraversing Nodes...\n\n");
             traverse(root, root->print);
         }
 
-        // DO THR THING //
-         traverse(root, &execute);
+        // DO THE THING //
+        traverse(root, &evaluate);
 
         free(tokens);
 
@@ -67,6 +71,6 @@ void debug() {
  *
  */
 int main(int argc, char* argv[]) {
-    debug(); return 0;
+    interactive(); return 0;
 }
 
