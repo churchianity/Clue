@@ -9,58 +9,59 @@
 /**
  * Prints some relevant information about a node.
  * Doesn't recurse into children.
+ * @TODO fix: Right now this function isn't super safe
  */
 static void print(const Node* self) {
-    printf("traverse here XDXDXao\n"); fflush(stdout);
     if (!self) {
         return;
     }
 
-    printf("Node token: %p", self->token); fflush(stdout);
     self->token->print(self->token);
-    printf("Node # of children: %d\n", self->childrenCount); fflush(stdout);
+    printf("\nNode # of children: %d\n", self->childrenCount);
 
     for (unsigned int i = 0; i < self->childrenCount; i++) {
-        printf("Child %d pointer: %p\n", i, self->children + i); fflush(stdout);
+        printf("Child %d pointer: %p\n", i, self->children + i);
     }
 }
 
 /**
- * @TODO fix: Right now this function isn't super safe
+ * Iterates over the tree and calls |callback| on each node, with itself as an argument.
  */
-void traverse(Node* head, void (*callback) (const Node*)) {
-    if (!head) {
+void traverse(Node* root, void (*callback) (const Node*)) {
+    if (!root) {
         return;
     }
 
-    for (unsigned int i = 0; i < head->childrenCount; i++) {
-        if (head->children + i) {
-            traverse(head->children + i, callback);
+    if (root->children != NULL) {
+        for (unsigned int i = 0; i < root->childrenCount; i++) {
+            if (root->children + i) {
+                traverse(root->children + i, callback);
+            }
         }
     }
 
-    callback(head);
+    callback(root);
 }
 
 Node* newNode(Token* token) {
+    Node* node = pmalloc(sizeof (Node));
+
     switch (token->tt) {
         case TT_SYMBOL:
         case TT_STRING:
         case TT_NUMERIC:
-            return &(Node) {
-                .childrenCount = 0,
-                .children = NULL,
-                .token = token,
-                .print = &print
-            };
+            node->childrenCount = 0;
+            node->children = NULL;
+            node->token = token;
+            node->print = &print;
+            return node;
 
         case TT_OPERATOR:
-            return &(Node) {
-                .childrenCount = 2,
-                .children = pmalloc(sizeof (Node) * 2),
-                .token = token,
-                .print = &print
-            };
+            node->childrenCount = 2;
+            node->children = pmalloc(sizeof (Node) * 2);
+            node->token = token;
+            node->print = &print;
+            return node;
 
         default:
             perror("uh oh big bad");

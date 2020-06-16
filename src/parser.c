@@ -7,16 +7,28 @@
 
 Node* findRoot(Token* tokens) {
     unsigned int i = 0;
+    Node* node;
 
     while (tokens[i].tt != TT_NO_OP) {
+
         if (tokens[i].tt == TT_OPERATOR) {
-            return newNode(&tokens[i]);
+            node = newNode(&tokens[i]);
+
+            // we're going to assume that there should be an expression to the right
+            // and maybe one to the left too
+            if (i > 0 && tokens[i - 1].tt != TT_OPERATOR) {
+                node->children[0] = *newNode(&tokens[i - 1]);
+            }
+
+            if (tokens[i + 1].tt != TT_NO_OP && tokens[i + 1].tt != TT_OPERATOR) {
+                node->children[1] = *newNode(&tokens[i + 1]);
+            }
         }
 
         i++;
     }
 
-    return NULL;
+    return node;
 }
 
 /**
@@ -24,7 +36,6 @@ Node* findRoot(Token* tokens) {
  */
 Node* parse(Token* tokens) {
     Node* root = findRoot(tokens);
-
 
     return root;
 }
