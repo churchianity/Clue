@@ -4,6 +4,6 @@
 
 #include <stddef.h>
 
-void *pmalloc(size_t size);
+void *pmalloc(unsigned int size);
 
 #endif

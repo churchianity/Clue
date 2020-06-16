@@ -6,43 +6,43 @@
 #include "stack.h"
 #include "util.h"
 
-static unsigned int size(const Stack* stack) {
-    return stack->top + 1;
+static unsigned int size(const Stack* self) {
+    return self->top + 1;
 }
 
-static bool isEmpty(const Stack* stack) {
-    return stack->top == -1;
+static bool isEmpty(const Stack* self) {
+    return self->top == -1;
 }
 
-static bool isFull(const Stack* stack) {
-    return stack->top == stack->maxSize - 1;
+static bool isFull(const Stack* self) {
+    return self->top == self->maxSize - 1;
 }
 
-static void push(Stack* stack, void* elem) {
-    if (isFull(stack)) {
+static void push(Stack* self, void* elem) {
+    if (isFull(self)) {
         printf("stack 2 smol\n");
         exit(1);
     }
 
-    stack->data[++stack->top] = elem;
+    self->data[++self->top] = elem;
 }
 
-static void* peek(const Stack* stack) {
-    if (isEmpty(stack)) {
+static void* peek(const Stack* self) {
+    if (isEmpty(self)) {
         printf("stack has no shit bro u aint peeking shit\n");
         exit(1);
     }
 
-    return stack->data[stack->top];
+    return self->data[self->top];
 }
 
-static void* pop(Stack* stack) {
-    if (isEmpty(stack)) {
+static void* pop(Stack* self) {
+    if (isEmpty(self)) {
         printf("stack has no shit bro u aint peeking shit\n");
         exit(1);
     }
 
-    return stack->data[stack->top--];
+    return self->data[self->top--];
 }
 
 Stack* newStack(unsigned int capacity) {

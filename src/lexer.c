@@ -36,7 +36,7 @@ Token* tokenize(char* buffer) {
             continue;
 
         } else if (c == '\t') {
-            column += 4; // @TODO replace this with a 'tab' counter?
+            column += 4; // @TODO replace this with a 'tab' counter? how else to do column count for tabs
             continue;
 
         } else if (isalpha(c)) {
@@ -44,7 +44,7 @@ Token* tokenize(char* buffer) {
 
             tl = 1;
             do {
-                if (!(isalpha(*buffer) || isdigit(*buffer) || *buffer == '_')) {
+                if (!(isalpha(*buffer) || isdigit(*buffer) || *buffer == '_')) { // @TODO enforce camelCase?
                     break;
 
                 } else {
@@ -106,6 +106,7 @@ Token* tokenize(char* buffer) {
                     // '||' logical OR
                     if (*(buffer + 1) == c) {
                         tk = pmalloc(3 * sizeof (char));
+                        tl = 2;
                         snprintf(tk, 3, "%c%c", c, *buffer++);
                         break;
                     }
@@ -124,6 +125,7 @@ Token* tokenize(char* buffer) {
                     // check for compound assignment
                     if (*(buffer + 1) == '=') {
                         tk = pmalloc(3 * sizeof (char));
+                        tl = 2;
                         snprintf(tk, 3, "%c=", c);
                         buffer++;
                         break;
@@ -133,12 +135,10 @@ Token* tokenize(char* buffer) {
                     snprintf(tk, 2, "%c", c);
                     break;
 
+                case '(':
+                case ')':
                 case ':':
                 case '!':
-                    tk = pmalloc(2 * sizeof (char));
-                    snprintf(tk, 2, "%c", c);
-                    break;
-
                 case '.':
                     tk = pmalloc(2 * sizeof (char));
                     snprintf(tk, 2, "%c", c);
@@ -170,6 +170,7 @@ Token* tokenize(char* buffer) {
 
         // it would be cool if we could move this inside the 'string' case of the lexer
         // but that makes the column counter for the position of the token be 2 greater than it should be
+        // i think there's an ugly conditional either way
         if (tt == TT_STRING) {
             column += 2;
         }

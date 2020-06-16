@@ -2,7 +2,9 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-Node* subparse(Token* tokens, Node* root);
+#include "token.h"
+#include "node.h"
+
 Node* parse(Token* tokens);
 
 #endif

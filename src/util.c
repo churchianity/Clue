@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void *pmalloc(size_t size) {
+void *pmalloc(unsigned int size) {
     void *p = malloc(size);
 
     if (!p) {

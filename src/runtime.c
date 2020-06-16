@@ -25,19 +25,18 @@ void debug() {
 
         printf("Printing Tokens:\n");
 
-        int i = 0;
+        unsigned int i = 0;
         while (!(tokens[i].tt == TT_NO_OP)) {
             tokens[i].print(&tokens[i]);
             i++;
         }
 
         Node* root = parse(tokens);
+
         if (root) {
             printf("traverse here lmao\n");
-            traverse(root);
+            traverse(root, root->print);
         }
-
-
 
         free(tokens);
     }
