@@ -4,7 +4,8 @@
 
 #include "node.h"
 
-void debug();
+void evaluate(const Node* node);
+void interactive();
 
 int main(int argc, char* argv[]);
 

@@ -27,7 +27,7 @@ static void print(const Node* self) {
 /**
  * Iterates over the tree and calls |callback| on each node, with itself as an argument.
  */
-void traverse(Node* root, void (*callback) (const Node*)) {
+void traverse(Node* root, void (*callback) (Node*)) {
     if (!root) {
         return;
     }

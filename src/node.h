@@ -11,7 +11,7 @@ typedef struct Node {
     void (*print) (const struct Node*);
 } Node;
 
-void traverse(Node* head, void (*callback) (const Node*));
+void traverse(Node* head, void (*callback) (Node*));
 Node* newNode(Token* token);
 
 #endif

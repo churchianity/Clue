@@ -11,6 +11,7 @@
 
 /**
  * Given a string |buffer| return an array of Token(s).
+ * We are expecting the string to be null-terminated.
  */
 Token* tokenize(char* buffer) {
     char c;

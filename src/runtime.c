@@ -14,6 +14,25 @@
 void evaluate(const Node* node) {
     char *endptr;
 
+    if (node->token->tt == TT_OPERATOR) {
+        switch (node->token->tk[0]) {
+            case '%':
+            case '-':
+            case '*':
+            case '/':
+
+            case '+':
+                if (node->token->tk[1] == '+') {
+                    // @TODO it's a pre/post increment operator
+                    break;
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
     if (strcmp(node->token->tk, "+") == 0) {
         printf("\nresult lmao: %lu\n"
                 , strtol(node->children[0].token->tk, &endptr, 10) + strtol(node->children[1].token->tk, &endptr, 10));
@@ -59,18 +78,15 @@ void interactive() {
             traverse(root, root->print);
         }
 
-        // DO THE THING //
+        // EVALUATION //
         traverse(root, &evaluate);
 
+        // cleanup
         free(tokens);
+        traverse(root, &free);
 
     } while (1);
 }
 
-/**
- *
- */
-int main(int argc, char* argv[]) {
-    interactive(); return 0;
-}
+
 

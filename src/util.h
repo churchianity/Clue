@@ -2,7 +2,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include <stddef.h>
+#include <stdbool.h>
 
 void *pmalloc(unsigned int size);
 
