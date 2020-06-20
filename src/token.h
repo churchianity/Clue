@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 typedef enum TokenTypeEnum {
-    TT_NO_OP        =  0,
+    TT_SENTINEL     =  0,
     TT_SYMBOL       =  1,
     TT_OPERATOR     =  2,
     TT_NUMERIC      =  3,

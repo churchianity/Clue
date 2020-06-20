@@ -90,8 +90,6 @@ Token* tokenize(char* buffer) {
             tk = pmalloc(sizeof (char) * tl);
             snprintf(tk, tl + 1, "%s", buffer - tl - 1);
 
-            // column += 2; // do this here or below?
-
         } else {
             tt = TT_OPERATOR;
             tl = 1;
@@ -146,10 +144,8 @@ Token* tokenize(char* buffer) {
                     break;
 
                 default:
-                    fprintf(stderr, "non-numeric, non-quote mark, non-alphabetic, invalid symbol character encountered.\n");
-                    tk = pmalloc(10 * sizeof (char));
-                    snprintf(tk, 10, "uhohstinky");
-                    break;
+                    fprintf(stderr, "non-numeric, non-quote mark, non-alphabetic, invalid symbol character encountered :: %c\n", c);
+                    continue;
             }
         }
 
@@ -178,7 +174,7 @@ Token* tokenize(char* buffer) {
     }
 
     // sentinel token for end of stream
-    tokens[tc] = *newToken(-1, -1, TT_NO_OP, "END_OF_STREAM");
+    tokens[tc] = *newToken(-1, -1, TT_SENTINEL, "END_OF_STREAM");
 
     return tokens;
 }

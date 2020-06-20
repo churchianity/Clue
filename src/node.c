@@ -9,19 +9,21 @@
 /**
  * Prints some relevant information about a node.
  * Doesn't recurse into children.
- * @TODO fix: Right now this function isn't super safe
  */
-static void print(const Node* self) {
+static void print(Node* self) {
     if (!self) {
         return;
     }
 
-    self->token->print(self->token);
-    printf("\nNode # of children: %d\n", self->childrenCount);
+    printf("Printing Node %p\nNode # of children: %d\n", self, self->childrenCount);
 
     for (unsigned int i = 0; i < self->childrenCount; i++) {
         printf("Child %d pointer: %p\n", i, self->children + i);
     }
+
+    printf("Node token: ");
+    self->token->print(self->token);
+    printf("\n");
 }
 
 /**
@@ -67,5 +69,12 @@ Node* newNode(Token* token) {
             perror("uh oh big bad");
             exit(1);
     }
+}
+
+/*
+ *
+ */
+void freeNode(Node* node) {
+    free(node);
 }
 

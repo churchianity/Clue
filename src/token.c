@@ -6,7 +6,7 @@
 
 char* tokenTypeToString(TokenTypeEnum tt) {
     switch (tt) {
-        case TT_NO_OP: return "NO_OP"; break;
+        case TT_SENTINEL: return "SENTINEL"; break;
         case TT_SYMBOL: return "SYMBOL"; break;
         case TT_OPERATOR: return "OPERATOR"; break;
         case TT_NUMERIC: return "NUMERIC"; break;
@@ -22,11 +22,6 @@ static void print(const Token* self) {
 
 Token* newToken(unsigned int line, unsigned int col, TokenTypeEnum tt, const char* tk) {
     Token* token = pmalloc(sizeof (Token));
-
-    if (!token) {
-        printf("big bad badbadbadbadb\n");
-        return NULL;
-    }
 
     *token = (Token) {
         .line = line,

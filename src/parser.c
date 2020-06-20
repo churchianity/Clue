@@ -9,7 +9,7 @@ Node* findRoot(Token* tokens) {
     unsigned int i = 0;
     Node* node;
 
-    while (tokens[i].tt != TT_NO_OP) {
+    while (tokens[i].tt != TT_SENTINEL) {
 
         if (tokens[i].tt == TT_OPERATOR) {
             node = newNode(&tokens[i]);
@@ -20,7 +20,7 @@ Node* findRoot(Token* tokens) {
                 node->children[0] = *newNode(&tokens[i - 1]);
             }
 
-            if (tokens[i + 1].tt != TT_NO_OP && tokens[i + 1].tt != TT_OPERATOR) {
+            if (tokens[i + 1].tt != TT_SENTINEL && tokens[i + 1].tt != TT_OPERATOR) {
                 node->children[1] = *newNode(&tokens[i + 1]);
             }
         }
