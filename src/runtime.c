@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "clue.h"
 #include "token.h"
 #include "node.h"
 #include "lexer.h"
@@ -12,7 +13,7 @@
  * Evaluates a node.
  */
 void evaluate(Node* node) {
-    char *endptr;
+    char *endptr = NULL;
 
     if (node->token->tt == TT_OPERATOR) {
         switch (node->token->tk[0]) {
@@ -20,7 +21,6 @@ void evaluate(Node* node) {
             case '-':
             case '*':
             case '/':
-
             case '+':
                 if (node->token->tk[1] == '+') {
                     // @TODO it's a pre/post increment operator
@@ -44,7 +44,7 @@ void evaluate(Node* node) {
  * This will eventually become the 'interactive' mode of the language.
  */
 void interactive() {
-    char s[80];
+    char s[CLUE_INTERACTIVE_MODE_MAX_LINE_LENGTH];
 
     do {
         printf(">>> ");
@@ -70,17 +70,18 @@ void interactive() {
             i++;
         }
 
-        // PARSING //
+        /* PARSING //
         Node* root = parse(tokens);
 
         if (root) {
             printf("\nTraversing Nodes...\n\n");
-            traverse(root, root->print);
+            root->traverse(root, root->print);
         }
 
         // EVALUATION //
-        traverse(root, &evaluate);
+        // root->traverse(root, &evaluate);
 
+        */
         // cleanup
         free(tokens);
 

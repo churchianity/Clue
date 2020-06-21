@@ -1,6 +1,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+
+#include "util.h"
 
 void *pmalloc(unsigned int size) {
     void *p = malloc(size);
@@ -13,3 +16,10 @@ void *pmalloc(unsigned int size) {
     return p;
 }
 
+char* boolToString(bool b) {
+    if (b) {
+        return "true";
+    }
+
+    return "false";
+}

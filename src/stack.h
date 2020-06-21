@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 /**
- * Stack implementation lol
+ *
  */
 typedef struct Stack {
     unsigned int maxSize;

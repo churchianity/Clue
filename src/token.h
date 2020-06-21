@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 typedef enum TokenTypeEnum {
+    TT_BAD_STRING   = -4,
     TT_SENTINEL     =  0,
     TT_SYMBOL       =  1,
     TT_OPERATOR     =  2,
@@ -17,11 +18,12 @@ typedef struct Token {
     unsigned int column;
     TokenTypeEnum tt;
     const char* tk;
+    bool bad;
 
     void (*print) (const struct Token*);
 } Token;
 
-Token* newToken(unsigned int line, unsigned int column, TokenTypeEnum tt, const char* tk);
+Token* newToken(unsigned int line, unsigned int column, TokenTypeEnum tt, const char* tk, bool bad);
 char* tokenTypeToString(TokenTypeEnum tt);
 
 #endif

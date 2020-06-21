@@ -1,9 +1,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
-#include <stdbool.h>
 
 #include "token.h"
 #include "clue.h"
@@ -17,6 +17,7 @@ Token* tokenize(char* buffer) {
     char c;
     char* tk;
     TokenTypeEnum tt;
+    bool bad;
     unsigned int tl;
 
     unsigned int tc = 0;
@@ -27,6 +28,8 @@ Token* tokenize(char* buffer) {
     unsigned int column = 1;
 
     while ((c = *buffer++) != '\0') {
+        bad = false;
+
         if (c == '\n') {
             column = 1;
             line++;
@@ -60,9 +63,24 @@ Token* tokenize(char* buffer) {
             tt = TT_NUMERIC;
 
             tl = 1;
+            bool hasRadixPoint = false;
             do {
                 if (!(isdigit(*buffer) || *buffer == '.')) {
                     break;
+
+                } else if (*buffer == '.') { // only one '.' is allowed in a numeric literal.
+                    if (hasRadixPoint) {
+                        // bad = true;
+                        // there is probably no syntactically valid thing of the form (numeric literal)(.)(something else)
+                        // however, i don't know if it's better to report this error as a 'bad token' or as a mistaken use of the
+                        // descent/ownership operator - (saying NUMERIC_LITERAL.property)
+                        // how do I tell if the user meant to descend into the numeric literal (which you can't do), or just added an
+                        // erroneous decimal point?
+                        break;
+                    }
+
+                    hasRadixPoint = true;
+                    tl++;
 
                 } else {
                     tl++;
@@ -79,13 +97,17 @@ Token* tokenize(char* buffer) {
             tl = 0;
             do {
                 if (*buffer == quotemark) {
-                    buffer++;
+                    buffer++; // increment past the last quotemark
                     break;
 
                 } else {
                     tl++;
                 }
             } while (*buffer++ != '\0');
+
+            if (*buffer != quotemark) { // we exited the loop before finding a closing quotemark...
+                bad = true;
+            }
 
             tk = pmalloc(sizeof (char) * tl);
             snprintf(tk, tl + 1, "%s", buffer - tl - 1);
@@ -144,7 +166,7 @@ Token* tokenize(char* buffer) {
                     break;
 
                 default:
-                    fprintf(stderr, "non-numeric, non-quote mark, non-alphabetic, invalid symbol character encountered :: %c\n", c);
+                    fprintf(stderr, "non-numeric, non-quote mark, non-alphabetic, invalid symbol character encountered :: %c\nskipping it...\n", c);
                     continue;
             }
         }
@@ -160,7 +182,7 @@ Token* tokenize(char* buffer) {
             }
         }
 
-        tokens[tc++] = *newToken(line, column, tt, tk);
+        tokens[tc++] = *newToken(line, column, tt, tk, bad);
 
         // increment the column based on the token's length
         column += tl;
@@ -174,7 +196,7 @@ Token* tokenize(char* buffer) {
     }
 
     // sentinel token for end of stream
-    tokens[tc] = *newToken(-1, -1, TT_SENTINEL, "END_OF_STREAM");
+    tokens[tc] = *newToken(-1, -1, TT_SENTINEL, "END_OF_STREAM", false);
 
     return tokens;
 }

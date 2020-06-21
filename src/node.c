@@ -8,7 +8,7 @@
 
 /**
  * Prints some relevant information about a node.
- * Doesn't recurse into children.
+ * Doesn't recurse into children, but does show their addresses.
  */
 static void print(Node* self) {
     if (!self) {
@@ -16,39 +16,50 @@ static void print(Node* self) {
     }
 
     printf("Printing Node %p\nNode # of children: %d\n", self, self->childrenCount);
+    printf("Node token: ");
+
+    self->token->print(self->token);
 
     for (unsigned int i = 0; i < self->childrenCount; i++) {
-        printf("Child %d pointer: %p\n", i, self->children + i);
+        printf("\tChild %d pointer: %p\n", i, self->children + i);
     }
 
-    printf("Node token: ");
-    self->token->print(self->token);
     printf("\n");
 }
 
 /**
- * Iterates over the tree and calls |callback| on each node, with itself as an argument.
+ * Iterates over the tree and calls |callback| on each node, with |root| as an argument.
  */
-void traverse(Node* root, void (*callback) (Node*)) {
-    if (!root) {
+static void traverse(Node* self, void (*callback) (Node*)) {
+    if (!self) {
         return;
     }
 
-    if (root->children != NULL) {
-        for (unsigned int i = 0; i < root->childrenCount; i++) {
-            if (root->children + i) {
-                traverse(root->children + i, callback);
+    if (self->children != NULL) {
+        for (unsigned int i = 0; i < self->childrenCount; i++) {
+            if (self->children + i) {
+                traverse(self->children + i, callback);
             }
         }
     }
 
-    callback(root);
+    callback(self);
 }
 
+/**
+ *
+ */
 Node* newNode(Token* token) {
     Node* node = pmalloc(sizeof (Node));
 
     switch (token->tt) {
+        case TT_SENTINEL:
+            node->childrenCount = 0;
+            node->children = NULL;
+            node->token = token;
+            node->print = &print;
+            node->traverse = &traverse;
+
         case TT_SYMBOL:
         case TT_STRING:
         case TT_NUMERIC:
@@ -56,22 +67,26 @@ Node* newNode(Token* token) {
             node->children = NULL;
             node->token = token;
             node->print = &print;
-            return node;
+            node->traverse = &traverse;
+            break;
 
         case TT_OPERATOR:
-            node->childrenCount = 2;
+            node->childrenCount = 2; // @NOTE unary operators exist, but we figure out if this node is unary later
             node->children = pmalloc(sizeof (Node) * 2);
             node->token = token;
             node->print = &print;
-            return node;
+            node->traverse = &traverse;
+            break;
 
         default:
-            perror("uh oh big bad");
+            fprintf(stderr, "Unknown token-type passed into newNode: %d\n", token->tt);
             exit(1);
     }
+
+    return node;
 }
 
-/*
+/**
  *
  */
 void freeNode(Node* node) {

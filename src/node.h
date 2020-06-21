@@ -9,9 +9,9 @@ typedef struct Node {
     struct Node* children;
     Token* token;
     void (*print) (struct Node*);
+    void (*traverse) (struct Node*, void (*callback) (struct Node*));
 } Node;
 
-void traverse(Node* head, void (*callback) (Node*));
 void freeNode(Node* node);
 Node* newNode(Token* token);
 
