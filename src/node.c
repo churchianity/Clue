@@ -15,13 +15,13 @@ static void print(Node* self) {
         return;
     }
 
-    printf("Printing Node %p\nNode # of children: %d\n", self, self->childrenCount);
+    printf("Printing Node %p\nNode # of children: %d\n", (void*) self, self->childrenCount);
     printf("Node token: ");
 
     self->token->print(self->token);
 
     for (unsigned int i = 0; i < self->childrenCount; i++) {
-        printf("\tChild %d pointer: %p\n", i, self->children + i);
+        printf("\tChild %d pointer: %p\n", i, (void*) (self->children + i));
     }
 
     printf("\n");
@@ -53,12 +53,13 @@ Node* newNode(Token* token) {
     Node* node = pmalloc(sizeof (Node));
 
     switch (token->tt) {
-        case TT_SENTINEL:
+        case TT_SENTINEL: // a sentinel shouldn't ever really be interacted with except to check it exists
             node->childrenCount = 0;
             node->children = NULL;
             node->token = token;
             node->print = &print;
             node->traverse = &traverse;
+            break;
 
         case TT_SYMBOL:
         case TT_STRING:

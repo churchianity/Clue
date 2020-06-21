@@ -8,8 +8,6 @@
 
 char* tokenTypeToString(TokenTypeEnum tt) {
     switch (tt) {
-        case TT_BAD_STRING: return "BAD STRING";
-
         case TT_SENTINEL: return "SENTINEL";
 
         case TT_SYMBOL: return "SYMBOL";

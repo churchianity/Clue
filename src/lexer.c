@@ -105,7 +105,7 @@ Token* tokenize(char* buffer) {
                 }
             } while (*buffer++ != '\0');
 
-            if (*buffer != quotemark) { // we exited the loop before finding a closing quotemark...
+            if ((tl > 0) && (*buffer != quotemark)) { // we exited the loop before finding a closing quotemark...
                 bad = true;
             }
 
@@ -195,7 +195,6 @@ Token* tokenize(char* buffer) {
         }
     }
 
-    // sentinel token for end of stream
     tokens[tc] = *newToken(-1, -1, TT_SENTINEL, "END_OF_STREAM", false);
 
     return tokens;
