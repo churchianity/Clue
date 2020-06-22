@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "node.h"
+#include "table.h"
 #include "token.h"
 #include "util.h"
 
@@ -44,6 +45,13 @@ static void traverse(Node* self, void (*callback) (Node*)) {
     }
 
     callback(self);
+}
+
+/**
+ *
+ */
+void appendToSymbolTable(Token* token) {
+
 }
 
 /**

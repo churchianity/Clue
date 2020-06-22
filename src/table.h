@@ -3,13 +3,16 @@
 #define TABLE_H
 
 typedef struct TableEntry {
-    TableEntry* next;
-    char* key;
-    char* value;
+    struct TableEntry* next;
+    const char* value;
 } TableEntry;
 
-void install(char* value);
-TableEntry* lookup(char* value);
+typedef struct Table {
+    unsigned int capacity;
+    TableEntry* entries[];
+} Table;
+
+Table* newTable(unsigned int capacity);
 
 #endif
 

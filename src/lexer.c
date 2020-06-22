@@ -95,19 +95,17 @@ Token* tokenize(char* buffer) {
             char quotemark = c;
 
             tl = 0;
+            bad = true;
             do {
                 if (*buffer == quotemark) {
                     buffer++; // increment past the last quotemark
+                    bad = false; // if we found a closing quotemark, the string is probably valid
                     break;
 
                 } else {
                     tl++;
                 }
             } while (*buffer++ != '\0');
-
-            if ((tl > 0) && (*buffer != quotemark)) { // we exited the loop before finding a closing quotemark...
-                bad = true;
-            }
 
             tk = pmalloc(sizeof (char) * tl);
             snprintf(tk, tl + 1, "%s", buffer - tl - 1);

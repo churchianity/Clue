@@ -21,14 +21,15 @@ char* tokenTypeToString(TokenTypeEnum tt) {
 }
 
 static void print(const Token* self) {
+    // helper to print something for empty strings
     const char* tk = (strlen(self->tk) == 0) ? "__empty_string__" : self->tk;
 
     printf("line: %d, col: %d | tt: %s, bad: %s, tk: %s\n"
-            , self->line
-            , self->column
-            , tokenTypeToString(self->tt)
-            , boolToString(self->bad)
-            , tk
+         , self->line
+         , self->column
+         , tokenTypeToString(self->tt)
+         , boolToString(self->bad)
+         , tk
     );
 }
 

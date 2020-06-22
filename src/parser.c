@@ -2,66 +2,41 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "clue.h"
 #include "node.h"
-#include "stack.h"
+#include "table.h"
 #include "token.h"
+#include "util.h"
 
-void stackItUp(Stack* expressionStack, Stack* operatorStack, Token* tokens) {
-    unsigned int i = 0;
+TableEntry* symbolTable[CLUE_INITIAL_SYMBOL_TABLE_CAPACITY];
+unsigned int symbolTableCapacity = CLUE_INITIAL_SYMBOL_TABLE_CAPACITY;
 
-    while (tokens[i].tt != TT_SENTINEL) {
-        switch (tokens[i].tt) {
-            case TT_OPERATOR:
-                operatorStack->push(operatorStack, &tokens[i]);
-                break;
-
-            default:
-                expressionStack->push(expressionStack, &tokens[i]);
-                break;
-        }
-
-        ++i;
-    }
+static void initSymbolTable() {
 }
 
 /**
  *
  */
 Node* parse(Token* tokens) {
-    Stack* expressionStack = newStack(10);
-    Stack* operatorStack = newStack(10);
+    initSymbolTable();
 
-    stackItUp(expressionStack, operatorStack, tokens);
-
-    Node* root = newNode(operatorStack->pop(operatorStack));
-    while (!operatorStack->isEmpty(operatorStack)) {
-        Token* operator = operatorStack->pop(operatorStack);
-
-        switch (operator->tk[0]) {
-            case '+':
-                while (!expressionStack->isEmpty(expressionStack)) {
-
-                }
-                break;
-
-            case '-':
-                break;
-
-            case '*':
-                break;
-
-            case '/':
-                break;
-
-            case '%':
-                break;
-
-            default:
-                break;
-        }
-
+    for (unsigned int i = 0; i < symbolTableCapacity; ++i) {
+        printf("table entry %d: %p\n", i, (void*) (symbolTable + i));
     }
 
-    return root;
+    unsigned int i = 0;
+    while (tokens[i].tt != TT_SENTINEL) {
+        if (tokens[i].tt == TT_SYMBOL) {
+            insert(symbolTable, tokens[i].tk, symbolTableCapacity);
+        }
+
+        ++i;
+    }
+
+    for (unsigned int i = 0; i < symbolTableCapacity; ++i) {
+        // printf("table entry %d: %s | %p\n", i, symbolTable[i] != NULL ? symbolTable[i]->value : "none", (void*) (symbolTable + i));
+    }
+
+    return NULL;
 }
 

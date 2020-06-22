@@ -4,9 +4,14 @@
 
 #include <stdbool.h>
 
+typedef union {
+    char* tks;
+    double tkm;
+} Tok;
+
 typedef enum TokenTypeEnum {
-    TT_BAD_STRING   = -4,
     TT_SENTINEL     =  0,
+
     TT_SYMBOL       =  1,
     TT_OPERATOR     =  2,
     TT_NUMERIC      =  3,
