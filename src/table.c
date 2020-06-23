@@ -8,11 +8,7 @@
 #include "util.h"
 
 /**
- * Implementation stolen from:
- * https://stackoverflow.com/a/107657
  *
- * Though the same implementation (except replace 101 with 31) exists on page 118 of K&R,
- * and the hash table implementation here is ripped from that section of the book.
  */
 static unsigned int hash(const char* value, unsigned int capacity /*, unsigned int seed = 0*/ ) {
     unsigned int hash = 0; // seed
@@ -25,32 +21,43 @@ static unsigned int hash(const char* value, unsigned int capacity /*, unsigned i
 }
 
 /**
- *
+ * @TODO i think there's a segfault bug with the overwrite case
  */
-static signed int insert(Table* table, const char* value, unsigned int capacity) {
-    TableEntry* entry = lookup(table, value, capacity);
+static signed int insert(const Table* self, const char* key, void* value) {
+    TableEntry* entry = self->lookup(self, key);
 
     if (!entry) {
         entry = pmalloc(sizeof (TableEntry));
+        entry->key = key;
         entry->value = value;
+        entry->next = NULL;
 
-        unsigned int hashValue = hash(value, capacity);
-        table[hashValue] = entry;
+        self->entries[hash(value, self->capacity)] = entry;
+
+        return 0;
 
     } else {
-        return -1;
+        free(entry->value);
+
+        entry->value = strdup(value);
+
+        if (!entry->value) {
+            return -2;
+        }
     }
 
-    return 0;
+    return -1;
 }
 
 /**
  *
  */
-static TableEntry* lookup(Table* table, const char* value, unsigned int capacity) {
-    for (TableEntry* p = table[hash(value, capacity)]; p != NULL; p = p->next) {
-        if (strcmp(value, p->value) == 0) {
-            return p;
+static TableEntry* lookup(const Table* self, const char* key) {
+    TableEntry* entry = self->entries[hash(key, self->capacity)];
+
+    for (; entry != NULL; entry = entry->next) {
+        if (strcmp(key, entry->key) == 0) {
+            return entry;
         }
     }
 
@@ -64,8 +71,11 @@ Table* newTable(unsigned int capacity) {
     Table* table = pmalloc(sizeof (Table));
 
     *table = (Table) {
-        .entries = pmalloc(sizeof (TableEntry) * capacity);
-        .capacity = capacity
+        .size = 0,
+        .capacity = capacity,
+        .insert = &insert,
+        .lookup = &lookup,
+        .entries = pmalloc(sizeof (TableEntry*) * capacity)
     };
 
     return table;

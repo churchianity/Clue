@@ -26,7 +26,7 @@ void interactive() {
     do {
         printf(">>> ");
 
-        if (fgets(s, 80, stdin) == NULL) {
+        if (fgets(s, CLUE_INTERACTIVE_MODE_MAX_LINE_LENGTH, stdin) == NULL) {
             perror("OOPSIE");
             break;
         }
@@ -43,12 +43,13 @@ void interactive() {
 
         unsigned int i = 0;
         while (!(tokens[i].tt == TT_SENTINEL)) {
-            tokens[i].print(&tokens[i]);
+            printf("%s", tokens[i].toString(&tokens[i]));
             i++;
         }
 
         // PARSING //
         parse(tokens);
+
 
         /*
         if (root) {
@@ -61,6 +62,7 @@ void interactive() {
 
         */
         // cleanup
+
         free(tokens);
 
     } while (1);

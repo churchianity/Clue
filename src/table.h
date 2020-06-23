@@ -4,12 +4,18 @@
 
 typedef struct TableEntry {
     struct TableEntry* next;
-    const char* value;
+    const char* key;
+    void* value;
 } TableEntry;
 
 typedef struct Table {
+    unsigned int size;
     unsigned int capacity;
-    TableEntry* entries[];
+
+    signed int (*insert) (const struct Table* self, const char* key, void* value);
+    TableEntry* (*lookup) (const struct Table* self, const char* key);
+
+    TableEntry** entries;
 } Table;
 
 Table* newTable(unsigned int capacity);

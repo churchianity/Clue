@@ -8,34 +8,33 @@
 #include "token.h"
 #include "util.h"
 
-TableEntry* symbolTable[CLUE_INITIAL_SYMBOL_TABLE_CAPACITY];
-unsigned int symbolTableCapacity = CLUE_INITIAL_SYMBOL_TABLE_CAPACITY;
+Table* symbolTable;
 
-static void initSymbolTable() {
+static void initSymbolTable(unsigned int capacity) {
+    symbolTable = newTable(capacity);
 }
 
 /**
  *
  */
 Node* parse(Token* tokens) {
-    initSymbolTable();
-
-    for (unsigned int i = 0; i < symbolTableCapacity; ++i) {
-        printf("table entry %d: %p\n", i, (void*) (symbolTable + i));
-    }
+    initSymbolTable(CLUE_INITIAL_SYMBOL_TABLE_CAPACITY);
 
     unsigned int i = 0;
     while (tokens[i].tt != TT_SENTINEL) {
         if (tokens[i].tt == TT_SYMBOL) {
-            insert(symbolTable, tokens[i].tk, symbolTableCapacity);
+            symbolTable->insert(symbolTable, tokens[i].tk, &tokens[i]);
+
+            TableEntry* entry = symbolTable->lookup(symbolTable, tokens[i].tk);
+            Token* token = entry == NULL ? NULL : (Token*) entry->value;
+
+            printf("looked up key: %s and got value: %s\n", tokens[i].tk, token->toString(token));
         }
 
         ++i;
     }
 
-    for (unsigned int i = 0; i < symbolTableCapacity; ++i) {
-        // printf("table entry %d: %s | %p\n", i, symbolTable[i] != NULL ? symbolTable[i]->value : "none", (void*) (symbolTable + i));
-    }
+
 
     return NULL;
 }

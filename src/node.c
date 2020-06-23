@@ -8,10 +8,12 @@
 #include "util.h"
 
 /**
- * Prints some relevant information about a node.
+ * @TODO this actually just prints stuff but instead it should:
+ *
+ * Returns some relevant information about a node as a single string.
  * Doesn't recurse into children, but does show their addresses.
  */
-static void print(Node* self) {
+static void toString(const Node* self) {
     if (!self) {
         return;
     }
@@ -19,7 +21,7 @@ static void print(Node* self) {
     printf("Printing Node %p\nNode # of children: %d\n", (void*) self, self->childrenCount);
     printf("Node token: ");
 
-    self->token->print(self->token);
+    printf("%s", self->token->toString(self->token));
 
     for (unsigned int i = 0; i < self->childrenCount; i++) {
         printf("\tChild %d pointer: %p\n", i, (void*) (self->children + i));
@@ -65,7 +67,7 @@ Node* newNode(Token* token) {
             node->childrenCount = 0;
             node->children = NULL;
             node->token = token;
-            node->print = &print;
+            node->toString = &toString;
             node->traverse = &traverse;
             break;
 
@@ -75,7 +77,7 @@ Node* newNode(Token* token) {
             node->childrenCount = 0;
             node->children = NULL;
             node->token = token;
-            node->print = &print;
+            node->toString = &toString;
             node->traverse = &traverse;
             break;
 
@@ -83,7 +85,7 @@ Node* newNode(Token* token) {
             node->childrenCount = 2; // @NOTE unary operators exist, but we figure out if this node is unary later
             node->children = pmalloc(sizeof (Node) * 2);
             node->token = token;
-            node->print = &print;
+            node->toString = &toString;
             node->traverse = &traverse;
             break;
 

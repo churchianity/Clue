@@ -20,17 +20,26 @@ char* tokenTypeToString(TokenTypeEnum tt) {
     }
 }
 
-static void print(const Token* self) {
-    // helper to print something for empty strings
+/**
+ * @TODO this function is reeaaally stupid
+ */
+static char* toString(const Token* self) {
+    // helper to show something for empty strings
     const char* tk = (strlen(self->tk) == 0) ? "__empty_string__" : self->tk;
 
-    printf("line: %d, col: %d | tt: %s, bad: %s, tk: %s\n"
+    const char* format = "line: %d, col: %d | tt: %s, bad: %s, tk: %s\n";
+    unsigned int length = strlen(format) * 2 + strlen(self->tk);
+    char* buffer = pmalloc(length);
+
+    snprintf(buffer, length, format
          , self->line
          , self->column
          , tokenTypeToString(self->tt)
          , boolToString(self->bad)
          , tk
     );
+
+    return buffer;
 }
 
 Token* newToken(unsigned int line, unsigned int col, TokenTypeEnum tt, const char* tk, bool bad) {
@@ -42,7 +51,7 @@ Token* newToken(unsigned int line, unsigned int col, TokenTypeEnum tt, const cha
         .tt = tt,
         .tk = tk,
         .bad = bad,
-        .print = &print
+        .toString = &toString
     };
 
     return token;

@@ -13,7 +13,7 @@ typedef struct Node {
     void (*nud) (); // null denotation
     void (*led) (); // left denotation
 
-    void (*print) (struct Node*);
+    void (*toString) (const struct Node*);
     void (*traverse) (struct Node*, void (*callback) (struct Node*));
 } Node;
 

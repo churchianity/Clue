@@ -1,5 +1,9 @@
 
 
+# TOODOOS
+Token is struct that contains a pointer to the actual content, but currently this only points to string.
+In the case of numeric literals, it would likely be better to store a pointer to the constant as a 64-(or 32)bit floating point number.
+
 # Terminal & Non-Terminal Symbols
 
 evaluating a:
