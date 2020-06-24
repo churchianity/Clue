@@ -21,7 +21,7 @@ Token* tokenize(char* buffer) {
     unsigned int tl;
 
     unsigned int tc = 0;
-    unsigned int capacity = CLUE_INITIAL_TOKEN_ARRAY_SIZE;
+    unsigned int capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
     Token* tokens = pmalloc(sizeof (Token) * capacity);
 
     unsigned int line = 1;

@@ -55,15 +55,16 @@ static void traverse(Node* self, void (*callback) (Node*)) {
  * and the symbol already exists in a passed-in |symbolTable|
  */
 Node* newNode(Token* token, Table* symbolTable) {
-    Node* node;
+    Node* node = NULL;
+    TableEntry* entry = NULL;
 
     switch (token->tt) {
         case TT_SYMBOL:
             // lookup symbol within current scope
-            node = symbolTable->lookup(symbolTable, token->tk);
+            entry = symbolTable->lookup(symbolTable, token->tk);
 
-            if (node) {
-                return node;
+            if (entry) {
+                return entry->value;
             }
 
             // construct new symbol
@@ -75,10 +76,10 @@ Node* newNode(Token* token, Table* symbolTable) {
         case TT_OPERATOR:
             // lookup operator.
             // users cannot define custom operators, so if we don't find something we should complain.
-            node = symbolTable->lookup(symbolTable, token->tk);
+            entry = symbolTable->lookup(symbolTable, token->tk);
 
-            if (node) {
-                return node;
+            if (entry) {
+                return entry->value;
             }
 
             fprintf(stderr, "received an unknown operator: %s\n", token->tk);
@@ -90,8 +91,9 @@ Node* newNode(Token* token, Table* symbolTable) {
             node->children = NULL;
             break;
 
+        case TT_SENTINEL:
         default:
-            fprintf(stderr, "Unknown token-type passed into newNode: %d\n", token->tt);
+            fprintf(stderr, "Unknown or illegal token-type passed into newNode: %d\n", token->tt);
             exit(1);
     }
 

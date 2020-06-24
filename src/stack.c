@@ -18,19 +18,18 @@ static bool isFull(const Stack* self) {
     return self->top == self->maxSize - 1;
 }
 
-static void push(Stack* self, void* elem) {
+static signed int push(Stack* self, void* elem) {
     if (isFull(self)) {
-        printf("stack 2 smol\n");
-        exit(1);
+        return -1;
     }
 
     self->data[++self->top] = elem;
+    return 0;
 }
 
 static void* peek(const Stack* self) {
     if (isEmpty(self)) {
-        printf("stack has no shit bro u aint peeking shit\n");
-        exit(1);
+        return NULL;
     }
 
     return self->data[self->top];
@@ -38,8 +37,7 @@ static void* peek(const Stack* self) {
 
 static void* pop(Stack* self) {
     if (isEmpty(self)) {
-        printf("stack has no shit bro u aint peeking shit\n");
-        exit(1);
+        return NULL;
     }
 
     return self->data[self->top--];

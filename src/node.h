@@ -2,6 +2,7 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include "table.h"
 #include "token.h"
 
 typedef struct Node {
@@ -18,7 +19,7 @@ typedef struct Node {
 } Node;
 
 void freeNode(Node* node);
-Node* newNode(Token* token);
+Node* newNode(Token* token, Table* symbolTable);
 
 #endif
 

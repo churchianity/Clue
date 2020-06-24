@@ -9,11 +9,11 @@
 #include "lexer.h"
 #include "parser.h"
 
-
 /**
  * Evaluates a node.
  */
 void evaluate(Node* node) {
+
 }
 
 
@@ -21,6 +21,7 @@ void evaluate(Node* node) {
  * This will eventually become the 'interactive' mode of the language.
  */
 void interactive() {
+    initSymbolTable();
     char s[CLUE_INTERACTIVE_MODE_MAX_LINE_LENGTH];
 
     do {

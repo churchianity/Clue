@@ -5,70 +5,152 @@
 
 #include "clue.h"
 #include "node.h"
+#include "stack.h"
 #include "table.h"
 #include "token.h"
 #include "util.h"
 
-
-static Token* tokens;
-static Token* currentToken;
-static unsigned int tc;
-
 /**
-  *
-  */
-static Token* advance(char* tk) {
-    TokenTypeEnum a;
-    Node* o;
-    Token* t;
-    char* v;
+ * Debatably this shouldn't go here.
+ * @TODO there should be a lookup table for operator precedence, which is queried here and then modified by an optional
+ * context (string concatenation may have different precedence than addition, but share an operator)
+ */
+unsigned int operatorPrecedence(Token* token /*, Context context */) {
+    if (strcmp(token->tk, "+") == 0 || strcmp(token->tk, "-") == 0) {
+        return 1;
 
-    if (tk && strcmp(tk, token->tk) != 0) {
-        printf("supposedly this is bad?\n");
-        exit(1);
+    } else if (strcmp(token->tk, "*") == 0 || strcmp(token->tk, "/") == 0 || strcmp(token->tk, "%") == 0) {
+        return 2;
     }
 
-    // if the current token is the last, we add it to the symbol table and return
-    // if (token->tt == TT_SENTINEL) {
-    //    symbolTable->insert(symbolTable, token->tk, newNode(token));
-    //    return NULL;
-    // }
-
-    t = tokens[tc];
-
-    switch (t.tt) {
-        case TT_SYMBOL:
-            // we check if the symbol in question is already visible within the scope
-            // by querying a table for the token's 'tk' (the string that represents itself)
-            break;
-
-        case TT_OPERATOR:
-            // same as above, but operators can't really be user-defined - so if we don't find
-            // one in a table, we should complain
-            break;
-
-        case TT_STRING:
-        case TT_NUMERIC:
-            break;
-    }
-
-    return NULL;
+    return 0;
 }
 
+/**
+ *
+ */
+static Token* shuntingYard(Token* tokens) {
+    Token* outputBuffer = malloc(sizeof (Token) * CLUE_INITIAL_TOKEN_ARRAY_CAPACITY);
+    Stack* stack = newStack(10);
+
+    unsigned int i = 0;
+    unsigned int tc = 0;
+    unsigned int capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
+
+    while (tokens[i].tt != TT_SENTINEL) {
+        switch (tokens[i].tt) {
+            case TT_SYMBOL:
+            case TT_STRING:
+            case TT_NUMERIC:
+                if (capacity < tc) {
+                    capacity *= 2; // @TODO I don't know what the optimal growth rate is
+                    outputBuffer = realloc(tokens, sizeof (Token) * capacity);
+
+                    if (!outputBuffer) {
+                        fprintf(stderr, "failed to realloc tokens. exiting...\n");
+                        exit(1);
+                    }
+                }
+
+                outputBuffer[tc++] = tokens[i];
+                break;
+
+            case TT_OPERATOR:
+                if (tokens[i].tk[0] == '(') {
+                    stack->push(stack, &tokens[i]);
+
+                } else if (tokens[i].tk[0] == ')') {
+                    while (((Token*) stack->peek(stack))->tk[0] != '(') {
+                        if (capacity < tc) {
+                            capacity *= 2; // @TODO I don't know what the optimal growth rate is
+                            outputBuffer = realloc(tokens, sizeof (Token) * capacity);
+
+                            if (!outputBuffer) {
+                                fprintf(stderr, "failed to realloc tokens. exiting...\n");
+                                exit(1);
+                            }
+                        }
+
+                        outputBuffer[tc++] = *(Token*) stack->pop(stack);
+                    }
+
+                    stack->pop(stack); // discard opening bracket
+
+                } else if (stack->isEmpty(stack)) {
+                    stack->push(stack, &tokens[i]);
+
+                } else {
+                    while (operatorPrecedence(stack->peek(stack)) > operatorPrecedence(&tokens[i])) {
+                        if (capacity < tc) {
+                            capacity *= 2; // @TODO I don't know what the optimal growth rate is
+                            outputBuffer = realloc(tokens, sizeof (Token) * capacity);
+
+                            if (!outputBuffer) {
+                                fprintf(stderr, "failed to realloc tokens. exiting...\n");
+                                exit(1);
+                            }
+                        }
+
+                        outputBuffer[tc++] = *(Token*) stack->pop(stack);
+                    }
+
+                    stack->push(stack, &tokens[i]);
+                }
+
+                break;
+
+            case TT_SENTINEL:
+            default:
+                fprintf(stderr, "Unknown or illegal token-type passed into shuntingYard: %d\n", tokens[i].tt);
+                exit(1);
+        }
+
+        ++i;
+    }
+
+    while (!stack->isEmpty(stack)) {
+        if (capacity < tc) {
+            capacity *= 2; // @TODO I don't know what the optimal growth rate is
+            outputBuffer = realloc(outputBuffer, sizeof (Token) * capacity);
+
+            if (!outputBuffer) {
+                fprintf(stderr, "failed to realloc tokens. exiting...\n");
+                exit(1);
+            }
+        }
+        outputBuffer[tc++] = *(Token*) stack->pop(stack);
+    }
+
+    outputBuffer[tc] = *newToken(-1, -1, TT_SENTINEL, "END_OF_STREAM", false);
+
+    return outputBuffer;
+}
 
 /**
  *
  */
 Node* parse(Token* tokens) {
-    symbolTable = pmalloc(sizeof (TableEntry) * CLUE_INITIAL_SYMBOL_TABLE_CAPACITY);
-    tokens = tokens;
+    Token* postfixTokens = shuntingYard(tokens);
+
+    printf("\nprinting postfix tokens...\n\n");
+    unsigned int i = 0;
+    while (postfixTokens[i].tt != TT_SENTINEL) {
+        // do something with the token probably
+        printf("%s", postfixTokens[i].toString(&postfixTokens[i]));
+        ++i;
+    }
+
+
+    // set up what needs to be set up
+
+    i = 0;
 
     while (tokens[i].tt != TT_SENTINEL) {
-        advance(tokens[i].tk);
+        // do something with the token probably
 
         ++i;
     }
 
-    return NULL;
+    return NULL; // the root of an AST probably
 }
 
