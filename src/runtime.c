@@ -27,8 +27,8 @@ void interactive() {
         printf(">>> ");
 
         if (fgets(s, CLUE_INTERACTIVE_MODE_MAX_LINE_LENGTH, stdin) == NULL) {
-            perror("OOPSIE");
-            break;
+            fprintf(stderr, "error reading line and storing it in buffer %p\nskipping...\n", (void*) s);
+            continue;
         }
 
         if (s[0] == '.') {
@@ -44,7 +44,7 @@ void interactive() {
         unsigned int i = 0;
         while (!(tokens[i].tt == TT_SENTINEL)) {
             printf("%s", tokens[i].toString(&tokens[i]));
-            i++;
+            ++i;
         }
 
         // PARSING //
@@ -67,6 +67,4 @@ void interactive() {
 
     } while (1);
 }
-
-
 

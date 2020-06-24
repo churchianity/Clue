@@ -1,4 +1,5 @@
 
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -50,49 +51,56 @@ static void traverse(Node* self, void (*callback) (Node*)) {
 }
 
 /**
- *
+ * Creates a new node, or returns an existing one if the |token| passed in is a symbol,
+ * and the symbol already exists in a passed-in |symbolTable|
  */
-void appendToSymbolTable(Token* token) {
-
-}
-
-/**
- *
- */
-Node* newNode(Token* token) {
-    Node* node = pmalloc(sizeof (Node));
+Node* newNode(Token* token, Table* symbolTable) {
+    Node* node;
 
     switch (token->tt) {
-        case TT_SENTINEL: // a sentinel shouldn't ever really be interacted with except to check it exists
+        case TT_SYMBOL:
+            // lookup symbol within current scope
+            node = symbolTable->lookup(symbolTable, token->tk);
+
+            if (node) {
+                return node;
+            }
+
+            // construct new symbol
+            node = pmalloc(sizeof (Node));
             node->childrenCount = 0;
             node->children = NULL;
-            node->token = token;
-            node->toString = &toString;
-            node->traverse = &traverse;
             break;
 
-        case TT_SYMBOL:
+        case TT_OPERATOR:
+            // lookup operator.
+            // users cannot define custom operators, so if we don't find something we should complain.
+            node = symbolTable->lookup(symbolTable, token->tk);
+
+            if (node) {
+                return node;
+            }
+
+            fprintf(stderr, "received an unknown operator: %s\n", token->tk);
+            exit(1);
+
         case TT_STRING:
         case TT_NUMERIC:
             node->childrenCount = 0;
             node->children = NULL;
-            node->token = token;
-            node->toString = &toString;
-            node->traverse = &traverse;
-            break;
-
-        case TT_OPERATOR:
-            node->childrenCount = 2; // @NOTE unary operators exist, but we figure out if this node is unary later
-            node->children = pmalloc(sizeof (Node) * 2);
-            node->token = token;
-            node->toString = &toString;
-            node->traverse = &traverse;
             break;
 
         default:
             fprintf(stderr, "Unknown token-type passed into newNode: %d\n", token->tt);
             exit(1);
     }
+
+    node->token = token;
+    node->bp = 0;
+    node->nud = NULL;
+    node->led = NULL;
+    node->toString = &toString;
+    node->traverse = &traverse;
 
     return node;
 }
