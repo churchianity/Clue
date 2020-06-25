@@ -1,4 +1,5 @@
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -17,10 +18,13 @@
  */
 unsigned int operatorPrecedence(Token* token /*, Context context */) {
     if (strcmp(token->tk, "+") == 0 || strcmp(token->tk, "-") == 0) {
-        return 1;
+        return 50;
 
     } else if (strcmp(token->tk, "*") == 0 || strcmp(token->tk, "/") == 0 || strcmp(token->tk, "%") == 0) {
-        return 2;
+        return 60;
+
+    } else if (strcmp(token->tk, "=") == 0) {
+        return 10;
     }
 
     return 0;
@@ -31,7 +35,7 @@ unsigned int operatorPrecedence(Token* token /*, Context context */) {
  */
 static Token* shuntingYard(Token* tokens) {
     Token* outputBuffer = malloc(sizeof (Token) * CLUE_INITIAL_TOKEN_ARRAY_CAPACITY);
-    Stack* stack = newStack(10);
+    Stack* stack = newStack(10, true);
 
     unsigned int i = 0;
     unsigned int tc = 0;

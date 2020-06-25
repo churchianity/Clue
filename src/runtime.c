@@ -25,6 +25,7 @@ void interactive() {
     char s[CLUE_INTERACTIVE_MODE_MAX_LINE_LENGTH];
 
     do {
+        memset(s, 0, sizeof (s));
         printf(">>> ");
 
         if (fgets(s, CLUE_INTERACTIVE_MODE_MAX_LINE_LENGTH, stdin) == NULL) {
@@ -48,8 +49,10 @@ void interactive() {
             ++i;
         }
 
+        printf("%s", tokens[i].toString(&tokens[i]));
+
         // PARSING //
-        parse(tokens);
+        // parse(tokens);
 
 
         /*

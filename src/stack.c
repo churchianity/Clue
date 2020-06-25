@@ -15,12 +15,17 @@ static bool isEmpty(const Stack* self) {
 }
 
 static bool isFull(const Stack* self) {
-    return self->top == self->maxSize - 1;
+    return self->top == self->capacity - 1;
 }
 
 static signed int push(Stack* self, void* elem) {
     if (isFull(self)) {
-        return -1;
+        if (!self->grow) {
+            return -1;
+        }
+
+        self->capacity *= 2;
+        self->data = realloc(self->data, sizeof (void*) * self->capacity);
     }
 
     self->data[++self->top] = elem;
@@ -43,10 +48,11 @@ static void* pop(Stack* self) {
     return self->data[self->top--];
 }
 
-Stack* newStack(unsigned int capacity) {
+Stack* newStack(unsigned int capacity, bool grow) {
     Stack* stack = pmalloc(sizeof (Stack));
 
-    stack->maxSize = capacity;
+    stack->capacity = capacity;
+    stack->grow = grow;
     stack->top = -1;
     stack->data = pmalloc(sizeof (void*) * capacity);
 

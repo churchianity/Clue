@@ -4,12 +4,10 @@
 
 #include <stdbool.h>
 
-/**
- *
- */
 typedef struct Stack {
-    unsigned int maxSize;
+    unsigned int capacity;
     unsigned int top;
+    bool grow;
     void** data;
 
     unsigned int (*size) (const struct Stack* self);
@@ -20,7 +18,7 @@ typedef struct Stack {
     void* (*pop) (struct Stack* self);
 } Stack;
 
-Stack* newStack(unsigned int capacity);
+Stack* newStack(unsigned int capacity, bool grow);
 
 #endif
 

@@ -26,12 +26,10 @@ char* tokenTypeToString(TokenTypeEnum tt) {
 static char* toString(const Token* self) {
     // helper to show something for empty strings
     const char* tk = (strlen(self->tk) == 0) ? "__empty_string__" : self->tk;
-
     const char* format = "line: %d, col: %d | tt: %s, bad: %s, tk: %s\n";
-    unsigned int length = strlen(format) * 2 + strlen(self->tk);
-    char* buffer = pmalloc(length);
+    char* buffer = pmalloc(260);
 
-    snprintf(buffer, length, format
+    snprintf(buffer, 240, format
          , self->line
          , self->column
          , tokenTypeToString(self->tt)

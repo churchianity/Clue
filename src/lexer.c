@@ -94,7 +94,7 @@ Token* tokenize(char* buffer) {
             tt = TT_STRING;
             char quotemark = c;
 
-            tl = 0;
+            tl = 0; // I don't consider the quotes to be part of the token's length
             bad = true;
             do {
                 if (*buffer == quotemark) {
@@ -116,19 +116,19 @@ Token* tokenize(char* buffer) {
 
             switch (c) {
                 case '=': // assignment operator
-                case '&': // bitwise AND
-                case '|': // bitwise OR
+                // case '&': // bitwise AND
+                // case '|': // bitwise OR
 
                     // check for the 2-length logical operators that start with the above chars
                     // '==' equality
                     // '&&' logical AND
                     // '||' logical OR
-                    if (*(buffer + 1) == c) {
-                        tk = pmalloc(3 * sizeof (char));
-                        tl = 2;
-                        snprintf(tk, 3, "%c%c", c, *buffer++);
-                        break;
-                    }
+                    // if (*(buffer + 1) == c) {
+                    //    tk = pmalloc(3 * sizeof (char));
+                    //    tl = 2;
+                    //    snprintf(tk, 3, "%c%c", c, *buffer++);
+                    //    break;
+                    //}
 
                     tk = pmalloc(2 * sizeof (char));
                     snprintf(tk, 2, "%c", c);
@@ -156,9 +156,6 @@ Token* tokenize(char* buffer) {
 
                 case '(':
                 case ')':
-                case ':':
-                case '!':
-                case '.':
                     tk = pmalloc(2 * sizeof (char));
                     snprintf(tk, 2, "%c", c);
                     break;
@@ -170,7 +167,7 @@ Token* tokenize(char* buffer) {
         }
 
         // we have a token. add it to the array, realloc'ing as necessary
-        if (capacity < tc) {
+        if (capacity <= tc) {
             capacity *= 2; // @TODO I don't know what the optimal growth rate is
             tokens = realloc(tokens, sizeof (Token) * capacity);
 

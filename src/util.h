@@ -6,6 +6,7 @@
 
 void *pmalloc(unsigned int size);
 char* boolToString(bool b);
-void** arrayGrow(void** array, unsigned int count, unsigned int capacity);
+
+// @TODO protected-array-insert/grow function
 
 #endif
