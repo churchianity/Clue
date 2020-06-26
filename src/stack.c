@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "stack.h"
 #include "util.h"
@@ -18,7 +19,7 @@ static bool isFull(const Stack* self) {
     return self->top == self->capacity - 1;
 }
 
-static signed int push(Stack* self, void* elem) {
+static signed int push(Stack* self, void* dataItemAddr) {
     if (isFull(self)) {
         if (!self->grow) {
             return -1;
@@ -28,7 +29,7 @@ static signed int push(Stack* self, void* elem) {
         self->data = realloc(self->data, sizeof (void*) * self->capacity);
     }
 
-    self->data[++self->top] = elem;
+    self->data[++self->top] = dataItemAddr;
     return 0;
 }
 
@@ -48,16 +49,19 @@ static void* pop(Stack* self) {
     return self->data[self->top--];
 }
 
-static void* toArray(Stack* self) {
-    return *self->data;
-}
-
 static char* toString(Stack* self) {
-    char* buffer = pmalloc(200);
+    const char* grow = boolToString(self->grow);
 
-    snprintf(buffer, 200, "capacity: %d, grow?: %s, top: %d, size: %d, data: %p\n"
+    const char* format = "capacity: %4d, grow?: %s, top: %4d, size: %4d, data: %14p\n";
+
+    // len(capacity) = 4, len(top) = 4, len(size) = 4, len(data) = 14
+    const unsigned int length = 4 + strlen(grow) + 4 + 4 + 14 + strlen(format);
+
+    char* buffer = pmalloc(length + 1);
+
+    snprintf(buffer, length, format
             , self->capacity
-            , boolToString(self->grow)
+            , grow
             , self->top
             , self->size(self)
             , *self->data
@@ -80,7 +84,6 @@ Stack* newStack(unsigned int capacity, bool grow) {
     stack->push = &push;
     stack->peek = &peek;
     stack->pop = &pop;
-    stack->toArray = &toArray;
     stack->toString = &toString;
 
     return stack;

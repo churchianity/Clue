@@ -35,7 +35,7 @@ typedef struct Token {
 
 Token* newToken(unsigned int line, unsigned int column, TokenTypeEnum tt, const char* tk, bool bad);
 char* tokenTypeToString(TokenTypeEnum tt);
-void printTokens(Token* tokens);
+void printTokens(Token tokens[]);
 
 #endif
 

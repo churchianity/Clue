@@ -4,7 +4,8 @@
 
 #include "node.h"
 
-void evaluate(const Node* node);
+void evalPostfixTokens(Token* tokens);
+void evaluateOperator(Token* token);
 void interactive();
 
 int main(int argc, char* argv[]);

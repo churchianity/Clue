@@ -21,22 +21,22 @@ char* tokenTypeToString(TokenTypeEnum tt) {
 }
 
 /**
- * @TODO this function is probably really unsafe
+ * @TODO this function is probably unsafe
  */
 static char* toString(const Token* self) {
     const char* tt = tokenTypeToString(self->tt);
     const char* bad = boolToString(self->bad);
 
     // helper to show something for empty strings
-    const char* tk = (strlen(self->tk) == 0) ? "__empty_string__" : self->tk;
+    const char* tk = (strlen(self->tk) == 0) ? "(empty string)" : self->tk;
 
-    const char* format = "%.14p | line: %.4d, col: %.4d | tt: %s, bad: %s, tk: %s\n";
+    const char* format = "%14p | line: %4d, col: %4d | tt: %s, bad: %s, tk: %s\n";
 
     // pointer length in characters is assumed to be not bigger than 14
     // line # and column # length is truncated to 4 characters
     const unsigned int length = 14 + 4 + 4 + strlen(tt) + strlen(bad) + strlen(tk) + strlen(format);
 
-    char* buffer = pmalloc(sizeof (char) * (length + 1));
+    char* buffer = pmalloc(length + 1);
 
     snprintf(buffer, length, format
          , self
@@ -51,9 +51,9 @@ static char* toString(const Token* self) {
 }
 
 /**
- *
+ * The |tokens| array is assumed to be terminated by a Token of TT_SENTINEL.
  */
-void printTokens(Token* tokens) {
+void printTokens(Token tokens[]) {
     unsigned int i = 0;
 
     while (!(tokens[i].tt == TT_SENTINEL)) {

@@ -8,17 +8,47 @@
 #include "node.h"
 #include "lexer.h"
 #include "parser.h"
+#include "runtime.h"
 
 static const char* DIV = "================================================================================";
+
+void evalPostfixTokens(Token* tokens) {
+    unsigned int i = 0;
+
+    while (tokens[i].tt != TT_SENTINEL) {
+        // if (tokens[i].tt == TT_SYMBOL) {
+        //     // check if the symbol has been previously defined and gets its value/otherwise define it or something
+        // }
+
+        if (tokens[i].tt == TT_OPERATOR) {
+            evaluateOperator(&tokens[i]);
+        }
+
+        ++i;
+    }
+}
 
 /**
  * Evaluates a node.
  */
-void evaluate(Node* node) {
+void evaluateOperator(Token* token) {
+    switch (token->tk[0]) {
+        case '+':
+            break;
 
+        case '-':
+            break;
+
+        case '*':
+            break;
+
+        case '/':
+            break;
+
+        case '%':
+            break;
+    }
 }
-
-
 
 /**
  * This will eventually become the 'interactive' mode of the language.
@@ -48,20 +78,10 @@ void interactive() {
         printTokens(tokens);
 
         // PARSING //
-        parse(tokens);
+        Node* AST = parse(tokens);
 
-
-        /*
-        if (root) {
-            printf("\nTraversing Nodes...\n\n");
-            root->traverse(root, root->print);
-        }
-
-        // EVALUATION //
-        // root->traverse(root, &evaluate);
-
-        */
-        // cleanup
+        // CLEANUP //
+        free(AST);
 
         free(tokens);
 

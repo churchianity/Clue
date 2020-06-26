@@ -14,7 +14,7 @@
 /**
  * Debatably this shouldn't go here.
  * @TODO there should be a lookup table for operator precedence, which is queried here and then modified by an optional
- * context (string concatenation may have different precedence than addition, but share an operator)
+ * context (string concatenation may have different precedence than addition, but share a symbol)
  */
 unsigned int operatorPrecedence(Token* token /*, Context context */) {
     if (strcmp(token->tk, "+") == 0 || strcmp(token->tk, "-") == 0) {
@@ -33,7 +33,7 @@ unsigned int operatorPrecedence(Token* token /*, Context context */) {
 /**
  *
  */
-static Stack* shuntingYard(Token* tokens) {
+static Stack* shuntingYard(Token tokens[]) {
     Stack* es = newStack(10, true);
     Stack* os = newStack(10, true);
 
@@ -89,43 +89,28 @@ static Stack* shuntingYard(Token* tokens) {
     return es;
 }
 
+static Token* infixToPostfix(Token tokens[]) {
+    Stack* es = shuntingYard(tokens);
+
+    Token* postfixTokens = pmalloc(sizeof (Token) * es->size(es));
+
+    for (unsigned int i = 0; i < es->size(es); i++) {
+        Token* token = (Token*) *(es->data + i);
+
+        postfixTokens[i] = *token;
+    }
+
+    return postfixTokens;
+}
+
+static Node* postfixToAST(Token tokens[]) {
+    return NULL;
+}
+
 /**
  *
  */
-Node* parse(Token* tokens) {
-    printf("address of passed in tokens: %p\n", (void*) tokens);
-
-    Stack* es = shuntingYard(tokens);
-
-    while (!es->isEmpty(es)) {
-        Token* token = (Token*) es->pop(es);
-
-        printf("%s", token->toString(token));
-    }
-
-    /*
-    printf("%s", es->toString(es));
-
-    Token* postfixTokens = es->toArray(es);
-    free(es);
-    printf("addr of postfix tokens: %p\n", (void*) postfixTokens);
-
-    printf("\nprinting postfix tokens...\n\n");
-    printTokens(postfixTokens);
-    */
-
-    /* set up what needs to be set up
-
-    i = 0;
-
-    while (tokens[i].tt != TT_SENTINEL) {
-        // do something with the token probably
-
-        ++i;
-    }
-
-    return NULL; // the root of an AST probably
-    */
-    return NULL;
+Node* parse(Token tokens[]) {
+    return postfixToAST(infixToPostfix(tokens));
 }
 
