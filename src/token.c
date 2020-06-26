@@ -21,7 +21,7 @@ char* tokenTypeToString(TokenTypeEnum tt) {
 }
 
 /**
- * @TODO this function is probably unsafe
+ * @TODO this function is unsafe
  */
 static char* toString(const Token* self) {
     const char* tt = tokenTypeToString(self->tt);
@@ -30,10 +30,10 @@ static char* toString(const Token* self) {
     // helper to show something for empty strings
     const char* tk = (strlen(self->tk) == 0) ? "(empty string)" : self->tk;
 
-    const char* format = "%14p | line: %4d, col: %4d | tt: %s, bad: %s, tk: %s\n";
+    const char* format = "%p | line: %d, col: %d | tt: %s, bad: %s, tk: %s\n";
 
-    // pointer length in characters is assumed to be not bigger than 14
-    // line # and column # length is truncated to 4 characters
+    // magic numbers are assumed lengths as strings of properties after being format specified
+    // @TODO fix
     const unsigned int length = 14 + 4 + 4 + strlen(tt) + strlen(bad) + strlen(tk) + strlen(format);
 
     char* buffer = pmalloc(length + 1);
@@ -42,8 +42,8 @@ static char* toString(const Token* self) {
          , self
          , self->line
          , self->column
-         , tokenTypeToString(self->tt)
-         , boolToString(self->bad)
+         , tt
+         , bad
          , tk
     );
 

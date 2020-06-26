@@ -49,12 +49,16 @@ static void* pop(Stack* self) {
     return self->data[self->top--];
 }
 
+/**
+ * @TODO this function is unsafe
+ */
 static char* toString(Stack* self) {
     const char* grow = boolToString(self->grow);
 
-    const char* format = "capacity: %4d, grow?: %s, top: %4d, size: %4d, data: %14p\n";
+    const char* format = "capacity: %d, grow?: %s, top: %d, size: %d, data: %p\n";
 
-    // len(capacity) = 4, len(top) = 4, len(size) = 4, len(data) = 14
+    // magic numbers are assumed lengths as strings of properties after being format specified
+    // @TODO fix
     const unsigned int length = 4 + strlen(grow) + 4 + 4 + 14 + strlen(format);
 
     char* buffer = pmalloc(length + 1);
