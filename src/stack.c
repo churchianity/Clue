@@ -48,6 +48,24 @@ static void* pop(Stack* self) {
     return self->data[self->top--];
 }
 
+static void* toArray(Stack* self) {
+    return *self->data;
+}
+
+static char* toString(Stack* self) {
+    char* buffer = pmalloc(200);
+
+    snprintf(buffer, 200, "capacity: %d, grow?: %s, top: %d, size: %d, data: %p\n"
+            , self->capacity
+            , boolToString(self->grow)
+            , self->top
+            , self->size(self)
+            , *self->data
+    );
+
+    return buffer;
+}
+
 Stack* newStack(unsigned int capacity, bool grow) {
     Stack* stack = pmalloc(sizeof (Stack));
 
@@ -62,6 +80,8 @@ Stack* newStack(unsigned int capacity, bool grow) {
     stack->push = &push;
     stack->peek = &peek;
     stack->pop = &pop;
+    stack->toArray = &toArray;
+    stack->toString = &toString;
 
     return stack;
 }

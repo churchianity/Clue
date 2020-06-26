@@ -9,12 +9,15 @@
 #include "lexer.h"
 #include "parser.h"
 
+static const char* DIV = "================================================================================";
+
 /**
  * Evaluates a node.
  */
 void evaluate(Node* node) {
 
 }
+
 
 
 /**
@@ -41,18 +44,11 @@ void interactive() {
         // TOKENIZING //
         Token* tokens = tokenize(s);
 
-        printf("\nPrinting Tokens...\n\n");
-
-        unsigned int i = 0;
-        while (!(tokens[i].tt == TT_SENTINEL)) {
-            printf("%s", tokens[i].toString(&tokens[i]));
-            ++i;
-        }
-
-        printf("%s", tokens[i].toString(&tokens[i]));
+        printf("%s\n\tPrinting tokens...\n%s\n\n", DIV, DIV);
+        printTokens(tokens);
 
         // PARSING //
-        // parse(tokens);
+        parse(tokens);
 
 
         /*

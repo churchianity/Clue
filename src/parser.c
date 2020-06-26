@@ -33,72 +33,40 @@ unsigned int operatorPrecedence(Token* token /*, Context context */) {
 /**
  *
  */
-static Token* shuntingYard(Token* tokens) {
-    Token* outputBuffer = malloc(sizeof (Token) * CLUE_INITIAL_TOKEN_ARRAY_CAPACITY);
-    Stack* stack = newStack(10, true);
+static Stack* shuntingYard(Token* tokens) {
+    Stack* es = newStack(10, true);
+    Stack* os = newStack(10, true);
 
     unsigned int i = 0;
-    unsigned int tc = 0;
-    unsigned int capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
 
     while (tokens[i].tt != TT_SENTINEL) {
         switch (tokens[i].tt) {
             case TT_SYMBOL:
             case TT_STRING:
             case TT_NUMERIC:
-                if (capacity < tc) {
-                    capacity *= 2; // @TODO I don't know what the optimal growth rate is
-                    outputBuffer = realloc(tokens, sizeof (Token) * capacity);
-
-                    if (!outputBuffer) {
-                        fprintf(stderr, "failed to realloc tokens. exiting...\n");
-                        exit(1);
-                    }
-                }
-
-                outputBuffer[tc++] = tokens[i];
+                es->push(es, &tokens[i]);
                 break;
 
             case TT_OPERATOR:
                 if (tokens[i].tk[0] == '(') {
-                    stack->push(stack, &tokens[i]);
+                    os->push(os, &tokens[i]);
 
                 } else if (tokens[i].tk[0] == ')') {
-                    while (((Token*) stack->peek(stack))->tk[0] != '(') {
-                        if (capacity < tc) {
-                            capacity *= 2; // @TODO I don't know what the optimal growth rate is
-                            outputBuffer = realloc(tokens, sizeof (Token) * capacity);
-
-                            if (!outputBuffer) {
-                                fprintf(stderr, "failed to realloc tokens. exiting...\n");
-                                exit(1);
-                            }
-                        }
-
-                        outputBuffer[tc++] = *(Token*) stack->pop(stack);
+                    while (((Token*) os->peek(os))->tk[0] != '(') {
+                        es->push(es, os->pop(os));
                     }
 
-                    stack->pop(stack); // discard opening bracket
+                    os->pop(os); // discard opening bracket
 
-                } else if (stack->isEmpty(stack)) {
-                    stack->push(stack, &tokens[i]);
+                } else if (os->isEmpty(os)) {
+                    os->push(os, &tokens[i]);
 
                 } else {
-                    while (operatorPrecedence(stack->peek(stack)) > operatorPrecedence(&tokens[i])) {
-                        if (capacity < tc) {
-                            capacity *= 2; // @TODO I don't know what the optimal growth rate is
-                            outputBuffer = realloc(tokens, sizeof (Token) * capacity);
-
-                            if (!outputBuffer) {
-                                fprintf(stderr, "failed to realloc tokens. exiting...\n");
-                                exit(1);
-                            }
-                        }
-
-                        outputBuffer[tc++] = *(Token*) stack->pop(stack);
+                    while (operatorPrecedence(os->peek(os)) > operatorPrecedence(&tokens[i])) {
+                        es->push(es, os->pop(os));
                     }
 
-                    stack->push(stack, &tokens[i]);
+                    os->push(os, &tokens[i]);
                 }
 
                 break;
@@ -112,40 +80,41 @@ static Token* shuntingYard(Token* tokens) {
         ++i;
     }
 
-    while (!stack->isEmpty(stack)) {
-        if (capacity < tc) {
-            capacity *= 2; // @TODO I don't know what the optimal growth rate is
-            outputBuffer = realloc(outputBuffer, sizeof (Token) * capacity);
-
-            if (!outputBuffer) {
-                fprintf(stderr, "failed to realloc tokens. exiting...\n");
-                exit(1);
-            }
-        }
-        outputBuffer[tc++] = *(Token*) stack->pop(stack);
+    while (!os->isEmpty(os)) {
+        es->push(es, os->pop(os));
     }
 
-    outputBuffer[tc] = *newToken(-1, -1, TT_SENTINEL, "END_OF_STREAM", false);
+    es->push(es, newToken(-1, -1, TT_SENTINEL, "END_OF_STREAM", false));
 
-    return outputBuffer;
+    return es;
 }
 
 /**
  *
  */
 Node* parse(Token* tokens) {
-    Token* postfixTokens = shuntingYard(tokens);
+    printf("address of passed in tokens: %p\n", (void*) tokens);
 
-    printf("\nprinting postfix tokens...\n\n");
-    unsigned int i = 0;
-    while (postfixTokens[i].tt != TT_SENTINEL) {
-        // do something with the token probably
-        printf("%s", postfixTokens[i].toString(&postfixTokens[i]));
-        ++i;
+    Stack* es = shuntingYard(tokens);
+
+    while (!es->isEmpty(es)) {
+        Token* token = (Token*) es->pop(es);
+
+        printf("%s", token->toString(token));
     }
 
+    /*
+    printf("%s", es->toString(es));
 
-    // set up what needs to be set up
+    Token* postfixTokens = es->toArray(es);
+    free(es);
+    printf("addr of postfix tokens: %p\n", (void*) postfixTokens);
+
+    printf("\nprinting postfix tokens...\n\n");
+    printTokens(postfixTokens);
+    */
+
+    /* set up what needs to be set up
 
     i = 0;
 
@@ -156,5 +125,7 @@ Node* parse(Token* tokens) {
     }
 
     return NULL; // the root of an AST probably
+    */
+    return NULL;
 }
 

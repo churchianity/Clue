@@ -16,6 +16,8 @@ typedef struct Stack {
     signed int (*push) (struct Stack* self, void* dataItem);
     void* (*peek) (const struct Stack* self);
     void* (*pop) (struct Stack* self);
+    void* (*toArray) (struct Stack* self);
+    char* (*toString) (struct Stack* self);
 } Stack;
 
 Stack* newStack(unsigned int capacity, bool grow);

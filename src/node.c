@@ -107,9 +107,6 @@ Node* newNode(Token* token, Table* symbolTable) {
     return node;
 }
 
-/**
- *
- */
 void freeNode(Node* node) {
     free(node);
 }

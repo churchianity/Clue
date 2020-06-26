@@ -7,8 +7,6 @@
 #define CLUE_INTERACTIVE_MODE_MAX_LINE_LENGTH 120
 #define CLUE_INITIAL_SYMBOL_TABLE_CAPACITY 100
 
-#include "table.h"
-
 void initSymbolTable();
 
 #endif

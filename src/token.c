@@ -21,15 +21,25 @@ char* tokenTypeToString(TokenTypeEnum tt) {
 }
 
 /**
- * @TODO this function is reeaaally stupid
+ * @TODO this function is probably really unsafe
  */
 static char* toString(const Token* self) {
+    const char* tt = tokenTypeToString(self->tt);
+    const char* bad = boolToString(self->bad);
+
     // helper to show something for empty strings
     const char* tk = (strlen(self->tk) == 0) ? "__empty_string__" : self->tk;
-    const char* format = "line: %d, col: %d | tt: %s, bad: %s, tk: %s\n";
-    char* buffer = pmalloc(260);
 
-    snprintf(buffer, 240, format
+    const char* format = "%.14p | line: %.4d, col: %.4d | tt: %s, bad: %s, tk: %s\n";
+
+    // pointer length in characters is assumed to be not bigger than 14
+    // line # and column # length is truncated to 4 characters
+    const unsigned int length = 14 + 4 + 4 + strlen(tt) + strlen(bad) + strlen(tk) + strlen(format);
+
+    char* buffer = pmalloc(sizeof (char) * (length + 1));
+
+    snprintf(buffer, length, format
+         , self
          , self->line
          , self->column
          , tokenTypeToString(self->tt)
@@ -38,6 +48,21 @@ static char* toString(const Token* self) {
     );
 
     return buffer;
+}
+
+/**
+ *
+ */
+void printTokens(Token* tokens) {
+    unsigned int i = 0;
+
+    while (!(tokens[i].tt == TT_SENTINEL)) {
+        printf("%s", tokens[i].toString(&tokens[i]));
+
+        ++i;
+    }
+
+    printf("%s", tokens[i].toString(&tokens[i])); // sentinel token
 }
 
 Token* newToken(unsigned int line, unsigned int col, TokenTypeEnum tt, const char* tk, bool bad) {
