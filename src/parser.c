@@ -30,9 +30,6 @@ unsigned int operatorPrecedence(Token* token /*, Context context */) {
     return 0;
 }
 
-/**
- *
- */
 static Stack* shuntingYard(Token tokens[]) {
     Stack* es = newStack(10, true);
     Stack* os = newStack(10, true);
@@ -53,6 +50,8 @@ static Stack* shuntingYard(Token tokens[]) {
 
                 } else if (tokens[i].tk[0] == ')') {
                     while (((Token*) os->peek(os))->tk[0] != '(') {
+                        // if the token we peeked is a sentinel, there's a missing parens
+
                         es->push(es, os->pop(os));
                     }
 
@@ -103,7 +102,28 @@ static Token* infixToPostfix(Token tokens[]) {
     return postfixTokens;
 }
 
+static Node* findRoot(Token tokens[]) {
+    unsigned int i = 0;
+
+    while (tokens[i].tt != TT_SENTINEL) {
+        if (tokens[i].tt == TT_OPERATOR) {
+            return newNode(&tokens[i], symbolTable);
+        }
+
+        ++i;
+    }
+
+    return NULL;
+}
+
 static Node* postfixToAST(Token tokens[]) {
+    Node* root = findRoot(tokens);
+
+    if (!root) {
+        fprintf(stderr, "tokens are entirely terminal symbols - there's nothing to do here.\n");
+        printTokens(tokens);
+    }
+
     return NULL;
 }
 

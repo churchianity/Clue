@@ -7,51 +7,39 @@
 #include "table.h"
 #include "util.h"
 
-/**
- *
- */
-static unsigned int hash(const char* value, unsigned int capacity /*, unsigned int seed = 0*/ ) {
-    unsigned int hash = 0; // seed
+static unsigned int hash(const char* value, unsigned int capacity) {
+    unsigned int hash = 0;
 
     while (*value) {
-        hash = hash * 101 + *value++;
+        hash = hash * 31 + *value++;
     }
 
     return hash % capacity;
 }
 
-/**
- * @TODO i think there's a segfault bug with the overwrite case
- */
-static signed int insert(const Table* self, const char* key, void* value) {
+static signed int insert(Table* self, const char* key, void* value) {
     TableEntry* entry = self->lookup(self, key);
+
+    unsigned int hashValue;
 
     if (!entry) {
         entry = pmalloc(sizeof (TableEntry));
         entry->key = key;
         entry->value = value;
-        entry->next = NULL;
 
-        self->entries[hash(value, self->capacity)] = entry;
-
-        return 0;
+        hashValue = hash(key, self->capacity);
+        entry->next = self->entries[hashValue];
+        self->entries[hashValue] = entry;
 
     } else {
         free(entry->value);
 
-        entry->value = strdup(value);
-
-        if (!entry->value) {
-            return -2;
-        }
+        entry->value = value;
     }
 
-    return -1;
+    return 0;
 }
 
-/**
- *
- */
 static TableEntry* lookup(const Table* self, const char* key) {
     TableEntry* entry = self->entries[hash(key, self->capacity)];
 
@@ -64,6 +52,27 @@ static TableEntry* lookup(const Table* self, const char* key) {
     return NULL;
 }
 
+static void print(const Table* self) {
+    printf("%p | capacity: %d | entries:\n", (void*) self, self->capacity);
+
+    for (unsigned int i = 0; i < self->capacity; ++i) {
+        TableEntry* entry = *(self->entries + i);
+        printf("%d : %p", i, (void*) entry);
+
+        if (entry) {
+            printf(" | %s", entry->key);
+
+            while (entry->next) {
+                entry = entry->next;
+
+                printf(" ---> %p | %s", (void*) entry, entry->key);
+            }
+        }
+
+        printf("\n");
+    }
+}
+
 /**
  *
  */
@@ -71,11 +80,11 @@ Table* newTable(unsigned int capacity) {
     Table* table = pmalloc(sizeof (Table));
 
     *table = (Table) {
-        .size = 0,
         .capacity = capacity,
         .insert = &insert,
         .lookup = &lookup,
-        .entries = pmalloc(sizeof (TableEntry*) * capacity)
+        .print = &print,
+        .entries = pcalloc(capacity, sizeof (TableEntry*))
     };
 
     return table;

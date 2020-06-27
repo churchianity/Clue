@@ -9,7 +9,7 @@
 Table* symbolTable = NULL;
 
 void initSymbolTable() {
-    symbolTable = newTable(CLUE_INITIAL_SYMBOL_TABLE_CAPACITY);
+    symbolTable = newTable(CLUE_SYMBOL_TABLE_SIZE);
 
     // these are the reserved tokens in the clue programming language!
     // mostly operators... which can't be part of a name anyway...
@@ -18,12 +18,12 @@ void initSymbolTable() {
     symbolTable->insert(symbolTable, "*", "ASTERISK");
     symbolTable->insert(symbolTable, "/", "FORWARD_SLASH");
     symbolTable->insert(symbolTable, "%", "PERCENT");
+    symbolTable->insert(symbolTable, "=", "EQUAL_SIGN");
 }
 
-/**
- *
- */
 int main(int argc, char* argv[]) {
-    interactive(); return 0;
+    interactive();
+
+    return 0;
 }
 

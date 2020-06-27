@@ -12,49 +12,13 @@
 
 static const char* DIV = "================================================================================";
 
-void evalPostfixTokens(Token* tokens) {
-    unsigned int i = 0;
-
-    while (tokens[i].tt != TT_SENTINEL) {
-        // if (tokens[i].tt == TT_SYMBOL) {
-        //     // check if the symbol has been previously defined and gets its value/otherwise define it or something
-        // }
-
-        if (tokens[i].tt == TT_OPERATOR) {
-            evaluateOperator(&tokens[i]);
-        }
-
-        ++i;
-    }
-}
-
-/**
- * Evaluates a node.
- */
-void evaluateOperator(Token* token) {
-    switch (token->tk[0]) {
-        case '+':
-            break;
-
-        case '-':
-            break;
-
-        case '*':
-            break;
-
-        case '/':
-            break;
-
-        case '%':
-            break;
-    }
-}
-
 /**
  * This will eventually become the 'interactive' mode of the language.
  */
 void interactive() {
     initSymbolTable();
+    symbolTable->print(symbolTable);
+
     char s[CLUE_INTERACTIVE_MODE_MAX_LINE_LENGTH];
 
     do {
@@ -82,7 +46,6 @@ void interactive() {
 
         // CLEANUP //
         free(AST);
-
         free(tokens);
 
     } while (1);

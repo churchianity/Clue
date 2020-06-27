@@ -9,11 +9,11 @@ typedef struct TableEntry {
 } TableEntry;
 
 typedef struct Table {
-    unsigned int size;
     unsigned int capacity;
 
-    signed int (*insert) (const struct Table* self, const char* key, void* value);
+    signed int (*insert) (struct Table* self, const char* key, void* value);
     TableEntry* (*lookup) (const struct Table* self, const char* key);
+    void (*print) (const struct Table* self);
 
     TableEntry** entries;
 } Table;
