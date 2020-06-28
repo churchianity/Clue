@@ -13,9 +13,6 @@
 #include "token.h"
 #include "util.h"
 
-/**
- *
- */
 unsigned int precedence(Token* token) {
     TableEntry* entry = globalSymbolTable->lookup(globalSymbolTable, token->tk);
 
@@ -23,15 +20,13 @@ unsigned int precedence(Token* token) {
         fprintf(stderr, "attempted to look up precedence for token and found nothing: %s\n", token->toString(token));
     }
 
-    printf("entry key: %s, entry value precedence: %d\n", entry->key, ((Symbol*) (entry->value))->precedence);
-
     return ((Symbol*) (entry->value))->precedence;
 }
 
 /**
  * Implementation of Djikstra's Shunting Yard algorithm.
  * Used to convert an array of tokens, presumed to be in infix-notation to postfix-notation.
- * This should (almost) completely resolve operator precedence ambiguity.
+ * This should (almost) completely resolve operator precedence ambiguity & grouping.
  */
 static Stack* shuntingYard(Token tokens[]) {
     Stack* es = newStack(10, true);
@@ -77,7 +72,6 @@ static Stack* shuntingYard(Token tokens[]) {
                         exit(1);
                 }
 
-
                 while (os->peek(os)) {
                     if (((Token*) os->peek(os))->tk[0] == opener) {
                         break;
@@ -86,7 +80,6 @@ static Stack* shuntingYard(Token tokens[]) {
                     es->push(es, os->pop(os));
                 }
 
-                printf("penis\n"); fflush(stdout);
                 os->pop(os);
                 break;
 

@@ -74,7 +74,7 @@ static void initGlobalSymbolTable() {
 
     globalSymbolTable->insert(globalSymbolTable, "print", newSymbol("PRINTF", 0, true));
 
-    #if CLUE_DEBUG_LEVEL > 0
+    #if CLUE_DEBUG_LEVEL > 1
         printf("\n\tGlobal Symbol Table after init:\n%s\n", _DIV);
         globalSymbolTable->print(globalSymbolTable);
     #endif
