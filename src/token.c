@@ -14,6 +14,8 @@ char* tokenTypeToString(TokenTypeEnum tt) {
         case TT_OPERATOR: return "OPERATOR";
         case TT_NUMERIC: return "NUMERIC";
         case TT_STRING: return "STRING";
+        case TT_PUNCTUATOR_OPEN: return "PUNCTUATOR_OPEN";
+        case TT_PUNCTUATOR_CLOSE: return "PUNCTUATOR_CLOSE";
 
         default:
             return "UNKNOWN";
@@ -24,22 +26,24 @@ char* tokenTypeToString(TokenTypeEnum tt) {
  * @TODO this function is unsafe
  */
 static char* toString(const Token* self) {
+    const char* filename = self->filename;
     const char* tt = tokenTypeToString(self->tt);
     const char* bad = boolToString(self->bad);
 
     // helper to show something for empty strings
     const char* tk = (strlen(self->tk) == 0) ? "(empty string)" : self->tk;
 
-    const char* format = "%p | line: %d, col: %d | tt: %s, bad: %s, tk: %s\n";
+    const char* format = "%p | file: %s, line: %d, col: %d | tt: %s, bad: %s, tk: %s\n";
 
-    // magic numbers are assumed lengths as strings of properties after being format specified
+    // magic numbers are (poorly) assumed lengths as strings of properties after being format specified
     // @TODO fix
-    const unsigned int length = 14 + 4 + 4 + strlen(tt) + strlen(bad) + strlen(tk) + strlen(format);
+    const unsigned int length = 14 + 4 + 4 + strlen(filename) + strlen(tt) + strlen(bad) + strlen(tk) + strlen(format);
 
-    char* buffer = pmalloc(length + 1);
+    char* buffer = pMalloc(length + 1);
 
     snprintf(buffer, length, format
          , self
+         , filename
          , self->line
          , self->column
          , tt
@@ -65,10 +69,11 @@ void printTokens(Token tokens[]) {
     printf("%s", tokens[i].toString(&tokens[i])); // sentinel token
 }
 
-Token* newToken(unsigned int line, unsigned int col, TokenTypeEnum tt, const char* tk, bool bad) {
-    Token* token = pmalloc(sizeof (Token));
+Token* newToken(const char* filename, unsigned int line, unsigned int col, TokenTypeEnum tt, const char* tk, bool bad) {
+    Token* token = pMalloc(sizeof (Token));
 
     *token = (Token) {
+        .filename = filename,
         .line = line,
         .column = col,
         .tt = tt,

@@ -13,7 +13,7 @@
  * Given a string |buffer| return an array of Token(s).
  * We are expecting the string to be null-terminated.
  */
-Token* tokenize(char* buffer) {
+Token* tokenize(char* buffer, char* filename) {
     char c;
     char* tk;
     TokenTypeEnum tt;
@@ -22,7 +22,7 @@ Token* tokenize(char* buffer) {
 
     unsigned int tc = 0;
     unsigned int capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
-    Token* tokens = pmalloc(sizeof (Token) * capacity);
+    Token* tokens = pMalloc(sizeof (Token) * capacity);
 
     unsigned int line = 1;
     unsigned int column = 1;
@@ -40,6 +40,7 @@ Token* tokenize(char* buffer) {
             continue;
 
         } else if (c == '\t') {
+            // @TODO set a flag that this file uses tabs, which should be discouraged but not forbidden
             column += 4; // @TODO replace this with a 'tab' counter? how else to do column count for tabs
             continue;
 
@@ -56,7 +57,7 @@ Token* tokenize(char* buffer) {
                 }
             } while (*buffer++ != '\0');
 
-            tk = pmalloc(sizeof (char) * tl);
+            tk = pMalloc(sizeof (char) * tl);
             snprintf(tk, tl + 1, "%s", buffer - tl);
 
         } else if (isdigit(c)) {
@@ -87,7 +88,7 @@ Token* tokenize(char* buffer) {
                 }
             } while (*buffer++ != '\0');
 
-            tk = pmalloc(sizeof (char) * tl);
+            tk = pMalloc(sizeof (char) * tl);
             snprintf(tk, tl + 1, "%s", buffer - tl);
 
         } else if (c == '"' || c == '\'') {
@@ -107,7 +108,7 @@ Token* tokenize(char* buffer) {
                 }
             } while (*buffer++ != '\0');
 
-            tk = pmalloc(sizeof (char) * tl);
+            tk = pMalloc(sizeof (char) * tl);
             snprintf(tk, tl + 1, "%s", buffer - tl - 1);
 
         } else {
@@ -116,21 +117,21 @@ Token* tokenize(char* buffer) {
 
             switch (c) {
                 case '=': // assignment operator
-                // case '&': // bitwise AND
-                // case '|': // bitwise OR
+                case '&': // bitwise AND
+                case '|': // bitwise OR
 
                     // check for the 2-length logical operators that start with the above chars
                     // '==' equality
                     // '&&' logical AND
                     // '||' logical OR
-                    // if (*(buffer + 1) == c) {
-                    //    tk = pmalloc(3 * sizeof (char));
-                    //    tl = 2;
-                    //    snprintf(tk, 3, "%c%c", c, *buffer++);
-                    //    break;
-                    //}
+                    if (*(buffer + 1) == c) {
+                        tk = pMalloc(3 * sizeof (char));
+                        tl = 2;
+                        snprintf(tk, 3, "%c%c", c, *buffer++);
+                        break;
+                    }
 
-                    tk = pmalloc(2 * sizeof (char));
+                    tk = pMalloc(2 * sizeof (char));
                     snprintf(tk, 2, "%c", c);
                     break;
 
@@ -143,20 +144,30 @@ Token* tokenize(char* buffer) {
 
                     // check for compound assignment
                     if (*(buffer + 1) == '=') {
-                        tk = pmalloc(3 * sizeof (char));
+                        tk = pMalloc(3 * sizeof (char));
                         tl = 2;
                         snprintf(tk, 3, "%c=", c);
                         buffer++;
                         break;
                     }
 
-                    tk = pmalloc(2 * sizeof (char));
+                    tk = pMalloc(2 * sizeof (char));
                     snprintf(tk, 2, "%c", c);
                     break;
 
                 case '(':
+                case '[':
+                case '{':
+                    tt = TT_PUNCTUATOR_OPEN;
+                    tk = pMalloc(2 * sizeof (char));
+                    snprintf(tk, 2, "%c", c);
+                    break;
+
                 case ')':
-                    tk = pmalloc(2 * sizeof (char));
+                case ']':
+                case '}':
+                    tt = TT_PUNCTUATOR_CLOSE;
+                    tk = pMalloc(2 * sizeof (char));
                     snprintf(tk, 2, "%c", c);
                     break;
 
@@ -169,15 +180,10 @@ Token* tokenize(char* buffer) {
         // we have a token. add it to the array, realloc'ing as necessary
         if (capacity <= tc) {
             capacity *= 2; // @TODO I don't know what the optimal growth rate is
-            tokens = realloc(tokens, sizeof (Token) * capacity);
-
-            if (!tokens) {
-                fprintf(stderr, "failed to realloc tokens. exiting...\n");
-                exit(1);
-            }
+            tokens = pRealloc(tokens, sizeof (Token) * capacity);
         }
 
-        tokens[tc++] = *newToken(line, column, tt, tk, bad);
+        tokens[tc++] = *newToken(filename, line, column, tt, tk, bad);
 
         // increment the column based on the token's length
         column += tl;
@@ -190,7 +196,7 @@ Token* tokenize(char* buffer) {
         }
     }
 
-    tokens[tc] = *newToken(-1, -1, TT_SENTINEL, "END_OF_STREAM", false);
+    tokens[tc] = *newToken(filename, -1, -1, TT_SENTINEL, "END_OF_STREAM", false);
 
     return tokens;
 }

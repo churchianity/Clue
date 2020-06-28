@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "clue.h"
 #include "node.h"
 #include "table.h"
 #include "token.h"
@@ -50,59 +51,13 @@ static void traverse(Node* self, void (*callback) (Node*)) {
     callback(self);
 }
 
-/**
- * Creates a new node, or returns an existing one if the |token| passed in is a symbol,
- * and the symbol already exists in a passed-in |symbolTable|
- */
 Node* newNode(Token* token, Table* symbolTable) {
-    Node* node = NULL;
-    TableEntry* entry = NULL;
+    Node* node = pMalloc(sizeof (Node));
 
-    switch (token->tt) {
-        case TT_SYMBOL:
-            // lookup symbol within current scope
-            entry = symbolTable->lookup(symbolTable, token->tk);
-
-            if (entry) {
-                return entry->value;
-            }
-
-            // construct new symbol
-            node = pmalloc(sizeof (Node));
-            node->childrenCount = 0;
-            node->children = NULL;
-            break;
-
-        case TT_OPERATOR:
-            // lookup operator.
-            // users cannot define custom operators, so if we don't find something we should complain.
-            entry = symbolTable->lookup(symbolTable, token->tk);
-
-            if (entry) {
-                return entry->value;
-            }
-
-            fprintf(stderr, "received an unknown operator: %s\n", token->tk);
-            exit(1);
-
-        case TT_STRING:
-        case TT_NUMERIC:
-            node->childrenCount = 0;
-            node->children = NULL;
-            break;
-
-        case TT_SENTINEL:
-        default:
-            fprintf(stderr, "Unknown or illegal token-type passed into newNode: %d\n", token->tt);
-            exit(1);
-    }
-
-    node->token = token;
-    node->bp = 0;
-    node->nud = NULL;
-    node->led = NULL;
-    node->toString = &toString;
-    node->traverse = &traverse;
+    *node = (Node) {
+        .toString = &toString,
+        .traverse = &traverse
+    };
 
     return node;
 }

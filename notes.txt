@@ -1,0 +1,39 @@
+
+Clue Grammar
+
+Symbol ->
+    lookup symbol in innermost scope, expanding outwards to global scope.
+    if found, return the symbol, else create a new one.
+
+
+
+
+
+
+
+
+
+Clue Program Flow Diagram
+
+   .-------------.
+   | CLA Handler |
+   `-------------|-------------------.
+                 |                   |
+      if sandbox mode enabled and    |
+     no source code files provided   |
+                 |                   |
+                 v                   |
+   .-------------.         when source code files
+.->|  Get Code   |              are provided
+|  `-------------|                   |
+|                |                   |
+|                v                   |
+|  .-------------.<------------------'
+|  |    Lexer    |
+|  `-------------|
+|                |
+|                v
+|  .--------------------------------.
+|  | Operator Precedence Resolution |
+|  `--------------------------------|
+|                                   |

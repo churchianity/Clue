@@ -23,7 +23,7 @@ static signed int insert(Table* self, const char* key, void* value) {
     unsigned int hashValue;
 
     if (!entry) {
-        entry = pmalloc(sizeof (TableEntry));
+        entry = pMalloc(sizeof (TableEntry));
         entry->key = key;
         entry->value = value;
 
@@ -53,7 +53,7 @@ static TableEntry* lookup(const Table* self, const char* key) {
 }
 
 static void print(const Table* self) {
-    printf("%p | capacity: %d | entries:\n", (void*) self, self->capacity);
+    printf("tp: %p | capacity: %d | entries:\n", (void*) self, self->capacity);
 
     for (unsigned int i = 0; i < self->capacity; ++i) {
         TableEntry* entry = *(self->entries + i);
@@ -73,18 +73,15 @@ static void print(const Table* self) {
     }
 }
 
-/**
- *
- */
 Table* newTable(unsigned int capacity) {
-    Table* table = pmalloc(sizeof (Table));
+    Table* table = pMalloc(sizeof (Table));
 
     *table = (Table) {
         .capacity = capacity,
         .insert = &insert,
         .lookup = &lookup,
         .print = &print,
-        .entries = pcalloc(capacity, sizeof (TableEntry*))
+        .entries = pCalloc(capacity, sizeof (TableEntry*))
     };
 
     return table;

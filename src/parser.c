@@ -6,68 +6,88 @@
 
 #include "clue.h"
 #include "node.h"
+#include "lexer.h"
 #include "stack.h"
+#include "symbol.h"
 #include "table.h"
 #include "token.h"
 #include "util.h"
 
 /**
- * Debatably this shouldn't go here.
- * @TODO there should be a lookup table for operator precedence, which is queried here and then modified by an optional
- * context (string concatenation may have different precedence than addition, but share a symbol)
+ *
  */
-unsigned int operatorPrecedence(Token* token /*, Context context */) {
-    if (strcmp(token->tk, "+") == 0 || strcmp(token->tk, "-") == 0) {
-        return 50;
+unsigned int precedence(Token* token) {
+    TableEntry* entry = globalSymbolTable->lookup(globalSymbolTable, token->tk);
 
-    } else if (strcmp(token->tk, "*") == 0 || strcmp(token->tk, "/") == 0 || strcmp(token->tk, "%") == 0) {
-        return 60;
-
-    } else if (strcmp(token->tk, "=") == 0) {
-        return 10;
+    if (!entry) {
+        fprintf(stderr, "attempted to look up precedence for token and found nothing: %s\n", token->toString(token));
     }
 
-    return 0;
+    printf("entry key: %s, entry value precedence: %d\n", entry->key, ((Symbol*) (entry->value))->precedence);
+
+    return ((Symbol*) (entry->value))->precedence;
 }
 
+/**
+ * Implementation of Djikstra's Shunting Yard algorithm.
+ * Used to convert an array of tokens, presumed to be in infix-notation to postfix-notation.
+ * This should (almost) completely resolve operator precedence ambiguity.
+ */
 static Stack* shuntingYard(Token tokens[]) {
     Stack* es = newStack(10, true);
     Stack* os = newStack(10, true);
 
     unsigned int i = 0;
 
+    char opener;
+
     while (tokens[i].tt != TT_SENTINEL) {
         switch (tokens[i].tt) {
-            case TT_SYMBOL:
             case TT_STRING:
+            case TT_SYMBOL:
             case TT_NUMERIC:
                 es->push(es, &tokens[i]);
                 break;
 
             case TT_OPERATOR:
-                if (tokens[i].tk[0] == '(') {
+                if (os->isEmpty(os)) {
                     os->push(os, &tokens[i]);
-
-                } else if (tokens[i].tk[0] == ')') {
-                    while (((Token*) os->peek(os))->tk[0] != '(') {
-                        // if the token we peeked is a sentinel, there's a missing parens
-
-                        es->push(es, os->pop(os));
-                    }
-
-                    os->pop(os); // discard opening bracket
-
-                } else if (os->isEmpty(os)) {
-                    os->push(os, &tokens[i]);
-
-                } else {
-                    while (operatorPrecedence(os->peek(os)) > operatorPrecedence(&tokens[i])) {
-                        es->push(es, os->pop(os));
-                    }
-
-                    os->push(os, &tokens[i]);
+                    break;
                 }
 
+                while (precedence(os->peek(os)) > precedence(&tokens[i])) {
+                    es->push(es, os->pop(os));
+                }
+
+                os->push(os, &tokens[i]);
+                break;
+
+            case TT_PUNCTUATOR_OPEN:
+                os->push(os, &tokens[i]);
+                break;
+
+            case TT_PUNCTUATOR_CLOSE:
+                switch (tokens[i].tk[0]) {
+                    case ')': opener = '('; break;
+                    case ']': opener = '['; break;
+                    case '}': opener = '{'; break;
+
+                    default:
+                        fprintf(stderr, "unknown closing punctuator '%s'\n", tokens[i].tk);
+                        exit(1);
+                }
+
+
+                while (os->peek(os)) {
+                    if (((Token*) os->peek(os))->tk[0] == opener) {
+                        break;
+                    }
+
+                    es->push(es, os->pop(os));
+                }
+
+                printf("penis\n"); fflush(stdout);
+                os->pop(os);
                 break;
 
             case TT_SENTINEL:
@@ -83,7 +103,7 @@ static Stack* shuntingYard(Token tokens[]) {
         es->push(es, os->pop(os));
     }
 
-    es->push(es, newToken(-1, -1, TT_SENTINEL, "END_OF_STREAM", false));
+    es->push(es, &tokens[i]); // sentinel
 
     return es;
 }
@@ -91,7 +111,7 @@ static Stack* shuntingYard(Token tokens[]) {
 static Token* infixToPostfix(Token tokens[]) {
     Stack* es = shuntingYard(tokens);
 
-    Token* postfixTokens = pmalloc(sizeof (Token) * es->size(es));
+    Token* postfixTokens = pMalloc(sizeof (Token) * es->size(es));
 
     for (unsigned int i = 0; i < es->size(es); i++) {
         Token* token = (Token*) *(es->data + i);
@@ -99,36 +119,20 @@ static Token* infixToPostfix(Token tokens[]) {
         postfixTokens[i] = *token;
     }
 
+    #if CLUE_DEBUG_LEVEL > 0
+        printf("\n\tPrinting postfix tokens @infixToPostfix...\n%s\n", _DIV);
+        printTokens(postfixTokens);
+    #endif
+
     return postfixTokens;
 }
 
-static Node* findRoot(Token tokens[]) {
-    unsigned int i = 0;
-
-    while (tokens[i].tt != TT_SENTINEL) {
-        if (tokens[i].tt == TT_OPERATOR) {
-            return newNode(&tokens[i], symbolTable);
-        }
-
-        ++i;
-    }
-
-    return NULL;
-}
-
 static Node* postfixToAST(Token tokens[]) {
-    Node* root = findRoot(tokens);
-
-    if (!root) {
-        fprintf(stderr, "tokens are entirely terminal symbols - there's nothing to do here.\n");
-        printTokens(tokens);
-    }
-
     return NULL;
 }
 
 /**
- *
+ * Given a list of |tokens| return the root node of an abstract syntax tree.
  */
 Node* parse(Token tokens[]) {
     return postfixToAST(infixToPostfix(tokens));

@@ -4,7 +4,7 @@
 
 #include "token.h"
 
-Token* tokenize(char* buffer);
+Token* tokenize(char* buffer, const char* filename);
 
 #endif
 

@@ -3,11 +3,16 @@
 #define UTIL_H
 
 #include <stdbool.h>
+#include <stdio.h>
 
-void *pmalloc(unsigned int size);
-void *pcalloc(unsigned int maxNumOfElements, unsigned int elementSize);
+void *pMalloc(unsigned int size);
+void *pCalloc(unsigned int maxNumOfElements, unsigned int elementSize);
+void *pRealloc(void* buffer, unsigned int newSize);
+
 char* boolToString(bool b);
-
-// @TODO protected-array-insert/grow function
+bool hasSuffix(const char* string, const char* suffix);
+unsigned long getFileSize(FILE* fp);
+unsigned long countLines(const char* buffer);
 
 #endif
+

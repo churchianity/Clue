@@ -10,15 +10,28 @@
 #include "parser.h"
 #include "runtime.h"
 
-static const char* DIV = "================================================================================";
+/**
+ *
+ */
+void doIt(char* codeBuffer, const char* filename) {
+    Token* tokens = tokenize(codeBuffer, filename);
+
+    #if CLUE_DEBUG_LEVEL > 0
+        printf("\n\tPrinting lexed tokens @doIt...\n%s\n", _DIV);
+        printTokens(tokens);
+    #endif
+
+    Node* AST = parse(tokens);
+
+    // CLEANUP //
+    free(AST);
+    free(tokens);
+}
 
 /**
- * This will eventually become the 'interactive' mode of the language.
+ * Enters the 'interactive' mode of the language which allows you to run/analyze code as you type it.
  */
 void interactive() {
-    initSymbolTable();
-    symbolTable->print(symbolTable);
-
     char s[CLUE_INTERACTIVE_MODE_MAX_LINE_LENGTH];
 
     do {
@@ -35,18 +48,7 @@ void interactive() {
             return;
         }
 
-        // TOKENIZING //
-        Token* tokens = tokenize(s);
-
-        printf("%s\n\tPrinting tokens...\n%s\n\n", DIV, DIV);
-        printTokens(tokens);
-
-        // PARSING //
-        Node* AST = parse(tokens);
-
-        // CLEANUP //
-        free(AST);
-        free(tokens);
+        doIt(s, "stdin");
 
     } while (1);
 }

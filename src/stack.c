@@ -26,7 +26,7 @@ static signed int push(Stack* self, void* dataItemAddr) {
         }
 
         self->capacity *= 2;
-        self->data = realloc(self->data, sizeof (void*) * self->capacity);
+        pRealloc(self->data, sizeof (void*) * self->capacity);
     }
 
     self->data[++self->top] = dataItemAddr;
@@ -61,7 +61,7 @@ static char* toString(Stack* self) {
     // @TODO fix
     const unsigned int length = 4 + strlen(grow) + 4 + 4 + 14 + strlen(format);
 
-    char* buffer = pmalloc(length + 1);
+    char* buffer = pMalloc(length + 1);
 
     snprintf(buffer, length, format
             , self->capacity
@@ -75,12 +75,12 @@ static char* toString(Stack* self) {
 }
 
 Stack* newStack(unsigned int capacity, bool grow) {
-    Stack* stack = pmalloc(sizeof (Stack));
+    Stack* stack = pMalloc(sizeof (Stack));
 
     stack->capacity = capacity;
     stack->grow = grow;
     stack->top = -1;
-    stack->data = pmalloc(sizeof (void*) * capacity);
+    stack->data = pMalloc(sizeof (void*) * capacity);
 
     stack->size = &size;
     stack->isEmpty = &isEmpty;
