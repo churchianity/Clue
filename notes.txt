@@ -1,21 +1,7 @@
 
-Clue Grammar
-
-Symbol ->
-    lookup symbol in innermost scope, expanding outwards to global scope.
-    if found, return the symbol, else create a new one.
-
-
-
-
-
-
-
-
-
 Clue Program Flow Diagram
 
-   .-------------.
+ -1.-------------.
    | CLA Handler |
    `-------------|-------------------.
                  |                   |
@@ -23,17 +9,23 @@ Clue Program Flow Diagram
      no source code files provided   |
                  |                   |
                  v                   |
-   .-------------.         when source code files
-.->|  Get Code   |              are provided
+  0.-------------.         when source code files
+.->| Input       |              are provided
 |  `-------------|                   |
 |                |                   |
 |                v                   |
-|  .-------------.<------------------'
-|  |    Lexer    |
+| 1.-------------.<------------------'
+|  | Lexer       |
 |  `-------------|
 |                |
 |                v
-|  .--------------------------------.
-|  | Operator Precedence Resolution |
-|  `--------------------------------|
-|                                   |
+| 2.-------------.
+|  | Parser      |
+|  `-------------|
+|                |
+|                v
+| 3.-------------.
+|  | Typing      |
+|  `-------------|
+|                |
+|                v

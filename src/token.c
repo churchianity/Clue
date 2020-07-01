@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 
@@ -14,11 +15,10 @@ char* tokenTypeToString(TokenTypeEnum tt) {
         case TT_OPERATOR: return "OPERATOR";
         case TT_NUMERIC: return "NUMERIC";
         case TT_STRING: return "STRING";
-        case TT_PUNCTUATOR_OPEN: return "PUNCTUATOR_OPEN";
-        case TT_PUNCTUATOR_CLOSE: return "PUNCTUATOR_CLOSE";
 
         default:
-            return "UNKNOWN";
+            fprintf(stderr, "Unknown token-type passed into tokenTypeToString: %d\n", tt);
+            exit(1);
     }
 }
 

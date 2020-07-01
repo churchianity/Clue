@@ -4,8 +4,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-void *pMalloc(unsigned int size) {
-    void *p = malloc(size);
+void* pMalloc(unsigned int size) {
+    void* p = malloc(size);
 
     if (!p) {
         fprintf(stderr, "failed to malloc... zzz...\n");
@@ -15,8 +15,8 @@ void *pMalloc(unsigned int size) {
     return p;
 }
 
-void *pCalloc(unsigned int maxNumOfElements, unsigned int elementSize) {
-    void *p = calloc(maxNumOfElements, elementSize);
+void* pCalloc(unsigned int maxNumOfElements, unsigned int elementSize) {
+    void* p = calloc(maxNumOfElements, elementSize);
 
     if (!p) {
         fprintf(stderr, "failed to calloc... zzz...\n");
@@ -26,7 +26,7 @@ void *pCalloc(unsigned int maxNumOfElements, unsigned int elementSize) {
     return p;
 }
 
-void *pRealloc(void* buffer, unsigned int newSize) {
+void* pRealloc(void* buffer, unsigned int newSize) {
     void* p = realloc(buffer, newSize);
 
     if (!p) {

@@ -26,7 +26,7 @@ static signed int push(Stack* self, void* dataItemAddr) {
         }
 
         self->capacity *= 2;
-        pRealloc(self->data, sizeof (void*) * self->capacity);
+        self->data = pRealloc(self->data, sizeof (void*) * self->capacity);
     }
 
     self->data[++self->top] = dataItemAddr;

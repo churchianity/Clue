@@ -23,18 +23,11 @@ unsigned int precedence(Token* token) {
     return ((Symbol*) (entry->value))->precedence;
 }
 
-/**
- * Implementation of Djikstra's Shunting Yard algorithm.
- * Used to convert an array of tokens, presumed to be in infix-notation to postfix-notation.
- * This should (almost) completely resolve operator precedence ambiguity & grouping.
- */
 static Stack* shuntingYard(Token tokens[]) {
     Stack* es = newStack(10, true);
     Stack* os = newStack(10, true);
 
     unsigned int i = 0;
-
-    char opener;
 
     while (tokens[i].tt != TT_SENTINEL) {
         switch (tokens[i].tt) {
@@ -45,42 +38,33 @@ static Stack* shuntingYard(Token tokens[]) {
                 break;
 
             case TT_OPERATOR:
+                if (tokens[i].tk[0] == '(') {
+                    os->push(os, &tokens[i]);
+                    break;
+
+                } else if (tokens[i].tk[0] == ')') {
+                    while (os->peek(os)) {
+                        if (((Token*) os->peek(os))->tk[0] == '(') {
+                            break;
+                        }
+
+                        es->push(es, os->pop(os));
+                    }
+
+                    os->pop(os); // discard opening parens
+                    break;
+                }
+
                 if (os->isEmpty(os)) {
                     os->push(os, &tokens[i]);
                     break;
                 }
 
-                while (precedence(os->peek(os)) > precedence(&tokens[i])) {
+                while (!os->isEmpty(os) && (precedence(os->peek(os)) > precedence(&tokens[i]))) {
                     es->push(es, os->pop(os));
                 }
 
                 os->push(os, &tokens[i]);
-                break;
-
-            case TT_PUNCTUATOR_OPEN:
-                os->push(os, &tokens[i]);
-                break;
-
-            case TT_PUNCTUATOR_CLOSE:
-                switch (tokens[i].tk[0]) {
-                    case ')': opener = '('; break;
-                    case ']': opener = '['; break;
-                    case '}': opener = '{'; break;
-
-                    default:
-                        fprintf(stderr, "unknown closing punctuator '%s'\n", tokens[i].tk);
-                        exit(1);
-                }
-
-                while (os->peek(os)) {
-                    if (((Token*) os->peek(os))->tk[0] == opener) {
-                        break;
-                    }
-
-                    es->push(es, os->pop(os));
-                }
-
-                os->pop(os);
                 break;
 
             case TT_SENTINEL:
@@ -92,6 +76,7 @@ static Stack* shuntingYard(Token tokens[]) {
         ++i;
     }
 
+    // dump the operator stack into the expression stack
     while (!os->isEmpty(os)) {
         es->push(es, os->pop(os));
     }

@@ -4,19 +4,13 @@
 
 #include <stdbool.h>
 
-typedef union {
-    char* s;
-    double n;
-} Tk;
-
 typedef enum TokenTypeEnum {
     TT_SENTINEL,
+
     TT_SYMBOL,
     TT_OPERATOR,
     TT_NUMERIC,
-    TT_STRING,
-    TT_PUNCTUATOR_OPEN,
-    TT_PUNCTUATOR_CLOSE
+    TT_STRING
 } TokenTypeEnum;
 
 typedef struct Token {
@@ -25,8 +19,17 @@ typedef struct Token {
     unsigned int column;
 
     TokenTypeEnum tt;
+
+    /*
+    union {
+        Identifier* tki;
+        unsigned long long tki;
+        double float tkf;
+        char* tks;
+    };
+    */
+
     const char* tk;
-    unsigned int bp;
     bool bad;
 
     char* (*toString) (const struct Token*);

@@ -6,7 +6,7 @@
 
 typedef struct Stack {
     unsigned int capacity;
-    unsigned int top;
+    signed int top;
     bool grow;
     void** data;
 

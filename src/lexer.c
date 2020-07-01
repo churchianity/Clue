@@ -40,8 +40,8 @@ Token* tokenize(char* buffer, char* filename) {
             continue;
 
         } else if (c == '\t') {
-            // @TODO set a flag that this file uses tabs, which should be discouraged but not forbidden
-            column += 4; // @TODO replace this with a 'tab' counter? how else to do column count for tabs
+            // @TODO report lexer warning
+            column += 4;
             continue;
 
         } else if (isalpha(c)) {
@@ -49,13 +49,15 @@ Token* tokenize(char* buffer, char* filename) {
 
             tl = 1;
             do {
-                if (!(isalpha(*buffer) || isdigit(*buffer) || *buffer == '_')) { // @TODO enforce camelCase?
+                if (!(isalpha(*buffer) || isdigit(*buffer) || *buffer == '_')) {
                     break;
 
                 } else {
                     tl++;
                 }
             } while (*buffer++ != '\0');
+
+            // @TODO check convention of the full symbol and report appropriate lexer warnings
 
             tk = pMalloc(sizeof (char) * tl);
             snprintf(tk, tl + 1, "%s", buffer - tl);
@@ -71,12 +73,7 @@ Token* tokenize(char* buffer, char* filename) {
 
                 } else if (*buffer == '.') { // only one '.' is allowed in a numeric literal.
                     if (hasRadixPoint) {
-                        // bad = true;
-                        // there is probably no syntactically valid thing of the form (numeric literal)(.)(something else)
-                        // however, i don't know if it's better to report this error as a 'bad token' or as a mistaken use of the
-                        // descent/ownership operator - (saying NUMERIC_LITERAL.property)
-                        // how do I tell if the user meant to descend into the numeric literal (which you can't do), or just added an
-                        // erroneous decimal point?
+                        bad = true; // @TODO report lexer error
                         break;
                     }
 
@@ -95,7 +92,7 @@ Token* tokenize(char* buffer, char* filename) {
             tt = TT_STRING;
             char quotemark = c;
 
-            tl = 0; // I don't consider the quotes to be part of the token's length
+            tl = 0;
             bad = true;
             do {
                 if (*buffer == quotemark) {
@@ -107,6 +104,10 @@ Token* tokenize(char* buffer, char* filename) {
                     tl++;
                 }
             } while (*buffer++ != '\0');
+
+            if (bad) {
+                // @TODO report lex error
+            }
 
             tk = pMalloc(sizeof (char) * tl);
             snprintf(tk, tl + 1, "%s", buffer - tl - 1);
@@ -156,17 +157,11 @@ Token* tokenize(char* buffer, char* filename) {
                     break;
 
                 case '(':
-                case '[':
-                case '{':
-                    tt = TT_PUNCTUATOR_OPEN;
-                    tk = pMalloc(2 * sizeof (char));
-                    snprintf(tk, 2, "%c", c);
-                    break;
-
                 case ')':
+                case '[':
                 case ']':
+                case '{':
                 case '}':
-                    tt = TT_PUNCTUATOR_CLOSE;
                     tk = pMalloc(2 * sizeof (char));
                     snprintf(tk, 2, "%c", c);
                     break;
@@ -188,9 +183,7 @@ Token* tokenize(char* buffer, char* filename) {
         // increment the column based on the token's length
         column += tl;
 
-        // it would be cool if we could move this inside the 'string' case of the lexer
-        // but that makes the column counter for the position of the token be 2 greater than it should be
-        // i think there's an ugly conditional either way
+        // @NOTE it would be cool if we could move this inside the 'string' case of the lexer
         if (tt == TT_STRING) {
             column += 2;
         }
