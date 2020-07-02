@@ -4,12 +4,14 @@
 
 #include <stdbool.h>
 
+#include "clue.h"
+
 typedef struct {
     bool reserved;
     const char* name;
-    unsigned int precedence;
+    u64 precedence;
 } Symbol;
 
-Symbol* newSymbol(const char* name, unsigned int precedence, bool reserved);
+Symbol* newSymbol(const char* name, u64 precedence, bool reserved);
 
 #endif

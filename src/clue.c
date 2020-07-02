@@ -1,13 +1,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "clue.h"
 #include "runtime.h"
 #include "symbol.h"
 #include "table.h"
 #include "util.h"
+
 
 /**
  *
@@ -92,9 +92,9 @@ static void help(const char* arg) {
 }
 
 static char* clueFileRead(const char* filename) {
-    FILE* fp = fopen(filename, "r");
+    FILE* fp = fopen((char*) filename, "r");
     char* buffer = NULL;
-    long length;
+    u64 length;
 
     if (!fp) {
         fprintf(stderr, "failed to get fp for filename: %s\n", filename);
@@ -113,34 +113,29 @@ static char* clueFileRead(const char* filename) {
 static void handleCommandLineArguments(int argc, const char* argv[]) {
     CLAs = pMalloc(sizeof (CommandLineArguments));
 
-    CLAs->filenameCount = 0;
-    CLAs->filenames = NULL;
-
     #if CLUE_DEBUG_LEVEL > 1
         if (argc > 1) {
             printf("\nCLA's:\n%s\n", _DIV);
         }
     #endif
 
-    for (unsigned int i = 1; i < argc; ++i) {
+    for (u64 i = 1; i < argc; ++i) {
         #if CLUE_DEBUG_LEVEL > 1
             printf("args[%d]: %s\n", i, argv[i]);
         #endif
 
         // early-exit cases first
-        if ((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) {
+        if (streq(argv[i], "-h") || streq(argv[i], "--help")) {
             help(NULL); exit(0);
 
-        } else if ((strcmp(argv[i], "-v") == 0) || (strcmp(argv[i], "--version") == 0)) {
+        } else if (streq(argv[i], "-v") || streq(argv[i], "--version")) {
             printf("clue programming language v%s\n\n", CLUE_VERSION_NUMBER); exit(0);
 
-        } else if ((strcmp(argv[i], "-i") == 0) || (strcmp(argv[i], "--interactive") == 0)) {
+        } else if (streq(argv[i], "-i") || streq(argv[i], "--interactive")) {
             CLAs->interactive = true;
 
         } else if (hasSuffix(argv[i], CLUE_FILE_SUFFIX)) {
-            CLAs->filenameCount++;
-            initGlobalSymbolTable();
-            doIt(clueFileRead(argv[i]), argv[i]);
+            doIt((char*) clueFileRead(argv[i]), (char*) argv[i]);
 
         } else {
             help(argv[i]);
@@ -149,9 +144,8 @@ static void handleCommandLineArguments(int argc, const char* argv[]) {
 }
 
 int main(int argc, const char* argv[]) {
-    handleCommandLineArguments(argc, argv);
-
     initGlobalSymbolTable();
+    handleCommandLineArguments(argc, argv);
 
     if (CLAs->interactive) {
         interactive();

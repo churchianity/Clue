@@ -2,6 +2,8 @@
 #ifndef TABLE_H
 #define TABLE_H
 
+#include "clue.h"
+
 typedef struct TableEntry {
     struct TableEntry* next;
     const char* key;
@@ -9,7 +11,7 @@ typedef struct TableEntry {
 } TableEntry;
 
 typedef struct Table {
-    unsigned int capacity;
+    u64 capacity;
 
     signed int (*insert) (struct Table* self, const char* key, void* value);
     TableEntry* (*lookup) (const struct Table* self, const char* key);
@@ -18,7 +20,7 @@ typedef struct Table {
     TableEntry** entries;
 } Table;
 
-Table* newTable(unsigned int capacity);
+Table* newTable(u64 capacity);
 
 #endif
 

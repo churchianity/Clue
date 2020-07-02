@@ -1,9 +1,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string.h> // strlen
 #include <stdbool.h>
 
+#include "clue.h"
 #include "token.h"
 #include "util.h"
 
@@ -23,7 +24,7 @@ char* tokenTypeToString(TokenTypeEnum tt) {
 }
 
 /**
- * @TODO this function is unsafe
+ * @TODO this function is unsafe and sucks and is stupid
  */
 static char* toString(const Token* self) {
     const char* filename = self->filename;
@@ -31,13 +32,13 @@ static char* toString(const Token* self) {
     const char* bad = boolToString(self->bad);
 
     // helper to show something for empty strings
-    const char* tk = (strlen(self->tk) == 0) ? "(empty string)" : self->tk;
+    const char* tk = (strlen(self->tk) == 0) ? (char*) "(empty string)" : self->tk;
 
-    const char* format = "%p | file: %s, line: %d, col: %d | tt: %s, bad: %s, tk: %s\n";
+    const char* format = "%p | file: %s, line: %llu, col: %llu | tt: %s, bad: %s, tk: %s\n";
 
     // magic numbers are (poorly) assumed lengths as strings of properties after being format specified
     // @TODO fix
-    const unsigned int length = 14 + 4 + 4 + strlen(filename) + strlen(tt) + strlen(bad) + strlen(tk) + strlen(format);
+    const u64 length = 14 + 4 + 4 + strlen(filename) + strlen(tt) + strlen(bad) + strlen(tk) + strlen(format);
 
     char* buffer = pMalloc(length + 1);
 
@@ -58,7 +59,7 @@ static char* toString(const Token* self) {
  * The |tokens| array is assumed to be terminated by a Token of TT_SENTINEL.
  */
 void printTokens(Token tokens[]) {
-    unsigned int i = 0;
+    u64 i = 0;
 
     while (!(tokens[i].tt == TT_SENTINEL)) {
         printf("%s", tokens[i].toString(&tokens[i]));
@@ -69,7 +70,7 @@ void printTokens(Token tokens[]) {
     printf("%s", tokens[i].toString(&tokens[i])); // sentinel token
 }
 
-Token* newToken(const char* filename, unsigned int line, unsigned int col, TokenTypeEnum tt, const char* tk, bool bad) {
+Token* newToken(const char* filename, u64 line, u64 col, u64 length, TokenTypeEnum tt, const char* tk, bool bad) {
     Token* token = pMalloc(sizeof (Token));
 
     *token = (Token) {

@@ -1,14 +1,14 @@
 
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
+#include <string.h> // strlen
 
 #include "clue.h"
 #include "table.h"
 #include "util.h"
 
-static unsigned int hash(const char* value, unsigned int capacity) {
-    unsigned int hash = 0;
+static u64 hash(const char* value, u64 capacity) {
+    u64 hash = 0;
 
     while (*value) {
         hash = hash * 31 + *value++;
@@ -20,7 +20,7 @@ static unsigned int hash(const char* value, unsigned int capacity) {
 static signed int insert(Table* self, const char* key, void* value) {
     TableEntry* entry = self->lookup(self, key);
 
-    unsigned int hashValue;
+    u64 hashValue;
 
     if (!entry) {
         entry = pMalloc(sizeof (TableEntry));
@@ -44,7 +44,7 @@ static TableEntry* lookup(const Table* self, const char* key) {
     TableEntry* entry = self->entries[hash(key, self->capacity)];
 
     for (; entry != NULL; entry = entry->next) {
-        if (strcmp(key, entry->key) == 0) {
+        if (streq(key, entry->key)) {
             return entry;
         }
     }
@@ -53,11 +53,11 @@ static TableEntry* lookup(const Table* self, const char* key) {
 }
 
 static void print(const Table* self) {
-    printf("tp: %p | capacity: %d | entries:\n", (void*) self, self->capacity);
+    printf("tp: %p | capacity: %llu | entries:\n", (void*) self, self->capacity);
 
-    for (unsigned int i = 0; i < self->capacity; ++i) {
+    for (u64 i = 0; i < self->capacity; ++i) {
         TableEntry* entry = *(self->entries + i);
-        printf("%d : %p", i, (void*) entry);
+        printf("%llu : %p", i, (void*) entry);
 
         if (entry) {
             printf(" | %s", entry->key);
@@ -73,7 +73,7 @@ static void print(const Table* self) {
     }
 }
 
-Table* newTable(unsigned int capacity) {
+Table* newTable(u64 capacity) {
     Table* table = pMalloc(sizeof (Table));
 
     *table = (Table) {

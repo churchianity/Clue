@@ -6,7 +6,7 @@
 #include "token.h"
 
 typedef struct Node {
-    unsigned int childrenCount;
+    u64 childrenCount;
     struct Node* children;
     Token* token;
 

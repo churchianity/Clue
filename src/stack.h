@@ -4,22 +4,24 @@
 
 #include <stdbool.h>
 
+#include "clue.h"
+
 typedef struct Stack {
-    unsigned int capacity;
-    signed int top;
+    u64 capacity;
+    s64 top;
     bool grow;
     void** data;
 
-    unsigned int (*size) (const struct Stack* self);
+    u64 (*size) (const struct Stack* self);
     bool (*isEmpty) (const struct Stack* self);
     bool (*isFull) (const struct Stack* self);
-    signed int (*push) (struct Stack* self, void* dataItemAddr);
+    s64 (*push) (struct Stack* self, void* dataItemAddr);
     void* (*peek) (const struct Stack* self);
     void* (*pop) (struct Stack* self);
     char* (*toString) (struct Stack* self);
 } Stack;
 
-Stack* newStack(unsigned int capacity, bool grow);
+Stack* newStack(u64 capacity, bool grow);
 
 #endif
 

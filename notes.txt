@@ -1,4 +1,41 @@
 
+## Data-Types
+- String
+Strings
+
+- Numeric
+All Numerics in Clue are IEEE-754 64-bit floating point.
+
+- Array
+Arrays are actual (growing) arrays.
+
+- Table
+Tables are hash-tables. Should allow any value for the key, and any value for the value.
+
+
+### Special Arrays
+- Vector
+- Matrix
+
+## Expression vs. Statement
+- expression
+an expression is anything that 'returns' a value. 'returns' is in quotes because it's not identical the concept of a function return value, but no other word better comes to mind.
+
+'5 + 5' is an expression because it returns '10'
+'4' is an expression because it returns '4'
+'"the brown fox"' is an expression because it returns 'the brown fox'
+'"the % fox" % pink' is an expression because it returns 'the pink fox'
+'func(args)' is an expression, even if its return type is void or it returns null
+
+- statement
+a statement is anything that does not 'return' a value
+you can tell if something does not return a value (which is different from returnig null) in a practical sense by asking yourself, 'does it make sense to put this inside of a call to 'print()'?
+
+'import lib.clue' is a statement because it does not return a value
+'if a > b then print(a) fi' is a statement because it does not return a value
+'while true do stuff()' is a statement because it does not return a value
+
+
 Clue Program Flow Diagram
 
  -1.-------------.

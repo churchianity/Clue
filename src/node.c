@@ -1,5 +1,4 @@
 
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -8,6 +7,7 @@
 #include "table.h"
 #include "token.h"
 #include "util.h"
+
 
 /**
  * @TODO this actually just prints stuff but instead it should:
@@ -20,13 +20,13 @@ static void toString(const Node* self) {
         return;
     }
 
-    printf("Printing Node %p\nNode # of children: %d\n", (void*) self, self->childrenCount);
+    printf("Printing Node %p\nNode # of children: %llu\n", (void*) self, self->childrenCount);
     printf("Node token: ");
 
     printf("%s", self->token->toString(self->token));
 
-    for (unsigned int i = 0; i < self->childrenCount; i++) {
-        printf("\tChild %d pointer: %p\n", i, (void*) (self->children + i));
+    for (u64 i = 0; i < self->childrenCount; i++) {
+        printf("\tChild %llu pointer: %p\n", i, (void*) (self->children + i));
     }
 
     printf("\n");
@@ -41,7 +41,7 @@ static void traverse(Node* self, void (*callback) (Node*)) {
     }
 
     if (self->children != NULL) {
-        for (unsigned int i = 0; i < self->childrenCount; i++) {
+        for (u64 i = 0; i < self->childrenCount; i++) {
             if (self->children + i) {
                 traverse(self->children + i, callback);
             }

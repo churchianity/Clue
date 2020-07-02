@@ -1,10 +1,13 @@
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
+#include <string.h> // for strrchar??????
 
-void* pMalloc(unsigned int size) {
+#include "clue.h"
+
+
+void* pMalloc(u32 size) {
     void* p = malloc(size);
 
     if (!p) {
@@ -15,7 +18,7 @@ void* pMalloc(unsigned int size) {
     return p;
 }
 
-void* pCalloc(unsigned int maxNumOfElements, unsigned int elementSize) {
+void* pCalloc(u32 maxNumOfElements, u32 elementSize) {
     void* p = calloc(maxNumOfElements, elementSize);
 
     if (!p) {
@@ -26,7 +29,7 @@ void* pCalloc(unsigned int maxNumOfElements, unsigned int elementSize) {
     return p;
 }
 
-void* pRealloc(void* buffer, unsigned int newSize) {
+void* pRealloc(void* buffer, u32 newSize) {
     void* p = realloc(buffer, newSize);
 
     if (!p) {
@@ -39,39 +42,89 @@ void* pRealloc(void* buffer, unsigned int newSize) {
 
 char* boolToString(bool b) {
     if (b) {
-        return "true";
+        return (char*) "true";
     }
 
-    return "false";
+    return (char*) "false";
 }
 
-bool hasSuffix(char* string, char* suffix) {
-    string = strrchr(string, suffix[0]);
+/*
+bool isdigit(char c) {
+    return (c >= '0') && (c <= '9');
+}
 
-    if (string) {
-        return strcmp(string, suffix) == 0;
+bool isalpha(char c) {
+    return ((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z'));
+}
+*/
+
+// @NOTE it feels like c strings are trash, but it's barely not worth it to write a string lib myself, that could change
+// when could I get a char* that isn't null terminated?
+
+/**
+ * @WARN Assumes null termination.
+ */
+u32 strln(const char* string) {
+    u32 length = 0;
+
+    while (*string != '\0') {
+        ++length;
+        ++string;
+    }
+
+    return length;
+}
+
+/**
+ * @WARN Assumes null termination.
+ */
+bool streq(const char* s1, const char* s2) {
+    if (strln(s1) != strln(s2)) {
+        return false;
+    }
+
+    for (u64 i = 0; i < strln(s1); ++i) {
+        if (s1[i] != s2[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * @WARN Assumes null termination.
+ */
+bool hasSuffix(const char* string, const char* suffix) {
+    char* p = (char*) strrchr((char*) string, suffix[0]);
+
+    if (p) {
+        return streq(p, suffix);
     }
 
     return false;
 }
 
-long getFileSize(FILE* fp) {
-    long size;
+u64 getFileSize(FILE* fp) {
+    u64 size;
 
     fseek(fp, 0, SEEK_END);
     size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
     if (size < 0) {
-        fprintf(stderr, "ftell returned a negative value: %ld\n", size);
+        fprintf(stderr, "ftell returned a negative value: %llu\n", size);
         exit(1);
     }
 
     return size;
 }
 
-unsigned long countLines(const char* buffer) {
-    unsigned long lines = 0;
+/**
+ * @WARN Assumes null termination.
+ */
+u64 countLines(const char* buffer) {
+    u64 lines = 0;
     char c;
 
     while ((c = *buffer) != '\0') {

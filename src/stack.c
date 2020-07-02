@@ -1,13 +1,12 @@
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
+#include <stdio.h>
 
 #include "stack.h"
 #include "util.h"
 
-static unsigned int size(const Stack* self) {
+
+static u64 size(const Stack* self) {
     return self->top + 1;
 }
 
@@ -19,7 +18,7 @@ static bool isFull(const Stack* self) {
     return self->top == self->capacity - 1;
 }
 
-static signed int push(Stack* self, void* dataItemAddr) {
+static s64 push(Stack* self, void* dataItemAddr) {
     if (isFull(self)) {
         if (!self->grow) {
             return -1;
@@ -53,28 +52,29 @@ static void* pop(Stack* self) {
  * @TODO this function is unsafe
  */
 static char* toString(Stack* self) {
+    /*
     const char* grow = boolToString(self->grow);
 
     const char* format = "capacity: %d, grow?: %s, top: %d, size: %d, data: %p\n";
 
     // magic numbers are assumed lengths as strings of properties after being format specified
     // @TODO fix
-    const unsigned int length = 4 + strlen(grow) + 4 + 4 + 14 + strlen(format);
+    const u64 length = 4 + strln(grow) + 4 + 4 + 14 + strln(format);
 
     char* buffer = pMalloc(length + 1);
 
-    snprintf(buffer, length, format
+    snprintf(buffer, length, (char*) format
             , self->capacity
             , grow
             , self->top
             , self->size(self)
             , *self->data
     );
-
-    return buffer;
+    */
+    return (char*) "not implemented";
 }
 
-Stack* newStack(unsigned int capacity, bool grow) {
+Stack* newStack(u64 capacity, bool grow) {
     Stack* stack = pMalloc(sizeof (Stack));
 
     stack->capacity = capacity;

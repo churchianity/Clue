@@ -1,0 +1,77 @@
+
+<unary operator> ::= +
+                   | -
+                   | !
+                   | ~
+
+<arithmetic operator> ::= +
+                        | -
+                        | *
+                        | /
+                        | %
+
+<bitwise arithmetic operator> ::= &
+                                | |
+                                | ^
+
+<comparison operator> ::= >
+                        | <
+                        | >=
+                        | <=
+
+<logical operator> ::= &&
+                     | ||
+                     | ==
+                     | !=
+
+<assignment operator> ::= =
+                        | +=
+                        | -=
+                        | *=
+                        | /=
+                        | %=
+                        | &=
+                        | |=
+                        | ^=
+                        | >>=
+                        | <<=
+
+<binary operator> ::= .
+                    | <arithmetic operator>
+                    | <bitwise arithmetic operator>
+                    | <comparison operator>
+                    | <logical operator>
+                    | <assignment operator>
+
+@NOTE lots of work needs to be done here.
+<primitive> ::= Numeric
+              | Int
+              | String
+              | Array
+              | Table
+
+
+
+<if statement> ::= if <expression> then <statement> | <expression> fi | else <if statement> | else <statement> | <expression> fi
+
+@NOTE loop syntax is hard
+<do statement> ::= do { <statement> } while <expression> ;
+<while statement> ::= while <expression> { <statement> | <expression> }
+<for statement> ::= ?????????
+
+<assignment statement> ::= <identifier> <type> <assignment operator> <expression>
+
+<unary operation> ::= <unary operator> <identifier> | <numeric> | <string>
+<binary operation> ::= <identifier> | <numeric> | <string> <binary operator> <identifier> | <numeric> | <string>
+
+<expression> ::=
+<statement> ::=
+
+@NOTE don't know if we want to have ternary operations - how does this relate to the problem of scope?
+<ternary operation> ::= <expression> ? <expression> | <statement> : <expression> | <statement>
+
+
+
+
+
+

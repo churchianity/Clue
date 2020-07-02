@@ -1,13 +1,13 @@
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "token.h"
 #include "clue.h"
 #include "util.h"
+
 
 /**
  * Given a string |buffer| return an array of Token(s).
@@ -18,14 +18,14 @@ Token* tokenize(char* buffer, char* filename) {
     char* tk;
     TokenTypeEnum tt;
     bool bad;
-    unsigned int tl;
+    char tl;
 
-    unsigned int tc = 0;
-    unsigned int capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
+    u64 tc = 0;
+    u64 capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
     Token* tokens = pMalloc(sizeof (Token) * capacity);
 
-    unsigned int line = 1;
-    unsigned int column = 1;
+    u64 line = 1;
+    u64 column = 1;
 
     while ((c = *buffer++) != '\0') {
         bad = false;
@@ -178,9 +178,9 @@ Token* tokenize(char* buffer, char* filename) {
             tokens = pRealloc(tokens, sizeof (Token) * capacity);
         }
 
-        tokens[tc++] = *newToken(filename, line, column, tt, tk, bad);
+        tokens[tc++] = *newToken(filename, line, column, tl, tt, tk, bad);
 
-        // increment the column based on the token's length
+        // increment the column counter based on the token's length
         column += tl;
 
         // @NOTE it would be cool if we could move this inside the 'string' case of the lexer
@@ -189,7 +189,7 @@ Token* tokenize(char* buffer, char* filename) {
         }
     }
 
-    tokens[tc] = *newToken(filename, -1, -1, TT_SENTINEL, "END_OF_STREAM", false);
+    tokens[tc] = *newToken(filename, -1, -1, 13, TT_SENTINEL, "END_OF_STREAM", false);
 
     return tokens;
 }

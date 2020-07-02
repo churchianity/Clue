@@ -1,13 +1,13 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h> // for fgets, fprintf, printf
+#include <stdlib.h> // memset
 
 #include "clue.h"
 #include "token.h"
 #include "node.h"
 #include "lexer.h"
 #include "parser.h"
+#include "string.h"
 #include "runtime.h"
 
 /**
@@ -32,13 +32,13 @@ void doIt(char* codeBuffer, const char* filename) {
  * Enters the 'interactive' mode of the language which allows you to run/analyze code as you type it.
  */
 void interactive() {
-    char s[CLUE_INTERACTIVE_MODE_MAX_LINE_LENGTH];
+    char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
 
     do {
         memset(s, 0, sizeof (s));
         printf(">>> ");
 
-        if (fgets(s, CLUE_INTERACTIVE_MODE_MAX_LINE_LENGTH, stdin) == NULL) {
+        if (fgets(s, CLUE_SANDBOX_MODE_MAX_LINE_LENGTH, stdin) == NULL) {
             fprintf(stderr, "error reading line and storing it in buffer %p\nskipping...\n", (void*) s);
             continue;
         }
