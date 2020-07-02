@@ -92,9 +92,9 @@ static void help(const char* arg) {
 }
 
 static char* clueFileRead(const char* filename) {
-    FILE* fp = fopen((char*) filename, "r");
+    FILE* fp = fopen(filename, "r");
     char* buffer = NULL;
-    u64 length;
+    u32 length;
 
     if (!fp) {
         fprintf(stderr, "failed to get fp for filename: %s\n", filename);
@@ -119,7 +119,7 @@ static void handleCommandLineArguments(int argc, const char* argv[]) {
         }
     #endif
 
-    for (u64 i = 1; i < argc; ++i) {
+    for (u32 i = 1; i < argc; ++i) {
         #if CLUE_DEBUG_LEVEL > 1
             printf("args[%d]: %s\n", i, argv[i]);
         #endif

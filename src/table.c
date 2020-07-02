@@ -7,8 +7,9 @@
 #include "table.h"
 #include "util.h"
 
-static u64 hash(const char* value, u64 capacity) {
-    u64 hash = 0;
+
+static u32 hash(const char* value, u32 capacity) {
+    u32 hash = 0;
 
     while (*value) {
         hash = hash * 31 + *value++;
@@ -20,7 +21,7 @@ static u64 hash(const char* value, u64 capacity) {
 static signed int insert(Table* self, const char* key, void* value) {
     TableEntry* entry = self->lookup(self, key);
 
-    u64 hashValue;
+    u32 hashValue;
 
     if (!entry) {
         entry = pMalloc(sizeof (TableEntry));
@@ -53,11 +54,11 @@ static TableEntry* lookup(const Table* self, const char* key) {
 }
 
 static void print(const Table* self) {
-    printf("tp: %p | capacity: %llu | entries:\n", (void*) self, self->capacity);
+    printf("tp: %p | capacity: %u | entries:\n", (void*) self, self->capacity);
 
-    for (u64 i = 0; i < self->capacity; ++i) {
+    for (u32 i = 0; i < self->capacity; ++i) {
         TableEntry* entry = *(self->entries + i);
-        printf("%llu : %p", i, (void*) entry);
+        printf("%u : %p", i, (void*) entry);
 
         if (entry) {
             printf(" | %s", entry->key);
@@ -73,7 +74,7 @@ static void print(const Table* self) {
     }
 }
 
-Table* newTable(u64 capacity) {
+Table* newTable(u32 capacity) {
     Table* table = pMalloc(sizeof (Table));
 
     *table = (Table) {

@@ -6,12 +6,13 @@
 
 #include "clue.h"
 
+
 typedef struct {
     bool reserved;
     const char* name;
-    u64 precedence;
+    u32 precedence;
 } Symbol;
 
-Symbol* newSymbol(const char* name, u64 precedence, bool reserved);
+Symbol* newSymbol(const char* name, u32 precedence, bool reserved);
 
 #endif

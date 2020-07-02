@@ -20,13 +20,13 @@ static void toString(const Node* self) {
         return;
     }
 
-    printf("Printing Node %p\nNode # of children: %llu\n", (void*) self, self->childrenCount);
+    printf("Printing Node %p\nNode # of children: %u\n", (void*) self, self->childrenCount);
     printf("Node token: ");
 
     printf("%s", self->token->toString(self->token));
 
-    for (u64 i = 0; i < self->childrenCount; i++) {
-        printf("\tChild %llu pointer: %p\n", i, (void*) (self->children + i));
+    for (u32 i = 0; i < self->childrenCount; i++) {
+        printf("\tChild %u pointer: %p\n", i, (void*) (self->children + i));
     }
 
     printf("\n");
@@ -41,7 +41,7 @@ static void traverse(Node* self, void (*callback) (Node*)) {
     }
 
     if (self->children != NULL) {
-        for (u64 i = 0; i < self->childrenCount; i++) {
+        for (u32 i = 0; i < self->childrenCount; i++) {
             if (self->children + i) {
                 traverse(self->children + i, callback);
             }

@@ -16,6 +16,10 @@
 #include <stdint.h>
 
 
+/**
+ * Non-struct, non-union datatypes in this codebase:
+ * @NOTE We are using u32 and s32 for almost everything right now, and will optimze later.
+ */
 typedef uint64_t u64;
 typedef uint32_t u32;
 typedef uint16_t u16;
@@ -26,9 +30,11 @@ typedef int32_t s32;
 typedef int16_t s16;
 typedef int8_t s8;
 
+// & float, double, char
+
 typedef struct {
     bool interactive;
-    u64 filenameCount;
+    u32 filenameCount;
     char* filenames;
 } CommandLineArguments;
 

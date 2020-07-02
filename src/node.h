@@ -5,8 +5,9 @@
 #include "table.h"
 #include "token.h"
 
+
 typedef struct Node {
-    u64 childrenCount;
+    u32 childrenCount;
     struct Node* children;
     Token* token;
 

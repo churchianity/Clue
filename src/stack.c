@@ -6,8 +6,8 @@
 #include "util.h"
 
 
-static u64 size(const Stack* self) {
-    return self->top + 1;
+static u32 size(const Stack* self) {
+    return (u32) (self->top + 1); // 'top' is s32
 }
 
 static bool isEmpty(const Stack* self) {
@@ -55,11 +55,11 @@ static char* toString(Stack* self) {
     /*
     const char* grow = boolToString(self->grow);
 
-    const char* format = "capacity: %d, grow?: %s, top: %d, size: %d, data: %p\n";
+    const char* format = "capacity: %lu, grow?: %s, top: %lu, size: %lu, data: %p\n";
 
     // magic numbers are assumed lengths as strings of properties after being format specified
     // @TODO fix
-    const u64 length = 4 + strln(grow) + 4 + 4 + 14 + strln(format);
+    const u32 length = 4 + strln(grow) + 4 + 4 + 14 + strln(format);
 
     char* buffer = pMalloc(length + 1);
 
@@ -74,7 +74,7 @@ static char* toString(Stack* self) {
     return (char*) "not implemented";
 }
 
-Stack* newStack(u64 capacity, bool grow) {
+Stack* newStack(u32 capacity, bool grow) {
     Stack* stack = pMalloc(sizeof (Stack));
 
     stack->capacity = capacity;

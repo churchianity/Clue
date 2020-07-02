@@ -4,6 +4,7 @@
 
 #include "clue.h"
 
+
 typedef struct TableEntry {
     struct TableEntry* next;
     const char* key;
@@ -11,7 +12,7 @@ typedef struct TableEntry {
 } TableEntry;
 
 typedef struct Table {
-    u64 capacity;
+    u32 capacity;
 
     signed int (*insert) (struct Table* self, const char* key, void* value);
     TableEntry* (*lookup) (const struct Table* self, const char* key);
@@ -20,7 +21,7 @@ typedef struct Table {
     TableEntry** entries;
 } Table;
 
-Table* newTable(u64 capacity);
+Table* newTable(u32 capacity);
 
 #endif
 

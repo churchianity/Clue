@@ -8,6 +8,7 @@
 #include "token.h"
 #include "util.h"
 
+
 char* tokenTypeToString(TokenTypeEnum tt) {
     switch (tt) {
         case TT_SENTINEL: return "SENTINEL";
@@ -34,11 +35,11 @@ static char* toString(const Token* self) {
     // helper to show something for empty strings
     const char* tk = (strlen(self->tk) == 0) ? (char*) "(empty string)" : self->tk;
 
-    const char* format = "%p | file: %s, line: %llu, col: %llu | tt: %s, bad: %s, tk: %s\n";
+    const char* format = "%p | file: %s, line: %lu, col: %lu tl: %lu | tt: %s, bad: %s, tk: %s\n";
 
     // magic numbers are (poorly) assumed lengths as strings of properties after being format specified
     // @TODO fix
-    const u64 length = 14 + 4 + 4 + strlen(filename) + strlen(tt) + strlen(bad) + strlen(tk) + strlen(format);
+    const u32 length = 14 + 4 + 4 + 4 + strlen(filename) + strlen(tt) + strlen(bad) + strlen(tk) + strlen(format);
 
     char* buffer = pMalloc(length + 1);
 
@@ -47,6 +48,7 @@ static char* toString(const Token* self) {
          , filename
          , self->line
          , self->column
+         , self->length
          , tt
          , bad
          , tk
@@ -59,7 +61,7 @@ static char* toString(const Token* self) {
  * The |tokens| array is assumed to be terminated by a Token of TT_SENTINEL.
  */
 void printTokens(Token tokens[]) {
-    u64 i = 0;
+    u32 i = 0;
 
     while (!(tokens[i].tt == TT_SENTINEL)) {
         printf("%s", tokens[i].toString(&tokens[i]));
@@ -70,7 +72,7 @@ void printTokens(Token tokens[]) {
     printf("%s", tokens[i].toString(&tokens[i])); // sentinel token
 }
 
-Token* newToken(const char* filename, u64 line, u64 col, u64 length, TokenTypeEnum tt, const char* tk, bool bad) {
+Token* newToken(const char* filename, u32 line, u32 col, u32 length, TokenTypeEnum tt, const char* tk, bool bad) {
     Token* token = pMalloc(sizeof (Token));
 
     *token = (Token) {

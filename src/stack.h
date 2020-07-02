@@ -6,13 +6,14 @@
 
 #include "clue.h"
 
+
 typedef struct Stack {
-    u64 capacity;
-    s64 top;
+    u32 capacity;
+    s32 top;
     bool grow;
     void** data;
 
-    u64 (*size) (const struct Stack* self);
+    u32 (*size) (const struct Stack* self);
     bool (*isEmpty) (const struct Stack* self);
     bool (*isFull) (const struct Stack* self);
     s64 (*push) (struct Stack* self, void* dataItemAddr);
@@ -21,7 +22,7 @@ typedef struct Stack {
     char* (*toString) (struct Stack* self);
 } Stack;
 
-Stack* newStack(u64 capacity, bool grow);
+Stack* newStack(u32 capacity, bool grow);
 
 #endif
 

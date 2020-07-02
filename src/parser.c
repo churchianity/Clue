@@ -13,7 +13,8 @@
 #include "token.h"
 #include "util.h"
 
-u64 precedence(Token* token) {
+
+u32 precedence(Token* token) {
     TableEntry* entry = globalSymbolTable->lookup(globalSymbolTable, token->tk);
 
     if (!entry) {
@@ -27,7 +28,7 @@ static Stack* shuntingYard(Token tokens[]) {
     Stack* es = newStack(10, true);
     Stack* os = newStack(10, true);
 
-    u64 i = 0;
+    u32 i = 0;
 
     while (tokens[i].tt != TT_SENTINEL) {
         switch (tokens[i].tt) {
@@ -91,7 +92,7 @@ static Token* infixToPostfix(Token tokens[]) {
 
     Token* postfixTokens = pMalloc(sizeof (Token) * es->size(es));
 
-    for (u64 i = 0; i < es->size(es); i++) {
+    for (u32 i = 0; i < es->size(es); i++) {
         Token* token = (Token*) *(es->data + i);
 
         postfixTokens[i] = *token;

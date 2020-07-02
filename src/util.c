@@ -48,16 +48,6 @@ char* boolToString(bool b) {
     return (char*) "false";
 }
 
-/*
-bool isdigit(char c) {
-    return (c >= '0') && (c <= '9');
-}
-
-bool isalpha(char c) {
-    return ((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z'));
-}
-*/
-
 // @NOTE it feels like c strings are trash, but it's barely not worth it to write a string lib myself, that could change
 // when could I get a char* that isn't null terminated?
 
@@ -83,7 +73,7 @@ bool streq(const char* s1, const char* s2) {
         return false;
     }
 
-    for (u64 i = 0; i < strln(s1); ++i) {
+    for (u32 i = 0; i < strln(s1); ++i) {
         if (s1[i] != s2[i]) {
             return false;
         }
@@ -105,26 +95,11 @@ bool hasSuffix(const char* string, const char* suffix) {
     return false;
 }
 
-u64 getFileSize(FILE* fp) {
-    u64 size;
-
-    fseek(fp, 0, SEEK_END);
-    size = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-
-    if (size < 0) {
-        fprintf(stderr, "ftell returned a negative value: %llu\n", size);
-        exit(1);
-    }
-
-    return size;
-}
-
 /**
  * @WARN Assumes null termination.
  */
-u64 countLines(const char* buffer) {
-    u64 lines = 0;
+u32 countLines(const char* buffer) {
+    u32 lines = 0;
     char c;
 
     while ((c = *buffer) != '\0') {
@@ -137,4 +112,20 @@ u64 countLines(const char* buffer) {
 
     return lines;
 }
+
+u32 getFileSize(FILE* fp) {
+    u32 size;
+
+    fseek(fp, 0, SEEK_END);
+    size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    if (size < 0) {
+        fprintf(stderr, "ftell returned a negative value: %d\n", (s32) size);
+        exit(1);
+    }
+
+    return size;
+}
+
 

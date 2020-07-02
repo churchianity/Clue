@@ -20,12 +20,12 @@ Token* tokenize(char* buffer, char* filename) {
     bool bad;
     char tl;
 
-    u64 tc = 0;
-    u64 capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
+    u32 tc = 0;
+    u32 capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
     Token* tokens = pMalloc(sizeof (Token) * capacity);
 
-    u64 line = 1;
-    u64 column = 1;
+    u32 line = 1;
+    u32 column = 1;
 
     while ((c = *buffer++) != '\0') {
         bad = false;
@@ -189,7 +189,7 @@ Token* tokenize(char* buffer, char* filename) {
         }
     }
 
-    tokens[tc] = *newToken(filename, -1, -1, 13, TT_SENTINEL, "END_OF_STREAM", false);
+    tokens[tc] = *newToken(filename, 0, 0, 13, TT_SENTINEL, "END_OF_STREAM", false);
 
     return tokens;
 }

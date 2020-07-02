@@ -6,6 +6,7 @@
 
 #include "clue.h"
 
+
 typedef enum TokenTypeEnum {
     TT_SENTINEL,
 
@@ -17,9 +18,9 @@ typedef enum TokenTypeEnum {
 
 typedef struct Token {
     const char* filename;
-    u64 line;
-    u64 column;
-    u64 length;
+    u32 line;
+    u32 column;
+    u32 length;
 
     TokenTypeEnum tt;
 
@@ -38,7 +39,7 @@ typedef struct Token {
     char* (*toString) (const struct Token*);
 } Token;
 
-Token* newToken(const char* filename, u64 line, u64 column, u64 length, TokenTypeEnum tt, const char* tk, bool bad);
+Token* newToken(const char* filename, u32 line, u32 column, u32 length, TokenTypeEnum tt, const char* tk, bool bad);
 char* tokenTypeToString(TokenTypeEnum tt);
 void printTokens(Token tokens[]);
 
