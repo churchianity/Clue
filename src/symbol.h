@@ -10,9 +10,10 @@
 typedef struct {
     bool reserved;
     const char* name;
-    u32 precedence;
+    u8 precedence;
 } Symbol;
 
-Symbol* newSymbol(const char* name, u32 precedence, bool reserved);
+Symbol* newSymbol(const char* name, u8 precedence, bool reserved);
 
 #endif
+

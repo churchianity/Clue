@@ -22,7 +22,7 @@ void doIt(char* codeBuffer, const char* filename) {
         printTokens(tokens);
     #endif
 
-    Node* AST = parse(tokens);
+    ASTNode* AST = parse(tokens);
 
     // CLEANUP //
     free(AST);

@@ -14,13 +14,11 @@ char* tokenTypeToString(TokenTypeEnum tt) {
         case TT_SENTINEL: return "SENTINEL";
 
         case TT_SYMBOL: return "SYMBOL";
-        case TT_OPERATOR: return "OPERATOR";
         case TT_NUMERIC: return "NUMERIC";
         case TT_STRING: return "STRING";
 
         default:
-            fprintf(stderr, "Unknown token-type passed into tokenTypeToString: %d\n", tt);
-            exit(1);
+            return "OPERATOR";
     }
 }
 
@@ -32,10 +30,10 @@ static char* toString(const Token* self) {
     const char* tt = tokenTypeToString(self->tt);
     const char* bad = boolToString(self->bad);
 
-    // helper to show something for empty strings
-    const char* tk = (strlen(self->tk) == 0) ? (char*) "(empty string)" : self->tk;
+    // show something for empty strings
+    const char* tk = (strlen(self->tk) == 0) ? "(empty string)" : self->tk;
 
-    const char* format = "%p | file: %s, line: %lu, col: %lu tl: %lu | tt: %s, bad: %s, tk: %s\n";
+    const char* format = "%p | file: %s, line: %u, col: %u tl: %u | tt: %s, bad: %s, tk: %s\n";
 
     // magic numbers are (poorly) assumed lengths as strings of properties after being format specified
     // @TODO fix
@@ -63,7 +61,7 @@ static char* toString(const Token* self) {
 void printTokens(Token tokens[]) {
     u32 i = 0;
 
-    while (!(tokens[i].tt == TT_SENTINEL)) {
+    while (tokens[i].tt != TT_SENTINEL) {
         printf("%s", tokens[i].toString(&tokens[i]));
 
         ++i;

@@ -14,19 +14,21 @@
  * We are expecting the string to be null-terminated.
  */
 Token* tokenize(char* buffer, char* filename) {
-    char c;
-    char* tk;
-    TokenTypeEnum tt;
-    bool bad;
-    char tl;
-
-    u32 tc = 0;
+    // tokens array
     u32 capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
     Token* tokens = pMalloc(sizeof (Token) * capacity);
+    u32 tc = 0;
 
+    // individual token members
     u32 line = 1;
     u32 column = 1;
+    char tl;
+    TokenTypeEnum tt;
+    char* tk;
+    bool bad;
 
+    // iterator
+    char c;
     while ((c = *buffer++) != '\0') {
         bad = false;
 
@@ -113,19 +115,52 @@ Token* tokenize(char* buffer, char* filename) {
             snprintf(tk, tl + 1, "%s", buffer - tl - 1);
 
         } else {
-            tt = TT_OPERATOR;
+            // mostly operator, all of which have their own type
             tl = 1;
 
             switch (c) {
                 case '=': // assignment operator
                 case '&': // bitwise AND
                 case '|': // bitwise OR
+                case '^': // bitwise XOR
+                    tt = c;
 
-                    // check for the 2-length logical operators that start with the above chars
-                    // '==' equality
-                    // '&&' logical AND
-                    // '||' logical OR
-                    if (*(buffer + 1) == c) {
+
+                    /**
+                     * check for...
+                     *
+                     * '==' equality
+                     * '&&' logical AND
+                     * '||' logical OR
+                     * '^^' logical XOR
+                     */
+                    char c2 = *(buffer + 1);
+
+                    if (c2 == c) {
+                        switch (c) {
+                            case '=': tt = TT_EQUALS; break;
+                            case '&': tt = TT_LOGICAL_AND; break;
+                            case '|': tt = TT_LOGICAL_OR; break;
+                            case '^': tt = TT_LOGICAL_XOR; break;
+                        }
+
+                        tk = pMalloc(3 * sizeof (char));
+                        tl = 2;
+                        snprintf(tk, 3, "%c%c", c, *buffer++);
+                        break;
+
+                    /**
+                     * '&=' bitwise AND compound assignment
+                     * '|=' bitwise OR compound assignment
+                     * '^=' bitwise XOR compound assignment
+                     */
+                    } else if (c2 == '=') {
+                        switch (c) {
+                            case '&': tt = TT_BITWISE_AND_ASSIGNMENT; break;
+                            case '|': tt = TT_BITWISE_OR_ASSIGNMENT; break;
+                            case '^': tt = TT_BITWISE_XOR_ASSIGNMENT; break;
+                        }
+
                         tk = pMalloc(3 * sizeof (char));
                         tl = 2;
                         snprintf(tk, 3, "%c%c", c, *buffer++);
@@ -142,6 +177,7 @@ Token* tokenize(char* buffer, char* filename) {
                 case '*':
                 case '/':
                 case '%':
+                    tt = c;
 
                     // check for compound assignment
                     if (*(buffer + 1) == '=') {
@@ -158,10 +194,7 @@ Token* tokenize(char* buffer, char* filename) {
 
                 case '(':
                 case ')':
-                case '[':
-                case ']':
-                case '{':
-                case '}':
+                    tt = c;
                     tk = pMalloc(2 * sizeof (char));
                     snprintf(tk, 2, "%c", c);
                     break;
@@ -170,6 +203,8 @@ Token* tokenize(char* buffer, char* filename) {
                     fprintf(stderr, "non-numeric, non-quote mark, non-alphabetic, invalid symbol character encountered :: %c\nskipping it...\n", c);
                     continue;
             }
+
+            // @TODO
         }
 
         // we have a token. add it to the array, realloc'ing as necessary

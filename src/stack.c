@@ -18,7 +18,7 @@ static bool isFull(const Stack* self) {
     return self->top == self->capacity - 1;
 }
 
-static s64 push(Stack* self, void* dataItemAddr) {
+static s32 push(Stack* self, void* dataItemAddr) {
     if (isFull(self)) {
         if (!self->grow) {
             return -1;

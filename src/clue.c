@@ -17,69 +17,79 @@ CommandLineArguments* CLAs = NULL;
 /**
  * All symbols present in the global namespace will be an entry in this table.
  */
-Table* globalSymbolTable = NULL;
+Table* CLUE_GLOBAL_SYMBOL_TABLE_IDENTIFIER = NULL;
 
-static void initGlobalSymbolTable() {
-    if (globalSymbolTable) {
-        return;
+/**
+ *
+ */
+static Table* initGlobalSymbolTable() {
+    if (CLUE_GLOBAL_SYMBOL_TABLE_IDENTIFIER != NULL) {
+        return CLUE_GLOBAL_SYMBOL_TABLE_IDENTIFIER;
     }
 
-    globalSymbolTable = newTable(CLUE_GLOBAL_SYMBOL_TABLE_SIZE);
+    Table *t = newTable(CLUE_GLOBAL_SYMBOL_TABLE_SIZE);
 
-    // globalSymbolTable->insert(globalSymbolTable, ",", newSymbol("COMMA", 0, true));
+    t->insert(t, ",", newSymbol("COMMA", 0, true));
 
-    globalSymbolTable->insert(globalSymbolTable, "+", newSymbol("PLUS", 50, true));
-    globalSymbolTable->insert(globalSymbolTable, "-", newSymbol("MINUS", 50, true));
-    globalSymbolTable->insert(globalSymbolTable, "*", newSymbol("TIMES", 60, true));
-    globalSymbolTable->insert(globalSymbolTable, "/", newSymbol("DIVIDE", 60, true));
-    globalSymbolTable->insert(globalSymbolTable, "%", newSymbol("MODULUS", 60, true));
+    t->insert(t, "+", newSymbol("PLUS", 50, true));
+    t->insert(t, "-", newSymbol("MINUS", 50, true));
+    t->insert(t, "*", newSymbol("TIMES", 60, true));
+    t->insert(t, "/", newSymbol("DIVIDE", 60, true));
+    t->insert(t, "%", newSymbol("MODULUS", 60, true));
 
-    globalSymbolTable->insert(globalSymbolTable, "<<", newSymbol("LEFT_SHIFT", 60, true));
-    globalSymbolTable->insert(globalSymbolTable, ">>", newSymbol("RIGHT_SHIFT", 60, true));
+    t->insert(t, "<<", newSymbol("LEFT_SHIFT", 60, true));
+    t->insert(t, ">>", newSymbol("RIGHT_SHIFT", 60, true));
 
-    globalSymbolTable->insert(globalSymbolTable, "&", newSymbol("BITWISE_AND", 60, true));
-    globalSymbolTable->insert(globalSymbolTable, "|", newSymbol("BITWISE_OR", 60, true));
-    // globalSymbolTable->insert(globalSymbolTable, "~", newSymbol("BITWISE_NOT", 60, true));
-    // globalSymbolTable->insert(globalSymbolTable, "^", newSymbol("BITWISE_XOR", 60, true));
+    t->insert(t, "&", newSymbol("BITWISE_AND", 60, true));
+    t->insert(t, "|", newSymbol("BITWISE_OR", 60, true));
+    t->insert(t, "~", newSymbol("BITWISE_NOT", 60, true));
+    t->insert(t, "^", newSymbol("BITWISE_XOR", 60, true));
 
-    globalSymbolTable->insert(globalSymbolTable, "=", newSymbol("EQUALS", 10, true));
-    globalSymbolTable->insert(globalSymbolTable, "+=", newSymbol("PLUS_EQUALS", 10, true));
-    globalSymbolTable->insert(globalSymbolTable, "-=", newSymbol("MINUS_EQUALS", 10, true));
-    globalSymbolTable->insert(globalSymbolTable, "*=", newSymbol("TIMES_EQUALS", 10, true));
-    globalSymbolTable->insert(globalSymbolTable, "/=", newSymbol("DIVIDE_EQUALS", 10, true));
-    globalSymbolTable->insert(globalSymbolTable, "%=", newSymbol("MODULUS_EQUALS", 10, true));
+    t->insert(t, "=", newSymbol("EQUALS", 10, true));
+    t->insert(t, "+=", newSymbol("PLUS_EQUALS", 10, true));
+    t->insert(t, "-=", newSymbol("MINUS_EQUALS", 10, true));
+    t->insert(t, "*=", newSymbol("TIMES_EQUALS", 10, true));
+    t->insert(t, "/=", newSymbol("DIVIDE_EQUALS", 10, true));
+    t->insert(t, "%=", newSymbol("MODULUS_EQUALS", 10, true));
+    t->insert(t, "<<=", newSymbol("LEFT_SHIFT_ASSIGNMENT", 10, true));
+    t->insert(t, ">>=", newSymbol("RIGHT_SHIFT_ASSIGNMENT", 10, true));
 
-    // globalSymbolTable->insert(globalSymbolTable, "&=", newSymbol("BITWISE_AND_EQUALS", 10, true));
-    // globalSymbolTable->insert(globalSymbolTable, "|=", newSymbol("BITWISE_OR_EQUALS", 10, true));
-    // globalSymbolTable->insert(globalSymbolTable, "~=", newSymbol("BITWISE_NOT_EQUALS", 10, true));
-    // globalSymbolTable->insert(globalSymbolTable, "^=", newSymbol("BITWISE_XOR_EQUALS", 10, true));
+    t->insert(t, "&=", newSymbol("BITWISE_AND_EQUALS", 10, true));
+    t->insert(t, "|=", newSymbol("BITWISE_OR_EQUALS", 10, true));
+    t->insert(t, "~=", newSymbol("BITWISE_NOT_EQUALS", 10, true));
+    t->insert(t, "^=", newSymbol("BITWISE_XOR_EQUALS", 10, true));
 
-    globalSymbolTable->insert(globalSymbolTable, "==", newSymbol("EQUALITY", 80, true));
-    // globalSymbolTable->insert(globalSymbolTable, ">=", newSymbol("GREATER_THAN_OR_EQUAL", 80, true));
-    // globalSymbolTable->insert(globalSymbolTable, "<=", newSymbol("LESS_THAN_OR_EQUAL", 80, true));
-    globalSymbolTable->insert(globalSymbolTable, ">", newSymbol("GREATER_THAN", 80, true));
-    globalSymbolTable->insert(globalSymbolTable, "<", newSymbol("LESS_THAN", 80, true));
+    t->insert(t, "==", newSymbol("EQUALITY", 80, true));
+    t->insert(t, ">=", newSymbol("GREATER_THAN_OR_EQUAL", 80, true));
+    t->insert(t, "<=", newSymbol("LESS_THAN_OR_EQUAL", 80, true));
+    t->insert(t, ">", newSymbol("GREATER_THAN", 80, true));
+    t->insert(t, "<", newSymbol("LESS_THAN", 80, true));
 
-    globalSymbolTable->insert(globalSymbolTable, "&&", newSymbol("LOGICAL_AND", 70, true));
-    globalSymbolTable->insert(globalSymbolTable, "||", newSymbol("LOGICAL_OR", 70, true));
+    t->insert(t, "&&", newSymbol("LOGICAL_AND", 70, true));
+    t->insert(t, "||", newSymbol("LOGICAL_OR", 70, true));
 
-    globalSymbolTable->insert(globalSymbolTable, ";", newSymbol("SEMICOLON", 0, true));
+    t->insert(t, ";", newSymbol("SEMICOLON", 0, true));
 
-    globalSymbolTable->insert(globalSymbolTable, "(", newSymbol("OPEN_PARENS", 0, true));
-    globalSymbolTable->insert(globalSymbolTable, ")", newSymbol("CLOSE_PARENS", 0, true));
-    // globalSymbolTable->insert(globalSymbolTable, "[", newSymbol("OPEN_BRACKET", 0, true));
-    // globalSymbolTable->insert(globalSymbolTable, "]", newSymbol("CLOSE_BRACKET", 0, true));
-    // globalSymbolTable->insert(globalSymbolTable, "{", newSymbol("OPEN_BRACE", 0, true));
-    // globalSymbolTable->insert(globalSymbolTable, "}", newSymbol("CLOSE_BRACE", 0, true));
+    t->insert(t, "(", newSymbol("OPEN_PARENS", 0, true));
+    t->insert(t, ")", newSymbol("CLOSE_PARENS", 0, true));
+    // t->insert(t, "[", newSymbol("OPEN_BRACKET", 0, true));
+    // t->insert(t, "]", newSymbol("CLOSE_BRACKET", 0, true));
+    // t->insert(t, "{", newSymbol("OPEN_BRACE", 0, true));
+    // t->insert(t, "}", newSymbol("CLOSE_BRACE", 0, true));
 
-    globalSymbolTable->insert(globalSymbolTable, "print", newSymbol("PRINTF", 0, true));
+    t->insert(t, "print", newSymbol("PRINTF", 0, true));
 
     #if CLUE_DEBUG_LEVEL > 0
         printf("\n\tGlobal Symbol Table after init:\n%s\n", _DIV);
-        globalSymbolTable->print(globalSymbolTable);
+        t->print(t);
     #endif
+
+    return t;
 }
 
+/**
+ *
+ */
 static void help(const char* arg) {
     if (!arg) {
         // generic help
@@ -135,7 +145,7 @@ static void handleCommandLineArguments(int argc, const char* argv[]) {
             CLAs->interactive = true;
 
         } else if (hasSuffix(argv[i], CLUE_FILE_SUFFIX)) {
-            doIt((char*) clueFileRead(argv[i]), (char*) argv[i]);
+            doIt(clueFileRead(argv[i]), argv[i]);
 
         } else {
             help(argv[i]);
@@ -144,7 +154,7 @@ static void handleCommandLineArguments(int argc, const char* argv[]) {
 }
 
 int main(int argc, const char* argv[]) {
-    initGlobalSymbolTable();
+    CLUE_GLOBAL_SYMBOL_TABLE_IDENTIFIER = initGlobalSymbolTable();
     handleCommandLineArguments(argc, argv);
 
     if (CLAs->interactive) {

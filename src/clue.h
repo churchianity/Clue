@@ -7,6 +7,7 @@
 #define CLUE_DEBUG_LEVEL 1
 
 #define CLUE_GLOBAL_SYMBOL_TABLE_SIZE 20
+#define CLUE_GLOBAL_SYMBOL_TABLE_IDENTIFIER globalSymbolTable
 #define CLUE_INITIAL_TOKEN_ARRAY_CAPACITY 16
 #define CLUE_SANDBOX_MODE_MAX_LINE_LENGTH 120
 
@@ -34,14 +35,12 @@ typedef int8_t s8;
 
 typedef struct {
     bool interactive;
-    u32 filenameCount;
-    char* filenames;
 } CommandLineArguments;
 
 CommandLineArguments* CLAs;
 
 #include "table.h"
-Table* globalSymbolTable;
+Table* CLUE_GLOBAL_SYMBOL_TABLE_IDENTIFIER;
 
 #endif
 

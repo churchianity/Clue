@@ -16,7 +16,7 @@ typedef struct Stack {
     u32 (*size) (const struct Stack* self);
     bool (*isEmpty) (const struct Stack* self);
     bool (*isFull) (const struct Stack* self);
-    s64 (*push) (struct Stack* self, void* dataItemAddr);
+    s32 (*push) (struct Stack* self, void* dataItemAddr);
     void* (*peek) (const struct Stack* self);
     void* (*pop) (struct Stack* self);
     char* (*toString) (struct Stack* self);

@@ -79,9 +79,11 @@ Table* newTable(u32 capacity) {
 
     *table = (Table) {
         .capacity = capacity,
+
         .insert = &insert,
         .lookup = &lookup,
         .print = &print,
+
         .entries = pCalloc(capacity, sizeof (TableEntry*))
     };
 

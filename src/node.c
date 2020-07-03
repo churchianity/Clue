@@ -15,13 +15,13 @@
  * Returns some relevant information about a node as a single string.
  * Doesn't recurse into children, but does show their addresses.
  */
-static void toString(const Node* self) {
+static void toString(const ASTNode* self) {
     if (!self) {
         return;
     }
 
-    printf("Printing Node %p\nNode # of children: %u\n", (void*) self, self->childrenCount);
-    printf("Node token: ");
+    printf("Printing ASTNode %p\nASTNode # of children: %u\n", (void*) self, self->childrenCount);
+    printf("ASTNode token: ");
 
     printf("%s", self->token->toString(self->token));
 
@@ -35,7 +35,7 @@ static void toString(const Node* self) {
 /**
  * Iterates over the tree and calls |callback| on each node, with |root| as an argument.
  */
-static void traverse(Node* self, void (*callback) (Node*)) {
+static void traverse(ASTNode* self, void (*callback) (ASTNode*)) {
     if (!self) {
         return;
     }
@@ -51,18 +51,30 @@ static void traverse(Node* self, void (*callback) (Node*)) {
     callback(self);
 }
 
-Node* newNode(Token* token, Table* symbolTable) {
-    Node* node = pMalloc(sizeof (Node));
+static bool addChild(struct ASTNode* self, struct ASTNode* child) {
+    if (self->childrenCount == self->maxChildrenCount) {
+        return false;
+    }
 
-    *node = (Node) {
-        .toString = &toString,
-        .traverse = &traverse
-    };
+    if (!self->children) {
+        self->children = pMalloc(sizeof (ASTNode) * self->maxChildrenCount);
+    }
 
-    return node;
+    self->children[self->childrenCount++] = *child;
+    return true;
 }
 
-void freeNode(Node* node) {
-    free(node);
+ASTNode* newLeafASTNode(Token* token, Table* symbolTable) {
+    if (symbolTable) {}
+
+    ASTNode* node = pMalloc(sizeof (ASTNode));
+
+    node->token = token;
+
+    node->toString = &toString;
+    node->traverse = &traverse;
+    node->addChild = &addChild;
+
+    return node;
 }
 
