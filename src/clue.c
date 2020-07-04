@@ -67,6 +67,7 @@ static Table* initGlobalSymbolTable() {
 
     t->insert(t, "&&", newSymbol("LOGICAL_AND", 70, true));
     t->insert(t, "||", newSymbol("LOGICAL_OR", 70, true));
+    t->insert(t, "^^", newSymbol("LOGICAL_XOR", 70, true));
 
     t->insert(t, ";", newSymbol("SEMICOLON", 0, true));
 
@@ -145,7 +146,9 @@ static void handleCommandLineArguments(int argc, const char* argv[]) {
             CLAs->interactive = true;
 
         } else if (hasSuffix(argv[i], CLUE_FILE_SUFFIX)) {
-            doIt(clueFileRead(argv[i]), argv[i]);
+            char* buffer = clueFileRead(argv[i]);
+            doIt(buffer, argv[i]);
+            free(buffer);
 
         } else {
             help(argv[i]);

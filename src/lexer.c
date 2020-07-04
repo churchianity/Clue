@@ -125,7 +125,6 @@ Token* tokenize(char* buffer, char* filename) {
                 case '^': // bitwise XOR
                     tt = c;
 
-
                     /**
                      * check for...
                      *
@@ -163,7 +162,7 @@ Token* tokenize(char* buffer, char* filename) {
 
                         tk = pMalloc(3 * sizeof (char));
                         tl = 2;
-                        snprintf(tk, 3, "%c%c", c, *buffer++);
+                        snprintf(tk, 3, "%c%c", c, c2);
                         break;
                     }
 
@@ -177,9 +176,18 @@ Token* tokenize(char* buffer, char* filename) {
                 case '*':
                 case '/':
                 case '%':
+                case '~': // bitwise NOT assignment
                     tt = c;
 
-                    // check for compound assignment
+                    /**
+                     * '+=' addition compound assignment
+                     * '-=' minus compound assignment
+                     * '*=' multiply compound assignment
+                     * '/=' division compound assignment
+                     * '%=' modulus compound assignment
+                     *
+                     * '~=' bitwise NOT compound assignment
+                     */
                     if (*(buffer + 1) == '=') {
                         tk = pMalloc(3 * sizeof (char));
                         tl = 2;

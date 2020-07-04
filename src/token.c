@@ -1,7 +1,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> // strlen
 #include <stdbool.h>
 
 #include "clue.h"
@@ -31,13 +30,13 @@ static char* toString(const Token* self) {
     const char* bad = boolToString(self->bad);
 
     // show something for empty strings
-    const char* tk = (strlen(self->tk) == 0) ? "(empty string)" : self->tk;
+    const char* tk = (strln(self->tk) == 0) ? "(empty string)" : self->tk;
 
     const char* format = "%p | file: %s, line: %u, col: %u tl: %u | tt: %s, bad: %s, tk: %s\n";
 
     // magic numbers are (poorly) assumed lengths as strings of properties after being format specified
     // @TODO fix
-    const u32 length = 14 + 4 + 4 + 4 + strlen(filename) + strlen(tt) + strlen(bad) + strlen(tk) + strlen(format);
+    const u32 length = 14 + 4 + 4 + 4 + strln(filename) + strln(tt) + strln(bad) + strln(tk) + strln(format);
 
     char* buffer = pMalloc(length + 1);
 

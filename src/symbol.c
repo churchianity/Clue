@@ -4,7 +4,7 @@
 #include "util.h"
 
 
-Symbol* newSymbol(const char* name, u8 precedence, bool reserved) {
+Symbol* newSymbol(const char* name, char precedence, bool reserved) {
     Symbol* symbol = pMalloc(sizeof (Symbol));
 
     symbol->name = name;

@@ -31,7 +31,8 @@ typedef int32_t s32;
 typedef int16_t s16;
 typedef int8_t s8;
 
-// & float, double, char
+// typedef char8_t char; // @NOTE, uncomment this once C2x comes out
+// float, double // , extended
 
 typedef struct {
     bool interactive;
