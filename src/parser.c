@@ -44,12 +44,12 @@ static ASTNode* shuntingYard(Token tokens[]) {
                 exit(1);
 
             case TT_SYMBOL:
-                es->push(es, newLeafASTNode(&tokens[i], NULL)); // @TODO replace with search scope for var
+                es->push(es, newNode(&tokens[i], NULL)); // @TODO replace with search scope for var
                 break;
 
             case TT_STRING:
             case TT_NUMERIC:
-                es->push(es, newLeafASTNode(&tokens[i], NULL));
+                es->push(es, newNode(&tokens[i], NULL));
                 break;
 
             case '(':
@@ -62,20 +62,18 @@ static ASTNode* shuntingYard(Token tokens[]) {
                         break;
                     }
 
-                    /*
-                    ASTNode* lhs = es->pop(es);
                     ASTNode* rhs = es->pop(es);
+                    ASTNode* lhs = es->pop(es);
 
-                    if (!lhs) {} // @TODO report parser error
-                    if (!rhs) {} // @TODO report parser error
+                    if (!rhs) { fprintf(stderr, "failed to get rhs for operator"); exit(1); } // @TODO report parser error
+                    if (!lhs) { fprintf(stderr, "failed to get lhs for operator"); exit(1); } // @TODO report parser error
 
-                    ASTNode* opASTNode = newASTNode(os->pop(os), NULL);
+                    ASTNode* opNode = newNode(os->pop(os), NULL);
 
-                    opASTNode->addChild(opASTNode, lhs);
-                    opASTNode->addChild(opASTNode, rhs);
+                    opNode->addChild(opNode, lhs);
+                    opNode->addChild(opNode, rhs);
 
-                    es->push(es, opASTNode);
-                    */
+                    es->push(es, opNode);
                 }
 
                 os->pop(os); // discard opening parens
@@ -88,7 +86,18 @@ static ASTNode* shuntingYard(Token tokens[]) {
                 }
 
                 while (!os->isEmpty(os) && (precedence(os->peek(os)) > precedence(&tokens[i]))) {
-                    es->push(es, os->pop(os));
+                    ASTNode* rhs = es->pop(es);
+                    ASTNode* lhs = es->pop(es);
+
+                    if (!rhs) { fprintf(stderr, "failed to get rhs for operator"); exit(1); } // @TODO report parser error
+                    if (!lhs) { fprintf(stderr, "failed to get lhs for operator"); exit(1); } // @TODO report parser error
+
+                    ASTNode* opNode = newNode(os->pop(os), NULL);
+
+                    opNode->addChild(opNode, lhs);
+                    opNode->addChild(opNode, rhs);
+
+                    es->push(es, opNode);
                 }
 
                 os->push(os, &tokens[i]);
@@ -98,15 +107,23 @@ static ASTNode* shuntingYard(Token tokens[]) {
         ++i;
     }
 
-    // dump the operator stack into the expression stack
-    while (!os->isEmpty(os)) {
-        es->push(es, os->pop(os));
+    // it's possible there's an operator leftover we haven't dealt with yet
+     while (!os->isEmpty(os)) {
+        ASTNode* rhs = es->pop(es);
+        ASTNode* lhs = es->pop(es);
+
+        if (!rhs) { fprintf(stderr, "failed to get rhs for operator"); exit(1); } // @TODO report parser error
+        if (!lhs) { fprintf(stderr, "failed to get lhs for operator"); exit(1); } // @TODO report parser error
+
+        ASTNode* opNode = newNode(os->pop(os), NULL);
+
+        opNode->addChild(opNode, lhs);
+        opNode->addChild(opNode, rhs);
+
+        es->push(es, opNode);
     }
 
-    es->push(es, &tokens[i]); // sentinel
-
-    // return es;
-    return NULL;
+    return (ASTNode*) es->pop(es);
 }
 
 /**

@@ -16,12 +16,11 @@ typedef struct ASTNode {
     u32 maxChildrenCount;
 
     bool (*addChild) (struct ASTNode*, struct ASTNode*);
-    void (*toString) (const struct ASTNode*);
+    void (*toString) (struct ASTNode*);
     void (*traverse) (struct ASTNode*, void (*callback) (struct ASTNode*));
 } ASTNode;
 
-ASTNode* newLeafASTNode(Token* token, Table* symbolTable);
-ASTNode* newParentASTNode(Token* token, Table* symbolTable);
+ASTNode* newNode(Token* token, Table* symbolTable);
 
 #endif
 

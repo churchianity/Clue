@@ -102,25 +102,6 @@ static void help(const char* arg) {
     printf("'%s' isn't a valid argument and i should probably help you figure that out but i can't yet.\n", arg);
 }
 
-static char* clueFileRead(const char* filename) {
-    FILE* fp = fopen(filename, "r");
-    char* buffer = NULL;
-    u32 length;
-
-    if (!fp) {
-        fprintf(stderr, "failed to get fp for filename: %s\n", filename);
-        exit(1);
-    }
-
-    length = getFileSize(fp);
-    buffer = pMalloc(length);
-
-    fread(buffer, 1, length, fp);
-    fclose(fp);
-
-    return buffer;
-}
-
 static void handleCommandLineArguments(int argc, const char* argv[]) {
     CLAs = pMalloc(sizeof (CommandLineArguments));
 
@@ -145,8 +126,11 @@ static void handleCommandLineArguments(int argc, const char* argv[]) {
         } else if (streq(argv[i], "-i") || streq(argv[i], "--interactive")) {
             CLAs->interactive = true;
 
+        } else if (streq(argv[i], "-s") || streq(argv[i], "--sandbox")) {
+            CLAs->interactive = true;
+
         } else if (hasSuffix(argv[i], CLUE_FILE_SUFFIX)) {
-            char* buffer = clueFileRead(argv[i]);
+            char* buffer = fileRead(argv[i]);
             doIt(buffer, argv[i]);
             free(buffer);
 

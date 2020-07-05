@@ -8,14 +8,13 @@
 #include "token.h"
 #include "util.h"
 
-
 /**
  * @TODO this actually just prints stuff but instead it should:
  *
  * Returns some relevant information about a node as a single string.
  * Doesn't recurse into children, but does show their addresses.
  */
-static void toString(const ASTNode* self) {
+static void toString(ASTNode* self) {
     if (!self) {
         return;
     }
@@ -34,6 +33,7 @@ static void toString(const ASTNode* self) {
 
 /**
  * Iterates over the tree and calls |callback| on each node, with |root| as an argument.
+ * Post-order traversal.
  */
 static void traverse(ASTNode* self, void (*callback) (ASTNode*)) {
     if (!self) {
@@ -64,12 +64,28 @@ static bool addChild(struct ASTNode* self, struct ASTNode* child) {
     return true;
 }
 
-ASTNode* newLeafASTNode(Token* token, Table* symbolTable) {
-    if (symbolTable) {}
-
+ASTNode* newNode(Token* token, Table* symbolTable) {
     ASTNode* node = pMalloc(sizeof (ASTNode));
 
+    if (symbolTable) {}
+
     node->token = token;
+
+    node->children = NULL;
+    node->childrenCount = 0;
+
+    switch (token->tt) {
+        case TT_SENTINEL:
+        case TT_SYMBOL:
+        case TT_NUMERIC:
+        case TT_STRING:
+            node->maxChildrenCount = 0;
+            break;
+
+        default:
+            node->maxChildrenCount = 2;
+
+    }
 
     node->toString = &toString;
     node->traverse = &traverse;

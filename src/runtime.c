@@ -24,6 +24,11 @@ void doIt(char* codeBuffer, const char* filename) {
 
     ASTNode* AST = parse(tokens);
 
+    #if CLUE_DEBUG_LEVEL > 0
+        printf("\n\tPrinting AST @doIt...\n%s\n", _DIV);
+        AST->traverse(AST, AST->toString);
+    #endif
+
     // CLEANUP //
     free(AST);
     free(tokens);

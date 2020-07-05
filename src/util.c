@@ -129,3 +129,25 @@ u32 getFileSize(FILE* fp) {
 }
 
 
+/**
+ * Internally allocates the returned buffer - caller responsible for free'ing.
+ */
+char* fileRead(const char* filename) {
+    FILE* fp = fopen(filename, "r");
+    char* buffer = NULL;
+    u32 length;
+
+    if (!fp) {
+        fprintf(stderr, "failed to get fp for filename: %s\n", filename);
+        exit(1);
+    }
+
+    length = getFileSize(fp);
+    buffer = pMalloc(length);
+
+    fread(buffer, 1, length, fp);
+    fclose(fp);
+
+    return buffer;
+}
+

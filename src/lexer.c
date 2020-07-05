@@ -115,7 +115,8 @@ Token* tokenize(char* buffer, char* filename) {
             snprintf(tk, tl + 1, "%s", buffer - tl - 1);
 
         } else {
-            // mostly operator, all of which have their own type
+            // operators, all of which have their own type
+            // invalid characters read by the lexer will also be handled here.
             tl = 1;
 
             switch (c) {
@@ -176,7 +177,7 @@ Token* tokenize(char* buffer, char* filename) {
                 case '*':
                 case '/':
                 case '%':
-                case '~': // bitwise NOT assignment
+                case '~': // bitwise NOT
                     tt = c;
 
                     /**

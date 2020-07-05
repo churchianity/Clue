@@ -20,6 +20,7 @@ bool hasSuffix(const char* string, const char* suffix);
 unsigned long countLines(const char* buffer);
 
 unsigned long getFileSize(FILE* fp);
+char* fileRead(const char* filename);
 
 
 #endif
