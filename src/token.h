@@ -43,12 +43,6 @@ typedef enum TokenTypeEnum {
     TT_LESS_THAN_OR_EQUAL = 276
 } TokenTypeEnum;
 
-typedef union {
-    Symbol* symbol;
-    double number;
-    char* string;
-} TokenValue;
-
 typedef struct Token {
     const char* filename;
     u32 line;
@@ -56,9 +50,9 @@ typedef struct Token {
     u32 length;
 
     TokenTypeEnum tt;
-    const char* tk;
+    const char* tk; // the actual token value as a string - will be converted in the case of symbols and numeric types later
 
-    bool bad;
+    bool bad : 1; // the lexer can set a flag that lets you know this token is invalid regardless of context which is useful later
 
     char* (*toString) (const struct Token*);
 } Token;
