@@ -8,34 +8,12 @@
 #include "token.h"
 #include "util.h"
 
-/**
- * @TODO this actually just prints stuff but instead it should:
- *
- * Returns some relevant information about a node as a single string.
- * Doesn't recurse into children, but does show their addresses.
- */
-static void toString(ASTNode* self) {
-    if (!self) {
-        return;
-    }
-
-    printf("Printing ASTNode %p\nASTNode # of children: %u\n", (void*) self, self->childrenCount);
-    printf("ASTNode token: ");
-
-    printf("%s", self->token->toString(self->token));
-
-    for (u32 i = 0; i < self->childrenCount; i++) {
-        printf("\tChild %u pointer: %p\n", i, (void*) (self->children + i));
-    }
-
-    printf("\n");
-}
 
 /**
  * Iterates over the tree and calls |callback| on each node, with |root| as an argument.
  * Post-order traversal.
  */
-static void traverse(ASTNode* self, void (*callback) (ASTNode*)) {
+static void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
     if (!self) {
         return;
     }
@@ -87,7 +65,6 @@ ASTNode* newNode(Token* token, Table* symbolTable) {
 
     }
 
-    node->toString = &toString;
     node->traverse = &traverse;
     node->addChild = &addChild;
 

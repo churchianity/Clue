@@ -16,7 +16,6 @@ typedef struct Table {
 
     signed int (*insert) (struct Table* self, const char* key, void* value);
     TableEntry* (*lookup) (const struct Table* self, const char* key);
-    void (*print) (const struct Table* self);
 
     TableEntry** entries;
 } Table;

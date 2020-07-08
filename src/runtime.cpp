@@ -6,6 +6,7 @@
 #include "token.h"
 #include "node.h"
 #include "lexer.h"
+#include "print.h"
 #include "parser.h"
 #include "string.h"
 #include "runtime.h"
@@ -26,7 +27,7 @@ void doIt(char* codeBuffer, const char* filename) {
 
     #if CLUE_DEBUG_LEVEL > 0
         printf("\n\tPrinting AST @doIt...\n%s\n", _DIV);
-        AST->traverse(AST, AST->toString);
+        AST->traverse(AST, print);
     #endif
 
     // CLEANUP //

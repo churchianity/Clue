@@ -5,6 +5,7 @@
 #include "clue.h"
 #include "runtime.h"
 #include "symbol.h"
+#include "print.h"
 #include "table.h"
 #include "util.h"
 
@@ -75,7 +76,7 @@ static Table* initGlobalSymbolTable() {
 
     #if CLUE_DEBUG_LEVEL > 0
         printf("\n\tGlobal Symbol Table after init:\n%s\n", _DIV);
-        t->print(t);
+        print(t);
     #endif
 
     return t;

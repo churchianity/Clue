@@ -53,13 +53,10 @@ typedef struct Token {
     const char* tk; // the actual token value as a string - will be converted in the case of symbols and numeric types later
 
     bool bad; // the lexer can set a flag that lets you know this token is invalid regardless of context which is useful later
-
-    char* (*toString) (const struct Token*);
 } Token;
 
 Token* newToken(const char* filename, u32 line, u32 column, u32 length, TokenTypeEnum tt, const char* tk, bool bad);
 const char* tokenTypeToString(TokenTypeEnum tt);
-void printTokens(Token tokens[]);
 
 #endif
 

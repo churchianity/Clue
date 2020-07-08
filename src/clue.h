@@ -44,7 +44,5 @@ extern Table* globalSymbolTable;
 
 extern CommandLineArguments* CLAs;
 
-
-
 #endif
 

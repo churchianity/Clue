@@ -53,34 +53,12 @@ static TableEntry* lookup(const Table* self, const char* key) {
     return NULL;
 }
 
-static void print(const Table* self) {
-    printf("tp: %p | capacity: %u | entries:\n", (void*) self, self->capacity);
-
-    for (u32 i = 0; i < self->capacity; ++i) {
-        TableEntry* entry = *(self->entries + i);
-        printf("%u : %p", i, (void*) entry);
-
-        if (entry) {
-            printf(" | %s", entry->key);
-
-            while (entry->next) {
-                entry = entry->next;
-
-                printf(" ---> %p | %s", (void*) entry, entry->key);
-            }
-        }
-
-        printf("\n");
-    }
-}
-
 Table* newTable(u32 capacity) {
     Table* table = (Table*) pMalloc(sizeof (Table));
 
     table->capacity = capacity;
     table->insert = &insert;
     table->lookup = &lookup;
-    table->print = &print;
 
     table->entries = (TableEntry**) pCalloc(capacity, sizeof (TableEntry*));
 

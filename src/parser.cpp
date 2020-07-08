@@ -7,6 +7,7 @@
 #include "clue.h"
 #include "node.h"
 #include "lexer.h"
+#include "print.h"
 #include "stack.h"
 #include "symbol.h"
 #include "table.h"
@@ -22,7 +23,8 @@ u32 precedence(Token* token) {
     TableEntry* entry = t->lookup(t, token->tk);
 
     if (!entry) {
-        fprintf(stderr, "attempted to look up precedence for token and found nothing: %s\n", token->toString(token));
+        fprintf(stderr, "attempted to look up precedence for token and found nothing:\n");
+        print(token);
     }
 
     return ((Symbol*) (entry->value))->precedence;

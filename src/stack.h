@@ -19,7 +19,6 @@ typedef struct Stack {
     s32 (*push) (struct Stack* self, void* dataItemAddr);
     void* (*peek) (const struct Stack* self);
     void* (*pop) (struct Stack* self);
-    const char* (*toString) (struct Stack* self);
 } Stack;
 
 Stack* newStack(u32 capacity, bool grow);

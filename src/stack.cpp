@@ -48,32 +48,6 @@ static void* pop(Stack* self) {
     return self->data[self->top--];
 }
 
-/**
- * @TODO this function is unsafe
- */
-static const char* toString(Stack* self) {
-    /*
-    const char* grow = boolToString(self->grow);
-
-    const char* format = "capacity: %lu, grow?: %s, top: %lu, size: %lu, data: %p\n";
-
-    // magic numbers are assumed lengths as strings of properties after being format specified
-    // @TODO fix
-    const u32 length = 4 + strln(grow) + 4 + 4 + 14 + strln(format);
-
-    char* buffer = pMalloc(length + 1);
-
-    snprintf(buffer, length, (char*) format
-            , self->capacity
-            , grow
-            , self->top
-            , self->size(self)
-            , *self->data
-    );
-    */
-    return "not implemented";
-}
-
 Stack* newStack(u32 capacity, bool grow) {
     Stack* stack = (Stack*) pMalloc(sizeof (Stack));
 
@@ -88,7 +62,6 @@ Stack* newStack(u32 capacity, bool grow) {
     stack->push = &push;
     stack->peek = &peek;
     stack->pop = &pop;
-    stack->toString = &toString;
 
     return stack;
 }
