@@ -7,7 +7,7 @@
 
 
 static u32 size(const Stack* self) {
-    return (u32) (self->top + 1); // 'top' is s32
+    return (u32) (self->top + 1); // 'top' is signed
 }
 
 static bool isEmpty(const Stack* self) {
@@ -25,7 +25,7 @@ static s32 push(Stack* self, void* dataItemAddr) {
         }
 
         self->capacity *= 2;
-        self->data = pRealloc(self->data, sizeof (void*) * self->capacity);
+        self->data = (void**) pRealloc(self->data, sizeof (void*) * self->capacity);
     }
 
     self->data[++self->top] = dataItemAddr;
@@ -51,7 +51,7 @@ static void* pop(Stack* self) {
 /**
  * @TODO this function is unsafe
  */
-static char* toString(Stack* self) {
+static const char* toString(Stack* self) {
     /*
     const char* grow = boolToString(self->grow);
 
@@ -71,16 +71,16 @@ static char* toString(Stack* self) {
             , *self->data
     );
     */
-    return (char*) "not implemented";
+    return "not implemented";
 }
 
 Stack* newStack(u32 capacity, bool grow) {
-    Stack* stack = pMalloc(sizeof (Stack));
+    Stack* stack = (Stack*) pMalloc(sizeof (Stack));
 
     stack->capacity = capacity;
     stack->grow = grow;
     stack->top = -1;
-    stack->data = pMalloc(sizeof (void*) * capacity);
+    stack->data = (void**) pMalloc(sizeof (void*) * capacity);
 
     stack->size = &size;
     stack->isEmpty = &isEmpty;

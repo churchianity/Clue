@@ -24,7 +24,7 @@ static signed int insert(Table* self, const char* key, void* value) {
     u32 hashValue;
 
     if (!entry) {
-        entry = pMalloc(sizeof (TableEntry));
+        entry = (TableEntry*) pMalloc(sizeof (TableEntry));
         entry->key = key;
         entry->value = value;
 
@@ -75,17 +75,14 @@ static void print(const Table* self) {
 }
 
 Table* newTable(u32 capacity) {
-    Table* table = pMalloc(sizeof (Table));
+    Table* table = (Table*) pMalloc(sizeof (Table));
 
-    *table = (Table) {
-        .capacity = capacity,
+    table->capacity = capacity;
+    table->insert = &insert;
+    table->lookup = &lookup;
+    table->print = &print;
 
-        .insert = &insert,
-        .lookup = &lookup,
-        .print = &print,
-
-        .entries = pCalloc(capacity, sizeof (TableEntry*))
-    };
+    table->entries = (TableEntry**) pCalloc(capacity, sizeof (TableEntry*));
 
     return table;
 }

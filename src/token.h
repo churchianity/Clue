@@ -8,7 +8,7 @@
 #include "symbol.h"
 
 
-// this should be a complete list of all the non-terminals in the language
+// this should be a complete list of all the terminals in the language
 typedef enum TokenTypeEnum {
     TT_SENTINEL = -256,
 
@@ -52,13 +52,13 @@ typedef struct Token {
     TokenTypeEnum tt;
     const char* tk; // the actual token value as a string - will be converted in the case of symbols and numeric types later
 
-    bool bad : 1; // the lexer can set a flag that lets you know this token is invalid regardless of context which is useful later
+    bool bad; // the lexer can set a flag that lets you know this token is invalid regardless of context which is useful later
 
     char* (*toString) (const struct Token*);
 } Token;
 
 Token* newToken(const char* filename, u32 line, u32 column, u32 length, TokenTypeEnum tt, const char* tk, bool bad);
-char* tokenTypeToString(TokenTypeEnum tt);
+const char* tokenTypeToString(TokenTypeEnum tt);
 void printTokens(Token tokens[]);
 
 #endif

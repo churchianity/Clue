@@ -5,7 +5,7 @@
 
 
 Symbol* newSymbol(const char* name, char precedence, bool reserved) {
-    Symbol* symbol = pMalloc(sizeof (Symbol));
+    Symbol* symbol = (Symbol*) pMalloc(sizeof (Symbol));
 
     symbol->name = name;
     symbol->precedence = precedence;

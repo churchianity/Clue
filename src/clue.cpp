@@ -8,23 +8,16 @@
 #include "table.h"
 #include "util.h"
 
+Table* globalSymbolTable = NULL;
 
-/**
- *
- */
 CommandLineArguments* CLAs = NULL;
-
-/**
- * All symbols present in the global namespace will be an entry in this table.
- */
-Table* CLUE_GLOBAL_SYMBOL_TABLE_IDENTIFIER = NULL;
 
 /**
  *
  */
 static Table* initGlobalSymbolTable() {
-    if (CLUE_GLOBAL_SYMBOL_TABLE_IDENTIFIER != NULL) {
-        return CLUE_GLOBAL_SYMBOL_TABLE_IDENTIFIER;
+    if (globalSymbolTable != NULL) {
+        return globalSymbolTable;
     }
 
     Table *t = newTable(CLUE_GLOBAL_SYMBOL_TABLE_SIZE);
@@ -103,7 +96,7 @@ static void help(const char* arg) {
 }
 
 static void handleCommandLineArguments(int argc, const char* argv[]) {
-    CLAs = pMalloc(sizeof (CommandLineArguments));
+    CLAs = (CommandLineArguments*) pMalloc(sizeof (CommandLineArguments));
 
     #if CLUE_DEBUG_LEVEL > 1
         if (argc > 1) {
@@ -141,7 +134,7 @@ static void handleCommandLineArguments(int argc, const char* argv[]) {
 }
 
 int main(int argc, const char* argv[]) {
-    CLUE_GLOBAL_SYMBOL_TABLE_IDENTIFIER = initGlobalSymbolTable();
+    globalSymbolTable = initGlobalSymbolTable();
     handleCommandLineArguments(argc, argv);
 
     if (CLAs->interactive) {

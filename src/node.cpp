@@ -57,7 +57,7 @@ static bool addChild(struct ASTNode* self, struct ASTNode* child) {
     }
 
     if (!self->children) {
-        self->children = pMalloc(sizeof (ASTNode) * self->maxChildrenCount);
+        self->children = (ASTNode*) pMalloc(sizeof (ASTNode) * self->maxChildrenCount);
     }
 
     self->children[self->childrenCount++] = *child;
@@ -65,7 +65,7 @@ static bool addChild(struct ASTNode* self, struct ASTNode* child) {
 }
 
 ASTNode* newNode(Token* token, Table* symbolTable) {
-    ASTNode* node = pMalloc(sizeof (ASTNode));
+    ASTNode* node = (ASTNode*) pMalloc(sizeof (ASTNode));
 
     if (symbolTable) {}
 

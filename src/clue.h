@@ -7,7 +7,6 @@
 #define CLUE_DEBUG_LEVEL 1
 
 #define CLUE_GLOBAL_SYMBOL_TABLE_SIZE 20
-#define CLUE_GLOBAL_SYMBOL_TABLE_IDENTIFIER globalSymbolTable
 #define CLUE_INITIAL_TOKEN_ARRAY_CAPACITY 16
 #define CLUE_SANDBOX_MODE_MAX_LINE_LENGTH 120
 
@@ -15,7 +14,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-
+#include <stdlib.h>
 
 /**
  * Non-struct, non-union datatypes in this codebase:
@@ -31,17 +30,21 @@ typedef int32_t s32;
 typedef int16_t s16;
 typedef int8_t s8;
 
-// typedef char8_t char; // @NOTE, uncomment this once C2x comes out
-// float, double // , extended
+// char
+// bool
+// float, double, extended
+// string?
 
 typedef struct {
     bool interactive;
 } CommandLineArguments;
 
-CommandLineArguments* CLAs;
-
 #include "table.h"
-Table* CLUE_GLOBAL_SYMBOL_TABLE_IDENTIFIER;
+extern Table* globalSymbolTable;
+
+extern CommandLineArguments* CLAs;
+
+
 
 #endif
 

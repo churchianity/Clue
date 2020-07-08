@@ -17,7 +17,7 @@
  *
  */
 u32 precedence(Token* token) {
-    Table* t = CLUE_GLOBAL_SYMBOL_TABLE_IDENTIFIER;
+    Table* t = globalSymbolTable;
 
     TableEntry* entry = t->lookup(t, token->tk);
 
@@ -38,7 +38,7 @@ static ASTNode* shuntingYard(Token tokens[]) {
     u32 i = 0;
 
     while (tokens[i].tt != TT_SENTINEL) {
-        switch ((int) tokens[i].tt) {
+        switch ((int) tokens[i].tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
             case TT_SENTINEL:
                 fprintf(stderr, "Got a sentinel token inside of shuntingYard\nExiting...");
                 exit(1);
@@ -62,13 +62,13 @@ static ASTNode* shuntingYard(Token tokens[]) {
                         break;
                     }
 
-                    ASTNode* rhs = es->pop(es);
-                    ASTNode* lhs = es->pop(es);
+                    ASTNode* rhs = (ASTNode*) es->pop(es);
+                    ASTNode* lhs = (ASTNode*) es->pop(es);
 
-                    if (!rhs) { fprintf(stderr, "failed to get rhs for operator"); exit(1); } // @TODO report parser error
-                    if (!lhs) { fprintf(stderr, "failed to get lhs for operator"); exit(1); } // @TODO report parser error
+                    if (!rhs) { fprintf(stderr, "failed to get rhs for operator\n"); exit(1); } // @TODO report parser error
+                    if (!lhs) { fprintf(stderr, "failed to get lhs for operator\n"); exit(1); } // @TODO report parser error
 
-                    ASTNode* opNode = newNode(os->pop(os), NULL);
+                    ASTNode* opNode = newNode((Token*) os->pop(os), NULL);
 
                     opNode->addChild(opNode, lhs);
                     opNode->addChild(opNode, rhs);
@@ -85,14 +85,14 @@ static ASTNode* shuntingYard(Token tokens[]) {
                     break;
                 }
 
-                while (!os->isEmpty(os) && (precedence(os->peek(os)) > precedence(&tokens[i]))) {
-                    ASTNode* rhs = es->pop(es);
-                    ASTNode* lhs = es->pop(es);
+                while (!os->isEmpty(os) && (precedence((Token*) os->peek(os)) > precedence(&tokens[i]))) {
+                    ASTNode* rhs = (ASTNode*) es->pop(es);
+                    ASTNode* lhs = (ASTNode*) es->pop(es);
 
-                    if (!rhs) { fprintf(stderr, "failed to get rhs for operator"); exit(1); } // @TODO report parser error
-                    if (!lhs) { fprintf(stderr, "failed to get lhs for operator"); exit(1); } // @TODO report parser error
+                    if (!rhs) { fprintf(stderr, "failed to get rhs for operator\n"); exit(1); } // @TODO report parser error
+                    if (!lhs) { fprintf(stderr, "failed to get lhs for operator\n"); exit(1); } // @TODO report parser error
 
-                    ASTNode* opNode = newNode(os->pop(os), NULL);
+                    ASTNode* opNode = newNode((Token*) os->pop(os), NULL);
 
                     opNode->addChild(opNode, lhs);
                     opNode->addChild(opNode, rhs);
@@ -109,13 +109,13 @@ static ASTNode* shuntingYard(Token tokens[]) {
 
     // it's possible there's an operator leftover we haven't dealt with yet
      while (!os->isEmpty(os)) {
-        ASTNode* rhs = es->pop(es);
-        ASTNode* lhs = es->pop(es);
+        ASTNode* rhs = (ASTNode*) es->pop(es);
+        ASTNode* lhs = (ASTNode*) es->pop(es);
 
-        if (!rhs) { fprintf(stderr, "failed to get rhs for operator"); exit(1); } // @TODO report parser error
-        if (!lhs) { fprintf(stderr, "failed to get lhs for operator"); exit(1); } // @TODO report parser error
+        if (!rhs) { fprintf(stderr, "failed to get rhs for operator\n"); exit(1); } // @TODO report parser error
+        if (!lhs) { fprintf(stderr, "failed to get lhs for operator\n"); exit(1); } // @TODO report parser error
 
-        ASTNode* opNode = newNode(os->pop(os), NULL);
+        ASTNode* opNode = newNode((Token*) os->pop(os), NULL);
 
         opNode->addChild(opNode, lhs);
         opNode->addChild(opNode, rhs);

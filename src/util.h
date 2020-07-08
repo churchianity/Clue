@@ -8,9 +8,9 @@
 #include "clue.h"
 
 
-void* pMalloc(u64 size);
-void* pCalloc(u64 maxNumOfElements, u64 elementSize);
-void* pRealloc(void* buffer, u64 newSize);
+void* pMalloc(u32 size);
+void* pCalloc(u32 maxNumOfElements, u32 elementSize);
+void* pRealloc(void* buffer, u32 newSize);
 
 char* boolToString(bool b);
 

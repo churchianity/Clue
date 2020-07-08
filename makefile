@@ -1,7 +1,7 @@
 
-CC=gcc
-FILES=./src/clue.c ./src/runtime.c ./src/lexer.c ./src/parser.c ./src/token.c ./src/node.c ./src/util.c ./src/stack.c ./src/table.c ./src/symbol.c
-FLAGS=-ansi -std=c11 -pedantic -Wall -g
+CC=g++
+FILES=./src/clue.cpp ./src/runtime.cpp ./src/lexer.cpp ./src/parser.cpp ./src/token.cpp ./src/node.cpp ./src/util.cpp ./src/stack.cpp ./src/table.cpp ./src/symbol.cpp
+FLAGS=-ansi -fchar8_t -pedantic -std=c++11 -Wall -g
 
 compile:
 		$(CC) $(FILES) $(FLAGS) -o ./bin/clue

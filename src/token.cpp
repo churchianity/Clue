@@ -8,7 +8,7 @@
 #include "util.h"
 
 
-char* tokenTypeToString(TokenTypeEnum tt) {
+const char* tokenTypeToString(TokenTypeEnum tt) {
     switch (tt) {
         case TT_SENTINEL: return "SENTINEL";
 
@@ -38,7 +38,7 @@ static char* toString(const Token* self) {
     // @TODO fix
     const u32 length = 14 + 4 + 4 + 4 + strln(filename) + strln(tt) + strln(bad) + strln(tk) + strln(format);
 
-    char* buffer = pMalloc(length + 1);
+    char* buffer = (char*) pMalloc(length + 1);
 
     snprintf(buffer, length, format
          , self
@@ -70,17 +70,15 @@ void printTokens(Token tokens[]) {
 }
 
 Token* newToken(const char* filename, u32 line, u32 col, u32 length, TokenTypeEnum tt, const char* tk, bool bad) {
-    Token* token = pMalloc(sizeof (Token));
+    Token* token = (Token*) pMalloc(sizeof (Token));
 
-    *token = (Token) {
-        .filename = filename,
-        .line = line,
-        .column = col,
-        .tt = tt,
-        .tk = tk,
-        .bad = bad,
-        .toString = &toString
-    };
+    token->filename = filename;
+    token->line = line;
+    token->column = col;
+    token->tt = tt;
+    token->tk = tk;
+    token->bad = bad;
+    token->toString = &toString;
 
     return token;
 }

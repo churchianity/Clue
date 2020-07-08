@@ -143,7 +143,7 @@ char* fileRead(const char* filename) {
     }
 
     length = getFileSize(fp);
-    buffer = pMalloc(length);
+    buffer = (char*) pMalloc(length);
 
     fread(buffer, 1, length, fp);
     fclose(fp);

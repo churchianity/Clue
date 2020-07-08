@@ -13,10 +13,10 @@
  * Given a string |buffer| return an array of Token(s).
  * We are expecting the string to be null-terminated.
  */
-Token* tokenize(char* buffer, char* filename) {
+Token* tokenize(char* buffer, const char* filename) {
     // tokens array
     u32 capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
-    Token* tokens = pMalloc(sizeof (Token) * capacity);
+    Token* tokens = (Token*) pMalloc(sizeof (Token) * capacity);
     u32 tc = 0;
 
     // individual token members
@@ -61,7 +61,7 @@ Token* tokenize(char* buffer, char* filename) {
 
             // @TODO check convention of the full symbol and report appropriate lexer warnings
 
-            tk = pMalloc(sizeof (char) * tl);
+            tk = (char*) pMalloc(sizeof (char*) * tl);
             snprintf(tk, tl + 1, "%s", buffer - tl);
 
         } else if (isdigit(c)) {
@@ -87,7 +87,7 @@ Token* tokenize(char* buffer, char* filename) {
                 }
             } while (*buffer++ != '\0');
 
-            tk = pMalloc(sizeof (char) * tl);
+            tk = (char*) pMalloc(sizeof (char) * tl);
             snprintf(tk, tl + 1, "%s", buffer - tl);
 
         } else if (c == '"' || c == '\'') {
@@ -111,7 +111,7 @@ Token* tokenize(char* buffer, char* filename) {
                 // @TODO report lex error
             }
 
-            tk = pMalloc(sizeof (char) * tl);
+            tk = (char*) pMalloc(sizeof (char) * tl);
             snprintf(tk, tl + 1, "%s", buffer - tl - 1);
 
         } else {
@@ -124,7 +124,7 @@ Token* tokenize(char* buffer, char* filename) {
                 case '&': // bitwise AND
                 case '|': // bitwise OR
                 case '^': // bitwise XOR
-                    tt = c;
+                    tt = (TokenTypeEnum) c;
 
                     /**
                      * check for...
@@ -134,9 +134,7 @@ Token* tokenize(char* buffer, char* filename) {
                      * '||' logical OR
                      * '^^' logical XOR
                      */
-                    char c2 = *(buffer + 1);
-
-                    if (c2 == c) {
+                    if (*(buffer + 1) == c) {
                         switch (c) {
                             case '=': tt = TT_EQUALS; break;
                             case '&': tt = TT_LOGICAL_AND; break;
@@ -144,7 +142,7 @@ Token* tokenize(char* buffer, char* filename) {
                             case '^': tt = TT_LOGICAL_XOR; break;
                         }
 
-                        tk = pMalloc(3 * sizeof (char));
+                        tk = (char*) pMalloc(3 * sizeof (char));
                         tl = 2;
                         snprintf(tk, 3, "%c%c", c, *buffer++);
                         break;
@@ -154,20 +152,20 @@ Token* tokenize(char* buffer, char* filename) {
                      * '|=' bitwise OR compound assignment
                      * '^=' bitwise XOR compound assignment
                      */
-                    } else if (c2 == '=') {
+                    } else if (*(buffer + 1) == '=') {
                         switch (c) {
                             case '&': tt = TT_BITWISE_AND_ASSIGNMENT; break;
                             case '|': tt = TT_BITWISE_OR_ASSIGNMENT; break;
                             case '^': tt = TT_BITWISE_XOR_ASSIGNMENT; break;
                         }
 
-                        tk = pMalloc(3 * sizeof (char));
+                        tk = (char*) pMalloc(3 * sizeof (char));
                         tl = 2;
-                        snprintf(tk, 3, "%c%c", c, c2);
+                        snprintf(tk, 3, "%c%c", c, *(buffer + 1));
                         break;
                     }
 
-                    tk = pMalloc(2 * sizeof (char));
+                    tk = (char*) pMalloc(2 * sizeof (char));
                     snprintf(tk, 2, "%c", c);
                     break;
 
@@ -178,7 +176,7 @@ Token* tokenize(char* buffer, char* filename) {
                 case '/':
                 case '%':
                 case '~': // bitwise NOT
-                    tt = c;
+                    tt = (TokenTypeEnum) c;
 
                     /**
                      * '+=' addition compound assignment
@@ -190,21 +188,21 @@ Token* tokenize(char* buffer, char* filename) {
                      * '~=' bitwise NOT compound assignment
                      */
                     if (*(buffer + 1) == '=') {
-                        tk = pMalloc(3 * sizeof (char));
+                        tk = (char*) pMalloc(3 * sizeof (char));
                         tl = 2;
                         snprintf(tk, 3, "%c=", c);
                         buffer++;
                         break;
                     }
 
-                    tk = pMalloc(2 * sizeof (char));
+                    tk = (char*) pMalloc(2 * sizeof (char));
                     snprintf(tk, 2, "%c", c);
                     break;
 
                 case '(':
                 case ')':
-                    tt = c;
-                    tk = pMalloc(2 * sizeof (char));
+                    tt = (TokenTypeEnum) c;
+                    tk = (char*) pMalloc(2 * sizeof (char));
                     snprintf(tk, 2, "%c", c);
                     break;
 
@@ -219,7 +217,7 @@ Token* tokenize(char* buffer, char* filename) {
         // we have a token. add it to the array, realloc'ing as necessary
         if (capacity <= tc) {
             capacity *= 2; // @TODO I don't know what the optimal growth rate is
-            tokens = pRealloc(tokens, sizeof (Token) * capacity);
+            tokens = (Token*) pRealloc(tokens, sizeof (Token) * capacity);
         }
 
         tokens[tc++] = *newToken(filename, line, column, tl, tt, tk, bad);
