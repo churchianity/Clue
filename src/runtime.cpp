@@ -27,7 +27,12 @@ void doIt(char* codeBuffer, const char* filename) {
 
     #if CLUE_DEBUG_LEVEL > 0
         printf("\n\tPrinting AST @doIt...\n%s\n", _DIV);
-        AST->traverse(AST, print);
+        if (AST) {
+            AST->traverse(AST, print);
+
+        } else {
+            printf("The AST is null.\n");
+        }
     #endif
 
     // CLEANUP //

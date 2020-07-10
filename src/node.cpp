@@ -15,6 +15,7 @@
  * Post-order traversal.
  */
 static void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
+        printf("LMAO\n"); fflush(stdout);
     if (!self) {
         return;
     }

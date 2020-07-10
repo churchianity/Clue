@@ -4,6 +4,7 @@
 #include "token.h"
 #include "node.h"
 #include "stack.h"
+#include "print.h"
 #include "table.h"
 #include "util.h"
 
@@ -62,7 +63,6 @@ void print(const Stack* stack) {
             , stack->size(stack)
             , *stack->data);
 }
-
 
 
 /**
