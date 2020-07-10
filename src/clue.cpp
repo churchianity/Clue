@@ -105,7 +105,7 @@ static void handleCommandLineArguments(int argc, const char* argv[]) {
         }
     #endif
 
-    for (u32 i = 1; i < argc; ++i) {
+    for (int i = 1; i < argc; ++i) {
         #if CLUE_DEBUG_LEVEL > 1
             printf("args[%d]: %s\n", i, argv[i]);
         #endif

@@ -15,7 +15,7 @@ static bool isEmpty(const Stack* self) {
 }
 
 static bool isFull(const Stack* self) {
-    return self->top == self->capacity - 1;
+    return ((u32) self->top) == (self->capacity - 1);
 }
 
 static s32 push(Stack* self, void* dataItemAddr) {
