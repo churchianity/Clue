@@ -11,12 +11,12 @@
 typedef struct ASTNode {
     Token* token;
 
-    struct ASTNode* children;
+    ASTNode* children;
     u32 childrenCount;
     u32 maxChildrenCount;
 
-    bool (*addChild) (struct ASTNode*, struct ASTNode*);
-    void (*traverse) (struct ASTNode*, void (*callback) (const struct ASTNode*));
+    bool (*addChild) (ASTNode*, ASTNode*);
+    void (*traverse) (ASTNode*, void (*callback) (const ASTNode*));
 } ASTNode;
 
 ASTNode* newNode(Token* token, Table* symbolTable);

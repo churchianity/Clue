@@ -78,10 +78,17 @@ static ASTNode* shuntingYard(Token tokens[]) {
                     es->push(es, opNode);
                 }
 
+
+                if (os->isEmpty(os)) { // we never found a matching open paren...
+                    // @TODO report parser error
+                    // how can we be more intelligent about reporting missing parens?
+                    break;
+                }
+
                 os->pop(os); // discard opening parens
                 break;
 
-            default: // should be an operator
+            default: // should be a non-punctuator, non-function invoking operator
                 if (os->isEmpty(os)) {
                     os->push(os, &tokens[i]);
                     break;
@@ -110,7 +117,7 @@ static ASTNode* shuntingYard(Token tokens[]) {
     }
 
     // it's possible there's an operator leftover we haven't dealt with yet
-     while (!os->isEmpty(os)) {
+    while (!os->isEmpty(os)) {
         ASTNode* rhs = (ASTNode*) es->pop(es);
         ASTNode* lhs = (ASTNode*) es->pop(es);
 

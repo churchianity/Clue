@@ -13,12 +13,12 @@ typedef struct Stack {
     bool grow;
     void** data;
 
-    u32 (*size) (const struct Stack* self);
-    bool (*isEmpty) (const struct Stack* self);
-    bool (*isFull) (const struct Stack* self);
-    s32 (*push) (struct Stack* self, void* dataItemAddr);
-    void* (*peek) (const struct Stack* self);
-    void* (*pop) (struct Stack* self);
+    u32 (*size) (const Stack* self);
+    bool (*isEmpty) (const Stack* self);
+    bool (*isFull) (const Stack* self);
+    s32 (*push) (Stack* self, void* dataItemAddr);
+    void* (*peek) (const Stack* self);
+    void* (*pop) (Stack* self);
 } Stack;
 
 Stack* newStack(u32 capacity, bool grow);

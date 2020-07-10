@@ -7,6 +7,7 @@
 #include "table.h"
 #include "token.h"
 #include "util.h"
+#include "print.h"
 
 
 /**
@@ -29,7 +30,7 @@ static void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
     callback(self);
 }
 
-static bool addChild(struct ASTNode* self, struct ASTNode* child) {
+static bool addChild(ASTNode* self, ASTNode* child) {
     if (self->childrenCount == self->maxChildrenCount) {
         return false;
     }

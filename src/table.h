@@ -6,7 +6,7 @@
 
 
 typedef struct TableEntry {
-    struct TableEntry* next;
+    TableEntry* next;
     const char* key;
     void* value;
 } TableEntry;
@@ -14,8 +14,8 @@ typedef struct TableEntry {
 typedef struct Table {
     u32 capacity;
 
-    signed int (*insert) (struct Table* self, const char* key, void* value);
-    TableEntry* (*lookup) (const struct Table* self, const char* key);
+    signed int (*insert) (Table* self, const char* key, void* value);
+    TableEntry* (*lookup) (const Table* self, const char* key);
 
     TableEntry** entries;
 } Table;

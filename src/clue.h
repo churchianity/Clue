@@ -30,7 +30,7 @@ typedef int32_t s32;
 typedef int16_t s16;
 typedef int8_t s8;
 
-// char
+// char // i don't know if we should use char8_t, seems like a medium sized pain for a small sized gain
 // bool
 // float, double, extended
 // string?
