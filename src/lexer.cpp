@@ -116,6 +116,9 @@ Token* tokenize(char* buffer, const char* filename) {
 
         } else {
             // operators, all of which have their own type
+            // single-char operators have their ascii code as their type,
+            // while 2-char operators have a defined type in token.h
+
             // invalid characters read by the lexer will also be handled here.
             tl = 1;
 
@@ -133,7 +136,7 @@ Token* tokenize(char* buffer, const char* filename) {
                      * '&&' logical AND
                      * '||' logical OR
                      */
-                    if (*(buffer + 1) == c) {
+                    if (*buffer == c) {
                         switch (c) {
                             case '=': tt = TT_EQUALS; break;
                             case '&': tt = TT_LOGICAL_AND; break;
@@ -150,7 +153,7 @@ Token* tokenize(char* buffer, const char* filename) {
                      * '|=' bitwise OR compound assignment
                      * '^=' bitwise XOR compound assignment
                      */
-                    } else if (*(buffer + 1) == '=') {
+                    } else if (*buffer == '=') {
                         switch (c) {
                             case '&': tt = TT_BITWISE_AND_ASSIGNMENT; break;
                             case '|': tt = TT_BITWISE_OR_ASSIGNMENT; break;
@@ -189,7 +192,7 @@ Token* tokenize(char* buffer, const char* filename) {
                      *
                      * ':=' alternative assignment (explicit type inference)
                      */
-                    if (*(buffer + 1) == '=') {
+                    if (*buffer == '=') {
                         tk = (char*) pMalloc(3 * sizeof (char));
                         tl = 2;
                         snprintf(tk, 3, "%c=", c);
