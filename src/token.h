@@ -34,7 +34,6 @@ typedef enum TokenTypeEnum {
 
     TT_LOGICAL_AND = 270,
     TT_LOGICAL_OR = 271,
-    TT_LOGICAL_XOR = 272,
 
     TT_EQUALS = 273,
     TT_NOT_EQUALS = 274,

@@ -39,7 +39,11 @@ static Table* initGlobalSymbolTable() {
     t->insert(t, "~", newSymbol("BITWISE_NOT", 60, true));
     t->insert(t, "^", newSymbol("BITWISE_XOR", 60, true));
 
+    t->insert(t, ":", newSymbol("COLON", 10, true));
+
     t->insert(t, "=", newSymbol("EQUALS", 10, true));
+
+    t->insert(t, ":=", newSymbol("COLON EQUALS", 10, true));
     t->insert(t, "+=", newSymbol("PLUS_EQUALS", 10, true));
     t->insert(t, "-=", newSymbol("MINUS_EQUALS", 10, true));
     t->insert(t, "*=", newSymbol("TIMES_EQUALS", 10, true));
@@ -61,7 +65,6 @@ static Table* initGlobalSymbolTable() {
 
     t->insert(t, "&&", newSymbol("LOGICAL_AND", 70, true));
     t->insert(t, "||", newSymbol("LOGICAL_OR", 70, true));
-    t->insert(t, "^^", newSymbol("LOGICAL_XOR", 70, true));
 
     t->insert(t, ";", newSymbol("SEMICOLON", 0, true));
 

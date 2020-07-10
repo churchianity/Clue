@@ -132,14 +132,12 @@ Token* tokenize(char* buffer, const char* filename) {
                      * '==' equality
                      * '&&' logical AND
                      * '||' logical OR
-                     * '^^' logical XOR
                      */
                     if (*(buffer + 1) == c) {
                         switch (c) {
                             case '=': tt = TT_EQUALS; break;
                             case '&': tt = TT_LOGICAL_AND; break;
                             case '|': tt = TT_LOGICAL_OR; break;
-                            case '^': tt = TT_LOGICAL_XOR; break;
                         }
 
                         tk = (char*) pMalloc(3 * sizeof (char));
@@ -175,7 +173,9 @@ Token* tokenize(char* buffer, const char* filename) {
                 case '*':
                 case '/':
                 case '%':
+
                 case '~': // bitwise NOT
+                case ':': // colon operator
                     tt = (TokenTypeEnum) c;
 
                     /**
@@ -186,6 +186,8 @@ Token* tokenize(char* buffer, const char* filename) {
                      * '%=' modulus compound assignment
                      *
                      * '~=' bitwise NOT compound assignment
+                     *
+                     * ':=' alternative assignment (explicit type inference)
                      */
                     if (*(buffer + 1) == '=') {
                         tk = (char*) pMalloc(3 * sizeof (char));
