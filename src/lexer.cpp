@@ -10,9 +10,20 @@
 
 
 /**
+ * Reads |length| characters from |buffer| into a newly allocated buffer and returns it.
+ * Appends the null character, so the returned string is |length| + 1 in size.
+ */
+static char* read(char* buffer, u32 length) {
+    char* tk = (char*) pMalloc(sizeof (char) * length + 1);
+    snprintf(tk, length + 1, "%s", buffer - length);
+
+    return tk;
+}
+
+/**
  * Pre-processor statement to copy the contents of a file into the tokenizer.
  */
-static Token* import(char* originalBuffer) {
+static Token* import(char* buffer) {
     return NULL;
 }
 
@@ -30,10 +41,7 @@ Token* lexSymbol(char* buffer, const char* filename, u32 line, u32 column) {
         }
     } while (*buffer++ != '\0');
 
-    char* tk = (char*) pMalloc(sizeof (char) * length + 1);
-    snprintf(tk, length + 1, "%s", buffer - length);
-
-    return newToken(filename, line, column, length, TT_SYMBOL, tk, false);
+    return newToken(filename, line, column, length, TT_SYMBOL, read(buffer, length), false);
 }
 
 /**
@@ -61,10 +69,7 @@ Token* lexNumeric(char* buffer, const char* filename, u32 line, u32 column) {
         }
     } while (*buffer++ != '\0');
 
-    char* tk = (char*) pMalloc(sizeof (char) * length + 1);
-    snprintf(tk, length + 1, "%s", buffer - length);
-
-    return newToken(filename, line, column, length, TT_NUMERIC, tk, bad);
+    return newToken(filename, line, column, length, TT_NUMERIC, read(buffer, length), bad);
 }
 
 /**
@@ -130,9 +135,8 @@ Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
                     case '|': tt = TT_LOGICAL_OR; break;
                 }
 
-                tk = (char*) pMalloc(3 * sizeof (char));
                 length = 2;
-                snprintf(tk, 3, "%c%c", *buffer, *(buffer + 1));
+                tk = read(buffer, length);
                 break;
 
             /**
@@ -147,14 +151,12 @@ Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
                     case '^': tt = TT_BITWISE_XOR_ASSIGNMENT; break;
                 }
 
-                tk = (char*) pMalloc(3 * sizeof (char));
                 length = 2;
-                snprintf(tk, 3, "%c%c", *buffer, *(buffer + 1));
+                tk = read(buffer, length);
                 break;
             }
 
-            tk = (char*) pMalloc(2 * sizeof (char));
-            snprintf(tk, 2, "%c", *buffer);
+            tk = read(buffer, length);
             break;
 
         // arithmetic
@@ -182,31 +184,27 @@ Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
              * ':=' alternative assignment (explicit type inference)
              */
             if (*(buffer + 1) == '=') {
-                tk = (char*) pMalloc(3 * sizeof (char));
                 length = 2;
-                snprintf(tk, 3, "%c=", *buffer);
+                tk = read(buffer, length);
                 buffer++;
                 break;
             }
 
-            tk = (char*) pMalloc(2 * sizeof (char));
-            snprintf(tk, 2, "%c", *buffer);
+            tk = read(buffer, length);
             break;
 
         case '.':
         case '(':
         case ')':
             tt = (TokenTypeEnum) *buffer;
-            tk = (char*) pMalloc(2 * sizeof (char));
-            snprintf(tk, 2, "%c", *buffer);
+            tk = read(buffer, length);
             break;
 
         default:
             fprintf(stderr, "invalid character encountered :: %c\n", *buffer);
             bad = true;
             tt = (TokenTypeEnum) *buffer;
-            tk = (char*) pMalloc(2 * sizeof (char));
-            snprintf(tk, 2, "%c", *buffer);
+            tk = read(buffer, length);
             break;
     }
 

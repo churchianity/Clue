@@ -21,7 +21,7 @@ void print(const Token* token) {
 }
 
 void print(const ASTNode* node) {
-    printf("Printing Node %p\n# of children: %u\n", (void*) node, node->childrenCount);
+    printf("Node %p | # of children: %u\n", (void*) node, node->childrenCount);
 
     printf("Token: "); print(node->token);
 
