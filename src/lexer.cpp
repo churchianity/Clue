@@ -110,9 +110,10 @@ Token* lexString(char* buffer, const char* filename, u32 line, u32 column) {
  */
 Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
     u32 length = 1;
+
     TokenTypeEnum tt;
+
     bool bad = false;
-    char* tk = NULL;
 
     switch (*buffer) {
         case '=': // assignment operator
@@ -136,7 +137,6 @@ Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
                 }
 
                 length = 2;
-                tk = read(buffer, length);
                 break;
 
             /**
@@ -152,11 +152,9 @@ Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
                 }
 
                 length = 2;
-                tk = read(buffer, length);
                 break;
             }
 
-            tk = read(buffer, length);
             break;
 
         // arithmetic
@@ -185,30 +183,26 @@ Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
              */
             if (*(buffer + 1) == '=') {
                 length = 2;
-                tk = read(buffer, length);
                 buffer++;
                 break;
             }
 
-            tk = read(buffer, length);
             break;
 
         case '.':
         case '(':
         case ')':
             tt = (TokenTypeEnum) *buffer;
-            tk = read(buffer, length);
             break;
 
         default:
             fprintf(stderr, "invalid character encountered :: %c\n", *buffer);
             bad = true;
             tt = (TokenTypeEnum) *buffer;
-            tk = read(buffer, length);
             break;
     }
 
-    return newToken(filename, line, column, length, tt, tk, bad);
+    return newToken(filename, line, column, length, tt, read(buffer, length), bad);
 }
 
 /**
