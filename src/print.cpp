@@ -16,7 +16,7 @@ void print(const Token* token) {
     // show something for empty strings
     const char* tk = (strln(token->tk) == 0) ? "(empty string)" : token->tk;
 
-    printf("%p | file: %s, line: %u, col: %u tl: %u | tt: %s, bad: %s, tk: %s\n"
+    printf("%p | file: %s, line: %u, col: %u len: %u | tt: %s, bad: %s, tk: %s\n"
            , (void*) token, token->filename, token->line, token->column, token->length, tt, bad, tk);
 }
 

@@ -14,7 +14,7 @@ Table* globalSymbolTable = NULL;
 CommandLineArguments* CLAs = NULL;
 
 /**
- *
+ * @TODO
  */
 static Table* initGlobalSymbolTable() {
     if (globalSymbolTable != NULL) {
@@ -78,15 +78,15 @@ static Table* initGlobalSymbolTable() {
     t->insert(t, "print", newSymbol("PRINTF", 0, true));
 
     #if CLUE_DEBUG_LEVEL > 0
-        printf("\n\tGlobal Symbol Table after init:\n%s\n", _DIV);
-        print(t);
+        // printf("\n\tGlobal Symbol Table after init:\n%s\n", _DIV);
+        // print(t);
     #endif
 
     return t;
 }
 
 /**
- *
+ * @TODO
  */
 static void help(const char* arg) {
     if (!arg) {

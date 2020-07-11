@@ -48,9 +48,6 @@ char* boolToString(bool b) {
     return (char*) "false";
 }
 
-// @NOTE it feels like c strings are trash, but it's barely not worth it to write a string lib myself, that could change
-// when could I get a char* that isn't null terminated?
-
 /**
  * @WARN Assumes null termination.
  */

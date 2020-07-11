@@ -117,6 +117,7 @@ static ASTNode* shuntingYard(Token tokens[]) {
     }
 
     // it's possible there's an operator leftover we haven't dealt with yet
+    // @NOTE it should be just one, or zero left though right?
     while (!os->isEmpty(os)) {
         ASTNode* rhs = (ASTNode*) es->pop(es);
         ASTNode* lhs = (ASTNode*) es->pop(es);
