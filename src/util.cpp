@@ -83,7 +83,7 @@ bool streq(const char* s1, const char* s2) {
  * @WARN Assumes null termination.
  */
 bool hasSuffix(const char* string, const char* suffix) {
-    char* p = (char*) strrchr((char*) string, suffix[0]);
+    const char* p = strrchr(string, suffix[0]);
 
     if (p) {
         return streq(p, suffix);
@@ -108,6 +108,17 @@ u32 countLines(const char* buffer) {
     }
 
     return lines;
+}
+
+/**
+ * Reads |length| characters from |buffer| into a newly allocated buffer and returns it.
+ * Appends the null character, so the returned string is |length| + 1 in size.
+ */
+char* read(char* buffer, u32 length) {
+    char* tk = (char*) pMalloc(sizeof (char) * length + 1);
+    snprintf(tk, length + 1, "%s", buffer);
+
+    return tk;
 }
 
 u32 getFileSize(FILE* fp) {

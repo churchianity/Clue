@@ -21,7 +21,7 @@ void print(const Token* token) {
 }
 
 void print(const ASTNode* node) {
-    printf("Node %p | # of children: %u\n", (void*) node, node->childrenCount);
+    printf("%p | childrenCount: %u\n", (void*) node, node->childrenCount);
 
     printf("Token: "); print(node->token);
 
@@ -33,7 +33,7 @@ void print(const ASTNode* node) {
 }
 
 void print(const Table* table) {
-    printf("tp: %p | capacity: %u | entries:\n", (void*) table, table->capacity);
+    printf("%p | capacity: %u | entries:\n", (void*) table, table->capacity);
 
     for (u32 i = 0; i < table->capacity; ++i) {
         TableEntry* entry = *(table->entries + i);

@@ -18,6 +18,7 @@ u64 strln(const char* string);
 bool streq(const char* s1, const char* s2);
 bool hasSuffix(const char* string, const char* suffix);
 unsigned long countLines(const char* buffer);
+char* read(char* buffer, u32 length);
 
 unsigned long getFileSize(FILE* fp);
 char* fileRead(const char* filename);

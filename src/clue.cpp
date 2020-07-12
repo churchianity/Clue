@@ -75,7 +75,9 @@ static Table* initGlobalSymbolTable() {
     // t->insert(t, "{", newSymbol("OPEN_BRACE", 0, true));
     // t->insert(t, "}", newSymbol("CLOSE_BRACE", 0, true));
 
+    t->insert(t, "import", newSymbol("import statement", 0, true));
     t->insert(t, "print", newSymbol("PRINTF", 0, true));
+
 
     #if CLUE_DEBUG_LEVEL > 0
         // printf("\n\tGlobal Symbol Table after init:\n%s\n", _DIV);
