@@ -40,7 +40,7 @@ typedef enum TokenTypeEnum {
     // TT_DOUBLE_OPEN_BRACKET   = 278,  // [[
     // TT_DOUBLE_CLOSE_BRACKET  = 279,  // ]]
     TT_LOGICAL_OR               = 280,  // ||
-    // TT_DOUBLE_BACKSLASH      = 281,  // \\
+    // TT_DOUBLE_BACKSLASH      = 281,  // @NOTE can't write backslashes, makes comment multi-line
     // TT_DOUBLE_COLON          = 282,  // ::
     // TT_IMPOSSIBLE_4          = 283,  // ;;
     // TT_IMPOSSIBLE_5          = 284,  // ""
