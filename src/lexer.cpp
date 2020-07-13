@@ -18,7 +18,7 @@ static Token* import(char* buffer) {
 }
 
 /**
- *
+ * Like the other lex functions in this file, they should only be 
  */
 //@STRING
 Token* lexSymbol(char* buffer, const char* filename, u32 line, u32 column) {
@@ -98,6 +98,10 @@ Token* lexString(char* buffer, const char* filename, u32 line, u32 column) {
         // @TODO report lex error
     }
 
+    if (length == 0) {
+        return NULL; // @TODO report lex error
+    }
+
     return newToken(filename, line, column, length, TT_STRING, read(buffer - length, length), bad);
 }
 
@@ -120,6 +124,7 @@ Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
 
     // then check correctness:
     switch (*buffer) {
+        case ';':
         case ',':
         case '.':
         case '(':
@@ -153,14 +158,13 @@ Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
         case '|':
             if (*(buffer + 1) == *buffer) {
                 switch (*buffer) {
-                    case '+': tt = TT_INCREMENT;            break;
-                    case '-': tt = TT_DECREMENT;            break;
-                    case '*': tt = TT_EXPONENTIATION;       break;
-                    case '/': tt = TT_SINGLE_LINE_COMMENT;  break;
-                    case '=': tt = TT_EQUALITY;             break;
-                    case '&': tt = TT_LOGICAL_AND;          break;
-                    case '|': tt = TT_LOGICAL_OR;           break;
-                    default:                                break;
+                    case '+': tt = TT_INCREMENT;           break;
+                    case '-': tt = TT_DECREMENT;           break;
+                    case '*': tt = TT_EXPONENTIATION;      break;
+                    case '/': tt = TT_SINGLE_LINE_COMMENT; break;
+                    case '=': tt = TT_EQUALITY;            break;
+                    case '&': tt = TT_LOGICAL_AND;         break;
+                    case '|': tt = TT_LOGICAL_OR;          break;
                 }
 
                 length = 2;
@@ -173,20 +177,20 @@ Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
         case '^':
             if (*(buffer + 1) == '=') {
                 switch (*buffer) {
-                    case '>': tt = TT_GREATER_THAN_OR_EQUAL;    break;
-                    case '<': tt = TT_LESS_THAN_OR_EQUAL;       break;
-                    case '*': tt = TT_TIMES_EQUALS;             break;
-                    case '+': tt = TT_PLUS_EQUALS;              break;
-                    case '-': tt = TT_MINUS_EQUALS;             break;
-                    case '/': tt = TT_DIVIDE_EQUALS;            break;
-                    case '=': tt = TT_EQUALITY;                 break;
-                    case '&': tt = TT_BITWISE_AND_EQUALS;       break;
-                    case '|': tt = TT_BITWISE_OR_EQUALS;        break;
-                    case '!': tt = TT_NOT_EQUALS;               break;
-                    case '%': tt = TT_MODULO_EQUALS;            break;
-                    case '~': tt = TT_BITWISE_NOT_EQUALS;       break;
-                    case ':': tt = TT_COLON_EQUALS;             break;
-                    case '^': tt = TT_BITWISE_XOR_EQUALS;       break;
+                    case '>': tt = TT_GREATER_THAN_OR_EQUAL; break;
+                    case '<': tt = TT_LESS_THAN_OR_EQUAL;    break;
+                    case '*': tt = TT_TIMES_EQUALS;          break;
+                    case '+': tt = TT_PLUS_EQUALS;           break;
+                    case '-': tt = TT_MINUS_EQUALS;          break;
+                    case '/': tt = TT_DIVIDE_EQUALS;         break;
+                    case '=': tt = TT_EQUALITY;              break;
+                    case '&': tt = TT_BITWISE_AND_EQUALS;    break;
+                    case '|': tt = TT_BITWISE_OR_EQUALS;     break;
+                    case '!': tt = TT_NOT_EQUALS;            break;
+                    case '%': tt = TT_MODULO_EQUALS;         break;
+                    case '~': tt = TT_BITWISE_NOT_EQUALS;    break;
+                    case ':': tt = TT_COLON_EQUALS;          break;
+                    case '^': tt = TT_BITWISE_XOR_EQUALS;    break;
                 }
 
                 length = 2;
@@ -204,6 +208,7 @@ Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
         case '\0':
         default:
             fprintf(stderr, "invalid or unimplemented character encountered :: %c\n", *buffer); fflush(stderr);
+            // @TODO report lexer error
             return NULL;
     }
 

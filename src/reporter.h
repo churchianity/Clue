@@ -10,9 +10,5 @@ typedef struct Reporter {
 
 } Reporter;
 
-
-
-
-
 #endif
 

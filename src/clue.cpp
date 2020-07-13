@@ -23,60 +23,59 @@ static Table* initGlobalSymbolTable() {
 
     Table *t = newTable(CLUE_GLOBAL_SYMBOL_TABLE_SIZE);
 
-    t->insert(t, ",", newSymbol("COMMA", 0, true));
+    t->insert(t, ";", newSymbol("", 0, true));
+    t->insert(t, ",", newSymbol("", 0, true));
+    t->insert(t, ".", newSymbol("", 0, true));
+    t->insert(t, "(", newSymbol("", 0, true));
+    t->insert(t, ")", newSymbol("", 0, true));
+    t->insert(t, "{", newSymbol("", 0, true));
+    t->insert(t, "}", newSymbol("", 0, true));
+    t->insert(t, "[", newSymbol("", 0, true));
+    t->insert(t, "]", newSymbol("", 0, true));
 
-    t->insert(t, "+", newSymbol("PLUS", 50, true));
-    t->insert(t, "-", newSymbol("MINUS", 50, true));
-    t->insert(t, "*", newSymbol("TIMES", 60, true));
-    t->insert(t, "/", newSymbol("DIVIDE", 60, true));
-    t->insert(t, "%", newSymbol("MODULUS", 60, true));
+    t->insert(t, "+", newSymbol("", 50, true));
+    t->insert(t, "-", newSymbol("", 50, true));
+    t->insert(t, "*", newSymbol("", 60, true));
+    t->insert(t, "/", newSymbol("", 60, true));
+    t->insert(t, "%", newSymbol("", 60, true));
 
-    t->insert(t, "<<", newSymbol("LEFT_SHIFT", 60, true));
-    t->insert(t, ">>", newSymbol("RIGHT_SHIFT", 60, true));
+    t->insert(t, "&", newSymbol("", 60, true));
+    t->insert(t, "|", newSymbol("", 60, true));
+    t->insert(t, "~", newSymbol("", 60, true));
+    t->insert(t, "^", newSymbol("", 60, true));
 
-    t->insert(t, "&", newSymbol("BITWISE_AND", 60, true));
-    t->insert(t, "|", newSymbol("BITWISE_OR", 60, true));
-    t->insert(t, "~", newSymbol("BITWISE_NOT", 60, true));
-    t->insert(t, "^", newSymbol("BITWISE_XOR", 60, true));
+    t->insert(t, "<<", newSymbol("", 60, true));
+    t->insert(t, ">>", newSymbol("", 60, true));
 
-    t->insert(t, ":", newSymbol("COLON", 10, true));
+    t->insert(t, ":", newSymbol("", 10, true));
 
-    t->insert(t, "=", newSymbol("EQUALS", 10, true));
+    t->insert(t, "=", newSymbol("", 10, true));
 
-    t->insert(t, ":=", newSymbol("COLON EQUALS", 10, true));
-    t->insert(t, "+=", newSymbol("PLUS_EQUALS", 10, true));
-    t->insert(t, "-=", newSymbol("MINUS_EQUALS", 10, true));
-    t->insert(t, "*=", newSymbol("TIMES_EQUALS", 10, true));
-    t->insert(t, "/=", newSymbol("DIVIDE_EQUALS", 10, true));
-    t->insert(t, "%=", newSymbol("MODULUS_EQUALS", 10, true));
-    t->insert(t, "<<=", newSymbol("LEFT_SHIFT_ASSIGNMENT", 10, true));
-    t->insert(t, ">>=", newSymbol("RIGHT_SHIFT_ASSIGNMENT", 10, true));
+    t->insert(t, ":=", newSymbol("", 10, true));
+    t->insert(t, "+=", newSymbol("", 10, true));
+    t->insert(t, "-=", newSymbol("", 10, true));
+    t->insert(t, "*=", newSymbol("", 10, true));
+    t->insert(t, "/=", newSymbol("", 10, true));
+    t->insert(t, "%=", newSymbol("", 10, true));
+    // t->insert(t, "<<=", newSymbol("", 10, true));
+    // t->insert(t, ">>=", newSymbol("", 10, true));
 
-    t->insert(t, "&=", newSymbol("BITWISE_AND_EQUALS", 10, true));
-    t->insert(t, "|=", newSymbol("BITWISE_OR_EQUALS", 10, true));
-    t->insert(t, "~=", newSymbol("BITWISE_NOT_EQUALS", 10, true));
-    t->insert(t, "^=", newSymbol("BITWISE_XOR_EQUALS", 10, true));
+    t->insert(t, "&=", newSymbol("", 10, true));
+    t->insert(t, "|=", newSymbol("", 10, true));
+    t->insert(t, "~=", newSymbol("", 10, true));
+    t->insert(t, "^=", newSymbol("", 10, true));
 
-    t->insert(t, "==", newSymbol("EQUALITY", 80, true));
-    t->insert(t, ">=", newSymbol("GREATER_THAN_OR_EQUAL", 80, true));
-    t->insert(t, "<=", newSymbol("LESS_THAN_OR_EQUAL", 80, true));
-    t->insert(t, ">", newSymbol("GREATER_THAN", 80, true));
-    t->insert(t, "<", newSymbol("LESS_THAN", 80, true));
+    t->insert(t, "==", newSymbol("", 80, true));
+    t->insert(t, ">=", newSymbol("", 80, true));
+    t->insert(t, "<=", newSymbol("", 80, true));
+    t->insert(t, ">", newSymbol("", 80, true));
+    t->insert(t, "<", newSymbol("", 80, true));
 
-    t->insert(t, "&&", newSymbol("LOGICAL_AND", 70, true));
-    t->insert(t, "||", newSymbol("LOGICAL_OR", 70, true));
+    t->insert(t, "&&", newSymbol("", 70, true));
+    t->insert(t, "||", newSymbol("", 70, true));
 
-    t->insert(t, ";", newSymbol("SEMICOLON", 0, true));
-
-    t->insert(t, "(", newSymbol("OPEN_PARENS", 0, true));
-    t->insert(t, ")", newSymbol("CLOSE_PARENS", 0, true));
-    // t->insert(t, "[", newSymbol("OPEN_BRACKET", 0, true));
-    // t->insert(t, "]", newSymbol("CLOSE_BRACKET", 0, true));
-    // t->insert(t, "{", newSymbol("OPEN_BRACE", 0, true));
-    // t->insert(t, "}", newSymbol("CLOSE_BRACE", 0, true));
-
-    t->insert(t, "import", newSymbol("import statement", 0, true));
-    t->insert(t, "print", newSymbol("PRINTF", 0, true));
+    t->insert(t, "import", newSymbol("", 0, true));
+    t->insert(t, "print", newSymbol("", 0, true));
 
 
     #if CLUE_DEBUG_LEVEL > 0

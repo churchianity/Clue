@@ -17,7 +17,7 @@ typedef enum TokenTypeEnum {
     TT_SYMBOL                   = 256,  // any value that can be returned by lexSymbol
     TT_NUMERIC                  = 257,  // any value that can be returned by lexNumeric
     TT_STRING                   = 258,  // any value that can be returned by lexString
-    TT_OPERATOR                 = 259,  // unused
+    TT_OPERATOR                 = 259,  // unused (operators have one of the types below);
 
     // TT_DOUBLE_TILDE          = 260,  // ~~
     // TT_DOUBLE_BACKTICK       = 261,  // ``

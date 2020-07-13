@@ -22,7 +22,6 @@ void doIt(char* codeBuffer, const char* filename) {
         printTokens(tokens);
     #endif
 
-    /*
     ASTNode* AST = parse(tokens);
 
     #if CLUE_DEBUG_LEVEL > 0
@@ -37,7 +36,6 @@ void doIt(char* codeBuffer, const char* filename) {
 
     // CLEANUP //
     free(AST);
-    */
     free(tokens);
 }
 
