@@ -19,20 +19,14 @@
 void clueFileRead(const char* filename) {
     char* codebuffer = fileRead(filename);
     Token* tokens = tokenize(codebuffer, filename);
-    ASTNode* AST = parse(tokens);
+    // ASTNode* AST = parse(tokens);
 
     #if CLUE_DEBUG_LEVEL > 0
         printf("\n\tPrinting lexed tokens @doIt...\n%s\n", _DIV);
         printTokens(tokens);
-
-        printf("\n\tPrinting AST @doIt...\n%s\n", _DIV);
-        if (AST) {
-            AST->traverse(AST, print);
-
-        } else {
-            printf("The AST is null.\n");
-        }
     #endif
+
+    free(codebuffer);
 }
 
 /**
@@ -49,7 +43,7 @@ void interactive() {
         printf(">>> ");
 
         if (fgets(s, CLUE_SANDBOX_MODE_MAX_LINE_LENGTH, stdin) == NULL) {
-            fprintf(stderr, "error reading line and storing it in buffer %p\nskipping...\n", (void*) s);
+            fprintf(stderr, "error reading line from stdin and storing it in buffer %p\nskipping...\n", (void*) s);
             continue;
         }
 

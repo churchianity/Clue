@@ -216,6 +216,7 @@ static inline Token* lexOperator(char* buffer, const char* filename, u32 line, u
  */
 //@STRING
 Token* tokenize(char* buffer, const char* filename) {
+
     static u32 capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
     static Token* tokens = (Token*) pMalloc(sizeof (Token) * capacity);
     static u32 tokenCount = 0;
@@ -224,7 +225,6 @@ Token* tokenize(char* buffer, const char* filename) {
 
     static bool beenHereBefore = false;
     bool isEntryFile = !beenHereBefore;
-
     beenHereBefore = true;
 
     static bool prevTokenIsImport = false;
