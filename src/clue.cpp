@@ -9,7 +9,7 @@
 #include "table.h"
 #include "util.h"
 
-Table* globalSymbolTable = NULL;
+Table* op_t = NULL;
 
 CommandLineArguments* CLAs = NULL;
 
@@ -17,8 +17,8 @@ CommandLineArguments* CLAs = NULL;
  * @TODO
  */
 static Table* initGlobalSymbolTable() {
-    if (globalSymbolTable != NULL) {
-        return globalSymbolTable;
+    if (op_t != NULL) {
+        return op_t;
     }
 
     Table *t = newTable(CLUE_GLOBAL_SYMBOL_TABLE_SIZE);
@@ -128,9 +128,7 @@ static void handleCommandLineArguments(int argc, const char* argv[]) {
             CLAs->interactive = true;
 
         } else if (hasSuffix(argv[i], CLUE_FILE_SUFFIX)) {
-            char* buffer = fileRead(argv[i]);
-            doIt(buffer, argv[i]);
-            free(buffer);
+            clueFileRead(argv[i]);
 
         } else {
             help(argv[i]);
@@ -139,7 +137,7 @@ static void handleCommandLineArguments(int argc, const char* argv[]) {
 }
 
 int main(int argc, const char* argv[]) {
-    globalSymbolTable = initGlobalSymbolTable();
+    op_t = initGlobalSymbolTable();
     handleCommandLineArguments(argc, argv);
 
     if (CLAs->interactive) {

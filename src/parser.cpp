@@ -18,7 +18,7 @@
  *
  */
 u32 precedence(Token* token) {
-    Table* t = globalSymbolTable;
+    Table* t = op_t;
 
     TableEntry* entry = t->lookup(t, token->tk);
 

@@ -10,18 +10,11 @@
 
 
 /**
- * Pre-processor statement to copy the contents of a file into the tokenizer.
+ * |buffer| must be a string, the first character of which is alphabetical.
+ * For use by |tokenize| only.
  */
 //@STRING
-static Token* import(char* buffer) {
-    return NULL;
-}
-
-/**
- * Like the other lex functions in this file, they should only be 
- */
-//@STRING
-Token* lexSymbol(char* buffer, const char* filename, u32 line, u32 column) {
+static inline Token* lexSymbol(char* buffer, const char* filename, u32 line, u32 column) {
     u32 length = 0;
 
     while (*buffer != '\0') {
@@ -41,10 +34,11 @@ Token* lexSymbol(char* buffer, const char* filename, u32 line, u32 column) {
 }
 
 /**
- *
+ * |buffer| must be a string, the first character of which is a digit.
+ * For use by |tokenize| only.
  */
 //@STRING
-Token* lexNumeric(char* buffer, const char* filename, u32 line, u32 column) {
+static inline Token* lexNumeric(char* buffer, const char* filename, u32 line, u32 column) {
     u32 length = 0;
 
     bool bad = false;
@@ -75,31 +69,30 @@ Token* lexNumeric(char* buffer, const char* filename, u32 line, u32 column) {
 }
 
 /**
- *
+ * |buffer| must be a string, the first character of which is a single or double quote.
+ * For use by |tokenize| only.
  */
 //@STRING
-Token* lexString(char* buffer, const char* filename, u32 line, u32 column) {
-    // increment past what we *assume* is the opening quotemark
+static inline Token* lexString(char* buffer, const char* filename, u32 line, u32 column) {
+
+    // increment past what we assume is the opening quotemark
     char quotemark = *buffer++;
 
     u32 length = 0;
     bool bad = true;
+
     do {
         if (*buffer == quotemark) {
-            buffer++;
             bad = false; // if we found a closing quotemark, the string is probably valid
             break;
         }
 
         length++;
+
     } while (*buffer++ != '\0');
 
     if (bad) {
-        // @TODO report lex error
-    }
-
-    if (length == 0) {
-        return NULL; // @TODO report lex error
+        return NULL;
     }
 
     return newToken(filename, line, column, length, TT_STRING, read(buffer - length, length), bad);
@@ -113,9 +106,11 @@ Token* lexString(char* buffer, const char* filename, u32 line, u32 column) {
  * Invalid characters read by the lexer are necessarily also handled here,
  * because the key indicator that a token is an operator is usually that it
  * is *not* one of the other types.
+ *
+ * For use by |tokenize| only.
  */
 //@STRING
-Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
+static inline Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
 
     // assume the token is its own type, is valid, and of length 1...
     TokenTypeEnum tt = (TokenTypeEnum) *buffer;
@@ -221,11 +216,18 @@ Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
  */
 //@STRING
 Token* tokenize(char* buffer, const char* filename) {
-    u32 capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
-    Token* tokens = (Token*) pMalloc(sizeof (Token) * capacity);
-    u32 tokenCount = 0;
+    static u32 capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
+    static Token* tokens = (Token*) pMalloc(sizeof (Token) * capacity);
+    static u32 tokenCount = 0;
 
-    Token* token = NULL;
+    static Token* token = NULL;
+
+    static bool beenHereBefore = false;
+    bool isEntryFile = !beenHereBefore;
+
+    beenHereBefore = true;
+
+    static bool prevTokenIsImport = false;
 
     u32 line = 1;
     u32 column = 1;
@@ -261,6 +263,7 @@ Token* tokenize(char* buffer, const char* filename) {
 
         tokens[tokenCount++] = *token;
 
+        // modify buffer and column counters as appropriate...
         if (token->tt == TT_STRING) {
             column += 2;
             buffer += 2;
@@ -268,6 +271,22 @@ Token* tokenize(char* buffer, const char* filename) {
 
         column += token->length;
         buffer += token->length;
+
+        // handle import statement
+        if (prevTokenIsImport && (token->tt == TT_STRING)) {
+            char* newBuffer = fileRead(token->tk);
+
+            // recurse into tokenize, appending to the static |tokens| array
+            tokenize(newBuffer, token->tk);
+
+            free(newBuffer);
+        }
+
+        prevTokenIsImport = streq(token->tk, "import") ? true : false;
+    }
+
+    if (!isEntryFile) { // our job is done...
+        return NULL;
     }
 
     // make sure there's space before appending sentinel token...

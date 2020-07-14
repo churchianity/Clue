@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+
 /**
  * Non-struct, non-union datatypes in this codebase:
  * @NOTE We are using u32 and s32 for almost everything right now, and will optimze later.
@@ -40,7 +41,7 @@ typedef struct {
 } CommandLineArguments;
 
 #include "table.h"
-extern Table* globalSymbolTable;
+extern Table* op_t;
 
 extern CommandLineArguments* CLAs;
 

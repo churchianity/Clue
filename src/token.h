@@ -72,7 +72,7 @@ typedef enum TokenTypeEnum {
 
     TT_RIGHT_SHIFT_EQUALS       = 309,  // >>=
     TT_LEFT_SHIFT_EQUALS        = 310,  // <<=
-    TT_EXPONENTIATION_EQUALS    = 311, // **=
+    TT_EXPONENTIATION_EQUALS    = 311,  // **=
 
 } TokenTypeEnum;
 

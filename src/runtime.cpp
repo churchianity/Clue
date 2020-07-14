@@ -10,21 +10,21 @@
 #include "parser.h"
 #include "string.h"
 #include "runtime.h"
+#include "util.h"
+
 
 /**
  *
  */
-void doIt(char* codeBuffer, const char* filename) {
-    Token* tokens = tokenize(codeBuffer, filename);
+void clueFileRead(const char* filename) {
+    char* codebuffer = fileRead(filename);
+    Token* tokens = tokenize(codebuffer, filename);
+    ASTNode* AST = parse(tokens);
 
     #if CLUE_DEBUG_LEVEL > 0
         printf("\n\tPrinting lexed tokens @doIt...\n%s\n", _DIV);
         printTokens(tokens);
-    #endif
 
-    ASTNode* AST = parse(tokens);
-
-    #if CLUE_DEBUG_LEVEL > 0
         printf("\n\tPrinting AST @doIt...\n%s\n", _DIV);
         if (AST) {
             AST->traverse(AST, print);
@@ -33,10 +33,6 @@ void doIt(char* codeBuffer, const char* filename) {
             printf("The AST is null.\n");
         }
     #endif
-
-    // CLEANUP //
-    free(AST);
-    free(tokens);
 }
 
 /**
@@ -44,6 +40,9 @@ void doIt(char* codeBuffer, const char* filename) {
  */
 void interactive() {
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
+
+    Token* tokens = NULL; // should retrieve this from the lexer incase we previously lexed a file
+    ASTNode* AST = NULL; // ^
 
     do {
         memset(s, 0, sizeof (s));
@@ -56,11 +55,28 @@ void interactive() {
 
         if (s[0] == '.') {
             printf("Bye!\n");
-            return;
+            break;
         }
 
-        doIt(s, "stdin");
+        tokens = tokenize(s, "stdin");
+        AST = parse(tokens);
+
+        #if CLUE_DEBUG_LEVEL > 0
+            printf("\n\tPrinting lexed tokens @doIt...\n%s\n", _DIV);
+            printTokens(tokens);
+
+            printf("\n\tPrinting AST @doIt...\n%s\n", _DIV);
+            if (AST) {
+                AST->traverse(AST, print);
+
+            } else {
+                printf("The AST is null.\n");
+            }
+        #endif
 
     } while (1);
+
+    free(AST);
+    free(tokens);
 }
 

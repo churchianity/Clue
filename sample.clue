@@ -1,2 +1,6 @@
-x = 3 - 5 * 6
-/ (3 - 1 % 10);
+
+import "sample2.clue";
+
+x: Int = 3 + 4 * 5;
+
+print(x + y);

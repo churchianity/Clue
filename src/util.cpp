@@ -79,6 +79,18 @@ bool streq(const char* s1, const char* s2) {
     return true;
 }
 
+/* @TODO replace strrchr with this and make a string struct
+char* lastCharOccurence(char* string, u32 length, char c) {
+    for (u32 i = length - 1; i >= 0; i--) {
+        if (*string + i == c) {
+            return *string + i;
+        }
+    }
+
+    return NULL;
+}
+*/
+
 /**
  * @WARN Assumes null termination.
  */
