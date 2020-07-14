@@ -5,48 +5,8 @@
 #include <string.h> // for strrchar??????
 
 #include "clue.h"
+#include "util.h"
 
-
-void* pMalloc(u32 size) {
-    void* p = malloc(size);
-
-    if (!p) {
-        fprintf(stderr, "failed to malloc... zzz...\n");
-        exit(1);
-    }
-
-    return p;
-}
-
-void* pCalloc(u32 maxNumOfElements, u32 elementSize) {
-    void* p = calloc(maxNumOfElements, elementSize);
-
-    if (!p) {
-        fprintf(stderr, "failed to calloc... zzz...\n");
-        exit(1);
-    }
-
-    return p;
-}
-
-void* pRealloc(void* buffer, u32 newSize) {
-    void* p = realloc(buffer, newSize);
-
-    if (!p) {
-        fprintf(stderr, "failed to realloc... zzz.\n");
-        exit(1);
-    }
-
-    return p;
-}
-
-char* boolToString(bool b) {
-    if (b) {
-        return (char*) "true";
-    }
-
-    return (char*) "false";
-}
 
 /**
  * @WARN Assumes null termination.
@@ -107,8 +67,8 @@ bool hasSuffix(const char* string, const char* suffix) {
 /**
  * @WARN Assumes null termination.
  */
-u32 countLines(const char* buffer) {
-    u32 lines = 0;
+u64 countLines(const char* buffer) {
+    u64 lines = 0;
     char c;
 
     while ((c = *buffer) != '\0') {
@@ -122,19 +82,9 @@ u32 countLines(const char* buffer) {
     return lines;
 }
 
-/**
- * Reads |length| characters from |buffer| into a newly allocated buffer and returns it.
- * Appends the null character, so the returned string is |length| + 1 in size.
- */
-char* read(char* buffer, u32 length) {
-    char* tk = (char*) pMalloc(sizeof (char) * length + 1);
-    snprintf(tk, length + 1, "%s", buffer);
 
-    return tk;
-}
-
-u32 getFileSize(FILE* fp) {
-    u32 size;
+u64 getFileSize(FILE* fp) {
+    u64 size;
 
     fseek(fp, 0, SEEK_END);
     size = ftell(fp);
