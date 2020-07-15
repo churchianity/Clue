@@ -42,7 +42,7 @@ inline void* pRealloc(void* buffer, u32 newSize) {
 }
 
 inline const char* boolToString(bool b) {
-    return (b) ? "true" : "false";
+    return b ? "true" : "false";
 }
 
 /**

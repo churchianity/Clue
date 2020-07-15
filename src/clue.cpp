@@ -25,13 +25,13 @@ static Table* initGlobalSymbolTable() {
 
     t->insert(t, ";", newSymbol("", 0, true));
     t->insert(t, ",", newSymbol("", 0, true));
-    t->insert(t, ".", newSymbol("", 0, true));
-    t->insert(t, "(", newSymbol("", 0, true));
-    t->insert(t, ")", newSymbol("", 0, true));
+    t->insert(t, ".", newSymbol("", 90, true));
+    t->insert(t, "(", newSymbol("", 90, true));
+    t->insert(t, ")", newSymbol("", 90, true));
     t->insert(t, "{", newSymbol("", 0, true));
     t->insert(t, "}", newSymbol("", 0, true));
-    t->insert(t, "[", newSymbol("", 0, true));
-    t->insert(t, "]", newSymbol("", 0, true));
+    t->insert(t, "[", newSymbol("", 90, true));
+    t->insert(t, "]", newSymbol("", 90, true));
 
     t->insert(t, "+", newSymbol("", 50, true));
     t->insert(t, "-", newSymbol("", 50, true));
@@ -44,11 +44,14 @@ static Table* initGlobalSymbolTable() {
     t->insert(t, "~", newSymbol("", 60, true));
     t->insert(t, "^", newSymbol("", 60, true));
 
+    t->insert(t, "//", newSymbol("", 0, true));
+    t->insert(t, "++", newSymbol("", 90, true));
+    t->insert(t, "--", newSymbol("", 90, true));
     t->insert(t, "<<", newSymbol("", 60, true));
     t->insert(t, ">>", newSymbol("", 60, true));
-    t->insert(t, "**", newSymbol("", 60, true));
+    t->insert(t, "**", newSymbol("", 70, true));
 
-    t->insert(t, ":", newSymbol("", 10, true));
+    t->insert(t, ":", newSymbol("", 90, true));
 
     t->insert(t, "=", newSymbol("", 10, true));
 
@@ -77,7 +80,6 @@ static Table* initGlobalSymbolTable() {
 
     t->insert(t, "import", newSymbol("", 0, true));
     t->insert(t, "print", newSymbol("", 0, true));
-
 
     #if CLUE_DEBUG_LEVEL > 0
         printf("\n\tGlobal Symbol Table after init:\n%s\n", _DIV);
