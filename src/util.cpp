@@ -15,8 +15,8 @@ u32 strln(const char* string) {
     u32 length = 0;
 
     while (*string != '\0') {
-        ++length;
-        ++string;
+        length++;
+        string++;
     }
 
     return length;
@@ -30,7 +30,7 @@ bool streq(const char* s1, const char* s2) {
         return false;
     }
 
-    for (u32 i = 0; i < strln(s1); ++i) {
+    for (u32 i = 0; i < strln(s1); i++) {
         if (s1[i] != s2[i]) {
             return false;
         }
@@ -67,8 +67,8 @@ bool hasSuffix(const char* string, const char* suffix) {
 /**
  * @WARN Assumes null termination.
  */
-u64 countLines(const char* buffer) {
-    u64 lines = 0;
+u32 countLines(const char* buffer) {
+    u32 lines = 0;
     char c;
 
     while ((c = *buffer) != '\0') {
@@ -76,15 +76,15 @@ u64 countLines(const char* buffer) {
             lines++;
         }
 
-        ++buffer;
+        buffer++;
     }
 
     return lines;
 }
 
 
-u64 getFileSize(FILE* fp) {
-    u64 size;
+u32 getFileSize(FILE* fp) {
+    u32 size;
 
     fseek(fp, 0, SEEK_END);
     size = ftell(fp);

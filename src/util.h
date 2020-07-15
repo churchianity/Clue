@@ -34,19 +34,15 @@ inline void* pRealloc(void* buffer, u32 newSize) {
     void* p = realloc(buffer, newSize);
 
     if (!p) {
-        fprintf(stderr, "failed to realloc... zzz.\n");
+        fprintf(stderr, "failed to realloc... zzz...\n");
         exit(1);
     }
 
     return p;
 }
 
-inline char* boolToString(bool b) {
-    if (b) {
-        return (char*) "true";
-    }
-
-    return (char*) "false";
+inline const char* boolToString(bool b) {
+    return (b) ? "true" : "false";
 }
 
 /**
@@ -72,9 +68,9 @@ inline char* read(char* buffer, u32 length) {
 u32 strln(const char* string);
 bool streq(const char* s1, const char* s2);
 bool hasSuffix(const char* string, const char* suffix);
-u64 countLines(const char* buffer);
+u32 countLines(const char* buffer);
 
-u64 getFileSize(FILE* fp);
+u32 getFileSize(FILE* fp);
 char* fileRead(const char* filename);
 
 
