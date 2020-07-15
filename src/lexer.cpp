@@ -4,26 +4,42 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "token.h"
 #include "clue.h"
+#include "lexer.h"
+#include "token.h"
 #include "util.h"
 
 
-static u32 capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
-Token* tokens = (Token*) pMalloc(sizeof (Token) * capacity);
-u32 tokenCount = 0;
+/**
+ *
+ */
+Lexer* lexer = (Lexer*) pMalloc(sizeof (Lexer));
 
-static Token* token = NULL;
+/**
+ * Adds a token to the tokens array.
+ */
+static inline void add(Token* token) {
+    lexer->token = token;
 
-static bool beenHereBefore = false;
-static bool prevTokenIsImport = false;
+    if (lexer->capacity <= lexer->tokenCount) {
+        lexer->capacity *= 2;
+        lexer->tokens = (Token*) pRealloc(lexer->tokens, (sizeof (Token)) * lexer->capacity);
+    }
+
+    lexer->tokens[lexer->tokenCount++] = *token;
+}
+
+/**
+ * Runs when we encounter a "import" token.
+ */
+static inline void import() {
+
+}
 
 /**
  * |buffer| must be a string, the first character of which is alphabetical.
- * For use by |tokenize| only.
  */
-//@STRING
-static inline Token* lexSymbol(char* buffer, const char* filename, u32 line, u32 column) {
+static inline void lexSymbol(char* buffer, const char* filename, u32 line, u32 column) {
     u32 length = 0;
 
     while (*buffer != '\0') {
@@ -35,19 +51,13 @@ static inline Token* lexSymbol(char* buffer, const char* filename, u32 line, u32
         buffer++;
     }
 
-    if (length == 0) {
-        return NULL; // @TODO report lexer error
-    }
-
-    return newToken(filename, line, column, length, TT_SYMBOL, read(buffer - length, length), false);
+    add(newToken(filename, line, column, length, TT_SYMBOL, read(buffer - length, length), false));
 }
 
 /**
  * |buffer| must be a string, the first character of which is a digit.
- * For use by |tokenize| only.
  */
-//@STRING
-static inline Token* lexNumeric(char* buffer, const char* filename, u32 line, u32 column) {
+static inline void lexNumeric(char* buffer, const char* filename, u32 line, u32 column) {
     u32 length = 0;
 
     bool bad = false;
@@ -70,41 +80,39 @@ static inline Token* lexNumeric(char* buffer, const char* filename, u32 line, u3
         buffer++;
     }
 
-    if (length == 0) {
-        return NULL; // @TODO report lexer error
-    }
-
-    return newToken(filename, line, column, length, TT_NUMERIC, read(buffer - length, length), bad);
+    add(newToken(filename, line, column, length, TT_NUMERIC, read(buffer - length, length), bad));
 }
 
 /**
  * |buffer| must be a string, the first character of which is a single or double quote.
- * For use by |tokenize| only.
  */
-//@STRING
-static inline Token* lexString(char* buffer, const char* filename, u32 line, u32 column) {
+static inline void lexString(char* buffer, const char* filename, u32 line, u32 column) {
 
     // increment past what we assume is the opening quotemark
     char quotemark = *buffer++;
 
-    u32 length = 0;
+    if (*buffer == '\0') { // there's a quotemark as the last character in the file/stream before \0
+        fprintf("don't do that.\n"); return;
+    }
+
+    u32 length = 1;
     bool bad = true;
 
     do {
-        if (*buffer == quotemark) {
+        length++;
+
+        if (*buffer++ == quotemark) {
             bad = false; // if we found a closing quotemark, the string is probably valid
             break;
         }
 
-        length++;
-
-    } while (*buffer++ != '\0');
+    } while (*buffer != '\0');
 
     if (bad) {
-        return NULL;
+        return; // @TODO report lexer error
     }
 
-    return newToken(filename, line, column, length, TT_STRING, read(buffer - length, length), bad);
+    add(newToken(filename, line, column, length, TT_STRING, read(buffer - length, length), bad));
 }
 
 /**
@@ -112,14 +120,13 @@ static inline Token* lexString(char* buffer, const char* filename, u32 line, u32
  * Single-char operators like '=' and '+' have their codepoint as their type,
  * while 2&3-char operators have a defined type in token.h
  *
+ * Tokens which behave like operators but look like symbols, are considered symbols.
+ *
  * Invalid characters read by the lexer are necessarily also handled here,
  * because the key indicator that a token is an operator is usually that it
  * is *not* one of the other types.
- *
- * For use by |tokenize| only.
  */
-//@STRING
-static inline Token* lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
+static inline void lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
 
     // assume the token is its own type, is valid, and of length 1...
     TokenTypeEnum tt = (TokenTypeEnum) *buffer;
@@ -211,23 +218,19 @@ static inline Token* lexOperator(char* buffer, const char* filename, u32 line, u
         case '\\':
         case '\0':
         default:
-            fprintf(stderr, "invalid or unimplemented character encountered :: %c\n", *buffer); fflush(stderr);
+            fprintf(stderr, "invalid or unimplemented character encountered :: %c\nskipping it...", *buffer);
             // @TODO report lexer error
-            return NULL;
     }
 
-    return newToken(filename, line, column, length, tt, read(buffer, length), bad);
+    add(newToken(filename, line, column, length, tt, read(buffer, length), bad));
 }
 
 /**
- * Given a string |buffer| return an array of Token(s).
+ * Given a string |buffer|, append to the lexer's |tokens| array.
  * We are expecting the string to be null-terminated.
  */
 //@STRING
-Token* tokenize(char* buffer, const char* filename) {
-
-    bool isEntryFile = !beenHereBefore;
-    beenHereBefore = true;
+void tokenize(char* buffer, const char* filename) {
 
     u32 line = 1;
     u32 column = 1;
@@ -243,60 +246,25 @@ Token* tokenize(char* buffer, const char* filename) {
             column += 4; buffer++; continue;
 
         } else if (isalpha(*buffer)) {
-            token = lexSymbol(buffer, filename, line, column);
+            lexSymbol(buffer, filename, line, column);
 
         } else if (isdigit(*buffer)) {
-            token = lexNumeric(buffer, filename, line, column);
+            lexNumeric(buffer, filename, line, column);
 
         } else if ((*buffer == '"') || (*buffer == '\'')) {
-            token = lexString(buffer, filename, line, column);
+            lexString(buffer, filename, line, column);
 
         } else {
-            token = lexOperator(buffer, filename, line, column);
+            lexOperator(buffer, filename, line, column);
         }
 
-        // we have a token. add it to the array, realloc'ing as necessary
-        if (capacity <= tokenCount) {
-            capacity *= 2;
-            tokens = (Token*) pRealloc(tokens, sizeof (Token) * capacity);
-        }
-
-        tokens[tokenCount++] = *token;
-
-        // modify buffer and column counters as appropriate...
-        if (token->tt == TT_STRING) {
-            column += 2;
-            buffer += 2;
-        }
-
-        column += token->length;
-        buffer += token->length;
+        column += lexer->token->length;
+        buffer += lexer->token->length;
 
         // handle import statement
-        if (prevTokenIsImport && (token->tt == TT_STRING)) {
-            char* newBuffer = fileRead(token->tk);
+        if (streq(lexer->token->tk, "import")) {
 
-            // recurse into tokenize, appending to the static |tokens| array
-            tokenize(newBuffer, token->tk);
-
-            free(newBuffer);
         }
-
-        prevTokenIsImport = streq(token->tk, "import") ? true : false;
     }
-
-    if (!isEntryFile) { // our job is done...
-        return NULL;
-    }
-
-    // make sure there's space before appending sentinel token...
-    if (capacity <= tokenCount) {
-        capacity *= 2;
-        tokens = (Token*) pRealloc(tokens, sizeof (Token) * capacity);
-    }
-
-    tokens[tokenCount] = *newToken(filename, 0, 0, 13, TT_SENTINEL, "END_OF_STREAM", false);
-
-    return tokens;
 }
 

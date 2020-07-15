@@ -4,12 +4,17 @@
 #include "token.h"
 #include "node.h"
 #include "stack.h"
+#include "lexer.h"
 #include "print.h"
 #include "table.h"
 #include "util.h"
 
 
 void print(const Token* token) {
+    if (!token) {
+        printf("token is null\n"); return;
+    }
+
     const char* tt = tokenTypeToString(token->tt);
     const char* bad = boolToString(token->bad);
 
@@ -21,6 +26,10 @@ void print(const Token* token) {
 }
 
 void print(const ASTNode* node) {
+    if (!node) {
+        printf("node is null\n"); return;
+    }
+
     printf("%p | childrenCount: %u\n", (void*) node, node->childrenCount);
 
     printf("Token: "); print(node->token);
@@ -33,6 +42,10 @@ void print(const ASTNode* node) {
 }
 
 void print(const Table* table) {
+    if (!table) {
+        printf("stack is null\n"); return;
+    }
+
     printf("%p | capacity: %u | entries:\n", (void*) table, table->capacity);
 
     for (u32 i = 0; i < table->capacity; ++i) {
@@ -54,6 +67,10 @@ void print(const Table* table) {
 }
 
 void print(const Stack* stack) {
+    if (!stack) {
+        printf("stack is null\n"); return;
+    }
+
     const char* grow = boolToString(stack->grow);
 
     printf("capacity: %u, grow?: %s, top: %u, size: %u, data: %p\n"
@@ -64,17 +81,14 @@ void print(const Stack* stack) {
             , *stack->data);
 }
 
+void print(const Lexer* lexer) {
+    printf("%p | lexer count: %u | capacity: %u\nfiles:", (void*) lexer, lexer->tokenCount, lexer->capacity);
+    print(lexer->files);
 
-/**
- * The |tokens| array is assumed to be terminated by a Token of TT_SENTINEL.
- */
-void printTokens(const Token tokens[]) {
-    u32 i = 0;
+    printf("\nlast token: "); print(lexer->token); printf("\ntokens:\n");
 
-    while (tokens[i].tt != TT_SENTINEL) {
-        print(&tokens[i++]);
+    for (u32 i = 0; i < lexer->tokenCount; i++) {
+        print(lexer->tokens + i);
     }
-
-    print(&tokens[i]); // sentinel token
 }
 

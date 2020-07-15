@@ -18,12 +18,12 @@
  */
 void clueFileRead(const char* filename) {
     char* codebuffer = fileRead(filename);
-    Token* tokens = tokenize(codebuffer, filename);
+    tokenize(codebuffer, filename);
     // ASTNode* AST = parse(tokens);
 
     #if CLUE_DEBUG_LEVEL > 0
-        printf("\n\tPrinting lexed tokens @doIt...\n%s\n", _DIV);
-        printTokens(tokens);
+        printf("\n\tPrinting lexer state @doIt...\n%s\n", _DIV);
+        print(lexer);
     #endif
 
     free(codebuffer);
@@ -34,9 +34,6 @@ void clueFileRead(const char* filename) {
  */
 void interactive() {
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
-
-    Token* tokens = NULL; // should retrieve this from the lexer incase we previously lexed a file
-    ASTNode* AST = NULL; // ^
 
     do {
         memset(s, 0, sizeof (s));
@@ -52,26 +49,13 @@ void interactive() {
             break;
         }
 
-        if (tokens) free(tokens);
-        tokens = tokenize(s, "stdin");
-        // AST = parse(tokens);
+        tokenize(s, "stdin");
 
         #if CLUE_DEBUG_LEVEL > 0
-            printf("\n\tPrinting lexed tokens @doIt...\n%s\n", _DIV);
-            printTokens(tokens);
-
-            // printf("\n\tPrinting AST @doIt...\n%s\n", _DIV);
-            //if (AST) {
-            //    AST->traverse(AST, print);
-
-            //} else {
-            //    printf("The AST is null.\n");
-            //}
+            printf("\n\tPrinting lexer state @doIt...\n%s\n", _DIV);
+            print(lexer);
         #endif
 
     } while (1);
-
-    free(AST);
-    free(tokens);
 }
 

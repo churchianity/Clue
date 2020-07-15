@@ -14,11 +14,12 @@ typedef enum {
 
 typedef struct {
     bool reserved;
+    OperatorAssociativityEnum associativity;
     const char* name;
     char precedence;
 } Symbol;
 
-Symbol* newSymbol(const char* name, char precedence, bool reserved);
+Symbol* newSymbol(const char* name, u8 precedence, bool reserved);
 
 #endif
 
