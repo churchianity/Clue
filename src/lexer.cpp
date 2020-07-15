@@ -92,7 +92,7 @@ static inline void lexString(char* buffer, const char* filename, u32 line, u32 c
     char quotemark = *buffer++;
 
     if (*buffer == '\0') { // there's a quotemark as the last character in the file/stream before \0
-        fprintf("don't do that.\n"); return;
+        fprintf(stderr, "Don't do that.\n"); return;
     }
 
     u32 length = 1;
@@ -263,7 +263,7 @@ void tokenize(char* buffer, const char* filename) {
 
         // handle import statement
         if (streq(lexer->token->tk, "import")) {
-
+            import();
         }
     }
 }
