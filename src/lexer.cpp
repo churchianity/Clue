@@ -9,6 +9,15 @@
 #include "util.h"
 
 
+static u32 capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
+Token* tokens = (Token*) pMalloc(sizeof (Token) * capacity);
+u32 tokenCount = 0;
+
+static Token* token = NULL;
+
+static bool beenHereBefore = false;
+static bool prevTokenIsImport = false;
+
 /**
  * |buffer| must be a string, the first character of which is alphabetical.
  * For use by |tokenize| only.
@@ -217,17 +226,8 @@ static inline Token* lexOperator(char* buffer, const char* filename, u32 line, u
 //@STRING
 Token* tokenize(char* buffer, const char* filename) {
 
-    static u32 capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
-    static Token* tokens = (Token*) pMalloc(sizeof (Token) * capacity);
-    static u32 tokenCount = 0;
-
-    static Token* token = NULL;
-
-    static bool beenHereBefore = false;
     bool isEntryFile = !beenHereBefore;
     beenHereBefore = true;
-
-    static bool prevTokenIsImport = false;
 
     u32 line = 1;
     u32 column = 1;

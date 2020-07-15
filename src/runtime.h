@@ -4,6 +4,7 @@
 
 #include "clue.h"
 
+
 void clueFileRead(const char* filename);
 void interactive();
 

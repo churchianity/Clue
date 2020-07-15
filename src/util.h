@@ -41,7 +41,6 @@ inline void* pRealloc(void* buffer, u32 newSize) {
     return p;
 }
 
-
 inline char* boolToString(bool b) {
     if (b) {
         return (char*) "true";

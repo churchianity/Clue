@@ -52,20 +52,21 @@ void interactive() {
             break;
         }
 
+        if (tokens) free(tokens);
         tokens = tokenize(s, "stdin");
-        AST = parse(tokens);
+        // AST = parse(tokens);
 
         #if CLUE_DEBUG_LEVEL > 0
             printf("\n\tPrinting lexed tokens @doIt...\n%s\n", _DIV);
             printTokens(tokens);
 
-            printf("\n\tPrinting AST @doIt...\n%s\n", _DIV);
-            if (AST) {
-                AST->traverse(AST, print);
+            // printf("\n\tPrinting AST @doIt...\n%s\n", _DIV);
+            //if (AST) {
+            //    AST->traverse(AST, print);
 
-            } else {
-                printf("The AST is null.\n");
-            }
+            //} else {
+            //    printf("The AST is null.\n");
+            //}
         #endif
 
     } while (1);

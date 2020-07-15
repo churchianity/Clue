@@ -46,6 +46,7 @@ static Table* initGlobalSymbolTable() {
 
     t->insert(t, "<<", newSymbol("", 60, true));
     t->insert(t, ">>", newSymbol("", 60, true));
+    t->insert(t, "**", newSymbol("", 60, true));
 
     t->insert(t, ":", newSymbol("", 10, true));
 
@@ -79,8 +80,8 @@ static Table* initGlobalSymbolTable() {
 
 
     #if CLUE_DEBUG_LEVEL > 0
-        // printf("\n\tGlobal Symbol Table after init:\n%s\n", _DIV);
-        // print(t);
+        printf("\n\tGlobal Symbol Table after init:\n%s\n", _DIV);
+        print(t);
     #endif
 
     return t;
