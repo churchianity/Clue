@@ -116,121 +116,13 @@ static inline void lexString(char* buffer, const char* filename, u32 line, u32 c
 }
 
 /**
- * Operators & punctuators, all of which have their own token-type.
- * Single-char operators like '=' and '+' have their codepoint as their type,
- * while 2&3-char operators have a defined type in token.h
- *
- * Tokens which behave like operators but look like symbols, are considered symbols.
- *
- * Invalid characters read by the lexer are necessarily also handled here,
- * because the key indicator that a token is an operator is usually that it
- * is *not* one of the other types.
+ * Given a string |buffer|, append to the lexer's |tokens| array.
  */
-static inline void lexOperator(char* buffer, const char* filename, u32 line, u32 column) {
+void tokenize(char* buffer, const char* filename) {
+    TokenTypeEnum tt;
 
-    // assume the token is its own type, is valid, and of length 1...
-    TokenTypeEnum tt = (TokenTypeEnum) *buffer;
     bool bad = false;
     u32 length = 1;
-
-    // then check correctness:
-    switch (*buffer) {
-        case ';':
-        case ',':
-        case '.':
-        case '(':
-        case ')':
-        case '{':
-        case '}':
-        case '[':
-        case ']':
-            break;
-
-        case '>':
-        case '<':
-        case '*':
-            if (*(buffer + 1) == *buffer) {
-                switch (*buffer) {
-                    case '>': tt = TT_RIGHT_SHIFT; break;
-                    case '<': tt = TT_LEFT_SHIFT; break;
-                    case '*': tt = TT_EXPONENTIATION; break;
-                }
-
-                // @TODO right & left shift assignment & assignment by exponentiation
-
-                length = 2;
-            }
-
-        case '+':
-        case '-':
-        case '/':
-        case '=':
-        case '&':
-        case '|':
-            if (*(buffer + 1) == *buffer) {
-                switch (*buffer) {
-                    case '+': tt = TT_INCREMENT;           break;
-                    case '-': tt = TT_DECREMENT;           break;
-                    case '*': tt = TT_EXPONENTIATION;      break;
-                    case '/': tt = TT_SINGLE_LINE_COMMENT; break;
-                    case '=': tt = TT_EQUALITY;            break;
-                    case '&': tt = TT_LOGICAL_AND;         break;
-                    case '|': tt = TT_LOGICAL_OR;          break;
-                }
-
-                length = 2;
-            }
-
-        case '!':
-        case '%':
-        case '~':
-        case ':':
-        case '^':
-            if (*(buffer + 1) == '=') {
-                switch (*buffer) {
-                    case '>': tt = TT_GREATER_THAN_OR_EQUAL; break;
-                    case '<': tt = TT_LESS_THAN_OR_EQUAL;    break;
-                    case '*': tt = TT_TIMES_EQUALS;          break;
-                    case '+': tt = TT_PLUS_EQUALS;           break;
-                    case '-': tt = TT_MINUS_EQUALS;          break;
-                    case '/': tt = TT_DIVIDE_EQUALS;         break;
-                    case '=': tt = TT_EQUALITY;              break;
-                    case '&': tt = TT_BITWISE_AND_EQUALS;    break;
-                    case '|': tt = TT_BITWISE_OR_EQUALS;     break;
-                    case '!': tt = TT_NOT_EQUALS;            break;
-                    case '%': tt = TT_MODULO_EQUALS;         break;
-                    case '~': tt = TT_BITWISE_NOT_EQUALS;    break;
-                    case ':': tt = TT_COLON_EQUALS;          break;
-                    case '^': tt = TT_BITWISE_XOR_EQUALS;    break;
-                }
-
-                length = 2;
-            }
-
-            break;
-
-        // invalid or unimplemented single-chars
-        case '#':
-        case '@':
-        case '$':
-        case '`':
-        case '?':
-        case '\\':
-        case '\0':
-        default:
-            fprintf(stderr, "invalid or unimplemented character encountered :: %c\nskipping it...", *buffer);
-            // @TODO report lexer error
-    }
-
-    add(newToken(filename, line, column, length, tt, read(buffer, length), bad));
-}
-
-/**
- * Given a string |buffer|, append to the lexer's |tokens| array.
- * We are expecting the string to be null-terminated.
- */
-//@STRING
-void tokenize(char* buffer, const char* filename) {
 
     u32 line = 1;
     u32 column = 1;
@@ -246,7 +138,10 @@ void tokenize(char* buffer, const char* filename) {
             column += 4; buffer++; continue;
 
         } else if (isalpha(*buffer)) {
-            lexSymbol(buffer, filename, line, column);
+            do {
+
+
+            } while (*buffer++ == '\0');
 
         } else if (isdigit(*buffer)) {
             lexNumeric(buffer, filename, line, column);
@@ -255,7 +150,109 @@ void tokenize(char* buffer, const char* filename) {
             lexString(buffer, filename, line, column);
 
         } else {
-            lexOperator(buffer, filename, line, column);
+            /**
+             * Operators & punctuators, all of which have their own token-type.
+             * Single-char operators like '=' and '+' have their codepoint as their type,
+             * while 2&3-char operators have a defined type in token.h
+             *
+             * Tokens which behave like operators but look like symbols, are considered symbols.
+             *
+             * Invalid characters read by the lexer are necessarily also handled here,
+             * because the key indicator that a token is an operator is usually that it
+             * is *not* one of the other types.
+             */
+            tt = (TokenTypeEnum) *buffer;
+            bad = false;
+            length = 1;
+
+            // then check correctness:
+            switch (*buffer) {
+                case ';':
+                case ',':
+                case '.':
+                case '(':
+                case ')':
+                case '{':
+                case '}':
+                case '[':
+                case ']':
+                    break;
+
+                case '>':
+                case '<':
+                case '*':
+                    if (*(buffer + 1) == *buffer) {
+                        switch (*buffer) {
+                            case '>': tt = TT_RIGHT_SHIFT; break;
+                            case '<': tt = TT_LEFT_SHIFT; break;
+                            case '*': tt = TT_EXPONENTIATION; break;
+                        }
+
+                        // @TODO right & left shift assignment & assignment by exponentiation
+
+                        length = 2;
+                    }
+
+                case '+':
+                case '-':
+                case '/':
+                case '=':
+                case '&':
+                case '|':
+                    if (*(buffer + 1) == *buffer) {
+                        switch (*buffer) {
+                            case '+': tt = TT_INCREMENT;           break;
+                            case '-': tt = TT_DECREMENT;           break;
+                            case '*': tt = TT_EXPONENTIATION;      break;
+                            case '/': tt = TT_SINGLE_LINE_COMMENT; break;
+                            case '=': tt = TT_EQUALITY;            break;
+                            case '&': tt = TT_LOGICAL_AND;         break;
+                            case '|': tt = TT_LOGICAL_OR;          break;
+                        }
+
+                        length = 2;
+                    }
+
+                case '!':
+                case '%':
+                case '~':
+                case ':':
+                case '^':
+                    if (*(buffer + 1) == '=') {
+                        switch (*buffer) {
+                            case '>': tt = TT_GREATER_THAN_OR_EQUAL; break;
+                            case '<': tt = TT_LESS_THAN_OR_EQUAL;    break;
+                            case '*': tt = TT_TIMES_EQUALS;          break;
+                            case '+': tt = TT_PLUS_EQUALS;           break;
+                            case '-': tt = TT_MINUS_EQUALS;          break;
+                            case '/': tt = TT_DIVIDE_EQUALS;         break;
+                            case '=': tt = TT_EQUALITY;              break;
+                            case '&': tt = TT_BITWISE_AND_EQUALS;    break;
+                            case '|': tt = TT_BITWISE_OR_EQUALS;     break;
+                            case '!': tt = TT_NOT_EQUALS;            break;
+                            case '%': tt = TT_MODULO_EQUALS;         break;
+                            case '~': tt = TT_BITWISE_NOT_EQUALS;    break;
+                            case ':': tt = TT_COLON_EQUALS;          break;
+                            case '^': tt = TT_BITWISE_XOR_EQUALS;    break;
+                        }
+
+                        length = 2;
+                    }
+
+                    break;
+
+                    // invalid or unimplemented single-chars
+                case '#':
+                case '@':
+                case '$':
+                case '`':
+                case '?':
+                case '\\':
+                case '\0':
+                default:
+                    fprintf(stderr, "invalid or unimplemented character encountered :: %c\nskipping it...", *buffer);
+                    // @TODO report lexer error
+            }
         }
 
         column += lexer->token->length;
