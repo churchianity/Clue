@@ -1,5 +1,4 @@
 
-#include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,13 +6,32 @@
 #include "clue.h"
 #include "lexer.h"
 #include "token.h"
+#include "print.h"
+#include "table.h"
 #include "util.h"
 
 
 /**
  *
  */
-Lexer* lexer = (Lexer*) pMalloc(sizeof (Lexer));
+Lexer* lexer = NULL;
+
+/**
+ *
+ */
+void initLexer() {
+    if (lexer) {
+        return;
+    }
+
+    lexer = (Lexer*) pMalloc(sizeof (Lexer));
+
+    lexer->files = newTable(10);
+    lexer->tokenCount = 0;
+    lexer->capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
+    lexer->token = NULL;
+    lexer->tokens = (Token*) pMalloc(sizeof (Token) * lexer->capacity);
+}
 
 /**
  * Adds a token to the tokens array.
@@ -30,124 +48,103 @@ static inline void add(Token* token) {
 }
 
 /**
- * Runs when we encounter a "import" token.
- */
-static inline void import() {
-
-}
-
-/**
- * |buffer| must be a string, the first character of which is alphabetical.
- */
-static inline void lexSymbol(char* buffer, const char* filename, u32 line, u32 column) {
-    u32 length = 0;
-
-    while (*buffer != '\0') {
-        if (!(isalpha(*buffer) || isdigit(*buffer) || *buffer == '_')) {
-            break;
-        }
-
-        length++;
-        buffer++;
-    }
-
-    add(newToken(filename, line, column, length, TT_SYMBOL, read(buffer - length, length), false));
-}
-
-/**
- * |buffer| must be a string, the first character of which is a digit.
- */
-static inline void lexNumeric(char* buffer, const char* filename, u32 line, u32 column) {
-    u32 length = 0;
-
-    bool bad = false;
-    bool hasRadixPoint = false;
-
-    while (*buffer != '\0') {
-        if (!(isdigit(*buffer) || (*buffer == '.'))) {
-            break;
-
-        } else if (*buffer == '.') { // only one '.' is allowed in a numeric literal
-            if (hasRadixPoint) {
-                bad = true; // @TODO report lexer error
-                break;
-            }
-
-            hasRadixPoint = true;
-        }
-
-        length++;
-        buffer++;
-    }
-
-    add(newToken(filename, line, column, length, TT_NUMERIC, read(buffer - length, length), bad));
-}
-
-/**
- * |buffer| must be a string, the first character of which is a single or double quote.
- */
-static inline void lexString(char* buffer, const char* filename, u32 line, u32 column) {
-
-    // increment past what we assume is the opening quotemark
-    char quotemark = *buffer++;
-
-    if (*buffer == '\0') { // there's a quotemark as the last character in the file/stream before \0
-        fprintf(stderr, "Don't do that.\n"); return;
-    }
-
-    u32 length = 1;
-    bool bad = true;
-
-    do {
-        length++;
-
-        if (*buffer++ == quotemark) {
-            bad = false; // if we found a closing quotemark, the string is probably valid
-            break;
-        }
-
-    } while (*buffer != '\0');
-
-    if (bad) {
-        return; // @TODO report lexer error
-    }
-
-    add(newToken(filename, line, column, length, TT_STRING, read(buffer - length, length), bad));
-}
-
-/**
  * Given a string |buffer|, append to the lexer's |tokens| array.
  */
 void tokenize(char* buffer, const char* filename) {
+    bool prevTokenImport = false;
     TokenTypeEnum tt;
 
-    bool bad = false;
-    u32 length = 1;
+    u32 length = 0;
+    bool bad;
 
     u32 line = 1;
     u32 column = 1;
 
     while (*buffer != '\0') {
+        length = 1;
+        bad = false;
+
         if (*buffer == '\n') {
             column = 1; line++; buffer++; continue;
 
         } else if (*buffer == ' ') {
-            column++; buffer++; continue;
+            column++;           buffer++; continue;
 
         } else if (*buffer == '\t') {
-            column += 4; buffer++; continue;
+            column += 4;        buffer++; continue;
 
-        } else if (isalpha(*buffer)) {
+        } else if (isAlpha(*buffer)) {
+            /**
+             * Symbols
+             */
+            tt = TT_SYMBOL;
+
+            bool lastCharWasDigit = false;
             do {
+                buffer++;
 
+                if (!(isAlpha(*buffer) || isDigit(*buffer) || (*buffer == '_'))) {
+                    break;
+                }
 
-            } while (*buffer++ == '\0');
+                if (isDigit(*buffer)) {
+                    lastCharWasDigit = true;
 
-        } else if (isdigit(*buffer)) {
-            lexNumeric(buffer, filename, line, column);
+                } else if (lastCharWasDigit) {
+                    // @TODO report linter error
+                }
+
+                length++;
+
+            } while (*buffer != '\0');
+
+        } else if (isDigit(*buffer)) {
+            /**
+             * Numeric
+             */
+            tt = TT_NUMERIC;
+
+            // @TODO check if it's a zero, then it should be a fractional amount
+
+            bool hasRadixPoint = false;
+            do {
+                buffer++;
+
+                if (!isDigit(*buffer)) {
+                    break;
+
+                } else if (*buffer == '.') {
+                    if (hasRadixPoint) {
+                        bad = true;
+                        break;
+                    }
+
+                    hasRadixPoint = true;
+                }
+
+                length++;
+
+            } while (*buffer == '\0');
 
         } else if ((*buffer == '"') || (*buffer == '\'')) {
-            lexString(buffer, filename, line, column);
+            /**
+             * String
+             */
+            tt = TT_STRING;
+
+            char quotemark = *buffer;
+            do {
+                buffer++;
+
+                if (*buffer == quotemark) {
+                    length++; buffer++;
+                    bad = false;
+                    break;
+                }
+
+                length++;
+
+            } while (*buffer != '\0');
 
         } else {
             /**
@@ -163,7 +160,6 @@ void tokenize(char* buffer, const char* filename) {
              */
             tt = (TokenTypeEnum) *buffer;
             bad = false;
-            length = 1;
 
             // then check correctness:
             switch (*buffer) {
@@ -253,14 +249,22 @@ void tokenize(char* buffer, const char* filename) {
                     fprintf(stderr, "invalid or unimplemented character encountered :: %c\nskipping it...", *buffer);
                     // @TODO report lexer error
             }
+
+            buffer += length;
         }
 
+        add(newToken(filename, line, column, length, tt, read(buffer - length, length), bad));
+
         column += lexer->token->length;
-        buffer += lexer->token->length;
 
         // handle import statement
         if (streq(lexer->token->tk, "import")) {
-            import();
+            prevTokenImport = true;
+
+        } else if (prevTokenImport && (lexer->token->tt == TT_STRING)) {
+            char* importFilePath = trimQuotes(lexer->token->tk, lexer->token->length);
+
+            tokenize(fileRead(importFilePath), importFilePath);
         }
     }
 }

@@ -21,7 +21,7 @@ void print(const Token* token) {
     // show something for empty strings
     const char* tk = (strln(token->tk) == 0) ? "(empty string)" : token->tk;
 
-    printf("%p | file: %s, line: %u, col: %u len: %u | tt: %s, bad: %s, tk: %s\n"
+    printf("%p | file: %s, line: %u, col: %u, len: %u | tt: %s, bad: %s, tk: %s\n"
            , (void*) token, token->filename, token->line, token->column, token->length, tt, bad, tk);
 }
 
@@ -43,7 +43,7 @@ void print(const ASTNode* node) {
 
 void print(const Table* table) {
     if (!table) {
-        printf("stack is null\n"); return;
+        printf("table is null\n"); return;
     }
 
     printf("%p | capacity: %u | entries:\n", (void*) table, table->capacity);
@@ -82,7 +82,7 @@ void print(const Stack* stack) {
 }
 
 void print(const Lexer* lexer) {
-    printf("%p | lexer count: %u | capacity: %u\nfiles:", (void*) lexer, lexer->tokenCount, lexer->capacity);
+    printf("%p | lexer count: %u | capacity: %u\nfiles: ", (void*) lexer, lexer->tokenCount, lexer->capacity);
     print(lexer->files);
 
     printf("\nlast token: "); print(lexer->token); printf("\ntokens:\n");

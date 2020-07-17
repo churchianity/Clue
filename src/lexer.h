@@ -2,24 +2,26 @@
 #ifndef LEXER_H
 #define LEXER_H
 
+#include "clue.h"
 #include "table.h"
 #include "token.h"
 #include "util.h"
 
 
 typedef struct {
-    Table* files = newTable(10);
+    Table* files;
 
-    u32 tokenCount = 0;
-    u32 capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
+    u32 tokenCount;
+    u32 capacity;
 
-    Token* token = NULL;
-    Token* tokens = (Token*) pMalloc(sizeof (Token*) * CLUE_INITIAL_TOKEN_ARRAY_CAPACITY);
+    Token* token;
+    Token* tokens;
 
 } Lexer;
 
 extern Lexer* lexer;
 
+void initLexer();
 void tokenize(char* buffer, const char* filename);
 
 #endif

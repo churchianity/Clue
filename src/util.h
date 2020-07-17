@@ -41,8 +41,35 @@ inline void* pRealloc(void* buffer, u32 newSize) {
     return p;
 }
 
+inline bool isDigit(char c) {
+    return c >= '0' && c <= '9';
+}
+
+inline bool isAlpha(char c) {
+    return (c >= 'A' && c <= 'Z')
+        || (c >= 'a' && c <= 'z');
+}
+
 inline const char* boolToString(bool b) {
     return b ? "true" : "false";
+}
+
+inline char* trimQuotes(const char* str, u32 length) {
+    if (length < 2) {
+        fprintf(stderr, "trying to trim quotes off string smaller than 2 in length\n");
+        exit(1);
+    }
+
+    char* buffer = (char*) pMalloc(sizeof (char) * (length - 1));
+
+    u32 i = 0;
+    for (; i < (length - 2); i++) {
+        buffer[i] = str[i + 1];
+    }
+
+    buffer[i] = '\0';
+
+    return buffer;
 }
 
 /**
