@@ -39,7 +39,7 @@ bool streq(const char* s1, const char* s2) {
     return true;
 }
 
-/* @TODO replace strrchr with this and make a string struct
+/* @TODO replace strrchr with this
 char* lastCharOccurence(char* string, u32 length, char c) {
     for (u32 i = length - 1; i >= 0; i--) {
         if (*string + i == c) {
@@ -82,7 +82,6 @@ u32 countLines(const char* buffer) {
     return lines;
 }
 
-
 u32 getFileSize(FILE* fp) {
     u32 size;
 
@@ -97,7 +96,6 @@ u32 getFileSize(FILE* fp) {
 
     return size;
 }
-
 
 /**
  * Internally allocates the returned buffer - caller responsible for free'ing.
