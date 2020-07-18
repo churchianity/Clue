@@ -4,53 +4,47 @@
 #include <stdlib.h>
 
 #include "clue.h"
-#include "lexer.h"
 #include "token.h"
 #include "print.h"
 #include "table.h"
 #include "util.h"
 
+Table* Lexer::files = NULL;
+u32 Lexer::tokenCount = 0;
+u32 Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
+Token* Lexer::token = NULL;
+Token* Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
 
-/**
- *
- */
-Lexer* lexer = NULL;
 
-/**
- *
- */
-void initLexer() {
-    if (lexer) {
-        return;
+void Lexer::print() {
+    printf("lexer count: %u | capacity: %u\nfiles: ", Lexer::tokenCount, Lexer::capacity);
+    print(Lexer::files);
+
+    printf("\nlast token: "); print(Lexer::token); printf("\ntokens:\n");
+
+    for (u32 i = 0; i < Lexer::tokenCount; i++) {
+        print(Lexer::tokens + i);
     }
-
-    lexer = (Lexer*) pMalloc(sizeof (Lexer));
-
-    lexer->files = newTable(10);
-    lexer->tokenCount = 0;
-    lexer->capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
-    lexer->token = NULL;
-    lexer->tokens = (Token*) pMalloc(sizeof (Token) * lexer->capacity);
 }
 
 /**
  * Adds a token to the tokens array.
  */
-static inline void add(Token* token) {
-    lexer->token = token;
+void Lexer::add(Token* token) {
+    Lexer::token = token;
 
-    if (lexer->capacity <= lexer->tokenCount) {
-        lexer->capacity *= 2;
-        lexer->tokens = (Token*) pRealloc(lexer->tokens, (sizeof (Token)) * lexer->capacity);
+    if (Lexer::capacity <= Lexer::tokenCount) {
+        Lexer::capacity *= 2;
+        Lexer::tokens = (Token*) pRealloc(Lexer::tokens, (sizeof (Token)) * Lexer::capacity);
     }
 
-    lexer->tokens[lexer->tokenCount++] = *token;
+    Lexer::tokens[Lexer::tokenCount++] = *token;
 }
 
 /**
  * Given a string |buffer|, append to the lexer's |tokens| array.
  */
-void tokenize(char* buffer, const char* filename) {
+void Lexer::tokenize(char* buffer, const char* filename) {
     bool prevTokenImport = false;
     TokenTypeEnum tt;
 
@@ -258,41 +252,40 @@ void tokenize(char* buffer, const char* filename) {
 
                 case '\0':
                     fprintf(stderr, "got null character while trying to lex an operator...\n");
-                    print(lexer);
+                    Lexer::print();
                     exit(1);
             }
 
             buffer += length;
         }
 
-        add(newToken(filename, line, column, length, tt, read(buffer - length, length), bad));
+        Lexer::add(newToken(filename, line, column, length, tt, read(buffer - length, length), bad));
 
-        column += lexer->token->length;
+        column += Lexer::token->length;
 
         // handle import statement
         if (prevTokenImport) {
-            if ((lexer->token->tt == TT_STRING) && (!lexer->token->bad)) {
-                char* importFilePath = trimQuotes(lexer->token->tk, lexer->token->length);
+            if ((Lexer::token->tt == TT_STRING) && (!Lexer::token->bad)) {
+                char* importFilePath = trimQuotes(Lexer::token->tk, Lexer::token->length);
 
-                TableEntry* entry = lexer->files->lookup(lexer->files, importFilePath);
+                TableEntry* entry = Lexer::files->lookup(Lexer::files, importFilePath);
 
                 if (entry) {
                     fprintf(stderr, "trying to import file that has already been imported... %s\n", importFilePath);
 
                 } else {
-                    lexer->files->insert(lexer->files, importFilePath, NULL);
+                    Lexer::files->insert(Lexer::files, importFilePath, NULL);
 
                     tokenize(fileRead(importFilePath), importFilePath);
                 }
             } else {
                 // prev token is import, but our token for the path to the file to import isn't a proper string
-                fprintf(stderr, "trying to import something that's not a good string:\n");
-                print(lexer->token);
+                printf("bad\n"); ::print(Lexer::token);
                 exit(1);
             }
         }
 
-        if (streq(lexer->token->tk, "import")) {
+        if (streq(Lexer::token->tk, "import")) {
             prevTokenImport = true;
 
         } else {

@@ -8,6 +8,7 @@
 
 #define CLUE_GLOBAL_SYMBOL_TABLE_SIZE 20
 #define CLUE_INITIAL_TOKEN_ARRAY_CAPACITY 16
+#define CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY 16
 #define CLUE_SANDBOX_MODE_MAX_LINE_LENGTH 120
 
 #define _DIV "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "

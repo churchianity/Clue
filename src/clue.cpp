@@ -143,8 +143,6 @@ int main(int argc, const char* argv[]) {
     op_t = initGlobalSymbolTable();
     handleCommandLineArguments(argc, argv);
 
-    initLexer();
-
     if (CLAs->interactive) {
         interactive();
     }

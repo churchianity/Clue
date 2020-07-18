@@ -40,7 +40,7 @@ static ASTNode* shuntingYard(Token tokens[]) {
 
     u32 i = 0;
 
-    while (tokens[i].tt != TT_SENTINEL) {
+    while (i < (Lexer::tokenCount)) {
         switch ((int) tokens[i].tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
             case TT_SENTINEL:
                 fprintf(stderr, "Got a sentinel token inside of shuntingYard\nExiting...");
