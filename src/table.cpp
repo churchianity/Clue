@@ -36,6 +36,7 @@ static signed int insert(Table* self, const char* key, void* value) {
         free(entry->value);
 
         entry->value = value;
+        return 1;
     }
 
     return 0;

@@ -64,16 +64,7 @@ void tokenize(char* buffer, const char* filename) {
         length = 1;
         bad = false;
 
-        if (*buffer == '\n') {
-            column = 1; line++; buffer++; continue;
-
-        } else if (*buffer == ' ') {
-            column++;           buffer++; continue;
-
-        } else if (*buffer == '\t') {
-            column += 4;        buffer++; continue;
-
-        } else if (isAlpha(*buffer)) {
+        if (isAlpha(*buffer)) {
             /**
              * Symbols
              */
@@ -133,13 +124,22 @@ void tokenize(char* buffer, const char* filename) {
             tt = TT_STRING;
 
             char quotemark = *buffer;
+            bad = true;
             do {
                 buffer++;
 
                 if (*buffer == quotemark) {
                     length++; buffer++;
-                    bad = false;
+                    bad = false; // if we found a closing quotemark, the string is probably valid
                     break;
+                }
+
+                if (*buffer == '\\') {
+                    // @TODO escape characters!
+                }
+
+                if (*buffer == '\n') {
+                    continue;
                 }
 
                 length++;
@@ -163,6 +163,10 @@ void tokenize(char* buffer, const char* filename) {
 
             // then check correctness:
             switch (*buffer) {
+                case '\n': column = 1; line++; buffer++; continue;
+                case '\t': column+= 4;         buffer++; continue;
+                case ' ':  column++;           buffer++; continue;
+
                 case ';':
                 case ',':
                 case '.':
@@ -244,10 +248,18 @@ void tokenize(char* buffer, const char* filename) {
                 case '`':
                 case '?':
                 case '\\':
-                case '\0':
                 default:
                     fprintf(stderr, "invalid or unimplemented character encountered :: %c\nskipping it...", *buffer);
+
                     // @TODO report lexer error
+
+                    buffer++;
+                    continue;
+
+                case '\0':
+                    fprintf(stderr, "got null character while trying to lex an operator...\n");
+                    print(lexer);
+                    exit(1);
             }
 
             buffer += length;
@@ -258,13 +270,33 @@ void tokenize(char* buffer, const char* filename) {
         column += lexer->token->length;
 
         // handle import statement
+        if (prevTokenImport) {
+            if ((lexer->token->tt == TT_STRING) && (!lexer->token->bad)) {
+                char* importFilePath = trimQuotes(lexer->token->tk, lexer->token->length);
+
+                TableEntry* entry = lexer->files->lookup(lexer->files, importFilePath);
+
+                if (entry) {
+                    fprintf(stderr, "trying to import file that has already been imported... %s\n", importFilePath);
+
+                } else {
+                    lexer->files->insert(lexer->files, importFilePath, NULL);
+
+                    tokenize(fileRead(importFilePath), importFilePath);
+                }
+            } else {
+                // prev token is import, but our token for the path to the file to import isn't a proper string
+                fprintf(stderr, "trying to import something that's not a good string:\n");
+                print(lexer->token);
+                exit(1);
+            }
+        }
+
         if (streq(lexer->token->tk, "import")) {
             prevTokenImport = true;
 
-        } else if (prevTokenImport && (lexer->token->tt == TT_STRING)) {
-            char* importFilePath = trimQuotes(lexer->token->tk, lexer->token->length);
-
-            tokenize(fileRead(importFilePath), importFilePath);
+        } else {
+            prevTokenImport = false;
         }
     }
 }

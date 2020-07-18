@@ -11,11 +11,11 @@
 typedef struct {
     Table* files;
 
-    u32 tokenCount;
-    u32 capacity;
+    u32 tokenCount; // how many tokens are stored in the array currently
+    u32 capacity;   // how big is the buffer?
 
-    Token* token;
-    Token* tokens;
+    Token* token;   // the complete token most recently lexed
+    Token* tokens;  // every token lexer so far, in order, probably but not necessarily including the token above
 
 } Lexer;
 
