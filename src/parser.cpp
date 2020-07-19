@@ -79,7 +79,6 @@ static ASTNode* shuntingYard(Token tokens[]) {
                     es->push(es, opNode);
                 }
 
-
                 if (os->isEmpty(os)) { // we never found a matching open paren...
                     // @TODO report parser error
                     // how can we be more intelligent about reporting missing parens?

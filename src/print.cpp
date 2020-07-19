@@ -4,6 +4,7 @@
 #include "token.h"
 #include "node.h"
 #include "stack.h"
+#include "reporter.h"
 #include "lexer.h"
 #include "print.h"
 #include "table.h"
@@ -111,4 +112,14 @@ void print(const Stack* stack) {
             , *stack->data);
 }
 
+void print(const Message message) {
+    switch (message.severity) {
+        case MS_LINT:    printf("%s", ANSI_CYAN); break;
+        case MS_WARNING: printf("%s", ANSI_BLUE); break;
+        case MS_ERROR:   printf("%s", ANSI_RED); break;
+    }
+
+    printf("%s\n", message.content);
+    printf("%s", ANSI_RESET);
+}
 

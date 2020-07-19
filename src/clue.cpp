@@ -104,7 +104,7 @@ static void help(const char* arg) {
 }
 
 static void handleCommandLineArguments(int argc, const char* argv[]) {
-    CLAs = (CommandLineArguments*) pMalloc(sizeof (CommandLineArguments));
+    CLAs = (CommandLineArguments*) pCalloc(1, sizeof (CommandLineArguments));
 
     #if CLUE_DEBUG_LEVEL > 1
         if (argc > 1) {
@@ -130,12 +130,19 @@ static void handleCommandLineArguments(int argc, const char* argv[]) {
         } else if (streq(argv[i], "-s") || streq(argv[i], "--sandbox")) {
             CLAs->interactive = true;
 
+        } else if (streq(argv[i], "--project-root")) {
+            CLAs->src = argv[i];
+
         } else if (hasSuffix(argv[i], CLUE_FILE_SUFFIX)) {
             clueFileRead(argv[i]);
 
         } else {
             help(argv[i]);
         }
+    }
+
+    if (!CLAs->src) {
+        CLAs->src = "src"; // should be able to set this with a config file as well as CLAs
     }
 }
 

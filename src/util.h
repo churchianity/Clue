@@ -8,6 +8,15 @@
 #include "clue.h"
 
 
+u32 strln(const char* string);
+bool streq(const char* s1, const char* s2);
+bool hasSuffix(const char* string, const char* suffix);
+u32 countLines(const char* buffer);
+
+u32 getFileSize(FILE* fp);
+char* fileRead(const char* filename);
+
+
 inline void* pMalloc(u32 size) {
     void* p = malloc(size);
 
@@ -54,6 +63,18 @@ inline const char* boolToString(bool b) {
     return b ? "true" : "false";
 }
 
+inline bool isAscii(const char* buffer, u32 length) {
+    const unsigned char* ubuffer = (const unsigned char*) buffer;
+
+    for (u32 i = 0; i < length; i++) {
+        if (ubuffer[i] & 0b10000000) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 inline char* trimQuotes(const char* str, u32 length) {
     if (length < 2) {
         fprintf(stderr, "trying to trim quotes off string smaller than 2 in length\n");
@@ -70,6 +91,26 @@ inline char* trimQuotes(const char* str, u32 length) {
     buffer[i] = '\0';
 
     return buffer;
+}
+
+inline char* concat(char* str1, char* str2) {
+    u32 l1 = strln(str1);
+    u32 l2 = strln(str2);
+
+    char* out = (char*) pMalloc(sizeof (char) * (l1 + l2) + 1);
+
+    u32 i = 0;
+    for (; i < l1; i++) {
+        out[i] = str1[i];
+    }
+
+    for (; i < l2; i++) {
+        out[i] = str2[i];
+    }
+
+    out[i] = '\0';
+
+    return out;
 }
 
 /**
@@ -91,15 +132,6 @@ inline char* read(char* buffer, u32 length) {
 
     return tk;
 }
-
-u32 strln(const char* string);
-bool streq(const char* s1, const char* s2);
-bool hasSuffix(const char* string, const char* suffix);
-u32 countLines(const char* buffer);
-
-u32 getFileSize(FILE* fp);
-char* fileRead(const char* filename);
-
 
 #endif
 

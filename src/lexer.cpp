@@ -3,15 +3,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "reporter.h"
 #include "clue.h"
 #include "token.h"
 #include "print.h"
 #include "table.h"
 #include "util.h"
 
-Table* Lexer::files = NULL;
+Table* Lexer::files = newTable(10);
+
 u32 Lexer::tokenCount = 0;
 u32 Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
+
 Token* Lexer::token = NULL;
 Token* Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
 
@@ -76,7 +79,11 @@ void Lexer::tokenize(char* buffer, const char* filename) {
                     lastCharWasDigit = true;
 
                 } else if (lastCharWasDigit) {
-                    // @TODO report linter error
+                    Reporter::add({
+                        "Non-digit character following a digit in identifier name",
+                        MS_WARNING,
+                        MC_LEXER
+                    });
                 }
 
                 length++;

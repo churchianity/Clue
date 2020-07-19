@@ -38,7 +38,8 @@ typedef int8_t s8;
 // string?
 
 typedef struct {
-    bool interactive;
+    bool interactive;   // whether or not to drop the user into interactive mode after reading source files (if present)
+    const char* src;    // the name of the directory that is the root of the source tree of whatever project you are in
 } CommandLineArguments;
 
 #include "table.h"
