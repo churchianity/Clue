@@ -2,6 +2,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -75,6 +76,40 @@ inline bool isAscii(const char* buffer, u32 length) {
     return true;
 }
 
+inline char* intToString(u64 integer) {
+    u32 capacity = 10;
+    u32* remainders = (u32*) pMalloc(sizeof (u32) * capacity);
+
+    u32 count = 0;
+
+    while (true) {
+        if (capacity <= count) {
+            capacity *= 2;
+            remainders = (u32*) pRealloc(remainders, sizeof (u32) * capacity);
+        }
+
+        remainders[count++] = integer % 10;
+
+        integer /= 10;
+
+        if (integer == 0) {
+            break;
+        }
+    }
+
+    char* buffer = (char*) pMalloc(sizeof (char) * count + 1);
+
+    for (u32 i = 0; i < count; i++) {
+        buffer[count - i - 1] = '0' + remainders[i];
+    }
+
+    buffer[count] = '\0';
+
+    free(remainders);
+
+    return buffer;
+}
+
 inline char* trimQuotes(const char* str, u32 length) {
     if (length < 2) {
         fprintf(stderr, "trying to trim quotes off string smaller than 2 in length\n");
@@ -93,24 +128,46 @@ inline char* trimQuotes(const char* str, u32 length) {
     return buffer;
 }
 
-inline char* concat(char* str1, char* str2) {
+inline char* concat(const char* str1, const char* str2) {
     u32 l1 = strln(str1);
     u32 l2 = strln(str2);
 
-    char* out = (char*) pMalloc(sizeof (char) * (l1 + l2) + 1);
+    u32 newLength = l1 + l2;
+
+    char* newBuffer = (char*) pMalloc(sizeof (char) * newLength + 1);
 
     u32 i = 0;
-    for (; i < l1; i++) {
-        out[i] = str1[i];
+    for (; i < newLength; i++) {
+        printf("i: %u\n", i);
+        if (i < l1) {
+            newBuffer[i] = str1[i];
+
+        } else {
+            newBuffer[i] = str2[i - l1];
+        }
     }
 
-    for (; i < l2; i++) {
-        out[i] = str2[i];
+    newBuffer[i] = '\0';
+
+    return newBuffer;
+}
+
+inline char* concat(u32 argc, ...) {
+    va_list args;
+    va_start(args, argc);
+
+    char* str1 = va_arg(args, char*);
+    char* str2 = NULL;
+
+    for (u32 i = 1; i < argc; i++) {
+        str2 = va_arg(args, char*);
+
+        str1 = concat(str1, str2);
     }
 
-    out[i] = '\0';
+    va_end(args);
 
-    return out;
+    return str1;
 }
 
 /**

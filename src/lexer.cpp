@@ -68,6 +68,7 @@ void Lexer::tokenize(char* buffer, const char* filename) {
             tt = TT_SYMBOL;
 
             bool lastCharWasDigit = false;
+            bool lastCharWasDigitLint = false;
             do {
                 buffer++;
 
@@ -78,12 +79,15 @@ void Lexer::tokenize(char* buffer, const char* filename) {
                 if (isDigit(*buffer)) {
                     lastCharWasDigit = true;
 
-                } else if (lastCharWasDigit) {
-                    Reporter::add({
-                        "Non-digit character following a digit in identifier name",
-                        MS_WARNING,
-                        MC_LEXER
-                    });
+                } else {
+                    if (!lastCharWasDigitLint && lastCharWasDigit) {
+                        lastCharWasDigitLint = true;
+
+
+
+                    }
+
+                    lastCharWasDigit = false;
                 }
 
                 length++;

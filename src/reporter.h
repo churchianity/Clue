@@ -15,16 +15,16 @@ typedef enum {
 } MessageSourceEnum;
 
 typedef struct {
-    const char* content;
     MessageSeverityEnum severity;
     MessageSourceEnum source;
+    const char* content;
 } Message;
 
 namespace Reporter {
     extern Message* messages;
 
     extern void flush();
-    extern void add(Message message);
+    extern void add(MessageSeverityEnum severity, MessageSourceEnum source, const char* message);
 }
 
 #endif
