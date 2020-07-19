@@ -83,8 +83,7 @@ void Lexer::tokenize(char* buffer, const char* filename) {
                     if (!lastCharWasDigitLint && lastCharWasDigit) {
                         lastCharWasDigitLint = true;
 
-
-
+                        Reporter::add(MS_LINT, MC_LEXER, concat(6, filename, ":", intToString(line), ":", intToString(column), " lint: only alphabetical characters can follow a digit in an identifier name."));
                     }
 
                     lastCharWasDigit = false;
