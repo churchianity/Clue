@@ -15,7 +15,7 @@ namespace Lexer {
     extern void tokenize(char* buffer, const char* filename);
     extern void add(Token* token);
     extern void print();
-};
+}
 
 #endif
 
