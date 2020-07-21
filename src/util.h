@@ -138,7 +138,6 @@ inline char* concat(const char* str1, const char* str2) {
 
     u32 i = 0;
     for (; i < newLength; i++) {
-        printf("i: %u\n", i);
         if (i < l1) {
             newBuffer[i] = str1[i];
 

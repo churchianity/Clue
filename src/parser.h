@@ -6,7 +6,6 @@
 #include "node.h"
 
 
-u32 precedence(Token* token);
 ASTNode* parse(Token tokens[]);
 
 #endif

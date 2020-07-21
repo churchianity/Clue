@@ -9,8 +9,6 @@
 
 
 typedef enum {
-    TT_SENTINEL                 = -256,
-
     // 0-255 ascii chars here
 
     TT_SYMBOL                   = 256,  // any value that can be returned by lexSymbol
@@ -88,6 +86,7 @@ typedef struct Token {
 } Token;
 
 Token* newToken(const char* filename, u32 line, u32 column, u32 length, TokenTypeEnum tt, const char* tk, bool bad);
+bool isOperator(Token* token);
 const char* tokenTypeToString(TokenTypeEnum tt);
 
 #endif

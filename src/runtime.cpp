@@ -27,9 +27,10 @@ void clueFileRead(const char* filename) {
 
         printf("\n\tPrinting AST state... \n%s\n", _DIV);
         print(AST);
-        AST->traverse(AST, print);
+        traverse(AST, print);
     #endif
 
+    free(AST);
     free(codebuffer);
 }
 
@@ -54,18 +55,19 @@ void interactive() {
         }
 
         Lexer::tokenize(s, "stdin");
-        // ASTNode* AST = parse(Lexer::tokens);
+        ASTNode* AST = parse(Lexer::tokens);
 
         #if CLUE_DEBUG_LEVEL > 0
             printf("\n\tPrinting lexer state...\n%s\n", _DIV);
             Lexer::print();
 
-            printf("\n\tPrinting AST state... \n%s\n", _DIV);
-            // print(AST);
-            // AST->traverse(AST, print);
+            // printf("\n\tPrinting AST state... \n%s\n", _DIV);
+            // traverse(AST, print);
 
             Reporter::flush();
         #endif
+
+        free(AST);
 
     } while (1);
 }

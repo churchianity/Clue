@@ -15,21 +15,6 @@
 #include "util.h"
 
 
-/**
- *
- */
-u32 precedence(Token* token) {
-    Table* t = op_t;
-
-    TableEntry* entry = t->lookup(t, token->tk);
-
-    if (!entry) {
-        fprintf(stderr, "attempted to look up precedence for token and found nothing:\n");
-        print(token);
-    }
-
-    return ((Symbol*) (entry->value))->precedence;
-}
 
 /**
  * Parses expressions into an AST.
@@ -38,25 +23,17 @@ static ASTNode* shuntingYard(Token tokens[]) {
     Stack* es = newStack(10, true);
     Stack* os = newStack(10, true);
 
-    u32 i = 0;
+    ASTNode* lhs = NULL;
+    ASTNode* rhs = NULL;
+    ASTNode* op = NULL;
 
+    u32 i = 0;
     while (i < (Lexer::tokenCount)) {
         switch ((int) tokens[i].tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
-            case TT_SENTINEL:
-                fprintf(stderr, "Got a sentinel token inside of shuntingYard\nExiting...");
-                exit(1);
-
             case TT_SYMBOL:
-                es->push(es, newNode(&tokens[i], NULL)); // @TODO replace with search scope for var
-                break;
-
             case TT_STRING:
             case TT_NUMERIC:
-                es->push(es, newNode(&tokens[i], NULL));
-                break;
-
-            case '(':
-                os->push(os, &tokens[i]);
+                es->push(es, newNode(tokens, i));
                 break;
 
             case ')':
@@ -65,75 +42,96 @@ static ASTNode* shuntingYard(Token tokens[]) {
                         break;
                     }
 
-                    ASTNode* rhs = (ASTNode*) es->pop(es);
-                    ASTNode* lhs = (ASTNode*) es->pop(es);
+                    rhs = (ASTNode*) es->pop(es);
+                    lhs = (ASTNode*) es->pop(es);
 
-                    if (!rhs) { fprintf(stderr, "failed to get rhs for operator\n"); exit(1); } // @TODO report parser error
-                    if (!lhs) { fprintf(stderr, "failed to get lhs for operator\n"); exit(1); } // @TODO report parser error
+                    op = (ASTNode*) os->pop(os);
 
-                    ASTNode* opNode = newNode((Token*) os->pop(os), NULL);
+                    addChild(op, lhs);
+                    addChild(op, rhs);
 
-                    opNode->addChild(opNode, lhs);
-                    opNode->addChild(opNode, rhs);
-
-                    es->push(es, opNode);
+                    es->push(es, op);
                 }
 
                 if (os->isEmpty(os)) { // we never found a matching open paren...
-                    // @TODO report parser error
-                    // how can we be more intelligent about reporting missing parens?
+                    Reporter::add(MS_ERROR, MC_PARSER, "Missing open parentheses.\n");
                     break;
                 }
 
                 os->pop(os); // discard opening parens
                 break;
 
-            default: // should be a non-punctuator, non-function invoking operator
-                if (os->isEmpty(os)) {
-                    os->push(os, &tokens[i]);
-                    break;
+            case '(':
+            default:
+                op = newNode(tokens, i);
+
+                while (!os->isEmpty(os) && (((ASTNode*) os->peek(os))->precedence > precedence(&tokens[i]))) {
+                    if (op->unary) {
+                        if (!((ASTNode*) os->peek(os))->unary) { // unary operators can only pop and apply other unary operators
+                            break;
+                        }
+
+                        if (op->postfix) {
+                            lhs = (ASTNode*) es->pop(es);
+
+                        } else {
+                            rhs = (ASTNode*) es->pop(es);
+                        }
+                    } else {
+                        rhs = (ASTNode*) es->pop(es);
+                        lhs = (ASTNode*) es->pop(es);
+                    }
+
+                    ASTNode* t = (ASTNode*) os->pop(os);
+
+                    addChild(t, lhs);
+                    addChild(t, rhs);
+
+                    es->push(es, t);
                 }
 
-                while (!os->isEmpty(os) && (precedence((Token*) os->peek(os)) > precedence(&tokens[i]))) {
-                    ASTNode* rhs = (ASTNode*) es->pop(es);
-                    ASTNode* lhs = (ASTNode*) es->pop(es);
-
-                    if (!rhs) { fprintf(stderr, "failed to get rhs for operator\n"); exit(1); } // @TODO report parser error
-                    if (!lhs) { fprintf(stderr, "failed to get lhs for operator\n"); exit(1); } // @TODO report parser error
-
-                    ASTNode* opNode = newNode((Token*) os->pop(os), NULL);
-
-                    opNode->addChild(opNode, lhs);
-                    opNode->addChild(opNode, rhs);
-
-                    es->push(es, opNode);
-                }
-
-                os->push(os, &tokens[i]);
+                os->push(os, op);
                 break;
         }
 
-        ++i;
+        i++;
     }
 
-    // it's possible there's an operator leftover we haven't dealt with yet
-    // @NOTE it should be just one, or zero left though right?
+    // 4 - +2
+    //
+    // es-> 4 2
+    // os-> - +
     while (!os->isEmpty(os)) {
-        ASTNode* rhs = (ASTNode*) es->pop(es);
-        ASTNode* lhs = (ASTNode*) es->pop(es);
+        op = (ASTNode*) os->pop(os);
 
-        if (!rhs) { fprintf(stderr, "failed to get rhs for operator\n"); exit(1); } // @TODO report parser error
-        if (!lhs) { fprintf(stderr, "failed to get lhs for operator\n"); exit(1); } // @TODO report parser error
+        if (op->unary) {
+            if (!((ASTNode*) os->peek(os))->unary) { // unary operators can only pop and apply other unary operators
+                break;
+            }
 
-        ASTNode* opNode = newNode((Token*) os->pop(os), NULL);
+            if (op->postfix) {
+                lhs = (ASTNode*) es->pop(es);
 
-        opNode->addChild(opNode, lhs);
-        opNode->addChild(opNode, rhs);
+            } else {
+                rhs = (ASTNode*) es->pop(es);
+            }
+        } else {
+            rhs = (ASTNode*) es->pop(es);
+            lhs = (ASTNode*) es->pop(es);
+        }
 
-        es->push(es, opNode);
+        addChild(op, lhs);
+        addChild(op, rhs);
+
+        es->push(es, op);
     }
 
-    return (ASTNode*) es->pop(es);
+    ASTNode* root = (ASTNode*) es->pop(es);
+
+    free(es);
+    free(os);
+
+    return root;
 }
 
 /**

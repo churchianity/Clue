@@ -61,7 +61,8 @@ void print(const ASTNode* node) {
         printf("node is null\n"); return;
     }
 
-    printf("%p | childrenCount: %u\n", (void*) node, node->childrenCount);
+    printf("%p | childrenCount: %u, maxChildrenCount: %u\nunary: %d | postfix: %d | call: %d | precedence: %d\n"
+           , (void*) node, node->childrenCount, node->maxChildrenCount, node->unary, node->postfix, node->call, node->precedence);
 
     printf("Token: "); print(node->token);
 
