@@ -1,6 +1,4 @@
 
-#include <stdio.h>
-
 #include "message.h"
 #include "node.h"
 #include "table.h"

@@ -1,14 +1,13 @@
 
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "clue.h"
+#include "lexer.h"
+#include "string.h"
 #include "token.h"
 #include "table.h"
 #include "util.h"
 #include "print.h"
 #include "reporter.h"
+
 
 Table* Lexer::files = newTable(10);
 

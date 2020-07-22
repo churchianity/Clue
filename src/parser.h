@@ -6,7 +6,7 @@
 #include "node.h"
 
 
-ASTNode* parse(Token tokens[]);
+extern ASTNode* parse(Token tokens[]);
 
 #endif
 

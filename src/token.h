@@ -2,8 +2,6 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include <stdbool.h>
-
 #include "clue.h"
 #include "symbol.h"
 
@@ -73,7 +71,7 @@ typedef enum {
 
 } TokenTypeEnum;
 
-typedef struct Token {
+typedef struct {
     const char* filename;
     u32 line;
     u32 column;
@@ -85,9 +83,9 @@ typedef struct Token {
     bool bad;
 } Token;
 
-Token* newToken(const char* filename, u32 line, u32 column, u32 length, TokenTypeEnum tt, const char* tk, bool bad);
-bool isOperator(Token* token);
-const char* tokenTypeToString(TokenTypeEnum tt);
+extern Token* newToken(const char* filename, u32 line, u32 column, u32 length, TokenTypeEnum tt, const char* tk, bool bad);
+extern bool isOperator(Token* token);
+extern const char* tokenTypeToString(TokenTypeEnum tt);
 
 #endif
 

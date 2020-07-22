@@ -42,11 +42,11 @@ extern const char* ANSI_CLEAR;
 extern const char* ANSI_RESET;
 
 
-void print(const Token* token);
-void print(const ASTNode* node);
-void print(const Stack* stack);
-void print(const Table* table);
-void print(const Message* message);
+extern void print(const Token* token);
+extern void print(const ASTNode* node);
+extern void print(const Stack* stack);
+extern void print(const Table* table);
+extern void print(const Message* message);
 
 #endif
 

@@ -2,8 +2,6 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include <stdbool.h>
-
 #include "table.h"
 #include "token.h"
 
@@ -22,10 +20,10 @@ typedef struct ASTNode {
 
 } ASTNode;
 
-u32 precedence(Token* token);
-void traverse(ASTNode* self, void (*callback) (const ASTNode*));
-ASTNode* newNode(Token tokens[], u32 currentIndex);
-void addChild(ASTNode* self, ASTNode* child);
+extern u32 precedence(Token* token);
+extern void traverse(ASTNode* self, void (*callback) (const ASTNode*));
+extern ASTNode* newNode(Token tokens[], u32 currentIndex);
+extern void addChild(ASTNode* self, ASTNode* child);
 
 #endif
 

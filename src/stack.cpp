@@ -1,7 +1,4 @@
 
-#include <stdbool.h>
-#include <stdio.h>
-
 #include "stack.h"
 #include "util.h"
 

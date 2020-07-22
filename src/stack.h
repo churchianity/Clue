@@ -2,8 +2,6 @@
 #ifndef STACK_H
 #define STACK_H
 
-#include <stdbool.h>
-
 #include "clue.h"
 
 
@@ -21,7 +19,7 @@ typedef struct Stack {
     void* (*pop) (Stack* self);
 } Stack;
 
-Stack* newStack(u32 capacity, bool grow);
+extern Stack* newStack(u32 capacity, bool grow);
 
 #endif
 

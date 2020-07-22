@@ -5,8 +5,8 @@
 #include "clue.h"
 
 
-void clueFileRead(const char* filename);
-void interactive();
+extern void clueFileRead(const char* filename);
+extern void interactive();
 
 #endif
 

@@ -1,19 +1,14 @@
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
 #include "clue.h"
 #include "node.h"
 #include "lexer.h"
+#include "reporter.h"
 #include "print.h"
 #include "stack.h"
 #include "symbol.h"
 #include "table.h"
 #include "token.h"
 #include "util.h"
-
 
 
 /**

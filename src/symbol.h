@@ -2,7 +2,7 @@
 #ifndef SYMBOL_H
 #define SYMBOL_H
 
-#include <stdbool.h>
+
 
 #include "clue.h"
 
@@ -19,7 +19,7 @@ typedef struct {
     char precedence;
 } Symbol;
 
-Symbol* newSymbol(const char* name, u8 precedence, bool reserved);
+extern Symbol* newSymbol(const char* name, u8 precedence, bool reserved);
 
 #endif
 

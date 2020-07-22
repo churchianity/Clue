@@ -2,8 +2,6 @@
 #ifndef REPORTER_H
 #define REPORTER_H
 
-#include <stdio.h>
-
 #include "clue.h"
 #include "message.h"
 

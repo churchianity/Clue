@@ -20,7 +20,7 @@ typedef struct Table {
     TableEntry** entries;
 } Table;
 
-Table* newTable(u32 capacity);
+extern Table* newTable(u32 capacity);
 
 #endif
 

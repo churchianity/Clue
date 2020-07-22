@@ -1,7 +1,4 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "clue.h"
 #include "node.h"
 #include "table.h"

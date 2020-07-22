@@ -4,6 +4,7 @@
 
 #include "clue.h"
 #include "runtime.h"
+#include "string.h"
 #include "symbol.h"
 #include "print.h"
 #include "table.h"

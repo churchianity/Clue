@@ -1,17 +1,15 @@
 
-#include <stdio.h> // for fgets, fprintf, printf
-#include <stdlib.h> // memset
-
 #include "clue.h"
-#include "token.h"
-#include "node.h"
 #include "lexer.h"
+#include "node.h"
 #include "print.h"
 #include "parser.h"
 #include "reporter.h"
-#include "string.h"
 #include "runtime.h"
+#include "string.h"
+#include "token.h"
 #include "util.h"
+
 
 /**
  *
@@ -41,7 +39,6 @@ void interactive() {
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
 
     do {
-        memset(s, 0, sizeof (s));
         printf(">>> ");
 
         if (fgets(s, CLUE_SANDBOX_MODE_MAX_LINE_LENGTH, stdin) == NULL) {

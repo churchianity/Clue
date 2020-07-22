@@ -1,7 +1,7 @@
 
+#include "print.h"
 #include "reporter.h"
 #include "token.h"
-#include "print.h"
 #include "util.h"
 
 static u32 messageCount = 0;
@@ -13,7 +13,7 @@ Message* Reporter::messages = (Message*) pMalloc(sizeof (Message) * CLUE_INITIAL
 //      - we are always going to care about some filename, line number, and column number
 //      - we are going to always want some other textual content
 //      - if the code is in a function, we also want to know what the name of the function is
-//          - @NOTE for overloaded functions, do we want to print the full function signature?
+//          - @NOTE for overloaded functions, do we want to print the full function signature? NO
 //
 //
 //      lint: alphabetical characters can't follow digits in identifier names
@@ -57,7 +57,7 @@ void Reporter::add(MessageSeverityEnum severity, const char* content, const char
 
 void Reporter::flush() {
     for (u32 i = 0; i < messageCount; i++) {
-        print(Reporter::messages + i);
+
     }
 
     messageCount = 0;
