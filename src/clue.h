@@ -35,7 +35,6 @@
  *  fgets, fprintf, printf
  *
  *  stdarg.h - just for a concatenate function in (our) string.h
- *
  */
 
 
@@ -43,7 +42,6 @@
  * Non-struct, non-union datatypes in this codebase:
  * @NOTE We are using u32 and s32 for almost everything right now, and will optimze later.
  */
-#define null NULL;
 
 typedef uint64_t u64;
 typedef uint32_t u32;

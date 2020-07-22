@@ -43,7 +43,7 @@ const char* ANSI_RESET = "\x001B[0m";
 
 void print(const Token* token) {
     if (!token) {
-        printf("token is null\n"); return;
+        printf("token is NULL\n"); return;
     }
 
     const char* tt = tokenTypeToString(token->tt);
@@ -55,7 +55,7 @@ void print(const Token* token) {
 
 void print(const ASTNode* node) {
     if (!node) {
-        printf("node is null\n"); return;
+        printf("node is NULL\n"); return;
     }
 
     printf("%p | childrenCount: %u, maxChildrenCount: %u\nunary: %d | postfix: %d | call: %d | precedence: %d\n"
@@ -72,7 +72,7 @@ void print(const ASTNode* node) {
 
 void print(const Table* table) {
     if (!table) {
-        printf("table is null\n"); return;
+        printf("table is NULL\n"); return;
     }
 
     printf("%p | capacity: %u | entries:\n", (void*) table, table->capacity);
@@ -97,7 +97,7 @@ void print(const Table* table) {
 
 void print(const Stack* stack) {
     if (!stack) {
-        printf("stack is null\n"); return;
+        printf("stack is NULL\n"); return;
     }
 
     const char* grow = boolToString(stack->grow);

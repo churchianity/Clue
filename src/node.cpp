@@ -96,7 +96,7 @@ ASTNode* newNode(Token tokens[], u32 i) {
  */
 void addChild(ASTNode* self, ASTNode* child) {
     if (!child) {
-        printf("attempting to add null child...\nskipping...\n");
+        printf("attempting to add NULL child...\nskipping...\n");
         return;
     }
 

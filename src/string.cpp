@@ -2,7 +2,7 @@
 #include "clue.h"
 
 /**
- * @WARN Assumes null termination.
+ * @WARN Assumes NULL termination.
  */
 u32 strln(const char* string) {
     u32 length = 0;
@@ -16,7 +16,7 @@ u32 strln(const char* string) {
 }
 
 /**
- * @WARN Assumes null termination.
+ * @WARN Assumes NULL termination.
  */
 bool streq(const char* s1, const char* s2) {
     if (strln(s1) != strln(s2)) {
@@ -46,7 +46,7 @@ const char* lastCharOccurence(const char* string, u32 length, char c) {
 }
 
 /**
- * @WARN Assumes null termination.
+ * @WARN Assumes NULL termination.
  */
 bool hasSuffix(const char* string, const char* suffix) {
     const char* p = lastCharOccurence(string, strln(string), suffix[0]);
@@ -59,7 +59,7 @@ bool hasSuffix(const char* string, const char* suffix) {
 }
 
 /**
- * @WARN Assumes null termination.
+ * @WARN Assumes NULL termination.
  */
 u32 countLines(const char* buffer) {
     u32 lines = 0;

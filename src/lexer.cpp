@@ -294,7 +294,7 @@ void Lexer::tokenize(char* buffer, const char* filename) {
                     exit(1);
 
                 case '\0':
-                    fprintf(stderr, "got null character while trying to lex an operator...\n");
+                    fprintf(stderr, "got NULL character while trying to lex an operator...\n");
                     Lexer::print();
                     exit(1);
             }
