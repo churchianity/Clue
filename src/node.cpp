@@ -62,7 +62,6 @@ ASTNode* newNode(Token tokens[], u32 i) {
     if (!isOperator(&tokens[i])) {
         node->maxChildrenCount = 0;
         node->precedence = 0;
-        print(node);
         return node;
     }
 
@@ -92,7 +91,6 @@ ASTNode* newNode(Token tokens[], u32 i) {
         }
     }
 
-    print(node);
     return node;
 }
 

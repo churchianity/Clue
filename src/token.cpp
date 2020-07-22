@@ -30,8 +30,10 @@ Token* newToken(const char* filename, u32 line, u32 col, u32 length, TokenTypeEn
     token->line = line;
     token->column = col;
     token->length = length;
+
     token->tt = tt;
     token->tk = tk;
+
     token->bad = bad;
 
     return token;

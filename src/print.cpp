@@ -1,13 +1,12 @@
 
 #include <stdio.h>
 
-#include "token.h"
+#include "message.h"
 #include "node.h"
-#include "stack.h"
-#include "reporter.h"
-#include "lexer.h"
-#include "print.h"
 #include "table.h"
+#include "token.h"
+#include "stack.h"
+#include "print.h"
 #include "util.h"
 
 
@@ -113,14 +112,13 @@ void print(const Stack* stack) {
             , *stack->data);
 }
 
-void print(const Message message) {
-    switch (message.severity) {
-        case MS_LINT:    printf("%s", ANSI_CYAN); break;
-        case MS_WARNING: printf("%s", ANSI_BLUE); break;
-        case MS_ERROR:   printf("%s", ANSI_RED); break;
-    }
+void print(const Message* message) {
+    //printf("%s%s%s: "
+    //       , messageSeverityToColor(message->severity)
+    //       , messageSeverityToString(message->severity), ANSI_RESET
 
-    printf("%s\n", message.content);
-    printf("%s", ANSI_RESET);
+
+
+      //     );
 }
 

@@ -42,19 +42,39 @@ static ASTNode* shuntingYard(Token tokens[]) {
                         break;
                     }
 
-                    rhs = (ASTNode*) es->pop(es);
-                    lhs = (ASTNode*) es->pop(es);
+                    if (op->unary) {
+                        if (!((ASTNode*) os->peek(os))->unary) { // unary operators can only pop and apply other unary operators
+                            break;
+                        }
 
-                    op = (ASTNode*) os->pop(os);
+                        if (op->postfix) {
+                            lhs = (ASTNode*) es->pop(es);
 
-                    addChild(op, lhs);
-                    addChild(op, rhs);
+                        } else {
+                            rhs = (ASTNode*) es->pop(es);
+                        }
+                    } else {
+                        rhs = (ASTNode*) es->pop(es);
+                        lhs = (ASTNode*) es->pop(es);
+                    }
 
-                    es->push(es, op);
+                    ASTNode* t = (ASTNode*) os->pop(os);
+
+                    addChild(t, lhs);
+                    addChild(t, rhs);
+
+                    es->push(es, t);
                 }
 
                 if (os->isEmpty(os)) { // we never found a matching open paren...
-                    Reporter::add(MS_ERROR, MC_PARSER, "Missing open parentheses.\n");
+                    Reporter::add(
+                            MS_ERROR,
+                            "Missing open parentheses.\n",
+                            NULL,
+                            tokens[i].filename,
+                            tokens[i].line,
+                            tokens[i].column
+                    );
                     break;
                 }
 

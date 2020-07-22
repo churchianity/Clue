@@ -3,12 +3,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "reporter.h"
 #include "clue.h"
 #include "token.h"
-#include "print.h"
 #include "table.h"
 #include "util.h"
+#include "print.h"
+#include "reporter.h"
 
 Table* Lexer::files = newTable(10);
 
@@ -18,6 +18,21 @@ u32 Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
 Token* Lexer::token = NULL;
 Token* Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
 
+void Lexer::clear() {
+    free(Lexer::files);
+
+    for (u32 i = 0; i < Lexer::tokenCount; i++) {
+        free(&Lexer::tokens[i]);
+    }
+
+    Lexer::files = newTable(10);
+
+    Lexer::tokenCount = 0;
+    Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
+
+    Lexer::token = NULL;
+    Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
+}
 
 void Lexer::print() {
     printf("lexer count: %u | capacity: %u\nfiles: ", Lexer::tokenCount, Lexer::capacity);
@@ -48,6 +63,7 @@ void Lexer::add(Token* token) {
  * Given a string |buffer|, append to the lexer's |tokens| array.
  */
 void Lexer::tokenize(char* buffer, const char* filename) {
+    // const char* beginning = buffer;
     bool prevTokenImport = false;
     TokenTypeEnum tt;
 
@@ -83,7 +99,14 @@ void Lexer::tokenize(char* buffer, const char* filename) {
                     if (!lastCharWasDigitLint && lastCharWasDigit) {
                         lastCharWasDigitLint = true;
 
-                        Reporter::add(MS_LINT, MC_LEXER, concat(6, filename, ":", intToString(line), ":", intToString(column), " lint: only alphabetical characters can follow a digit in an identifier name."));
+                        Reporter::add(
+                                MS_LINT,
+                                "only alphabetical characters can follow a digit in an identifier name.",
+                                NULL,
+                                filename,
+                                line,
+                                column
+                        );
                     }
 
                     lastCharWasDigit = false;
@@ -99,27 +122,39 @@ void Lexer::tokenize(char* buffer, const char* filename) {
              */
             tt = TT_NUMERIC;
 
-            // @TODO check if it's a zero, then it should be a fractional amount
-
             bool hasRadixPoint = false;
+
+            if (*buffer == '0') {
+                switch (*(buffer + 1)) {
+                    case 'x':
+                    case 'b':
+                    case 'o':
+                    case '.':
+
+                    default:
+
+                        break;
+                }
+            }
+
             do {
                 buffer++;
 
-                if (!isDigit(*buffer)) {
-                    break;
-
-                } else if (*buffer == '.') {
+                if (*buffer == '.') {
                     if (hasRadixPoint) {
                         bad = true;
                         break;
                     }
 
                     hasRadixPoint = true;
+
+                } else if (!isDigit(*buffer)) {
+                    break;
                 }
 
                 length++;
 
-            } while (*buffer == '\0');
+            } while (*buffer != '\0');
 
         } else if ((*buffer == '"') || (*buffer == '\'')) {
             /**

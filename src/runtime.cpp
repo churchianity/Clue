@@ -52,6 +52,11 @@ void interactive() {
         if (s[0] == '.') {
             printf("Bye!\n");
             break;
+
+        } else if (s[0] == '`') {
+            Lexer::clear();
+            Lexer::print();
+            continue;
         }
 
         Lexer::tokenize(s, "stdin");

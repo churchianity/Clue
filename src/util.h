@@ -52,12 +52,26 @@ inline void* pRealloc(void* buffer, u32 newSize) {
 }
 
 inline bool isDigit(char c) {
-    return c >= '0' && c <= '9';
+    return (c >= '0') && (c <= '9');
 }
 
 inline bool isAlpha(char c) {
     return (c >= 'A' && c <= 'Z')
         || (c >= 'a' && c <= 'z');
+}
+
+inline bool isHexDigit(char c) {
+    return ((c >= '0') && (c <= '9'))
+        || ((c >= 'A') && (c <= 'F'))
+        || ((c >= 'a') && (c <= 'f'));
+}
+
+inline bool isOctalDigit(char c) {
+    return ((c >= '0') && (c <= '7'));
+}
+
+inline bool isBinaryDigit(char c) {
+    return (c == '0') || (c == '1');
 }
 
 inline const char* boolToString(bool b) {

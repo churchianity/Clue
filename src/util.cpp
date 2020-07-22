@@ -102,18 +102,25 @@ u32 getFileSize(FILE* fp) {
  */
 char* fileRead(const char* filename) {
     FILE* fp = fopen(filename, "r");
-    char* buffer = NULL;
-    u32 length;
 
     if (!fp) {
         fprintf(stderr, "failed to get fp for filename: %s\n", filename);
         exit(1);
     }
 
-    length = getFileSize(fp);
-    buffer = (char*) pMalloc(length);
+    u32 length = getFileSize(fp);
+
+    char* buffer = (char*) pMalloc(length);
 
     fread(buffer, 1, length, fp);
+
+    if (isAscii(buffer, length)) {
+        printf("loaded file %s, as 7-bit ASCII.\n", filename);
+
+    } else {
+        printf("loaded file %s, as unknown encoding.\n", filename);
+    }
+
     fclose(fp);
 
     return buffer;
