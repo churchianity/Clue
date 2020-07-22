@@ -25,8 +25,6 @@ typedef struct {
     // @TODO some way to determine context string
 } Message;
 
-
-
 inline const char* messageSeverityToColor(MessageSeverityEnum severity) {
     switch (severity) {
         case MS_LINT: return ANSI_BLUE;

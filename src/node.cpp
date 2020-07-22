@@ -59,7 +59,7 @@ ASTNode* newNode(Token tokens[], u32 i) {
     node->childrenCount = 0;
     node->call = false;
 
-    if (!isOperator(&tokens[i])) {
+    if (!isOperator(&tokens[i])) { // isn't an operator... easy one
         node->maxChildrenCount = 0;
         node->precedence = 0;
         return node;
@@ -78,7 +78,7 @@ ASTNode* newNode(Token tokens[], u32 i) {
             node->unary = true;
             node->postfix = true;
 
-        } else if ((tokens[i].tt == '(') && (tokens[i - 1].tt == TT_SYMBOL)) {
+        } else if ((tokens[i].tt == '(') && (tokens[i - 1].tt == TT_SYMBOL)) { // is a function call
             node->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
             node->unary = false;
             node->postfix = false;

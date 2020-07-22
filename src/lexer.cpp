@@ -38,7 +38,7 @@ void Lexer::print() {
     printf("lexer count: %u | capacity: %u\nfiles: ", Lexer::tokenCount, Lexer::capacity);
     print(Lexer::files);
 
-    printf("\nlast token: "); print(Lexer::token); printf("\ntokens:\n");
+    printf("\nprev token: "); print(Lexer::token); printf("\ntokens:\n");
 
     for (u32 i = 0; i < Lexer::tokenCount; i++) {
         print(Lexer::tokens + i);
@@ -126,13 +126,13 @@ void Lexer::tokenize(char* buffer, const char* filename) {
 
             if (*buffer == '0') {
                 switch (*(buffer + 1)) {
-                    case 'x':
-                    case 'b':
-                    case 'o':
+                    case 'x': case 'X':
+                    case 'b': case 'B':
+                    case 'o': case 'O':
                     case '.':
 
                     default:
-
+                        // @TODO report error: leading zeroes can only be in the form '0x', '0b', '0o', or '0.'
                         break;
                 }
             }
@@ -143,6 +143,7 @@ void Lexer::tokenize(char* buffer, const char* filename) {
                 if (*buffer == '.') {
                     if (hasRadixPoint) {
                         bad = true;
+                        // @TODO report something?
                         break;
                     }
 
@@ -175,10 +176,12 @@ void Lexer::tokenize(char* buffer, const char* filename) {
 
                 if (*buffer == '\\') {
                     // @TODO escape characters!
-                }
 
-                if (*buffer == '\n') {
-                    continue;
+                } else if (*buffer == '\n') {
+                    column = 1; line++; continue;
+
+                } else if (*buffer == '\t') {
+                    column += 4; continue; // @TODO robustness
                 }
 
                 length++;
@@ -288,12 +291,8 @@ void Lexer::tokenize(char* buffer, const char* filename) {
                 case '?':
                 case '\\':
                 default:
-                    fprintf(stderr, "invalid or unimplemented character encountered :: %c\nskipping it...", *buffer);
-
-                    // @TODO report lexer error
-
-                    buffer++;
-                    continue;
+                    fprintf(stderr, "invalid or unimplemented character encountered :: %c, codepoint: %d...\n", *buffer, *buffer);
+                    exit(1);
 
                 case '\0':
                     fprintf(stderr, "got null character while trying to lex an operator...\n");
@@ -316,6 +315,7 @@ void Lexer::tokenize(char* buffer, const char* filename) {
                 TableEntry* entry = Lexer::files->lookup(Lexer::files, importFilePath);
 
                 if (entry) {
+                    // @TODO report warn: trying to import file that has already been imported: 'filename'
                     fprintf(stderr, "trying to import file that has already been imported... %s\n", importFilePath);
 
                 } else {
