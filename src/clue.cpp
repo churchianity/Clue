@@ -1,7 +1,4 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "clue.h"
 #include "runtime.h"
 #include "string.h"
@@ -10,84 +7,39 @@
 #include "table.h"
 #include "util.h"
 
-Table* op_t = NULL;
-
-CommandLineArguments* CLAs = NULL;
 
 /**
- * @TODO
+ * Prints a stack trace.
  */
-static Table* initGlobalSymbolTable() {
-    if (op_t != NULL) {
-        return op_t;
+void trace(FILE* out, u32 maxFrames) {
+    void** stack = (void**) pMalloc(sizeof (void*) * maxFrames);
+    u32 stackSize = backtrace(stack, maxFrames / sizeof(void*));
+
+    // resolve addresses into strings containing "filename(function+address)"
+    // this array must be free()-ed
+    char** traces = backtrace_symbols(stack, stackSize);
+
+    if (stackSize < 2) {
+        fprintf(stderr, "stack has a weird number (%d) of frames! and we segfaulted anyway sooo...\n", stackSize);
+        exit(1);
     }
 
-    Table *t = newTable(CLUE_GLOBAL_SYMBOL_TABLE_SIZE);
+    // iterate over the returned symbol lines. skip the first, it is the address of this function
+    for (int i = 1; i < stackSize; i++) {
+        fprintf(out, "  %s\n", traces[i]);
+    }
 
-    t->insert(t, ";", newSymbol("", 0, true));
-    t->insert(t, ",", newSymbol("", 0, true));
-    t->insert(t, ".", newSymbol("", 90, true));
-    t->insert(t, "(", newSymbol("", 90, true));
-    t->insert(t, ")", newSymbol("", 90, true));
-    t->insert(t, "{", newSymbol("", 0, true));
-    t->insert(t, "}", newSymbol("", 0, true));
-    t->insert(t, "[", newSymbol("", 90, true));
-    t->insert(t, "]", newSymbol("", 90, true));
+    free(traces);
+    free(stack);
+}
 
-    t->insert(t, "+", newSymbol("", 50, true));
-    t->insert(t, "-", newSymbol("", 50, true));
-    t->insert(t, "*", newSymbol("", 60, true));
-    t->insert(t, "/", newSymbol("", 60, true));
-    t->insert(t, "%", newSymbol("", 60, true));
-
-    t->insert(t, "&", newSymbol("", 60, true));
-    t->insert(t, "|", newSymbol("", 60, true));
-    t->insert(t, "~", newSymbol("", 60, true));
-    t->insert(t, "^", newSymbol("", 60, true));
-
-    t->insert(t, "//", newSymbol("", 0, true));
-    t->insert(t, "++", newSymbol("", 90, true));
-    t->insert(t, "--", newSymbol("", 90, true));
-    t->insert(t, "<<", newSymbol("", 60, true));
-    t->insert(t, ">>", newSymbol("", 60, true));
-    t->insert(t, "**", newSymbol("", 70, true));
-
-    t->insert(t, ":", newSymbol("", 90, true));
-
-    t->insert(t, "=", newSymbol("", 10, true));
-
-    t->insert(t, ":=", newSymbol("", 10, true));
-    t->insert(t, "+=", newSymbol("", 10, true));
-    t->insert(t, "-=", newSymbol("", 10, true));
-    t->insert(t, "*=", newSymbol("", 10, true));
-    t->insert(t, "/=", newSymbol("", 10, true));
-    t->insert(t, "%=", newSymbol("", 10, true));
-    // t->insert(t, "<<=", newSymbol("", 10, true));
-    // t->insert(t, ">>=", newSymbol("", 10, true));
-
-    t->insert(t, "&=", newSymbol("", 10, true));
-    t->insert(t, "|=", newSymbol("", 10, true));
-    t->insert(t, "~=", newSymbol("", 10, true));
-    t->insert(t, "^=", newSymbol("", 10, true));
-
-    t->insert(t, "==", newSymbol("", 80, true));
-    t->insert(t, ">=", newSymbol("", 80, true));
-    t->insert(t, "<=", newSymbol("", 80, true));
-    t->insert(t, ">", newSymbol("", 80, true));
-    t->insert(t, "<", newSymbol("", 80, true));
-
-    t->insert(t, "&&", newSymbol("", 70, true));
-    t->insert(t, "||", newSymbol("", 70, true));
-
-    t->insert(t, "import", newSymbol("", 0, true));
-    t->insert(t, "print", newSymbol("", 0, true));
-
-    #if CLUE_DEBUG_LEVEL > 0
-        // printf("\n\tGlobal Symbol Table after init:\n%s\n", _DIV);
-        // print(t);
-    #endif
-
-    return t;
+/**
+ * Handler for SIGSEGV.
+ */
+static void handler(int signal) {
+    printf("%serror%s: %d\n", ANSI_RED, ANSI_RESET, signal);
+    trace();
+    exit(1);
 }
 
 /**
@@ -105,18 +57,7 @@ static void help(const char* arg) {
 }
 
 static void handleCommandLineArguments(int argc, const char* argv[]) {
-    CLAs = (CommandLineArguments*) pCalloc(1, sizeof (CommandLineArguments));
-
-    #if CLUE_DEBUG_LEVEL > 1
-        if (argc > 1) {
-            printf("\nCLA's:\n%s\n", _DIV);
-        }
-    #endif
-
     for (int i = 1; i < argc; ++i) {
-        #if CLUE_DEBUG_LEVEL > 1
-            printf("args[%d]: %s\n", i, argv[i]);
-        #endif
 
         // early-exit cases first
         if (streq(argv[i], "-h") || streq(argv[i], "--help")) {
@@ -126,13 +67,13 @@ static void handleCommandLineArguments(int argc, const char* argv[]) {
             printf("clue programming language v%s\n\n", CLUE_VERSION_NUMBER); exit(0);
 
         } else if (streq(argv[i], "-i") || streq(argv[i], "--interactive")) {
-            CLAs->interactive = true;
+            CLAs.interactive = true;
 
         } else if (streq(argv[i], "-s") || streq(argv[i], "--sandbox")) {
-            CLAs->interactive = true;
+            CLAs.interactive = true;
 
         } else if (streq(argv[i], "--project-root")) {
-            CLAs->src = argv[i];
+            CLAs.src = argv[i];
 
         } else if (hasSuffix(argv[i], CLUE_FILE_SUFFIX)) {
             clueFileRead(argv[i]);
@@ -142,16 +83,18 @@ static void handleCommandLineArguments(int argc, const char* argv[]) {
         }
     }
 
-    if (!CLAs->src) {
-        CLAs->src = "src"; // should be able to set this with a config file as well as CLAs
+    if (!CLAs.src) {
+        CLAs.src = "src"; // @TODO should be able to set this with a config file as well as CLAs
     }
 }
 
 int main(int argc, const char* argv[]) {
-    op_t = initGlobalSymbolTable();
+    signal(SIGSEGV, handler);
+    signal(SIGABRT, handler);
+
     handleCommandLineArguments(argc, argv);
 
-    if (CLAs->interactive) {
+    if (CLAs.interactive) {
         interactive();
     }
 

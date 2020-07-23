@@ -11,17 +11,7 @@
  *
  */
 u32 precedence(Token* token) {
-    Table* t = op_t;
-
-    TableEntry* entry = t->lookup(t, token->tk);
-
-    if (!entry) {
-        fprintf(stderr, "attempted to look up precedence for token and found nothing:\n");
-        print(token);
-        exit(1);
-    }
-
-    return ((Symbol*) (entry->value))->precedence;
+    return 4;
 }
 
 /**

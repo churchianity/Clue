@@ -5,6 +5,7 @@
 #include "clue.h"
 
 
+// @TODO we should try and support keys of any type
 typedef struct TableEntry {
     TableEntry* next;
     const char* key;

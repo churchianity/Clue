@@ -21,6 +21,10 @@ void Lexer::clear() {
     free(Lexer::files);
 
     for (u32 i = 0; i < Lexer::tokenCount; i++) {
+        Lexer::print();
+
+        print(&Lexer::tokens[i]); fflush(stdout);
+
         free(&Lexer::tokens[i]);
     }
 
@@ -35,7 +39,18 @@ void Lexer::clear() {
 
 void Lexer::print() {
     printf("lexer count: %u | capacity: %u\nfiles: ", Lexer::tokenCount, Lexer::capacity);
-    print(Lexer::files);
+
+    u32 i = 0;
+    TableEntry* entry = Lexer::files->entries[i];
+
+    for (; i < Lexer::files->capacity; i++) {
+
+        while (entry) {
+            printf("%s   ", entry->key);
+
+            entry = entry->next;
+        }
+    }
 
     printf("\nprev token: "); print(Lexer::token); printf("\ntokens:\n");
 

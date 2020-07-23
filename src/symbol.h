@@ -2,8 +2,6 @@
 #ifndef SYMBOL_H
 #define SYMBOL_H
 
-
-
 #include "clue.h"
 
 

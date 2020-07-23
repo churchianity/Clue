@@ -3,6 +3,7 @@
 #define LEXER_H
 
 #include "clue.h"
+#include "table.h"
 #include "token.h"
 
 namespace Lexer {
