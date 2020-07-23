@@ -6,20 +6,20 @@
 
 
 // @TODO we should try and support keys of any type
-typedef struct TableEntry {
+struct TableEntry {
     TableEntry* next;
     const char* key;
     void* value;
-} TableEntry;
+};
 
-typedef struct Table {
+/*template <typename K>*/ struct Table {
     u32 capacity;
 
     signed int (*insert) (Table* self, const char* key, void* value);
     TableEntry* (*lookup) (const Table* self, const char* key);
 
     TableEntry** entries;
-} Table;
+};
 
 extern Table* newTable(u32 capacity);
 

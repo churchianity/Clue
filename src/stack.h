@@ -5,7 +5,7 @@
 #include "clue.h"
 
 
-typedef struct Stack {
+struct Stack {
     u32 capacity;
     s32 top;
     bool grow;
@@ -17,7 +17,7 @@ typedef struct Stack {
     s32 (*push) (Stack* self, void* dataItemAddr);
     void* (*peek) (const Stack* self);
     void* (*pop) (Stack* self);
-} Stack;
+};
 
 extern Stack* newStack(u32 capacity, bool grow);
 

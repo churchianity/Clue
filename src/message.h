@@ -5,13 +5,13 @@
 #include "clue.h"
 
 
-typedef enum {
+enum MessageSeverityEnum {
     MS_LINT,
     MS_WARN,
     MS_ERROR
-} MessageSeverityEnum;
+};
 
-typedef struct {
+struct Message {
     MessageSeverityEnum severity;
 
     const char* content;
@@ -22,7 +22,7 @@ typedef struct {
     u32 column;
 
     // @TODO some way to determine context string
-} Message;
+};
 
 extern const char* messageSeverityToColor(MessageSeverityEnum severity);
 extern const char* messageSeverityToString(MessageSeverityEnum severity);

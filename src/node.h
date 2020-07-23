@@ -6,7 +6,7 @@
 #include "token.h"
 
 
-typedef struct ASTNode {
+struct ASTNode {
     Token* token;
 
     bool unary : 1;
@@ -18,7 +18,7 @@ typedef struct ASTNode {
     u32 childrenCount;
     u32 maxChildrenCount;
 
-} ASTNode;
+};
 
 extern u32 precedence(Token* token);
 extern void traverse(ASTNode* self, void (*callback) (const ASTNode*));

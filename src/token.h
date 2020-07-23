@@ -6,7 +6,7 @@
 #include "symbol.h"
 
 
-typedef enum {
+enum TokenTypeEnum {
     // 0-255 ascii chars here
 
     TT_SYMBOL                   = 256,  // any value that can be returned by lexSymbol
@@ -69,9 +69,9 @@ typedef enum {
     TT_LEFT_SHIFT_EQUALS        = 310,  // <<=
     TT_EXPONENTIATION_EQUALS    = 311,  // **=
 
-} TokenTypeEnum;
+};
 
-typedef struct {
+struct Token {
     const char* filename;
     u32 line;
     u32 column;
@@ -81,7 +81,7 @@ typedef struct {
     const char* tk;
 
     bool bad;
-} Token;
+};
 
 extern Token* newToken(const char* filename, u32 line, u32 column, u32 length, TokenTypeEnum tt, const char* tk, bool bad);
 extern bool isOperator(Token* token);
