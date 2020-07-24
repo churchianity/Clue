@@ -313,6 +313,9 @@ void Lexer::tokenize(char* buffer, const char* filename) {
                     exit(1);
             }
 
+            token->op = (Operator*) pMalloc(sizeof (Operator));
+            token->op->name = read(buffer, length);
+
             buffer += length;
         } // end if else - we should have a token
 

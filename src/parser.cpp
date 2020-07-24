@@ -10,6 +10,7 @@
 #include "token.h"
 #include "util.h"
 
+
 /**
  * Given
  */
@@ -35,12 +36,10 @@ static void parseOperation(Stack* es, Stack* os, ASTNode* node) {
         lhs = (ASTNode*) es->pop(es);
     }
 
-    ASTNode* t = (ASTNode*) os->pop(os);
+    addChild(node, lhs);
+    addChild(node, rhs);
 
-    addChild(t, lhs);
-    addChild(t, rhs);
-
-    es->push(es, t);
+    es->push(es, node);
 }
 
 
@@ -50,6 +49,7 @@ static void parseOperation(Stack* es, Stack* os, ASTNode* node) {
 static ASTNode* shuntingYard(Token tokens[]) {
     Stack* es = newStack(10, true);
     Stack* os = newStack(10, true);
+
 
     u32 i = 0;
     while (i < (Lexer::tokenCount)) {
@@ -87,13 +87,13 @@ static ASTNode* shuntingYard(Token tokens[]) {
 
             case '(':
             default:
-                ASTNode* op = newNode(tokens, i);
+                ASTNode* node = newNode(tokens, i);
 
-                // while (!os->isEmpty(os) && (((ASTNode*) os->peek(os))->precedence > precedence(tokens[i].tk))) {
-                //     parseOperation(es, os, op);
-                // }
+                while (!os->isEmpty(os) && ) {
+                     parseOperation(es, os);
+                }
 
-                os->push(os, op);
+                os->push(os, node);
                 break;
         }
 

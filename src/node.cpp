@@ -35,7 +35,6 @@ ASTNode* newNode(Token tokens[], u32 i) {
     ASTNode* node = (ASTNode*) pMalloc(sizeof (ASTNode));
 
     node->token = &tokens[i];
-    node->token->op->isCall = false;
 
     node->children = NULL;
     node->childrenCount = 0;
@@ -46,8 +45,11 @@ ASTNode* newNode(Token tokens[], u32 i) {
         return node;
     }
 
+    node->token->op->isCall = false;
+
     // @NOTE if we pass a non-prefix operator in position 0 of the tokens array, this might be hard to catch
     if ((i < 1) || isOperator(&tokens[i - 1])) { // is unary prefix
+
         node->maxChildrenCount = 1;
         node->token->op->isUnary = true;
         node->token->op->isPostfix = false;

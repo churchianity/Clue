@@ -68,7 +68,7 @@ void print(const ASTNode* node) {
         printf("branch node is NULL\n"); return;
     }
 
-    printf("%p | childrenCount: %u, maxChildrenCount: %u"
+    printf("%p | childrenCount: %u, maxChildrenCount: %u\n"
            , (void*) node, node->childrenCount, node->maxChildrenCount);
 
     printf("Token: "); print(node->token);
