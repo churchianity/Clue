@@ -3,6 +3,7 @@
 #include "runtime.h"
 #include "string.h"
 #include "symbol.h"
+#include "operator.h"
 #include "print.h"
 #include "table.h"
 #include "util.h"
@@ -93,6 +94,9 @@ int main(int argc, const char* argv[]) {
     signal(SIGABRT, handler);
 
     handleCommandLineArguments(argc, argv);
+
+    // initGlobalSymbolTable();
+    initOperatorTable();
 
     if (CLAs.interactive) {
         interactive();

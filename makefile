@@ -1,6 +1,8 @@
 
 CC=g++
-FILES=./src/clue.cpp ./src/runtime.cpp ./src/lexer.cpp ./src/parser.cpp ./src/token.cpp ./src/node.cpp ./src/util.cpp ./src/stack.cpp ./src/table.cpp ./src/symbol.cpp ./src/print.cpp ./src/reporter.cpp ./src/message.cpp ./src/string.cpp
+SRC=./src/
+FILES=$(SRC)clue.cpp $(SRC)runtime.cpp $(SRC)lexer.cpp $(SRC)parser.cpp $(SRC)token.cpp $(SRC)node.cpp $(SRC)util.cpp $(SRC)stack.cpp $(SRC)table.cpp $(SRC)symbol.cpp $(SRC)print.cpp $(SRC)reporter.cpp $(SRC)message.cpp $(SRC)string.cpp $(SRC)operator.cpp
+
 FLAGS=-ansi -pedantic -std=c++11 -Wall -g
 
 compile:

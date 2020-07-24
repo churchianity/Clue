@@ -2,8 +2,8 @@
 ### Clue Program Flow Diagram
 
 ```
- -1.-------------.
-   | CLA Handler |
+ -1.-------------.-------------------.
+   | CLA Handler  /  Config Loader   |
    `-------------|-------------------.
                  |                   |
       if sandbox mode enabled and    |
@@ -47,11 +47,9 @@
 
 
 
-
-
 ```
 
--1. CLA Handler
+-1. CLA Handler / Config Loader
 
     clue [args*] [?main.clue]
 
@@ -64,6 +62,9 @@
 0. Input
 
     If a source code file is provided, its source (and the source of its dependencies, via the `import` statement) is read immediately.
+
+    In Clue, you should only need to provide one source code file per program.
+
     If the --sandbox or --interactive mode is used, after reading any source files, you are dropped into an interactive prompt. Code you type is read in and injected into the program, evaluated immediately as if specified to be compile-time executed.
 
 
@@ -72,9 +73,9 @@
 
 
 2. Parser
-    The parser's purpose is to resolve operator precedence and associativity, and produce an abstract syntax tree.
-
+    The parser's purpose is to resolve operator precedence, associativity, and unary/binary-ness, while producing an abstract syntax tree.
 
 3. Typing
+    Perform a pass on the AST and for each operation, verify the types of the operands against the valid sets of types for said operation.
 
-
+4.

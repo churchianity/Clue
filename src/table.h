@@ -12,7 +12,7 @@ struct TableEntry {
     void* value;
 };
 
-/*template <typename K>*/ struct Table {
+struct Table {
     u32 capacity;
 
     signed int (*insert) (Table* self, const char* key, void* value);

@@ -48,13 +48,12 @@ void interactive() {
         }
 
         Lexer::tokenize(s, "stdin");
-        ASTNode* AST = parse(Lexer::tokens);
+        // ASTNode* AST = parse(Lexer::tokens);
 
         Lexer::print();
-        printf("%s\n", _DIV);
-        traverse(AST, print);
-
-        free(AST);
+        // printf("%s\n", _DIV);
+        // traverse(AST, print);
+        // free(AST);
 
     } while (1);
 }

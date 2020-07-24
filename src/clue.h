@@ -62,6 +62,21 @@ typedef int8_t s8;
 // float, double, extended. probably only double.
 // string? probably not.
 
+// #include "lexer.h"
+// #include "message.h"
+// #include "node.h"
+// #include "operator.h"
+// #include "parser.h"
+// #include "print.h"
+// #include "reporter.h"
+// #include "stack.h"
+// #include "string.h"
+// #include "symbol.h"
+// #include "table.h"
+// #include "token.h"
+// #include "util.h"
+
+
 /**
  * Prints a stack trace.
  */

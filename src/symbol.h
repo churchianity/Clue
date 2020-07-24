@@ -3,21 +3,16 @@
 #define SYMBOL_H
 
 #include "clue.h"
+#include "table.h"
 
-
-enum OperatorAssociativityEnum {
-    OA_LEFT = -1,
-    OA_RIGHT = 1
-};
 
 struct Symbol {
-    bool reserved;
-    OperatorAssociativityEnum associativity;
     const char* name;
-    char precedence;
+    bool reserved;
 };
 
-extern Symbol* newSymbol(const char* name, u8 precedence, bool reserved);
+extern Symbol* newSymbol(const char* name, void* value, bool reserved /*, scope*/);
+// extern Table* initGlobalSymbolTable();
 
 #endif
 

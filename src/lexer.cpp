@@ -79,6 +79,8 @@ void Lexer::add(Token* token) {
 void Lexer::tokenize(char* buffer, const char* filename) {
     // const char* beginning = buffer;
     bool prevTokenImport = false;
+
+    Token* token = NULL;
     TokenTypeEnum tt;
 
     u32 length = 0;
@@ -88,6 +90,7 @@ void Lexer::tokenize(char* buffer, const char* filename) {
     u32 column = 1;
 
     while (*buffer != '\0') {
+        token = (Token*) pMalloc(sizeof (Token));
         length = 1;
         bad = false;
 
@@ -130,6 +133,9 @@ void Lexer::tokenize(char* buffer, const char* filename) {
 
             } while (*buffer != '\0');
 
+            token->symbol = (Symbol*) pMalloc(sizeof (Symbol));
+            token->symbol->name = read(buffer - length, length);
+
         } else if (isDigit(*buffer)) {
             /**
              * Numeric
@@ -171,6 +177,8 @@ void Lexer::tokenize(char* buffer, const char* filename) {
 
             } while (*buffer != '\0');
 
+            token->number = atof(read(buffer - length, length));
+
         } else if ((*buffer == '"') || (*buffer == '\'')) {
             /**
              * String
@@ -202,18 +210,9 @@ void Lexer::tokenize(char* buffer, const char* filename) {
 
             } while (*buffer != '\0');
 
+            token->string = read(buffer - length, length);
+
         } else {
-            /**
-             * Operators & punctuators, all of which have their own token-type.
-             * Single-char operators like '=' and '+' have their codepoint as their type,
-             * while 2&3-char operators have a defined type in token.h
-             *
-             * Tokens which behave like operators but look like symbols, are considered symbols.
-             *
-             * Invalid characters read by the lexer are necessarily also handled here,
-             * because the key indicator that a token is an operator is usually that it
-             * is *not* one of the other types.
-             */
             tt = (TokenTypeEnum) *buffer;
             bad = false;
 
@@ -315,16 +314,24 @@ void Lexer::tokenize(char* buffer, const char* filename) {
             }
 
             buffer += length;
-        }
+        } // end if else - we should have a token
 
-        Lexer::add(newToken(filename, line, column, length, tt, read(buffer - length, length), bad));
+        token->filename = filename;
+        token->line = line;
+        token->column = column;
+        token->length = length;
+        token->tt = tt;
+        // the token's value should've been assigned above...
+        token->bad = bad;
+
+        Lexer::add(token);
 
         column += Lexer::token->length;
 
         // handle import statement
         if (prevTokenImport) {
             if ((Lexer::token->tt == TT_STRING) && (!Lexer::token->bad)) {
-                char* importFilePath = trimQuotes(Lexer::token->tk, Lexer::token->length);
+                char* importFilePath = trimQuotes(Lexer::token->string, Lexer::token->length);
 
                 TableEntry* entry = Lexer::files->lookup(Lexer::files, importFilePath);
 
@@ -344,7 +351,7 @@ void Lexer::tokenize(char* buffer, const char* filename) {
             }
         }
 
-        if (streq(Lexer::token->tk, "import")) {
+        if ((tt == TT_STRING) && streq(Lexer::token->string, "import")) {
             prevTokenImport = true;
 
         } else {

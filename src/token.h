@@ -3,6 +3,7 @@
 #define TOKEN_H
 
 #include "clue.h"
+#include "operator.h"
 #include "symbol.h"
 
 
@@ -78,12 +79,17 @@ struct Token {
     u32 length;
 
     TokenTypeEnum tt;
-    const char* tk;
+
+    union {
+        Symbol* symbol;
+        double number;
+        const char* string;
+        Operator* op;
+    };
 
     bool bad;
 };
 
-extern Token* newToken(const char* filename, u32 line, u32 column, u32 length, TokenTypeEnum tt, const char* tk, bool bad);
 extern bool isOperator(Token* token);
 extern const char* tokenTypeToString(TokenTypeEnum tt);
 

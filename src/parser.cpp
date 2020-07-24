@@ -10,6 +10,39 @@
 #include "token.h"
 #include "util.h"
 
+/**
+ * Given
+ */
+static void parseOperation(Stack* es, Stack* os, ASTNode* node) {
+    ASTNode* lhs = NULL;
+    ASTNode* rhs = NULL;
+
+    if (node->token->op->isUnary) {
+        ASTNode* temp = (ASTNode*) os->peek(os);
+
+        if (!temp->token->op->isUnary) { // unary operators can only pop and apply other unary operators
+            return;
+        }
+
+        if (node->token->op->isPostfix) {
+            lhs = (ASTNode*) es->pop(es);
+
+        } else {
+            rhs = (ASTNode*) es->pop(es);
+        }
+    } else {
+        rhs = (ASTNode*) es->pop(es);
+        lhs = (ASTNode*) es->pop(es);
+    }
+
+    ASTNode* t = (ASTNode*) os->pop(os);
+
+    addChild(t, lhs);
+    addChild(t, rhs);
+
+    es->push(es, t);
+}
+
 
 /**
  * Parses expressions into an AST.
@@ -18,12 +51,9 @@ static ASTNode* shuntingYard(Token tokens[]) {
     Stack* es = newStack(10, true);
     Stack* os = newStack(10, true);
 
-    ASTNode* lhs = NULL;
-    ASTNode* rhs = NULL;
-    ASTNode* op = NULL;
-
     u32 i = 0;
     while (i < (Lexer::tokenCount)) {
+
         switch ((int) tokens[i].tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
             case TT_SYMBOL:
             case TT_STRING:
@@ -37,28 +67,7 @@ static ASTNode* shuntingYard(Token tokens[]) {
                         break;
                     }
 
-                    if (op->unary) {
-                        if (!((ASTNode*) os->peek(os))->unary) { // unary operators can only pop and apply other unary operators
-                            break;
-                        }
-
-                        if (op->postfix) {
-                            lhs = (ASTNode*) es->pop(es);
-
-                        } else {
-                            rhs = (ASTNode*) es->pop(es);
-                        }
-                    } else {
-                        rhs = (ASTNode*) es->pop(es);
-                        lhs = (ASTNode*) es->pop(es);
-                    }
-
-                    ASTNode* t = (ASTNode*) os->pop(os);
-
-                    addChild(t, lhs);
-                    addChild(t, rhs);
-
-                    es->push(es, t);
+                    parseOperation(es, os, (ASTNode*) os->pop(os));
                 }
 
                 if (os->isEmpty(os)) { // we never found a matching open paren...
@@ -78,32 +87,11 @@ static ASTNode* shuntingYard(Token tokens[]) {
 
             case '(':
             default:
-                op = newNode(tokens, i);
+                ASTNode* op = newNode(tokens, i);
 
-                while (!os->isEmpty(os) && (((ASTNode*) os->peek(os))->precedence > precedence(&tokens[i]))) {
-                    if (op->unary) {
-                        if (!((ASTNode*) os->peek(os))->unary) { // unary operators can only pop and apply other unary operators
-                            break;
-                        }
-
-                        if (op->postfix) {
-                            lhs = (ASTNode*) es->pop(es);
-
-                        } else {
-                            rhs = (ASTNode*) es->pop(es);
-                        }
-                    } else {
-                        rhs = (ASTNode*) es->pop(es);
-                        lhs = (ASTNode*) es->pop(es);
-                    }
-
-                    ASTNode* t = (ASTNode*) os->pop(os);
-
-                    addChild(t, lhs);
-                    addChild(t, rhs);
-
-                    es->push(es, t);
-                }
+                // while (!os->isEmpty(os) && (((ASTNode*) os->peek(os))->precedence > precedence(tokens[i].tk))) {
+                //     parseOperation(es, os, op);
+                // }
 
                 os->push(os, op);
                 break;
@@ -112,33 +100,8 @@ static ASTNode* shuntingYard(Token tokens[]) {
         i++;
     }
 
-    // 4 - +2
-    //
-    // es-> 4 2
-    // os-> - +
     while (!os->isEmpty(os)) {
-        op = (ASTNode*) os->pop(os);
-
-        if (op->unary) {
-            if (!((ASTNode*) os->peek(os))->unary) { // unary operators can only pop and apply other unary operators
-                break;
-            }
-
-            if (op->postfix) {
-                lhs = (ASTNode*) es->pop(es);
-
-            } else {
-                rhs = (ASTNode*) es->pop(es);
-            }
-        } else {
-            rhs = (ASTNode*) es->pop(es);
-            lhs = (ASTNode*) es->pop(es);
-        }
-
-        addChild(op, lhs);
-        addChild(op, rhs);
-
-        es->push(es, op);
+        parseOperation(es, os, (ASTNode*) os->pop(os));
     }
 
     ASTNode* root = (ASTNode*) es->pop(es);
