@@ -31,7 +31,7 @@ static s32 push(Stack* self, void* dataItemAddr) {
 
 static void* peek(const Stack* self) {
     if (isEmpty(self)) {
-        return NULL;
+        return null;
     }
 
     return self->data[self->top];
@@ -39,7 +39,7 @@ static void* peek(const Stack* self) {
 
 static void* pop(Stack* self) {
     if (isEmpty(self)) {
-        return NULL;
+        return null;
     }
 
     return self->data[self->top--];

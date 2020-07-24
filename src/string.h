@@ -75,7 +75,7 @@ inline char* concat(u32 argc, ...) {
     va_start(args, argc);
 
     char* str1 = va_arg(args, char*);
-    char* str2 = NULL;
+    char* str2 = null;
 
     for (u32 i = 1; i < argc; i++) {
         str2 = va_arg(args, char*);
@@ -90,7 +90,7 @@ inline char* concat(u32 argc, ...) {
 
 /**
  * Reads |length| characters from |buffer| into a newly allocated buffer and returns it.
- * Appends the NULL character, so the returned string is |length| + 1 in size.
+ * Appends the null character, so the returned string is |length| + 1 in size.
  */
 inline char* read(char* buffer, u32 length) {
     char* tk = (char*) pMalloc(sizeof (char) * length + 1);

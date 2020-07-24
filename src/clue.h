@@ -2,7 +2,6 @@
 #ifndef CLUE_H
 #define CLUE_H
 
-#define CLUE_FILE_SUFFIX ".clue"
 #define CLUE_VERSION_NUMBER "0.1.0"
 #define CLUE_DEBUG_LEVEL 1
 
@@ -17,75 +16,28 @@
 
 /**
  * Dependencies:
+ *  C++11
  *
- * C++11
- *  seems to autoinclude from C:
- *   stdbool.h - true, false, bool
- */
-#include <stdlib.h>
-/** malloc, calloc, realloc
- *  free
- *  exit
- *  NULL
- */
-#include <stdio.h>
-/** stdin, stdout, stderr
+ *  <stdlib.h>
+ *  malloc, calloc, realloc, free, exit, null
+ *
+ *  <stdio.h>
+ *  stdin, stdout, stderr
  *  fgets, fprintf, printf
- */
-#include <stdint.h> // on my mac not necessary, on my chromebook, necessary.
-/** uint64_t, uint32_t, uint16_t, uint8_t, int64_t, int32_t, int16_t, int8_t
- */
-#include <stdarg.h>
-/**
+ *
+ *  <stdint.h>
+ *  uint64_t, uint32_t, uint16_t, uint8_t, int64_t, int32_t, int16_t, int8_t
+ *
+ *  <stdarg.h>
  *  just for a concatenate function in (our) string.h
- */
-#include <execinfo.h>
-/**
+ *
+ *  <execinfo.h>
  *  backtrace, backtrace_symbols
- */
-#include <signal.h>
-/** SIGSEGV, SIGABRT
+ *
+ *  <signal.h>
+ *  SIGSEGV, SIGABRT
  *  signal
  */
-
-/**
- * Primitive (Non-struct/class, non-union) datatypes in this codebase:
- * @NOTE We are using u32 and s32 for almost everything right now, and will optimze later.
- */
-typedef uint64_t u64;
-typedef uint32_t u32;
-typedef uint16_t u16;
-typedef uint8_t u8;
-
-typedef int64_t s64;
-typedef int32_t s32;
-typedef int16_t s16;
-typedef int8_t s8;
-
-// bool - true, false
-// char // i don't know if we should use char8_t, seems like a medium sized pain for a small sized gain
-// float, double, extended. probably only double.
-// string? probably not.
-
-// #include "lexer.h"
-// #include "message.h"
-// #include "node.h"
-// #include "operator.h"
-// #include "parser.h"
-// #include "print.h"
-// #include "reporter.h"
-// #include "stack.h"
-// #include "string.h"
-// #include "symbol.h"
-// #include "table.h"
-// #include "token.h"
-// #include "util.h"
-
-
-/**
- * Prints a stack trace.
- */
-void trace(FILE* out = stderr, u32 maxFrames = 63);
 
 /**
  * A struct holding all of the relevant command line arguments

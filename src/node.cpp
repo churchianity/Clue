@@ -17,7 +17,7 @@ void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
         return;
     }
 
-    if (self->children != NULL) {
+    if (self->children != null) {
         for (u32 i = 0; i < self->childrenCount; i++) {
             if (self->children + i) {
                 traverse(self->children + i, callback);
@@ -36,7 +36,7 @@ ASTNode* newNode(Token tokens[], u32 i) {
 
     node->token = &tokens[i];
 
-    node->children = NULL;
+    node->children = null;
     node->childrenCount = 0;
 
     if (!isOperator(&tokens[i])) { // isn't an operator... easy one
@@ -84,7 +84,7 @@ ASTNode* newNode(Token tokens[], u32 i) {
  */
 void addChild(ASTNode* self, ASTNode* child) {
     if (!child) {
-        printf("attempting to add NULL child...\nskipping...\n");
+        printf("attempting to add null child...\nskipping...\n");
         return;
     }
 

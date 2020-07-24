@@ -12,7 +12,7 @@
 
 
 /**
- *
+ * Finds a file in the project by name and loads it into a buffer then returns it.
  */
 void clueFileRead(const char* filename) {
     char* codebuffer = fileRead(filename);
@@ -32,7 +32,7 @@ void interactive() {
     do {
         printf(">>> ");
 
-        if (fgets(s, CLUE_SANDBOX_MODE_MAX_LINE_LENGTH, stdin) == NULL) {
+        if (fgets(s, CLUE_SANDBOX_MODE_MAX_LINE_LENGTH, stdin) == null) {
             fprintf(stderr, "error reading line from stdin and storing it in buffer %p\nskipping...\n", (void*) s);
             continue;
         }

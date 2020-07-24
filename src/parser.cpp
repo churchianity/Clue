@@ -15,8 +15,8 @@
  * Given
  */
 static void parseOperation(Stack* es, Stack* os, ASTNode* node) {
-    ASTNode* lhs = NULL;
-    ASTNode* rhs = NULL;
+    ASTNode* lhs = null;
+    ASTNode* rhs = null;
 
     if (node->token->op->isUnary) {
         ASTNode* temp = (ASTNode*) os->peek(os);
@@ -74,7 +74,7 @@ static ASTNode* shuntingYard(Token tokens[]) {
                     Reporter::add(
                             MS_ERROR,
                             "Missing open parentheses.\n",
-                            NULL,
+                            null,
                             tokens[i].filename,
                             tokens[i].line,
                             tokens[i].column

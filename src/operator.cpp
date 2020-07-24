@@ -11,64 +11,64 @@ static Table* operatorTable = newTable(50);
 void initOperatorTable() {
     Table* t = operatorTable;
 
-    t->insert(t, ":",   NULL);
+    t->insert(t, ":",   null);
 
-    t->insert(t, ";",   NULL);
-    t->insert(t, ",",   NULL);
-    t->insert(t, "{",   NULL);
-    t->insert(t, "(",   NULL);
-    t->insert(t, ")",   NULL);
-    t->insert(t, "}",   NULL);
-    t->insert(t, "[",   NULL);
-    t->insert(t, "]",   NULL);
+    t->insert(t, ";",   null);
+    t->insert(t, ",",   null);
+    t->insert(t, "{",   null);
+    t->insert(t, "(",   null);
+    t->insert(t, ")",   null);
+    t->insert(t, "}",   null);
+    t->insert(t, "[",   null);
+    t->insert(t, "]",   null);
 
-    t->insert(t, "=",   NULL);
-    t->insert(t, ":=",  NULL);
-    t->insert(t, "+=",  NULL);
-    t->insert(t, "-=",  NULL);
-    t->insert(t, "*=",  NULL);
-    t->insert(t, "/=",  NULL);
-    t->insert(t, "%=",  NULL);
-    t->insert(t, "&=",  NULL);
-    t->insert(t, "|=",  NULL);
-    t->insert(t, "~=",  NULL);
-    t->insert(t, "^=",  NULL);
-    t->insert(t, "<<=", NULL);
-    t->insert(t, ">>=", NULL);
+    t->insert(t, "=",   null);
+    t->insert(t, ":=",  null);
+    t->insert(t, "+=",  null);
+    t->insert(t, "-=",  null);
+    t->insert(t, "*=",  null);
+    t->insert(t, "/=",  null);
+    t->insert(t, "%=",  null);
+    t->insert(t, "&=",  null);
+    t->insert(t, "|=",  null);
+    t->insert(t, "~=",  null);
+    t->insert(t, "^=",  null);
+    t->insert(t, "<<=", null);
+    t->insert(t, ">>=", null);
 
-    t->insert(t, "&&",  NULL);
-    t->insert(t, "||",  NULL);
+    t->insert(t, "&&",  null);
+    t->insert(t, "||",  null);
 
-    t->insert(t, "!",   NULL);
+    t->insert(t, "!",   null);
 
-    t->insert(t, "!=",  NULL);
-    t->insert(t, "==",  NULL);
-    t->insert(t, ">=",  NULL);
-    t->insert(t, "<=",  NULL);
-    t->insert(t, ">",   NULL);
-    t->insert(t, "<",   NULL);
+    t->insert(t, "!=",  null);
+    t->insert(t, "==",  null);
+    t->insert(t, ">=",  null);
+    t->insert(t, "<=",  null);
+    t->insert(t, ">",   null);
+    t->insert(t, "<",   null);
 
-    t->insert(t, "+",   NULL);
-    t->insert(t, "-",   NULL);
-    t->insert(t, "*",   NULL);
-    t->insert(t, "/",   NULL);
-    t->insert(t, "%",   NULL);
-    t->insert(t, "**",  NULL);
+    t->insert(t, "+",   null);
+    t->insert(t, "-",   null);
+    t->insert(t, "*",   null);
+    t->insert(t, "/",   null);
+    t->insert(t, "%",   null);
+    t->insert(t, "**",  null);
 
-    t->insert(t, "&",   NULL);
-    t->insert(t, "|",   NULL);
-    t->insert(t, "^",   NULL);
-    t->insert(t, "~",   NULL);
+    t->insert(t, "&",   null);
+    t->insert(t, "|",   null);
+    t->insert(t, "^",   null);
+    t->insert(t, "~",   null);
 
-    t->insert(t, "<<",  NULL);
-    t->insert(t, ">>",  NULL);
+    t->insert(t, "<<",  null);
+    t->insert(t, ">>",  null);
 
-    t->insert(t, "++",  NULL);
-    t->insert(t, "--",  NULL);
+    t->insert(t, "++",  null);
+    t->insert(t, "--",  null);
 
 
-    t->insert(t, "//",  NULL);
-    t->insert(t, ".",   NULL);
+    t->insert(t, "//",  null);
+    t->insert(t, ".",   null);
 }
 
 u8 precedence(int tt, bool isUnary, bool isPostfix) {

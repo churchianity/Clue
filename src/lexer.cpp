@@ -14,7 +14,7 @@ Table* Lexer::files = newTable(10);
 u32 Lexer::tokenCount = 0;
 u32 Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
 
-Token* Lexer::token = NULL;
+Token* Lexer::token = null;
 Token* Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
 
 void Lexer::clear() {
@@ -33,7 +33,7 @@ void Lexer::clear() {
     Lexer::tokenCount = 0;
     Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
 
-    Lexer::token = NULL;
+    Lexer::token = null;
     Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
 }
 
@@ -80,7 +80,7 @@ void Lexer::tokenize(char* buffer, const char* filename) {
     // const char* beginning = buffer;
     bool prevTokenImport = false;
 
-    Token* token = NULL;
+    Token* token = null;
     TokenTypeEnum tt;
 
     u32 length = 0;
@@ -119,7 +119,7 @@ void Lexer::tokenize(char* buffer, const char* filename) {
                         Reporter::add(
                                 MS_LINT,
                                 "only alphabetical characters can follow a digit in an identifier name.",
-                                NULL,
+                                null,
                                 filename,
                                 line,
                                 column
@@ -308,7 +308,7 @@ void Lexer::tokenize(char* buffer, const char* filename) {
                     exit(1);
 
                 case '\0':
-                    fprintf(stderr, "got NULL character while trying to lex an operator...\n");
+                    fprintf(stderr, "got null character while trying to lex an operator...\n");
                     Lexer::print();
                     exit(1);
             }
@@ -343,7 +343,7 @@ void Lexer::tokenize(char* buffer, const char* filename) {
                     fprintf(stderr, "trying to import file that has already been imported... %s\n", importFilePath);
 
                 } else {
-                    Lexer::files->insert(Lexer::files, importFilePath, NULL);
+                    Lexer::files->insert(Lexer::files, importFilePath, null);
 
                     tokenize(fileRead(importFilePath), importFilePath);
                 }

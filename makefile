@@ -8,6 +8,9 @@ FLAGS=-ansi -pedantic -std=c++11 -Wall -Wno-unused-variable -g
 compile:
 		clear; $(CC) $(FILES) $(FLAGS) -o ./bin/clue 2>&1 | head -n 40
 
+e:
+		$(CC) -E $(file)
+
 
 clean:
 		rm ./bin/clue

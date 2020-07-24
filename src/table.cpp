@@ -45,13 +45,13 @@ static signed int insert(Table* self, const char* key, void* value) {
 static TableEntry* lookup(const Table* self, const char* key) {
     TableEntry* entry = self->entries[hash(key, self->capacity)];
 
-    for (; entry != NULL; entry = entry->next) {
+    for (; entry != null; entry = entry->next) {
         if (streq(key, entry->key)) {
             return entry;
         }
     }
 
-    return NULL;
+    return null;
 }
 
 Table* newTable(u32 capacity) {
