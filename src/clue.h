@@ -21,8 +21,6 @@
  * C++11
  *  seems to autoinclude from C:
  *   stdbool.h - true, false, bool
- *   stdint.h - actually comes from stdlib.h in c++11 looks like
- *    - uint64_t, uint32_t, uint16_t, uint8_t, int64_t, int32_t, int16_t, int8_t
  */
 #include <stdlib.h>
 /** malloc, calloc, realloc
@@ -34,6 +32,9 @@
 /** stdin, stdout, stderr
  *  fgets, fprintf, printf
  */
+#include <stdint.h> // on my mac not necessary, on my chromebook, necessary.
+/** uint64_t, uint32_t, uint16_t, uint8_t, int64_t, int32_t, int16_t, int8_t
+ */
 #include <stdarg.h>
 /**
  *  just for a concatenate function in (our) string.h
@@ -41,6 +42,10 @@
 #include <execinfo.h>
 /**
  *  backtrace, backtrace_symbols
+ */
+#include <signal.h>
+/** SIGSEGV, SIGABRT
+ *  signal
  */
 
 /**

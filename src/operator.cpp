@@ -1,5 +1,6 @@
 
 #include "table.h"
+#include "token.h"
 #include "operator.h"
 #include "util.h"
 
@@ -140,10 +141,9 @@ u8 precedence(int tt, bool isUnary, bool isPostfix) {
         case TT_SYMBOL:
             // do a lookup for global symbols like 'sizeof' equivalent or stuff like that
             break;
-
-        default:
-            fprintf(stderr, "attempt to lookup precedence for unknown operator/tokentype: %d\n", tt);
-            exit(1);
     }
+
+    fprintf(stderr, "attempt to lookup precedence for unknown operator/tokentype: %d\n", tt);
+    exit(1);
 }
 

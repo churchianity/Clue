@@ -89,8 +89,8 @@ static ASTNode* shuntingYard(Token tokens[]) {
             default:
                 ASTNode* node = newNode(tokens, i);
 
-                while (!os->isEmpty(os) && ) {
-                     parseOperation(es, os);
+                while (!os->isEmpty(os) && false) {
+                     parseOperation(es, os, node);
                 }
 
                 os->push(os, node);

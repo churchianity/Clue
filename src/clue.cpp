@@ -26,7 +26,7 @@ void trace(FILE* out, u32 maxFrames) {
     }
 
     // iterate over the returned symbol lines. skip the first, it is the address of this function
-    for (int i = 1; i < stackSize; i++) {
+    for (u32 i = 1; i < stackSize; i++) {
         fprintf(out, "  %s\n", traces[i]);
     }
 
