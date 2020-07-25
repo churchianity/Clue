@@ -1,5 +1,7 @@
 
-#include "clue.h"
+#include <stdlib.h>
+
+#include "types.h"
 
 /**
  * @WARN Assumes null termination.

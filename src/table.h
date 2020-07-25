@@ -2,7 +2,7 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include "clue.h"
+#include "types.h"
 
 
 // @TODO we should try and support keys of any type

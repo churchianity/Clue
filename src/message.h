@@ -2,7 +2,7 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include "clue.h"
+#include "types.h"
 
 
 enum MessageSeverityEnum {

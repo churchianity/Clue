@@ -3,9 +3,10 @@
 #define STRING_H
 
 #include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#include "clue.h"
-#include "util.h"
+#include "alloc.h"
 
 
 extern u32 strln(const char* string);

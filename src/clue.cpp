@@ -1,7 +1,6 @@
 
-#include <csignal.h>
-
-#include "color.h"
+#include "operator.h"
+#include "print.h"
 #include "runtime.h"
 #include "string.h"
 #include "trace.h"
@@ -65,8 +64,8 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
 }
 
 int main(int argc, const char* argv[]) {
-    signal(SIGSEGV, handler);
-    signal(SIGABRT, handler);
+    signal(11, handler);
+    signal(6, handler);
 
     handleCommandLineArguments(argc, argv);
 
