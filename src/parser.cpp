@@ -87,8 +87,14 @@ static ASTNode* shuntingYard(Token tokens[]) {
             default:
                 ASTNode* node = nodify(tokens, i);
 
+                // this horrible conditional just checks if the precedence of the operator on top of the stack is
+                // less than the precedence of the operator we are holding (thinking about putting on the stack)
+                //
+                // templating the Stack might help
+                //
+                // if the operator stack is empty we don't care
                 while (!os->isEmpty(os)
-                        && (node->token->op->precedence < ((ASTNode*) os->peek(os))->token->op->precedence)) {
+                        && (((ASTNode*) os->peek(os))->token->op->precedence > node->token->op->precedence)) {
 
                     parseOperation(es, os, (ASTNode*) os->pop(os));
                 }

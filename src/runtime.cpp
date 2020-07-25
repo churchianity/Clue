@@ -37,23 +37,26 @@ void interactive() {
             continue;
         }
 
-        if (s[0] == '.') {
-            printf("Bye!\n");
-            break;
+        // fflush(stdin); // discard newline
 
-        } else if (s[0] == '`') {
-            Lexer::clear();
-            Lexer::print();
-            continue;
+        // super-secret interpreter options
+        switch (s[0]) {
+            case '.':
+                printf("Bye!\n");
+                return;
+
+            case '`':
+                Lexer::print();
+                continue;
+
+            case '/':
+                Lexer::clear();
+                // Lexer::print();
+                continue;
         }
 
         Lexer::tokenize(s, "stdin");
-        ASTNode* AST = parse(Lexer::tokens);
-
-        Lexer::print();
-        printf("%s\n", _DIV);
-        traverse(AST, print);
-        free(AST);
+        parse(Lexer::tokens);
 
     } while (1);
 }

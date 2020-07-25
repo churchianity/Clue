@@ -18,23 +18,21 @@ Token* Lexer::token = null;
 Token* Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
 
 void Lexer :: clear() {
-    free(Lexer::files);
-
-    for (u32 i = 0; i < Lexer::tokenCount; i++) {
-        Lexer::print();
-
-        print(&Lexer::tokens[i]); fflush(stdout);
-
-        free(&Lexer::tokens[i]);
+    if (Lexer::files) {
+        free(Lexer::files);
     }
 
-    Lexer::files = newTable(10);
+    for (u32 i = 0; i < Lexer::tokenCount; i++) {
+        // free(&Lexer::tokens[i]);
+    }
 
     Lexer::tokenCount = 0;
     Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
 
-    Lexer::token = null;
-    Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer :: capacity);
+    // Lexer::files = newTable(10);
+
+    // Lexer::token = null;
+    // Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
 }
 
 void Lexer :: print() {
