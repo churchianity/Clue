@@ -17,7 +17,7 @@ u32 Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
 Token* Lexer::token = null;
 Token* Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
 
-void Lexer::clear() {
+void Lexer :: clear() {
     free(Lexer::files);
 
     for (u32 i = 0; i < Lexer::tokenCount; i++) {
@@ -34,11 +34,11 @@ void Lexer::clear() {
     Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
 
     Lexer::token = null;
-    Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
+    Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer :: capacity);
 }
 
-void Lexer::print() {
-    printf("lexer count: %u | capacity: %u\nfiles: ", Lexer::tokenCount, Lexer::capacity);
+void Lexer :: print() {
+    printf("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokenCount, Lexer::capacity);
 
     u32 i = 0;
     TableEntry* entry = Lexer::files->entries[i];
@@ -62,7 +62,7 @@ void Lexer::print() {
 /**
  * Adds a token to the tokens array.
  */
-void Lexer::add(Token* token) {
+void Lexer :: add(Token* token) {
     Lexer::token = token;
 
     if (Lexer::capacity <= Lexer::tokenCount) {
@@ -76,7 +76,7 @@ void Lexer::add(Token* token) {
 /**
  * Given a string |buffer|, append to the lexer's |tokens| array.
  */
-void Lexer::tokenize(char* buffer, const char* filename) {
+void Lexer :: tokenize(char* buffer, const char* filename) {
     // const char* beginning = buffer;
     bool prevTokenImport = false;
 

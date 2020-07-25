@@ -53,33 +53,45 @@ static inline FILE* getStandardStreamHandle(int fh) {
 }
 */
 
-/**
- * @NOTE dangerous?
- */
-void print(const char* fmt, void* varargs) {
-    printf(fmt, varargs);
-}
-
 void print(const Token* token) {
     if (!token) {
         printf("token is null\n"); return;
     }
 
     const char* tt = tokenTypeToString(token->tt);
-    const char* bad = boolToString(token->bad);
 
-    printf("%p | file: %s, line: %u, col: %u, len: %u | tt: %s, bad: %s | "
-           , (void*) token, token->filename, token->line, token->column, token->length, tt, bad);
+    printf("&Token %p | file: %s, line: %u, col: %u, len: %u | tt: %s, bad: %u | "
+           , (void*) token, token->filename, token->line, token->column, token->length, tt, token->bad);
 
     switch (token->tt) {
-        case TT_SYMBOL: printf("symbol: %s\n", token->symbol->name); break;
         case TT_NUMERIC: printf("number: %.2f\n", token->number); break;
         case TT_STRING: printf("string: %s\n", token->string); break;
 
+        case TT_SYMBOL:
+            print(token->symbol);
+            break;
+
         default: // TT_OPERATORS
-            printf("operator: %s\n", token->op->name);
+            print(token->op);
             break;
     }
+}
+
+void print(const Operator* op) {
+    if (!op) {
+        printf("operator is null\n"); return;
+    }
+
+    printf("&Operator %p | name: %s | prec: %u, assoc: %d, unary: %u, postfix: %u, call: %u\n"
+            , (void*) op, op->name, op->precedence, op->associativity, op->isUnary, op->isPostfix, op->isCall);
+}
+
+void print(const Symbol* symbol) {
+    if (!symbol) {
+        printf("symbol is null\n"); return;
+    }
+
+    printf("&Symbol %p | name: %s, reserved: %d\n", (void*) symbol, symbol->name, symbol->reserved);
 }
 
 void print(const ASTNode* node) {
@@ -87,10 +99,10 @@ void print(const ASTNode* node) {
         printf("branch node is null\n"); return;
     }
 
-    printf("%p | childrenCount: %u, maxChildrenCount: %u\n"
+    printf("&ASTNode %p | childrenCount: %u, maxChildrenCount: %u\n"
            , (void*) node, node->childrenCount, node->maxChildrenCount);
 
-    printf("Token: "); print(node->token);
+    print(node->token);
 
     for (u32 i = 0; i < node->childrenCount; i++) {
         printf("\tChild %u pointer: %p\n", i, (void*) (node->children + i));
@@ -104,7 +116,7 @@ void print(const Table* table) {
         printf("table is null\n"); return;
     }
 
-    printf("%p | capacity: %u | entries:\n", (void*) table, table->capacity);
+    printf("&Table %p | capacity: %u | entries:\n", (void*) table, table->capacity);
 
     for (u32 i = 0; i < table->capacity; ++i) {
         TableEntry* entry = *(table->entries + i);
@@ -129,11 +141,11 @@ void print(const Stack* stack) {
         printf("stack is null\n"); return;
     }
 
-    const char* grow = boolToString(stack->grow);
-
-    printf("capacity: %u, grow?: %s, top: %u, size: %u, data: %p\n"
+    // @TODO generic supports data print operation
+    printf("&Stack %p | capacity: %u, grow?: %u, top: %u, size: %u, data: %p\n"
+            , (void*) stack
             , stack->capacity
-            , grow
+            , stack->grow
             , stack->top
             , stack->size(stack)
             , *stack->data);

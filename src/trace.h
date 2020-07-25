@@ -11,7 +11,7 @@
 /**
  * Prints a stack trace.
  */
-void trace(FILE* out = stderr, u32 maxFrames = 63) {
+inline void trace(FILE* out = stderr, u32 maxFrames = 63) {
     void** stack = (void**) pMalloc(sizeof (void*) * maxFrames);
     u32 stackSize = backtrace(stack, maxFrames / sizeof(void*));
 

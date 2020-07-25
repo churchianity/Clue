@@ -12,7 +12,7 @@
 
 
 /**
- * Given
+ *
  */
 static void parseOperation(Stack* es, Stack* os, ASTNode* node) {
     ASTNode* lhs = null;
@@ -42,14 +42,12 @@ static void parseOperation(Stack* es, Stack* os, ASTNode* node) {
     es->push(es, node);
 }
 
-
 /**
  * Parses expressions into an AST.
  */
 static ASTNode* shuntingYard(Token tokens[]) {
     Stack* es = newStack(10, true);
     Stack* os = newStack(10, true);
-
 
     u32 i = 0;
     while (i < (Lexer::tokenCount)) {
@@ -58,7 +56,7 @@ static ASTNode* shuntingYard(Token tokens[]) {
             case TT_SYMBOL:
             case TT_STRING:
             case TT_NUMERIC:
-                es->push(es, newNode(tokens, i));
+                es->push(es, nodify(tokens, i));
                 break;
 
             case ')':
@@ -87,10 +85,12 @@ static ASTNode* shuntingYard(Token tokens[]) {
 
             case '(':
             default:
-                ASTNode* node = newNode(tokens, i);
+                ASTNode* node = nodify(tokens, i);
 
-                while (!os->isEmpty(os) && false) {
-                     parseOperation(es, os, node);
+                while (!os->isEmpty(os)
+                        && (node->token->op->precedence < ((ASTNode*) os->peek(os))->token->op->precedence)) {
+
+                    parseOperation(es, os, (ASTNode*) os->pop(os));
                 }
 
                 os->push(os, node);
@@ -102,6 +102,7 @@ static ASTNode* shuntingYard(Token tokens[]) {
 
     while (!os->isEmpty(os)) {
         parseOperation(es, os, (ASTNode*) os->pop(os));
+
     }
 
     ASTNode* root = (ASTNode*) es->pop(es);

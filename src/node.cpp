@@ -4,6 +4,7 @@
 #include "operator.h"
 #include "table.h"
 #include "token.h"
+#include "trace.h"
 #include "util.h"
 #include "print.h"
 
@@ -29,9 +30,120 @@ void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
 }
 
 /**
- *
+ * There are three pieces of information needed to determine an operator's precedence:
+ *     1. Its base type, which overlaps with TokenTypeEnum
+ *     2. Whether or not it is being used as a unary operator
+ *     3. Whether or not it is being used in postfix
  */
-ASTNode* newNode(Token tokens[], u32 i) {
+u8 precedence(u32 tt, bool isUnary, bool isPostfix) {
+    switch (tt) {
+        case ')':
+        case ']':
+        case '{':
+        case '}': //????
+
+        case ',':
+            return 0;
+
+        case TT_COLON_EQUALS:
+        case TT_PLUS_EQUALS:
+        case TT_MINUS_EQUALS:
+        case TT_TIMES_EQUALS:
+        case TT_DIVIDE_EQUALS:
+        case TT_MODULO_EQUALS:
+        case TT_BITWISE_AND_EQUALS:
+        case TT_BITWISE_OR_EQUALS:
+        case TT_BITWISE_XOR_EQUALS:
+        case TT_RIGHT_SHIFT_EQUALS:
+        case TT_LEFT_SHIFT_EQUALS:
+        case TT_BITWISE_NOT_EQUALS:
+        case TT_EXPONENTIATION_EQUALS:
+            return 1;
+
+        case TT_GREATER_THAN_OR_EQUAL:
+        case '>':
+        case TT_LESS_THAN_OR_EQUAL:
+        case '<':
+            return 2;
+
+        case '+':
+        case '-':
+            if (isUnary) {
+                return 7;
+            }
+
+            return 3;
+
+        case '*':
+        case '/':
+        case '%':
+
+        case '&':
+        case '|':
+        case '^':
+        case TT_LEFT_SHIFT:
+        case TT_RIGHT_SHIFT:
+            return 4;
+        case '~':
+            return 5;
+
+        case TT_NOT_EQUALS:
+        case TT_EQUALITY:
+        case TT_LOGICAL_OR:
+        case TT_LOGICAL_AND:
+            return 6;
+
+        case '!':
+            return 7;
+
+        case TT_EXPONENTIATION:
+            return 8;
+
+        case '(':
+        case '[':
+        case TT_DECREMENT:
+        case TT_INCREMENT:
+        case '.':
+            return 9;
+
+        case TT_SYMBOL:
+            // do a lookup for global symbols like 'sizeof' equivalent or stuff like that
+            printf("symbol operator!\n");
+            break;
+    }
+
+    fprintf(stderr, "attempt to lookup precedence for unknown operator/tokentype: %d\n", tt);
+    exit(1);
+}
+
+void addChild(ASTNode* self, ASTNode* child) {
+    if (!child) {
+        trace();
+        printf("attempting to add null child...\nskipping...\n");
+        print(self); print(child);
+        return;
+    }
+
+    if (self->childrenCount == self->maxChildrenCount) {
+        trace();
+        fprintf(stderr, "attempting to add a child to a full node...\n");
+        print(self); print(child);
+        exit(1);
+    }
+
+    if (!self->children) {
+        self->children = (ASTNode*) pMalloc(sizeof (ASTNode) * self->maxChildrenCount);
+    }
+
+    self->children[self->childrenCount++] = *child;
+}
+
+
+/**
+ * Resolve a token into a node.
+ * Most of the work here is resolving operator precedence, associativity, and unary/postfix flags.
+ */
+ASTNode* nodify(Token tokens[], u32 i) {
     ASTNode* node = (ASTNode*) pMalloc(sizeof (ASTNode));
 
     node->token = &tokens[i];
@@ -49,7 +161,6 @@ ASTNode* newNode(Token tokens[], u32 i) {
 
     // @NOTE if we pass a non-prefix operator in position 0 of the tokens array, this might be hard to catch
     if ((i < 1) || isOperator(&tokens[i - 1])) { // is unary prefix
-
         node->maxChildrenCount = 1;
         node->token->op->isUnary = true;
         node->token->op->isPostfix = false;
@@ -77,26 +188,5 @@ ASTNode* newNode(Token tokens[], u32 i) {
                                            , node->token->op->isUnary
                                            , node->token->op->isPostfix);
     return node;
-}
-
-/**
- *
- */
-void addChild(ASTNode* self, ASTNode* child) {
-    if (!child) {
-        printf("attempting to add null child...\nskipping...\n");
-        return;
-    }
-
-    if (self->childrenCount == self->maxChildrenCount) {
-        fprintf(stderr, "attempting to add a child to a full node...\n");
-        exit(1);
-    }
-
-    if (!self->children) {
-        self->children = (ASTNode*) pMalloc(sizeof (ASTNode) * self->maxChildrenCount);
-    }
-
-    self->children[self->childrenCount++] = *child;
 }
 

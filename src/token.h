@@ -74,11 +74,6 @@ enum TokenTypeEnum {
 
 struct Token {
     const char* filename;
-    u32 line;
-    u32 column;
-    u32 length;
-
-    TokenTypeEnum tt;
 
     union {
         Symbol* symbol;
@@ -86,6 +81,12 @@ struct Token {
         const char* string;
         Operator* op;
     };
+
+    u32 line;
+    u32 column;
+    u32 length;
+
+    TokenTypeEnum tt;
 
     bool bad;
 };

@@ -2,7 +2,7 @@
 #ifndef OPERATOR_H
 #define OPERATOR_H
 
-#include "table.h"
+#include "types.h"
 
 
 enum OperatorAssociativityEnum {
@@ -13,17 +13,14 @@ enum OperatorAssociativityEnum {
 struct Operator {
     const char* name;
 
-    OperatorAssociativityEnum associativity;
+    OperatorAssociativityEnum associativity = OA_LEFT;
 
-    u8 precedence;
+    u8 precedence = 0;
 
-    bool isUnary : 1;
-    bool isPostfix : 1;
-    bool isCall : 1;
+    bool isUnary    = false;
+    bool isPostfix  = false;
+    bool isCall     = false;
 };
-
-extern u8 precedence(int tt, bool isUnary, bool isPostfix);
-extern void initOperatorTable();
 
 #endif
 

@@ -70,9 +70,6 @@ int main(int argc, const char* argv[]) {
     handleCommandLineArguments(argc, argv);
 
     // if we're here, we probably want to compile and/or run some code.
-    // initGlobalSymbolTable();
-    initOperatorTable();
-
     if (CLAs.interactive) {
         interactive();
     }

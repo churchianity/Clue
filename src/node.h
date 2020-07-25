@@ -15,7 +15,8 @@ struct ASTNode {
 };
 
 extern void traverse(ASTNode* self, void (*callback) (const ASTNode*));
-extern ASTNode* newNode(Token tokens[], u32 currentIndex);
+extern ASTNode* nodify(Token tokens[], u32 currentIndex);
+extern u8 precedence(u32 tt, bool isUnary, bool isPostfix);
 extern void addChild(ASTNode* self, ASTNode* child);
 
 #endif
