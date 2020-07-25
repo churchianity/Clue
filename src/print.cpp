@@ -1,5 +1,5 @@
 
-#include <stdio.h>
+#include <stdio.h> // stderr, stdout, stdin? | fprintf, printf
 
 #include "message.h"
 #include "node.h"
@@ -42,13 +42,22 @@ const char* ANSI_CLEAR = "\x001B[2J\x001B[;H";
 // Reset Colors
 const char* ANSI_RESET = "\x001B[0m";
 
-
-void print(const char* string) {
-    printf("%s", string);
+/*
+static inline FILE* getStandardStreamHandle(int fh) {
+    switch (fh) {
+        case 0: return stdin;
+        case 1: return stdout;
+        case 2: return stderr;
+        default: fprintf(stderr, "attempt to get illegal standard stream fd: |%d|\n", fh); exit(1);
+    }
 }
+*/
 
-void print(const char* format, ...) {
-
+/**
+ * @NOTE dangerous?
+ */
+void print(const char* fmt, void* varargs) {
+    printf(fmt, varargs);
 }
 
 void print(const Token* token) {

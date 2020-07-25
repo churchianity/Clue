@@ -8,6 +8,7 @@
 #include "token.h"
 #include "stack.h"
 
+
 // Text Colors
 extern const char* ANSI_BLACK;
 extern const char* ANSI_RED;
@@ -40,7 +41,11 @@ extern const char* ANSI_CLEAR;
 // Reset Colors
 extern const char* ANSI_RESET;
 
-extern void print(const char* string);
+/**
+ * @NOTE because we want to replace printf at some point maybe, I'm keeping all existing printf calls routed through here.
+ */
+extern void print(const char* fmt, void* varargs);
+
 extern void print(const Token* token);
 extern void print(const ASTNode* node);
 extern void print(const Stack* stack);

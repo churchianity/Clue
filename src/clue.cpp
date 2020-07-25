@@ -64,8 +64,8 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
 }
 
 int main(int argc, const char* argv[]) {
-    signal(11, handler);
-    signal(6, handler);
+    signal(11, handler); // SIGSEGV
+    signal(6, handler);  // SIGABRT
 
     handleCommandLineArguments(argc, argv);
 

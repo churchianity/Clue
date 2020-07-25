@@ -2,9 +2,9 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "clue.h"
 #include "table.h"
 #include "token.h"
+
 
 namespace Lexer {
     extern Table* files;
