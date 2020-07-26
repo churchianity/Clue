@@ -1,4 +1,6 @@
 
+#include <signal.h>
+
 #include "operator.h"
 #include "print.h"
 #include "runtime.h"

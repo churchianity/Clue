@@ -37,8 +37,6 @@ void interactive() {
             continue;
         }
 
-        // fflush(stdin); // discard newline
-
         // super-secret interpreter options
         switch (s[0]) {
             case '.':
@@ -56,7 +54,7 @@ void interactive() {
         }
 
         Lexer::tokenize(s, "stdin");
-        parse(Lexer::tokens);
+        free(parse(Lexer::tokens));
 
     } while (1);
 }
