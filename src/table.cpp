@@ -18,8 +18,8 @@ static u32 hash(const char* value, u32 capacity) {
     return hash % capacity;
 }
 
-static signed int insert(Table* self, const char* key, void* value) {
-    TableEntry* entry = self->lookup(self, key);
+signed int Table :: insert(const char* key, void* value) {
+    TableEntry* entry = lookup(key);
 
     u32 hashValue;
 
@@ -28,9 +28,11 @@ static signed int insert(Table* self, const char* key, void* value) {
         entry->key = key;
         entry->value = value;
 
-        hashValue = hash(key, self->capacity);
-        entry->next = self->entries[hashValue];
-        self->entries[hashValue] = entry;
+        hashValue = hash(key, capacity);
+        entry->next = entries[hashValue];
+        entries[hashValue] = entry;
+
+        return 0;
 
     } else {
         free(entry->value);
@@ -38,12 +40,10 @@ static signed int insert(Table* self, const char* key, void* value) {
         entry->value = value;
         return 1;
     }
-
-    return 0;
 }
 
-static TableEntry* lookup(const Table* self, const char* key) {
-    TableEntry* entry = self->entries[hash(key, self->capacity)];
+TableEntry* Table :: lookup(const char* key) {
+    TableEntry* entry = entries[hash(key, capacity)];
 
     for (; entry != null; entry = entry->next) {
         if (streq(key, entry->key)) {
@@ -54,13 +54,25 @@ static TableEntry* lookup(const Table* self, const char* key) {
     return null;
 }
 
+void Table :: clear() {
+    for (u32 i = 0; i < capacity; i++) {
+        TableEntry* entry = entries[i];
+        TableEntry* prev;
+
+        while (entry) {
+            prev = entry;
+            free(prev);
+            entry = entry->next;
+        }
+    }
+
+    entries = (TableEntry**) pCalloc(capacity, sizeof (TableEntry*));
+}
+
 Table* newTable(u32 capacity) {
     Table* table = (Table*) pMalloc(sizeof (Table));
 
     table->capacity = capacity;
-    table->insert = &insert;
-    table->lookup = &lookup;
-
     table->entries = (TableEntry**) pCalloc(capacity, sizeof (TableEntry*));
 
     return table;

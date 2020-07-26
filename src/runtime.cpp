@@ -19,6 +19,8 @@ void clueFileRead(const char* filename) {
     Lexer::tokenize(codebuffer, filename);
     ASTNode* AST = parse(Lexer::tokens);
 
+    traverse(AST, print);
+
     free(AST);
     free(codebuffer);
 }
@@ -44,12 +46,15 @@ void interactive() {
                 return;
 
             case '`':
-                Lexer::print();
+                Reporter::flush();
                 continue;
 
             case '/':
                 Lexer::clear();
-                // Lexer::print();
+                continue;
+
+            case '#':
+                Lexer::print();
                 continue;
         }
 

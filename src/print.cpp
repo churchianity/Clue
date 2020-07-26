@@ -61,7 +61,7 @@ void print(const Token* token) {
 
     const char* tt = tokenTypeToString(token->tt);
 
-    printf("&Token %p | file: %s, line: %u, col: %u, len: %u | tt: %s, bad: %u | "
+    printf("&Token %p | file: %s, line: %u, col: %u, len: %u | tt: %s, bad?: %u | "
            , (void*) token, token->filename, token->line, token->column, token->length, tt, token->bad);
 
     switch (token->tt) {
@@ -86,7 +86,7 @@ void print(const Operator* op) {
         printf("operator is null\n"); return;
     }
 
-    printf("&Operator %p | name: %s | prec: %u, assoc: %d, unary: %u, postfix: %u, call: %u\n"
+    printf("&Operator %p | name: %s | prec: %u, assoc: %d, unary?: %u, postfix?: %u, call?: %u\n"
             , (void*) op, op->name, op->precedence, op->associativity, op->unary, op->postfix, op->call);
 }
 
@@ -95,18 +95,28 @@ void print(const Symbol* symbol) {
         printf("symbol is null\n"); return;
     }
 
-    printf("&Symbol %p | name: %s, reserved: %d\n", (void*) symbol, symbol->name, symbol->reserved);
+    printf("&Symbol %p | name: %s, reserved?: %d\n", (void*) symbol, symbol->name, symbol->reserved);
 }
 
 void print(const ASTNode* node) {
     if (!node) {
-        printf("branch node is null\n"); return;
+        printf("node is null\n"); return;
     }
 
     printf("&ASTNode %p | childrenCount: %u, maxChildrenCount: %u\n"
            , (void*) node, node->childrenCount, node->maxChildrenCount);
 
-    print(node->token);
+    switch (node->token->tt) {
+        case TT_NUMERIC:
+        case TT_STRING:
+            print(node->token); break;
+
+        case TT_SYMBOL:
+            print(node->token->symbol); break;
+
+        default:
+            print(node->token->op); break;
+    }
 
     for (u32 i = 0; i < node->childrenCount; i++) {
         printf("\tChild %u pointer: %p\n", i, (void*) (node->children + i));

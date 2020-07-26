@@ -93,6 +93,7 @@ struct Token {
 
 extern bool isOperator(Token* token);
 extern const char* tokenTypeToString(TokenTypeEnum tt);
+extern void destroyToken(Token* token);
 
 #endif
 

@@ -12,6 +12,18 @@
 
 
 /**
+ * this horrible conditional just checks if the precedence of the operator on top of the stack is
+ * less than the precedence of the operator we are holding (thinking about putting on the stack)
+ *
+ * templating the Stack might help
+ *
+ * if the operator stack is empty we don't care
+ */
+static inline bool canPop(Stack* os, ASTNode* node) {
+    return !os->isEmpty(os) && (((ASTNode*) os->peek(os))->token->op->precedence > node->token->op->precedence);
+}
+
+/**
  *
  */
 static void parseOperation(Stack* es, Stack* os, ASTNode* node) {
@@ -49,16 +61,12 @@ static ASTNode* shuntingYard(Token tokens[]) {
     Stack* es = newStack(10, true);
     Stack* os = newStack(10, true);
 
+    ASTNode* op = NULL;
+
     u32 i = 0;
     while (i < (Lexer::tokenCount)) {
 
         switch ((int) tokens[i].tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
-            case TT_SYMBOL:
-            case TT_STRING:
-            case TT_NUMERIC:
-                es->push(es, nodify(tokens, i));
-                break;
-
             case ')':
                 while (os->peek(os)) {
                     if (((Token*) os->peek(os))->tt == '(') {
@@ -83,23 +91,32 @@ static ASTNode* shuntingYard(Token tokens[]) {
                 os->pop(os); // discard opening parens
                 break;
 
+            case TT_SYMBOL:
+                // @TODO lookup in a symbol table, and act more like a operator if it's a weird operator keyword like 'sizeof'
+                // we should also maybe resolve scope at this point, but we haven't yet implemented closures
+                es->push(es, nodify(tokens, i));
+                break;
+
+            case TT_STRING:
+            case TT_NUMERIC:
+                es->push(es, nodify(tokens, i));
+                break;
+
             case '(':
+                op = nodify(tokens, i);
+
+                if (op->token->op->call) {
+                    // the open paren is being used as the 'grouping' operator
+                }
+
             default:
-                ASTNode* node = nodify(tokens, i);
+                op = nodify(tokens, i);
 
-                // this horrible conditional just checks if the precedence of the operator on top of the stack is
-                // less than the precedence of the operator we are holding (thinking about putting on the stack)
-                //
-                // templating the Stack might help
-                //
-                // if the operator stack is empty we don't care
-                while (!os->isEmpty(os)
-                        && (((ASTNode*) os->peek(os))->token->op->precedence > node->token->op->precedence)) {
-
+                while (canPop(os, op)) {
                     parseOperation(es, os, (ASTNode*) os->pop(os));
                 }
 
-                os->push(os, node);
+                os->push(os, op);
                 break;
         }
 
@@ -108,7 +125,6 @@ static ASTNode* shuntingYard(Token tokens[]) {
 
     while (!os->isEmpty(os)) {
         parseOperation(es, os, (ASTNode*) os->pop(os));
-
     }
 
     ASTNode* root = (ASTNode*) es->pop(es);

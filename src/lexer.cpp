@@ -17,24 +17,15 @@ u32 Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
 Token* Lexer::token = null;
 Token* Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
 
+
 void Lexer :: clear() {
-    if (Lexer::files) {
-        free(Lexer::files);
-    }
+    Lexer::files->clear();
 
-    for (u32 i = 0; i < Lexer::tokenCount; i++) {
-        if (&Lexer::tokens[i]) {
-            free(&Lexer::tokens[i]);
-        }
-    }
+    Lexer::tokenCount = 0;
+    Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
 
-    // Lexer::tokenCount = 0;
-    // Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
-
-    // Lexer::files = newTable(10);
-
-    // Lexer::token = null;
-    // Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
+    Lexer::tokens = (Token*) pRealloc(Lexer::tokens, sizeof (Token) * Lexer::capacity);
+    Lexer::token = null;
 }
 
 void Lexer :: print() {
@@ -317,7 +308,7 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
             token->op->name = read(buffer, length);
 
             buffer += length;
-        } // end if else - we should have a token
+        }
 
         token->filename = filename;
         token->line = line;
@@ -336,20 +327,20 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
             if ((Lexer::token->tt == TT_STRING) && (!Lexer::token->bad)) {
                 char* importFilePath = trimQuotes(Lexer::token->string, Lexer::token->length);
 
-                TableEntry* entry = Lexer::files->lookup(Lexer::files, importFilePath);
+                TableEntry* entry = Lexer::files->lookup(importFilePath);
 
                 if (entry) {
                     // @TODO report warn: trying to import file that has already been imported: 'filename'
                     fprintf(stderr, "trying to import file that has already been imported... %s\n", importFilePath);
 
                 } else {
-                    Lexer::files->insert(Lexer::files, importFilePath, null);
+                    Lexer::files->insert(importFilePath, null);
 
                     tokenize(fileRead(importFilePath), importFilePath);
                 }
             } else {
                 // prev token is import, but our token for the path to the file to import isn't a proper string
-                printf("bad\n"); ::print(Lexer::token);
+                printf("bad\n"); print(Lexer::token);
                 exit(1);
             }
         }

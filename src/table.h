@@ -15,8 +15,9 @@ struct TableEntry {
 struct Table {
     u32 capacity;
 
-    signed int (*insert) (Table* self, const char* key, void* value);
-    TableEntry* (*lookup) (const Table* self, const char* key);
+    signed int insert(const char* key, void* value);
+    TableEntry* lookup(const char* key);
+    void clear();
 
     TableEntry** entries;
 };

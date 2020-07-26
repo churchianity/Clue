@@ -19,3 +19,10 @@ const char* tokenTypeToString(TokenTypeEnum tt) {
     }
 }
 
+/**
+ * @FIXME
+ */
+void destroyToken(Token* token) {
+    token = null;
+}
+

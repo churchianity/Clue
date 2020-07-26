@@ -41,10 +41,11 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
         case ']':
         case '{':
         case '}': //????
-
+        case ';':
         case ',':
             return 0;
 
+        case '=':
         case TT_COLON_EQUALS:
         case TT_PLUS_EQUALS:
         case TT_MINUS_EQUALS:
@@ -104,6 +105,7 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
         case TT_DECREMENT:
         case TT_INCREMENT:
         case '.':
+        case ':':
             return 9;
 
         case TT_SYMBOL:
@@ -112,7 +114,7 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
             break;
     }
 
-    fprintf(stderr, "attempt to lookup precedence for unknown operator/tokentype: %d\n", tt);
+    fprintf(stderr, "attempt to lookup precedence for unknown operator/tokentype: %c/%d\n", tt, tt);
     exit(1);
 }
 
