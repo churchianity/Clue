@@ -23,6 +23,8 @@
     #define OS "Android"
 #endif
 
+#include <signal.h> // needed on my chromebook for some reason?
+
 #include "operator.h"
 #include "print.h"
 #include "runtime.h"

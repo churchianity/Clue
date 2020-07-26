@@ -54,7 +54,7 @@ void interactive() {
         }
 
         Lexer::tokenize(s, "stdin");
-        // parse(Lexer::tokens);
+        free(parse(Lexer::tokens));
 
     } while (1);
 }
