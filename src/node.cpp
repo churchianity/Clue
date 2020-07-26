@@ -121,10 +121,8 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
 
 void addChild(ASTNode* self, ASTNode* child) {
     if (!child) {
-        trace();
-        printf("attempting to add null child...\nskipping...\n");
-        print(self); print(child);
-        return;
+        printf("attempting to add null child...\n");
+        exit(1);
     }
 
     if (self->childrenCount == self->maxChildrenCount) {

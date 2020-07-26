@@ -59,7 +59,8 @@ extern void print(const Message* message);
 template <class T>
 extern void print(const Stack<T>* stack);
 
-extern void print(const Table* table);
+template <class K, class V>
+extern void print(const Table<K, V>* table);
 
 #endif
 

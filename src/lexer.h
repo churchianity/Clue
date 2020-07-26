@@ -7,7 +7,7 @@
 
 
 namespace Lexer {
-    extern Table* files;
+    extern Table<const char, void>* files;
 
     extern u32 tokenCount; // how many tokens are stored in the array currently
     extern u32 capacity;   // how big is the buffer?

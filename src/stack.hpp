@@ -64,21 +64,5 @@ struct Stack {
     }
 };
 
-/*
-template <class T>
-Stack<T>* newStack(u32 capacity, bool grow) {
-    Stack<T>* stack = (Stack<T>*) pMalloc(sizeof (Stack<T>));
-
-    stack->capacity = capacity;
-    stack->grow = grow;
-    stack->top = -1;
-    stack->data = (T**) pMalloc(sizeof (T*) * capacity);
-
-    return stack;
-}
-//template <class T>
-//Stack<T>* newStack(u32 capacity, bool grow);
-*/
-
 #endif
 

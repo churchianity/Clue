@@ -9,7 +9,7 @@
 #include "reporter.h"
 
 
-Table* Lexer::files = newTable(10);
+Table<const char, void>* Lexer::files = new Table<const char, void>(10);
 
 u32 Lexer::tokenCount = 0;
 u32 Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
@@ -32,9 +32,9 @@ void Lexer :: print() {
     printf("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokenCount, Lexer::capacity);
 
     u32 i = 0;
-    TableEntry* entry = Lexer::files->entries[i];
+    TableEntry<const char, void>* entry = Lexer::files->entries[i];
 
-    for (; i < Lexer::files->capacity; i++) {
+    for (; i < Lexer::files->lanes; i++) {
 
         while (entry) {
             printf("%s   ", entry->key);
@@ -327,7 +327,7 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
             if ((Lexer::token->tt == TT_STRING) && (!Lexer::token->bad)) {
                 char* importFilePath = trimQuotes(Lexer::token->string, Lexer::token->length);
 
-                TableEntry* entry = Lexer::files->lookup(importFilePath);
+                TableEntry<const char, void>* entry = Lexer::files->lookup(importFilePath);
 
                 if (entry) {
                     // @TODO report warn: trying to import file that has already been imported: 'filename'

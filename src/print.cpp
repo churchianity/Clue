@@ -129,7 +129,8 @@ void print(const ASTNode* node) {
     printf("\n");
 }
 
-void print(const Table* table) {
+template <class K, class V>
+void print(const Table<K, V>* table) {
     if (!table) {
         printf("table is null\n"); return;
     }
@@ -137,7 +138,7 @@ void print(const Table* table) {
     printf("&Table %p | capacity: %u | entries:\n", (void*) table, table->capacity);
 
     for (u32 i = 0; i < table->capacity; ++i) {
-        TableEntry* entry = *(table->entries + i);
+        TableEntry<K, V>* entry = *(table->entries + i);
         printf("%u : %p", i, (void*) entry);
 
         if (entry) {
