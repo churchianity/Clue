@@ -57,6 +57,10 @@ static inline void help(const char* arg) {
 }
 
 static inline void handleCommandLineArguments(int argc, const char* argv[]) {
+    if (argc == 1) {
+        help(null);
+    }
+
     for (int i = 1; i < argc; ++i) {
 
         // early-exit cases first

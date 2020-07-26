@@ -5,7 +5,7 @@
 #include "node.h"
 #include "table.h"
 #include "token.h"
-#include "stack.h"
+#include "stack.hpp"
 #include "print.h"
 #include "util.h"
 
@@ -53,6 +53,10 @@ static inline FILE* getStandardStreamHandle(int fh) {
     }
 }
 */
+
+void print(const char* string) {
+    printf("%s", string);
+}
 
 void print(const Token* token) {
     if (!token) {
@@ -150,7 +154,8 @@ void print(const Table* table) {
     }
 }
 
-void print(const Stack* stack) {
+template <class T>
+void print(const Stack<T>* stack) {
     if (!stack) {
         printf("stack is null\n"); return;
     }
@@ -161,7 +166,7 @@ void print(const Stack* stack) {
             , stack->capacity
             , stack->grow
             , stack->top
-            , stack->size(stack)
+            , stack->size()
             , *stack->data);
 }
 

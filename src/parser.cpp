@@ -4,7 +4,7 @@
 #include "lexer.h"
 #include "reporter.h"
 #include "print.h"
-#include "stack.h"
+#include "stack.hpp"
 #include "symbol.h"
 #include "table.h"
 #include "token.h"
@@ -19,47 +19,47 @@
  *
  * if the operator stack is empty we don't care
  */
-static inline bool canPop(Stack* os, ASTNode* node) {
-    return !os->isEmpty(os) && (((ASTNode*) os->peek(os))->token->op->precedence > node->token->op->precedence);
+static inline bool canPop(Stack<ASTNode>* os, ASTNode* node) {
+    return !os->isEmpty() && (os->peek()->token->op->precedence > node->token->op->precedence);
 }
 
 /**
  *
  */
-static void parseOperation(Stack* es, Stack* os, ASTNode* node) {
+static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node) {
     ASTNode* lhs = null;
     ASTNode* rhs = null;
 
     if (node->token->op->unary) {
-        ASTNode* temp = (ASTNode*) os->peek(os);
+        ASTNode* temp = os->peek();
 
         if (!temp->token->op->unary) { // unary operators can only pop and apply other unary operators
             return;
         }
 
         if (node->token->op->postfix) {
-            lhs = (ASTNode*) es->pop(es);
+            lhs = es->pop();
 
         } else {
-            rhs = (ASTNode*) es->pop(es);
+            rhs = es->pop();
         }
     } else {
-        rhs = (ASTNode*) es->pop(es);
-        lhs = (ASTNode*) es->pop(es);
+        rhs = es->pop();
+        lhs = es->pop();
     }
 
     addChild(node, lhs);
     addChild(node, rhs);
 
-    es->push(es, node);
+    es->push(node);
 }
 
 /**
  * Parses expressions into an AST.
  */
 static ASTNode* shuntingYard(Token tokens[]) {
-    Stack* es = newStack(10, true);
-    Stack* os = newStack(10, true);
+    Stack<ASTNode>* es = new Stack<ASTNode>(10, true);
+    Stack<ASTNode>* os = new Stack<ASTNode>(10, true);
 
     ASTNode* op = NULL;
 
@@ -68,15 +68,15 @@ static ASTNode* shuntingYard(Token tokens[]) {
 
         switch ((int) tokens[i].tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
             case ')':
-                while (os->peek(os)) {
-                    if (((Token*) os->peek(os))->tt == '(') {
+                while (os->peek()) {
+                    if (((Token*) os->peek())->tt == '(') {
                         break;
                     }
 
-                    parseOperation(es, os, (ASTNode*) os->pop(os));
+                    parseOperation(es, os, os->pop());
                 }
 
-                if (os->isEmpty(os)) { // we never found a matching open paren...
+                if (os->isEmpty()) { // we never found a matching open paren...
                     Reporter::add(
                             MS_ERROR,
                             "Missing open parentheses.\n",
@@ -88,18 +88,18 @@ static ASTNode* shuntingYard(Token tokens[]) {
                     break;
                 }
 
-                os->pop(os); // discard opening parens
+                os->pop(); // discard opening parens
                 break;
 
             case TT_SYMBOL:
                 // @TODO lookup in a symbol table, and act more like a operator if it's a weird operator keyword like 'sizeof'
                 // we should also maybe resolve scope at this point, but we haven't yet implemented closures
-                es->push(es, nodify(tokens, i));
+                es->push(nodify(tokens, i));
                 break;
 
             case TT_STRING:
             case TT_NUMERIC:
-                es->push(es, nodify(tokens, i));
+                es->push(nodify(tokens, i));
                 break;
 
             case '(':
@@ -113,21 +113,21 @@ static ASTNode* shuntingYard(Token tokens[]) {
                 op = nodify(tokens, i);
 
                 while (canPop(os, op)) {
-                    parseOperation(es, os, (ASTNode*) os->pop(os));
+                    parseOperation(es, os, os->pop());
                 }
 
-                os->push(os, op);
+                os->push(op);
                 break;
         }
 
         i++;
     }
 
-    while (!os->isEmpty(os)) {
-        parseOperation(es, os, (ASTNode*) os->pop(os));
+    while (!os->isEmpty()) {
+        parseOperation(es, os, os->pop());
     }
 
-    ASTNode* root = (ASTNode*) es->pop(es);
+    ASTNode* root = es->pop();
 
     free(es);
     free(os);

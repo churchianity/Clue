@@ -15,6 +15,7 @@
  */
 void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
     if (!self) {
+        print("root node is null...\n");
         return;
     }
 
