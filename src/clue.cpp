@@ -1,4 +1,28 @@
 
+#ifdef _WIN32
+    #define OS "Windows 32bit"
+#endif
+
+#ifdef _WIN64
+    #define OS "Windows 64bit"
+#endif
+
+#ifdef __linux__
+    #define OS "Linux"
+#endif
+
+#ifdef __APPLE__
+    #define OS "MacOSX"
+#endif
+
+#ifdef __FreeBSD__
+    #define OS "FreeBSD"
+#endif
+
+#ifdef __ANDROID__
+    #define OS "Android"
+#endif
+
 #include "operator.h"
 #include "print.h"
 #include "runtime.h"

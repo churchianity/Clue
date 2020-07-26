@@ -13,7 +13,7 @@
  */
 inline void trace(FILE* out = stderr, u32 maxFrames = 63) {
     void** stack = (void**) pMalloc(sizeof (void*) * maxFrames);
-    u32 stackSize = backtrace(stack, maxFrames / sizeof(void*));
+    u32 stackSize = backtrace(stack, maxFrames);
 
     // resolve addresses into strings containing "filename(function+address)"
     // this array must be free()-ed

@@ -17,9 +17,9 @@ struct Operator {
 
     u8 precedence = 0;
 
-    bool isUnary    = false;
-    bool isPostfix  = false;
-    bool isCall     = false;
+    bool unary    = false;
+    bool postfix  = false;
+    bool call     = false;
 };
 
 #endif

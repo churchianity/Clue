@@ -42,6 +42,7 @@ const char* ANSI_CLEAR = "\x001B[2J\x001B[;H";
 // Reset Colors
 const char* ANSI_RESET = "\x001B[0m";
 
+
 /*
 static inline FILE* getStandardStreamHandle(int fh) {
     switch (fh) {
@@ -64,15 +65,18 @@ void print(const Token* token) {
            , (void*) token, token->filename, token->line, token->column, token->length, tt, token->bad);
 
     switch (token->tt) {
-        case TT_NUMERIC: printf("number: %.2f\n", token->number); break;
-        case TT_STRING: printf("string: %s\n", token->string); break;
+        case TT_NUMERIC: printf("value: %s%.2f%s\n", ANSI_YELLOW, token->number, ANSI_RESET); break;
+        case TT_STRING: printf("value: %s%s%s\n", ANSI_YELLOW, token->string, ANSI_RESET); break;
 
+        // don't recursively call print(token->symbol) or print(token->op)
+        // because that shows a bunch of redundant information
+        // and if you want parser detail you should print the AST later rather than the token
         case TT_SYMBOL:
-            print(token->symbol);
+            printf("name: %s%s%s\n", ANSI_YELLOW, token->symbol->name, ANSI_RESET);
             break;
 
         default: // TT_OPERATORS
-            print(token->op);
+            printf("name: %s%s%s\n", ANSI_YELLOW, token->op->name, ANSI_RESET);
             break;
     }
 }
@@ -83,7 +87,7 @@ void print(const Operator* op) {
     }
 
     printf("&Operator %p | name: %s | prec: %u, assoc: %d, unary: %u, postfix: %u, call: %u\n"
-            , (void*) op, op->name, op->precedence, op->associativity, op->isUnary, op->isPostfix, op->isCall);
+            , (void*) op, op->name, op->precedence, op->associativity, op->unary, op->postfix, op->call);
 }
 
 void print(const Symbol* symbol) {

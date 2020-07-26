@@ -18,14 +18,14 @@ static void parseOperation(Stack* es, Stack* os, ASTNode* node) {
     ASTNode* lhs = null;
     ASTNode* rhs = null;
 
-    if (node->token->op->isUnary) {
+    if (node->token->op->unary) {
         ASTNode* temp = (ASTNode*) os->peek(os);
 
-        if (!temp->token->op->isUnary) { // unary operators can only pop and apply other unary operators
+        if (!temp->token->op->unary) { // unary operators can only pop and apply other unary operators
             return;
         }
 
-        if (node->token->op->isPostfix) {
+        if (node->token->op->postfix) {
             lhs = (ASTNode*) es->pop(es);
 
         } else {

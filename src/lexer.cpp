@@ -23,11 +23,13 @@ void Lexer :: clear() {
     }
 
     for (u32 i = 0; i < Lexer::tokenCount; i++) {
-        // free(&Lexer::tokens[i]);
+        if (&Lexer::tokens[i]) {
+            free(&Lexer::tokens[i]);
+        }
     }
 
-    Lexer::tokenCount = 0;
-    Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
+    // Lexer::tokenCount = 0;
+    // Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
 
     // Lexer::files = newTable(10);
 

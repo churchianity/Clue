@@ -35,7 +35,7 @@ void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
  *     2. Whether or not it is being used as a unary operator
  *     3. Whether or not it is being used in postfix
  */
-u8 precedence(u32 tt, bool isUnary, bool isPostfix) {
+u8 precedence(u32 tt, bool unary, bool postfix) {
     switch (tt) {
         case ')':
         case ']':
@@ -68,7 +68,7 @@ u8 precedence(u32 tt, bool isUnary, bool isPostfix) {
 
         case '+':
         case '-':
-            if (isUnary) {
+            if (unary) {
                 return 7;
             }
 
@@ -157,36 +157,36 @@ ASTNode* nodify(Token tokens[], u32 i) {
         return node;
     }
 
-    node->token->op->isCall = false;
+    node->token->op->call = false;
 
     // @NOTE if we pass a non-prefix operator in position 0 of the tokens array, this might be hard to catch
     if ((i < 1) || isOperator(&tokens[i - 1])) { // is unary prefix
         node->maxChildrenCount = 1;
-        node->token->op->isUnary = true;
-        node->token->op->isPostfix = false;
+        node->token->op->unary = true;
+        node->token->op->postfix = false;
 
     } else {
         if (tokens[i].tt == TT_INCREMENT || tokens[i].tt == TT_DECREMENT) { // is postfix unary
             node->maxChildrenCount = 1;
-            node->token->op->isUnary = true;
-            node->token->op->isPostfix = true;
+            node->token->op->unary = true;
+            node->token->op->postfix = true;
 
         } else if ((tokens[i].tt == '(') && (tokens[i - 1].tt == TT_SYMBOL)) { // is a function call
             node->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
-            node->token->op->isUnary = false;
-            node->token->op->isPostfix = false;
-            node->token->op->isCall = true;
+            node->token->op->unary = false;
+            node->token->op->postfix = false;
+            node->token->op->call = true;
 
         } else { // is binary
             node->maxChildrenCount = 2;
-            node->token->op->isUnary = false;
-            node->token->op->isPostfix = false;
+            node->token->op->unary = false;
+            node->token->op->postfix = false;
         }
     }
 
     node->token->op->precedence = precedence(node->token->tt
-                                           , node->token->op->isUnary
-                                           , node->token->op->isPostfix);
+                                           , node->token->op->unary
+                                           , node->token->op->postfix);
     return node;
 }
 
