@@ -4,7 +4,7 @@
 
 #include "message.h"
 #include "node.h"
-#include "table.h"
+#include "table.hpp"
 #include "token.h"
 #include "stack.hpp"
 
@@ -40,6 +40,8 @@ extern const char* ANSI_CLEAR;
 
 // Reset Colors
 extern const char* ANSI_RESET;
+
+extern void die(const char* message, ...);
 
 /**
  * @NOTE because we want to replace printf at some point maybe, I'm keeping all existing printf calls routed through here.

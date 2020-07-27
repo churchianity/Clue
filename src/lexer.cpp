@@ -3,13 +3,15 @@
 #include "lexer.h"
 #include "string.h"
 #include "token.h"
-#include "table.h"
+#include "table.hpp"
 #include "util.h"
 #include "print.h"
 #include "reporter.h"
 
+#define CLUE_MAX_NUMERIC_LENGTH 24
 
-Table<const char, void>* Lexer::files = new Table<const char, void>(10);
+
+Table<char, void>* Lexer::files = new Table<char, void>(10);
 
 u32 Lexer::tokenCount = 0;
 u32 Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
@@ -32,7 +34,7 @@ void Lexer :: print() {
     printf("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokenCount, Lexer::capacity);
 
     u32 i = 0;
-    TableEntry<const char, void>* entry = Lexer::files->entries[i];
+    TableEntry<char, void>* entry = Lexer::files->entries[i];
 
     for (; i < Lexer::files->lanes; i++) {
 
@@ -69,7 +71,7 @@ void Lexer :: add(Token* token) {
  */
 void Lexer :: tokenize(char* buffer, const char* filename) {
     // const char* beginning = buffer;
-    bool prevTokenImport = false;
+    static bool prevTokenImport = false;
 
     Token* token = null;
     TokenTypeEnum tt;
@@ -310,24 +312,23 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
             buffer += length;
         }
 
+        // the token's value should've been assigned above
+        // but we have yet to assign the following:
         token->filename = filename;
-        token->line = line;
-        token->column = column;
-        token->length = length;
-        token->tt = tt;
-        // the token's value should've been assigned above...
-        token->bad = bad;
+        token->line     = line;
+        token->column   = column;
+        token->length   = length;
+        token->tt       = tt;
+        token->bad      = bad;
 
         Lexer::add(token);
-
-        column += Lexer::token->length;
 
         // handle import statement
         if (prevTokenImport) {
             if ((Lexer::token->tt == TT_STRING) && (!Lexer::token->bad)) {
                 char* importFilePath = trimQuotes(Lexer::token->string, Lexer::token->length);
 
-                TableEntry<const char, void>* entry = Lexer::files->lookup(importFilePath);
+                TableEntry<char, void>* entry = Lexer::files->lookup(importFilePath);
 
                 if (entry) {
                     // @TODO report warn: trying to import file that has already been imported: 'filename'
@@ -336,21 +337,28 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
                 } else {
                     Lexer::files->insert(importFilePath, null);
 
+                    prevTokenImport = false; // this is necessary to stop the subsequent calls from trying to import the first token
                     tokenize(fileRead(importFilePath), importFilePath);
                 }
             } else {
-                // prev token is import, but our token for the path to the file to import isn't a proper string
-                printf("bad\n"); print(Lexer::token);
-                exit(1);
+                Reporter::add(
+                    MS_ERROR, "trying to import something that isn't a string",
+                    null, filename, line, column
+                );
+                Reporter::flush();
+                // exit(1);
             }
         }
 
-        if ((tt == TT_STRING) && streq(Lexer::token->string, "import")) {
+        if ((tt == TT_SYMBOL) && streq(Lexer::token->symbol->name, "import")) {
             prevTokenImport = true;
 
         } else {
             prevTokenImport = false;
         }
+
+        // do this after handling EVERYTHING having to do with the current token
+        column += Lexer::token->length;
     }
 }
 

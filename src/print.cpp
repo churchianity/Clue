@@ -3,7 +3,7 @@
 
 #include "message.h"
 #include "node.h"
-#include "table.h"
+#include "table.hpp"
 #include "token.h"
 #include "stack.hpp"
 #include "print.h"
@@ -53,6 +53,11 @@ static inline FILE* getStandardStreamHandle(int fh) {
     }
 }
 */
+
+/**
+ * @FIXME this should end the program, use for fatal internal errors
+ */
+void die(const char* message, ...) {}
 
 void print(const char* string) {
     printf("%s", string);
@@ -161,23 +166,66 @@ void print(const Stack<T>* stack) {
         printf("stack is null\n"); return;
     }
 
-    // @TODO generic supports data print operation
-    printf("&Stack %p | capacity: %u, grow?: %u, top: %u, size: %u, data: %p\n"
+    printf("&Stack %p | capacity: %u, grow?: %u, top: %u, size: %u, data:\n"
             , (void*) stack
             , stack->capacity
             , stack->grow
             , stack->top
-            , stack->size()
-            , *stack->data);
+            , stack->size());
+
+    for (u32 i = 0; i < stack->size(); i++) {
+        print(stack->data[i]);
+    }
+}
+
+/*
+      lint: alphabetical characters can't follow digits in identifier names
+      in function 'funcName': ./baz.clue:124:10
+              Int x2n;
+                    ^
+
+      warn: unused variable 'x'
+      in function 'doSomeStuff': ./bar.clue:10:10
+              Int x;
+                  ^
+
+      error: missing right-hand operand for operator
+      in function 'funcName': ./../src/foo.clue:14:51
+              Int x := 4 !;
+                         ^
+
+      error: missing right-hand operand for operator
+      ./../src/foo.clue:14:51
+              Int x := 4 !;
+                         ^
+*/
+static inline char* pointyThing(u32 column) {
+    char* buffer = (char*) pCalloc(column + 1, sizeof (char));
+
+    for (u32 i = 0; i < (column - 1); i++) {
+        buffer[i] = ' ';
+    }
+
+    buffer[column - 1] = '^';
+    buffer[column] = '\0';
+
+    return buffer;
 }
 
 void print(const Message* message) {
-    //printf("%s%s%s: "
-    //       , messageSeverityToColor(message->severity)
-    //       , messageSeverityToString(message->severity), ANSI_RESET
+    const char* fn = message->functionName;
+    char* pointy = pointyThing(message->column);
 
+    // i'm so sorry.
+    printf("\n    %s%s%s: %s\n    %s%s%s%s:%u:%u\n    %s\n    %s%s%s\n"
+           , messageSeverityToColor(message->severity), messageSeverityToString(message->severity), ANSI_RESET
+           , message->content
+           , fn ? "in function '" : "", fn ? fn : "", fn ? "': " : ""
+           , message->filename, message->line, message->column
+           , message->context
+           , ANSI_RED, pointy, ANSI_RESET
+    );
 
-
-      //     );
+    free(pointy);
 }
 

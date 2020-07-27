@@ -11,6 +11,7 @@
 
 extern u32 strln(const char* string);
 extern bool streq(const char* s1, const char* s2);
+extern char* strcp(const char* string, u32 length);
 extern bool hasSuffix(const char* string, const char* suffix);
 extern u32 countLines(const char* buffer);
 

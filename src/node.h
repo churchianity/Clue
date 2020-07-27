@@ -2,7 +2,7 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include "table.h"
+#include "table.hpp"
 #include "token.h"
 
 

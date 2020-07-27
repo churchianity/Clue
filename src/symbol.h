@@ -3,7 +3,6 @@
 #define SYMBOL_H
 
 #include "clue.h"
-#include "table.h"
 
 
 struct Symbol {
@@ -12,7 +11,6 @@ struct Symbol {
 };
 
 extern Symbol* newSymbol(const char* name, void* value, bool reserved /*, scope*/);
-// extern Table* initGlobalSymbolTable();
 
 #endif
 

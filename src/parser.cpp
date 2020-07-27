@@ -6,7 +6,7 @@
 #include "print.h"
 #include "stack.hpp"
 #include "symbol.h"
-#include "table.h"
+#include "table.hpp"
 #include "token.h"
 #include "util.h"
 

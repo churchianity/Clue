@@ -13,5 +13,7 @@ namespace Reporter {
     extern void add(MessageSeverityEnum severity, const char* content, const char* functionName, const char* filename, u32 line, u32 column);
 }
 
+extern const char* reconstruct(u32 line);
+
 #endif
 

@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 
+#include "alloc.h"
 #include "types.h"
 
 /**
@@ -32,6 +33,19 @@ bool streq(const char* s1, const char* s2) {
     }
 
     return true;
+}
+
+const char* strcp(const char* string, u32 length) {
+    char* buffer = (char*) pMalloc(sizeof (char) * (length + 1));
+
+    u32 i = 0;
+    for (; i < length; i++) {
+        buffer[i] = string[i];
+    }
+
+    buffer[i] = '\0';
+
+    return buffer;
 }
 
 /**
@@ -77,3 +91,4 @@ u32 countLines(const char* buffer) {
 
     return lines;
 }
+

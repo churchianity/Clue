@@ -2,12 +2,12 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "table.h"
+#include "table.hpp"
 #include "token.h"
 
 
 namespace Lexer {
-    extern Table<const char, void>* files;
+    extern Table<char, void>* files;
 
     extern u32 tokenCount; // how many tokens are stored in the array currently
     extern u32 capacity;   // how big is the buffer?

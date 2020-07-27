@@ -2,7 +2,7 @@
 #include "clue.h"
 #include "node.h"
 #include "operator.h"
-#include "table.h"
+#include "table.hpp"
 #include "token.h"
 #include "trace.h"
 #include "util.h"
@@ -188,6 +188,9 @@ ASTNode* nodify(Token tokens[], u32 i) {
     node->token->op->precedence = precedence(node->token->tt
                                            , node->token->op->unary
                                            , node->token->op->postfix);
+
+    // @TODO calculate associativity here too
+
     return node;
 }
 

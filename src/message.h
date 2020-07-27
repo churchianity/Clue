@@ -17,11 +17,10 @@ struct Message {
     const char* content;
     const char* functionName;
     const char* filename;
+    const char* context;
 
     u32 line;
     u32 column;
-
-    // @TODO some way to determine context string
 };
 
 extern const char* messageSeverityToColor(MessageSeverityEnum severity);
