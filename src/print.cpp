@@ -54,11 +54,6 @@ static inline FILE* getStandardStreamHandle(int fh) {
 }
 */
 
-/**
- * @FIXME this should end the program, use for fatal internal errors
- */
-void die(const char* message, ...) {}
-
 void print(const char* string) {
     printf("%s", string);
 }
@@ -178,6 +173,19 @@ void print(const Stack<T>* stack) {
     }
 }
 
+static inline char* makePointyThing(u32 column) {
+    char* buffer = (char*) pCalloc(column + 1, sizeof (char));
+
+    for (u32 i = 0; i < (column - 1); i++) {
+        buffer[i] = ' ';
+    }
+
+    buffer[column - 1] = '^';
+    buffer[column] = '\0';
+
+    return buffer;
+}
+
 /*
       lint: alphabetical characters can't follow digits in identifier names
       in function 'funcName': ./baz.clue:124:10
@@ -199,22 +207,9 @@ void print(const Stack<T>* stack) {
               Int x := 4 !;
                          ^
 */
-static inline char* pointyThing(u32 column) {
-    char* buffer = (char*) pCalloc(column + 1, sizeof (char));
-
-    for (u32 i = 0; i < (column - 1); i++) {
-        buffer[i] = ' ';
-    }
-
-    buffer[column - 1] = '^';
-    buffer[column] = '\0';
-
-    return buffer;
-}
-
 void print(const Message* message) {
     const char* fn = message->functionName;
-    char* pointy = pointyThing(message->column);
+    char* pointyThing = makePointyThing(message->column);
 
     // i'm so sorry.
     printf("\n    %s%s%s: %s\n    %s%s%s%s:%u:%u\n    %s\n    %s%s%s\n"
@@ -223,9 +218,9 @@ void print(const Message* message) {
            , fn ? "in function '" : "", fn ? fn : "", fn ? "': " : ""
            , message->filename, message->line, message->column
            , message->context
-           , ANSI_RED, pointy, ANSI_RESET
+           , ANSI_RED, pointyThing, ANSI_RESET
     );
 
-    free(pointy);
+    free(pointyThing);
 }
 

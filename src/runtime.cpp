@@ -37,8 +37,7 @@ void interactive() {
         printf(">>> ");
 
         if (fgets(s, CLUE_SANDBOX_MODE_MAX_LINE_LENGTH, stdin) == null) {
-            fprintf(stderr, "error reading line from stdin and storing it in buffer %p\nskipping...\n", (void*) s);
-            continue;
+            die("error reading line from stdin and storing it in buffer %p\nskipping...\n", (void*) s);
         }
 
         // super-secret interpreter options
@@ -67,6 +66,7 @@ void interactive() {
         AST = null;
         Lexer::tokenize(s, "stdin");
         AST = parse(Lexer::tokens);
+        Reporter::flush();
 
     } while (1);
 }

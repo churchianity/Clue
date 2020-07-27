@@ -2,11 +2,21 @@
 #ifndef TRACE_H
 #define TRACE_H
 
-#include <stdio.h>
+#include <stdio.h> // FILE, stderr
 #include <execinfo.h> // backtrace, backtrace_symbols
 
 #include "alloc.h"
 #include "types.h"
+
+
+/**
+ * @FIXME this should end the program, use for fatal internal errors
+ */
+inline void die(const char* message, ...) {
+    fprintf(stderr, "%s", message);
+
+    exit(1);
+}
 
 /**
  * Prints a stack trace.
@@ -20,7 +30,7 @@ inline void trace(FILE* out = stderr, u32 maxFrames = 63) {
     char** traces = backtrace_symbols(stack, stackSize);
 
     if (stackSize < 2) {
-        fprintf(stderr, "stack has a weird number (%d) of frames! and we segfaulted anyway sooo...\n", stackSize);
+        die("stack has a weird number (%d) of frames! and we segfaulted anyway...\n", stackSize);
         exit(1);
     }
 

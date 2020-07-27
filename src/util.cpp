@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "clue.h"
+#include "print.h"
 #include "string.h"
 #include "util.h"
 
@@ -15,8 +16,7 @@ u32 getFileSize(FILE* fp) {
     fseek(fp, 0, SEEK_SET);
 
     if (size < 0) {
-        fprintf(stderr, "ftell returned a negative value: %d\n", (s32) size);
-        exit(1);
+        die("ftell returned a negative value: %d\n", (s32) size);
     }
 
     return size;
@@ -29,8 +29,7 @@ char* fileRead(const char* filename) {
     FILE* fp = fopen(filename, "r");
 
     if (!fp) {
-        fprintf(stderr, "failed to get fp for filename: %s\n", filename);
-        exit(1);
+        die("failed to get fp for filename: %s\n", filename);
     }
 
     u32 length = getFileSize(fp);

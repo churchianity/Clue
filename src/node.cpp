@@ -110,26 +110,22 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
             return 9;
 
         case TT_SYMBOL:
-            // do a lookup for global symbols like 'sizeof' equivalent or stuff like that
-            printf("symbol operator!\n");
+            // @FIXME do a lookup for global symbols like 'sizeof' equivalent or stuff like that
+            die("symbol operator!\n");
             break;
     }
 
-    fprintf(stderr, "attempt to lookup precedence for unknown operator/tokentype: %c/%d\n", tt, tt);
-    exit(1);
+    die("attempt to lookup precedence for unknown operator/tokentype: %c/%d\n", tt, tt);
+    return 0; // @NOTE will never get here, die() should always call exit(1) but gcc can't figure that out
 }
 
 void addChild(ASTNode* self, ASTNode* child) {
     if (!child) {
         printf("attempting to add null child...\n");
-        exit(1);
     }
 
     if (self->childrenCount == self->maxChildrenCount) {
-        trace();
-        fprintf(stderr, "attempting to add a child to a full node...\n");
-        print(self); print(child);
-        exit(1);
+        die("attempting to add a child to a full node...\n");
     }
 
     if (!self->children) {

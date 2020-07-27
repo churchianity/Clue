@@ -297,7 +297,7 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
 
                     break;
 
-                    // invalid or unimplemented single-chars
+                // invalid or unimplemented single-chars
                 case '#':
                 case '@':
                 case '$':
@@ -305,16 +305,17 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
                 case '?':
                 case '\\':
                 default:
-                    fprintf(stderr, "invalid or unimplemented character encountered :: %c, codepoint: %d...\n", *buffer, *buffer);
-                    exit(1);
+                    Reporter::add(
+                        MS_ERROR, "invalid character",
+                        null, filename, line, column
+                    );
+                    break;
 
                 case '\0':
-                    fprintf(stderr, "got null character while trying to lex an operator...\n");
-                    Lexer::print();
-                    exit(1);
+                    die("got null character while trying to lex an operator...\n");
             }
 
-            token->op = (Operator*) pMalloc(sizeof (Operator));
+            token->op = (Operator*) pMalloc(sizeof (Operator)); // @FIXME look me up instead of making a new one!
             token->op->name = read(buffer, length);
 
             buffer += length;
@@ -339,9 +340,10 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
                 TableEntry<char, void>* entry = Lexer::files->lookup(importFilePath);
 
                 if (entry) {
-                    // @TODO report warn: trying to import file that has already been imported: 'filename'
-                    fprintf(stderr, "trying to import file that has already been imported... %s\n", importFilePath);
-
+                    Reporter::report(
+                        MS_WARN, "trying to import file that has already been imported\n",
+                        null, filename, line, column
+                    );
                 } else {
                     Lexer::files->insert(importFilePath, null);
 
