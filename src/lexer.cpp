@@ -20,6 +20,9 @@ Token* Lexer::token = null;
 Token* Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
 
 
+/**
+ * @STATEFUL
+ */
 void Lexer :: clear() {
     Lexer::files->clear();
 
@@ -30,6 +33,9 @@ void Lexer :: clear() {
     Lexer::token = null;
 }
 
+/**
+ * @STATEFUL
+ */
 void Lexer :: print() {
     printf("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokenCount, Lexer::capacity);
 
@@ -54,6 +60,7 @@ void Lexer :: print() {
 
 /**
  * Adds a token to the tokens array.
+ * @STATEFUL
  */
 void Lexer :: add(Token* token) {
     Lexer::token = token;
@@ -68,6 +75,7 @@ void Lexer :: add(Token* token) {
 
 /**
  * Given a string |buffer|, append to the lexer's |tokens| array.
+ * @STATEFUL
  */
 void Lexer :: tokenize(char* buffer, const char* filename) {
     // const char* beginning = buffer;
@@ -341,12 +349,14 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
                     tokenize(fileRead(importFilePath), importFilePath);
                 }
             } else {
-                Reporter::add(
+                Reporter::report(
                     MS_ERROR, "trying to import something that isn't a string",
                     null, filename, line, column
                 );
-                Reporter::flush();
-                // exit(1);
+
+                if (CLAs.interactive) {
+                    exit(1);
+                }
             }
         }
 

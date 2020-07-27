@@ -12,12 +12,12 @@ enum MessageSeverityEnum {
 };
 
 struct Message {
-    MessageSeverityEnum severity;
-
     const char* content;
     const char* functionName;
     const char* filename;
     const char* context;
+
+    MessageSeverityEnum severity;
 
     u32 line;
     u32 column;

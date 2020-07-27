@@ -5,6 +5,7 @@
 #include "token.h"
 #include "util.h"
 
+
 bool isOperator(Token* token) {
     return !(token->tt == TT_SYMBOL || token->tt == TT_NUMERIC || token->tt == TT_STRING);
 }

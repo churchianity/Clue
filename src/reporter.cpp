@@ -8,6 +8,12 @@
 #include "util.h"
 
 
+static u32 messageCount = 0;
+static u32 messageCapacity = CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY;
+
+Message* Reporter::messages = (Message*) pMalloc(sizeof (Message) * CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
+
+
 /**
  * Because atm we discard the buffers containing all of the read-in source code,
  * we have to reconstruct code segments for linter/warning/error message context.
@@ -15,6 +21,7 @@
  * Tokens can do this because they store where they are in the file + how long they are.
  *
  * @TODO support multiple lines of context via an offset, above or below or both.
+ * @STATEFUL
  */
 const char* reconstruct(u32 line) {
     // find the first token on the requested line...
@@ -63,12 +70,6 @@ const char* reconstruct(u32 line) {
     return out;
 }
 
-static u32 messageCount = 0;
-static u32 messageCapacity = CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY;
-
-Message* Reporter::messages = (Message*) pMalloc(sizeof (Message) * CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
-
-
 /**
  * @STATEFUL
  */
@@ -92,9 +93,32 @@ void Reporter :: add(MessageSeverityEnum severity, const char* content, const ch
     Reporter::messages[messageCount++] = *message;
 }
 
+/**
+ * Immediately constructs a message on the stack and prints it without ever storing it on the heap.
+ */
+void Reporter :: report(MessageSeverityEnum severity, const char* content, const char* functionName, const char* filename, u32 line, u32 column) {
+    Message message = {
+        content,
+        functionName,
+        filename,
+        reconstruct(line),
+
+        severity,
+
+        line,
+        column
+    };
+
+    print(&message);
+}
+
+/**
+ * @STATEFUL
+ */
 void Reporter :: flush() {
     for (u32 i = 0; i < messageCount; i++) {
-        print(&Reporter::messages[i]);
+        print(Reporter::messages + i);
+        free(Reporter::messages + i);
     }
 
     messageCount = 0;
@@ -102,9 +126,4 @@ void Reporter :: flush() {
 
     Reporter::messages = (Message*) pMalloc(sizeof (Message) * CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
 }
-
-
-
-
-
 
