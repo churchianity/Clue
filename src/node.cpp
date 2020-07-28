@@ -8,12 +8,21 @@
 #include "trace.h"
 #include "util.h"
 
+void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
+    if (!self) {
+        print("root node is null...\n");
+        return;
+    }
+
+    callback(self);
+}
+
 
 /**
  * Iterates over the tree and calls |callback| on each node, with |root| as an argument.
  * Post-order traversal.
  */
-void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
+void traverse(ASTOperatorNode* self, void (*callback) (const ASTNode*)) {
     if (!self) {
         print("root node is null...\n");
         return;
@@ -119,7 +128,7 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
     return 0; // @NOTE will never get here, die() should always call exit(1) but gcc can't figure that out
 }
 
-void addChild(ASTNode* self, ASTNode* child) {
+void addChild(ASTOperatorNode* self, ASTNode* child) {
     if (!child) {
         return;
     }
@@ -140,52 +149,64 @@ void addChild(ASTNode* self, ASTNode* child) {
  * Most of the work here is resolving operator precedence, associativity, and unary/postfix flags.
  */
 ASTNode* nodify(Token tokens[], u32 i) {
-    ASTNode* node = (ASTNode*) pMalloc(sizeof (ASTNode));
+    ASTNode* node = null;           // @FIXME
+    ASTSymbolNode* snode = null;    // @FIXME shouldn't have to define these here
 
-    node->token = &tokens[i];
+    switch (tokens[i].tt) {
+        case TT_SYMBOL:
+            snode = (ASTSymbolNode*) pMalloc(sizeof (ASTSymbolNode));
+            snode->token = &tokens[i];
+            // @TODO do some symbol shit
+            return snode;
 
-    node->children = null;
-    node->childrenCount = 0;
+        case TT_NUMERIC:
+        case TT_STRING:
+            node = (ASTNode*) pMalloc(sizeof (ASTNode));
+            node->token = &tokens[i];
+            return node;
 
-    if (!isOperator(&tokens[i])) { // isn't an operator... easy one
-        node->maxChildrenCount = 0;
-
-        return node;
+        default:
+            break;
     }
 
-    node->token->op->call = false;
+    // operators...
+    ASTOperatorNode* onode = (ASTOperatorNode*) pMalloc(sizeof (ASTOperatorNode));
+
+    onode->children = null;
+    onode->childrenCount = 0;
+    onode->op->call = false;
 
     // @NOTE if we pass a non-prefix operator in position 0 of the tokens array, this might be hard to catch
     if ((i < 1) || isOperator(&tokens[i - 1])) { // is unary prefix
-        node->maxChildrenCount = 1;
-        node->token->op->unary = true;
-        node->token->op->postfix = false;
+        onode->maxChildrenCount = 1;
+        onode->op->unary = true;
+        onode->op->postfix = false;
 
     } else {
         if (tokens[i].tt == TT_INCREMENT || tokens[i].tt == TT_DECREMENT) { // is postfix unary
-            node->maxChildrenCount = 1;
-            node->token->op->unary = true;
-            node->token->op->postfix = true;
+            onode->maxChildrenCount = 1;
+            onode->op->unary = true;
+            onode->op->postfix = true;
 
         } else if ((tokens[i].tt == '(') && (tokens[i - 1].tt == TT_SYMBOL)) { // is a function call
-            node->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
-            node->token->op->unary = false;
-            node->token->op->postfix = false;
-            node->token->op->call = true;
+            onode->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
+            onode->op->unary = false;
+            onode->op->postfix = false;
+            onode->op->call = true;
 
         } else { // is binary
-            node->maxChildrenCount = 2;
-            node->token->op->unary = false;
-            node->token->op->postfix = false;
+            onode->maxChildrenCount = 2;
+            onode->op->unary = false;
+            onode->op->postfix = false;
         }
     }
 
-    node->token->op->precedence = precedence(node->token->tt
-                                           , node->token->op->unary
-                                           , node->token->op->postfix);
+    onode->op->precedence = precedence(onode->token->tt
+                                     , onode->op->unary
+                                     , onode->op->postfix);
 
     // @TODO calculate associativity here too
 
-    return node;
+    return onode;
 }
 

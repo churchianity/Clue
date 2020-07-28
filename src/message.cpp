@@ -40,8 +40,6 @@ const char* reconstruct(u32 line) {
         token = Lexer::tokens[i++];
         print(&token);
 
-        char* tokenValueAsString = tokenValueToString(&token);
-
         char* scratch = (char*) pMalloc(sizeof (char) * (token.column + token.length - columnSoFar));
 
         for (; j < (token.column + token.length - columnSoFar); j++) {
@@ -49,7 +47,7 @@ const char* reconstruct(u32 line) {
                 scratch[j - 1] = ' ';
 
             } else {
-                scratch[j - 1] = tokenValueAsString[j - token.column + columnSoFar];
+                scratch[j - 1] = token.tk[j - token.column + columnSoFar];
             }
         }
 

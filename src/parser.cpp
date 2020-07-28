@@ -17,25 +17,25 @@
  *
  * if the operator stack is empty we don't care
  */
-static inline bool canPop(Stack<ASTNode>* os, ASTNode* node) {
-    return !os->isEmpty() && (os->peek()->token->op->precedence > node->token->op->precedence);
+static inline bool canPop(Stack<ASTOperatorNode>* os, ASTOperatorNode* node) {
+    return !os->isEmpty() && (os->peek()->op->precedence > node->op->precedence);
 }
 
 /**
  *
  */
-static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node) {
+static void parseOperation(Stack<ASTNode>* es, Stack<ASTOperatorNode>* os, ASTOperatorNode* node) {
     ASTNode* lhs = null;
     ASTNode* rhs = null;
 
-    if (node->token->op->unary) {
-        ASTNode* temp = os->peek();
+    if (node->op->unary) {
+        ASTOperatorNode* temp = os->peek();
 
-        if (!temp->token->op->unary) { // unary operators can only pop and apply other unary operators
+        if (!temp->op->unary) { // unary operators can only pop and apply other unary operators
             return;
         }
 
-        if (node->token->op->postfix) {
+        if (node->op->postfix) {
             lhs = es->pop();
 
         } else {
@@ -57,9 +57,9 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node
  */
 static ASTNode* shuntingYard(Token tokens[]) {
     Stack<ASTNode>* es = new Stack<ASTNode>(10, true);
-    Stack<ASTNode>* os = new Stack<ASTNode>(10, true);
+    Stack<ASTOperatorNode>* os = new Stack<ASTOperatorNode>(10, true);
 
-    ASTNode* op = NULL;
+    ASTOperatorNode* opNode = null; // @TODO remove this
 
     u32 i = 0;
     while (i < (Lexer::tokenCount)) {
@@ -98,29 +98,35 @@ static ASTNode* shuntingYard(Token tokens[]) {
 
             case TT_STRING:
             case TT_NUMERIC:
+                printf("hi!\n"); fflush(stdout);
                 es->push(nodify(tokens, i));
                 break;
 
             case '(':
-                op = nodify(tokens, i);
+                opNode = (ASTOperatorNode*) nodify(tokens, i); // @ROBUSTNESS will we always make the right kind of node here?
 
-                if (op->token->op->call) {
+                if (opNode->op->call) {
                     // the open paren is being used as the 'grouping' operator
                 }
 
-            default:
-                op = nodify(tokens, i);
+                os->push(opNode);
+                break;
 
-                while (canPop(os, op)) {
+            default:
+
+                opNode = (ASTOperatorNode*) nodify(tokens, i);
+
+                while (canPop(os, opNode)) {
                     parseOperation(es, os, os->pop());
                 }
 
-                os->push(op);
+                os->push(opNode);
                 break;
         }
 
         i++;
     }
+
 
     while (!os->isEmpty()) {
         parseOperation(es, os, os->pop());

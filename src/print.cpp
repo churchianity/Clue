@@ -81,24 +81,8 @@ void print(const Token* token) {
 
     const char* tt = tokenTypeToString(token->tt);
 
-    printf("&Token %p | file: %s, line: %u, col: %u, len: %u | tt: %s, bad?: %u | "
-           , (void*) token, token->filename, token->line, token->column, token->length, tt, token->bad);
-
-    switch (token->tt) {
-        case TT_NUMERIC: printf("value: %s%.2f%s\n", ANSI_YELLOW, token->number, ANSI_RESET); break;
-        case TT_STRING: printf("value: %s%s%s\n", ANSI_YELLOW, token->string, ANSI_RESET); break;
-
-        // don't recursively call print(token->symbol) or print(token->op)
-        // because that shows a bunch of redundant information
-        // and if you want parser detail you should print the AST later rather than the token
-        case TT_SYMBOL:
-            printf("name: %s%s%s\n", ANSI_YELLOW, token->symbol->name, ANSI_RESET);
-            break;
-
-        default: // TT_OPERATORS
-            printf("name: %s%s%s\n", ANSI_YELLOW, token->op->name, ANSI_RESET);
-            break;
-    }
+    printf("&Token %p | file: %s, line: %u, col: %u, len: %u | tt: %s, bad?: %u | tk: %s%s%s\n"
+           , (void*) token, token->filename, token->line, token->column, token->length, tt, token->bad, ANSI_YELLOW, token->tk, ANSI_RESET);
 }
 
 void print(const Operator* op) {
@@ -123,20 +107,28 @@ void print(const ASTNode* node) {
         printf("node is null\n"); return;
     }
 
+    printf("&ASTNode %p\n", (void*) node);
+    print(node->token);
+}
+
+void print(const ASTSymbolNode* node) {
+    if (!node) {
+        printf("node is null\n"); return;
+    }
+
+    printf("&ASTNode %p\n", (void*) node);
+    print(node->symbol);
+}
+
+void print(const ASTOperatorNode* node) {
+    if (!node) {
+        printf("node is null\n"); return;
+    }
+
     printf("&ASTNode %p | childrenCount: %u, maxChildrenCount: %u\n"
            , (void*) node, node->childrenCount, node->maxChildrenCount);
 
-    switch (node->token->tt) {
-        case TT_NUMERIC:
-        case TT_STRING:
-            print(node->token); break;
-
-        case TT_SYMBOL:
-            print(node->token->symbol); break;
-
-        default:
-            print(node->token->op); break;
-    }
+    print(node->op);
 
     for (u32 i = 0; i < node->childrenCount; i++) {
         printf("\tChild %u pointer: %p\n", i, (void*) (node->children + i));

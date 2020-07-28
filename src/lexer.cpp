@@ -9,8 +9,6 @@
 #include "reporter.h"
 
 
-
-
 Table<char, void>* Lexer::files = new Table<char, void>(10);
 
 u32 Lexer::tokenCount = 0;
@@ -91,7 +89,7 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
     u32 column = 1;
 
     while (*buffer != '\0') {
-        token = (Token*) pMalloc(sizeof (Token));
+
         length = 1;
         bad = false;
 
@@ -126,9 +124,6 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
                 length++;
 
             } while (*buffer != '\0');
-
-            token->symbol = (Symbol*) pMalloc(sizeof (Symbol));
-            token->symbol->name = read(buffer - length, length);
 
         } else if (isDigit(*buffer)) {
             tt = TT_NUMERIC;
@@ -192,10 +187,6 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
                 );
             }
 
-            // @FIXME use in-house string to double conversion?
-            // that might be really hard...
-            token->number = atof(read(buffer - length, length));
-
         } else if ((*buffer == '"') || (*buffer == '\'')) {
             tt = TT_STRING;
 
@@ -223,8 +214,6 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
                 length++;
 
             } while (*buffer != '\0');
-
-            token->string = read(buffer - length, length);
 
         } else {
             tt = (TokenTypeEnum) *buffer;
@@ -322,25 +311,24 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
                         MS_ERROR, "invalid character",
                         null, filename, line, column
                     );
+
                     break;
 
                 case '\0':
                     die("got null character while trying to lex an operator...\n");
             }
 
-            token->op = (Operator*) pMalloc(sizeof (Operator)); // @FIXME look me up instead of making a new one!
-            token->op->name = read(buffer, length);
-
             buffer += length;
         }
 
-        // the token's value should've been assigned above
-        // but we have yet to assign the following:
+        token = (Token*) pMalloc(sizeof (Token));
+
         token->filename = filename;
         token->line     = line;
         token->column   = column;
         token->length   = length;
         token->tt       = tt;
+        token->tk       = read(buffer - length, length);
         token->bad      = bad;
 
         Lexer::add(token);
@@ -348,7 +336,7 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
         // handle import statement
         if (prevTokenImport) {
             if ((Lexer::token->tt == TT_STRING) && (!Lexer::token->bad)) {
-                char* importFilePath = trimQuotes(Lexer::token->string, Lexer::token->length);
+                char* importFilePath = trimQuotes(Lexer::token->tk, Lexer::token->length);
 
                 TableEntry<char, void>* entry = Lexer::files->lookup(importFilePath);
 
@@ -375,7 +363,7 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
             }
         }
 
-        if ((tt == TT_SYMBOL) && streq(Lexer::token->symbol->name, "import")) {
+        if ((tt == TT_SYMBOL) && streq(Lexer::token->tk, "import")) {
             prevTokenImport = true;
 
         } else {

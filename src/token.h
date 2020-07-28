@@ -79,12 +79,16 @@ enum TokenTypeEnum {
 struct Token {
     const char* filename;
 
+    /* fuck this shit
     union {
         Symbol* symbol;
         double number;
         const char* string;
         Operator* op;
     };
+    */
+
+    const char* tk;
 
     u32 line;
     u32 column;

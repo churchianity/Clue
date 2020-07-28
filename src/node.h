@@ -5,19 +5,27 @@
 #include "table.hpp"
 #include "token.h"
 
-
 struct ASTNode {
     Token* token;
+};
+
+struct ASTOperatorNode : ASTNode {
+    Operator* op;
 
     ASTNode* children;
     u32 childrenCount;
     u32 maxChildrenCount;
 };
 
+struct ASTSymbolNode : ASTNode {
+    Symbol* symbol;
+};
+
+extern void traverse(ASTOperatorNode* self, void (*callback) (const ASTNode*));
 extern void traverse(ASTNode* self, void (*callback) (const ASTNode*));
 extern ASTNode* nodify(Token tokens[], u32 currentIndex);
 extern u8 precedence(u32 tt, bool unary, bool postfix);
-extern void addChild(ASTNode* self, ASTNode* child);
+extern void addChild(ASTOperatorNode* self, ASTNode* child);
 
 #endif
 

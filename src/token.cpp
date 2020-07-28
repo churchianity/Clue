@@ -22,26 +22,6 @@ const char* tokenTypeToString(TokenTypeEnum tt) {
 }
 
 /**
- * @FIXME 24 magic number is the longest length for a numeric constant probably but
- * should be a constant defined somewhere else
- */
-char* tokenValueToString(Token* token) {
-    char* string;
-
-    switch (token->tt) {
-        case TT_SYMBOL: string = strcp(token->symbol->name, token->length); break;
-        default:        string = strcp(token->op->name, token->length); break;
-        case TT_STRING: string = strcp(token->string, token->length); break;
-        case TT_NUMERIC:
-            string = (char*) pMalloc(sizeof (char) * 24);
-            snprintf(string, 24, "%.*lf", token->length, token->number);
-            break;
-    }
-
-    return string;
-}
-
-/**
  * @FIXME
  */
 void destroyToken(Token* token) {
