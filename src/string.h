@@ -3,16 +3,97 @@
 #define STRING_H
 
 #include <stdarg.h>
-#include <stdlib.h>
 
 #include "alloc.h"
 
 
-extern u32 strln(const char* string);
-extern bool streq(const char* s1, const char* s2);
-extern char* strcp(const char* string, u32 length);
-extern bool hasSuffix(const char* string, const char* suffix);
-extern u32 countLines(const char* buffer);
+/**
+ *
+ */
+inline u32 strln(const char* string) {
+    u32 length = 0;
+
+    while (*string != '\0') {
+        length++;
+        string++;
+    }
+
+    return length;
+}
+
+/**
+ *
+ */
+inline bool streq(const char* s1, const char* s2) {
+    if (strln(s1) != strln(s2)) {
+        return false;
+    }
+
+    for (u32 i = 0; i < strln(s1); i++) {
+        if (s1[i] != s2[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+inline const char* strcp(const char* string, u32 length) {
+    char* buffer = (char*) pMalloc(sizeof (char) * (length + 1));
+
+    u32 i = 0;
+    for (; i < length; i++) {
+        buffer[i] = string[i];
+    }
+
+    buffer[i] = '\0';
+
+    return buffer;
+}
+
+/**
+ * like strrchr
+ */
+inline const char* lastCharOccurence(const char* string, u32 length, char c) {
+    for (s32 i = length - 1; i >= 0; i--) { // @NOTE 'i' needs to be a signed int here...
+        if (*(string + i) == c) {
+            return string + i;
+        }
+    }
+
+    return null;
+}
+
+/**
+ *
+ */
+inline bool hasSuffix(const char* string, const char* suffix) {
+    const char* p = lastCharOccurence(string, strln(string), suffix[0]);
+
+    if (p) {
+        return streq(p, suffix);
+    }
+
+    return false;
+}
+
+/**
+ *
+ */
+inline u32 countLines(const char* buffer) {
+    u32 lines = 0;
+    char c;
+
+    while ((c = *buffer) != '\0') {
+        if (c == '\n') {
+            lines++;
+        }
+
+        buffer++;
+    }
+
+    return lines;
+}
 
 /**
  * Ascii encoded text won't ever set the 8th bit of any of its bytes.
@@ -28,6 +109,18 @@ inline bool isAscii(const char* buffer, u32 length) {
     }
 
     return true;
+}
+
+inline char* trimStart(const char* str, u32 count) {
+    return null;
+}
+
+inline char* trimEnd(const char* str, u32 count) {
+    return null;
+}
+
+inline char* trim(const char* str, u32 count) {
+    return null;
 }
 
 inline char* trimQuotes(const char* str, u32 length) {
@@ -48,6 +141,9 @@ inline char* trimQuotes(const char* str, u32 length) {
     return buffer;
 }
 
+/**
+ *
+ */
 inline char* concat(const char* str1, const char* str2) {
     u32 l1 = strln(str1);
     u32 l2 = strln(str2);
@@ -71,22 +167,22 @@ inline char* concat(const char* str1, const char* str2) {
     return newBuffer;
 }
 
+/**
+ *
+ */
 inline char* concat(u32 argc, ...) {
     va_list args;
     va_start(args, argc);
 
-    char* str1 = va_arg(args, char*);
-    char* str2 = null;
+    char* out = va_arg(args, char*);
 
     for (u32 i = 1; i < argc; i++) {
-        str2 = va_arg(args, char*);
-
-        str1 = concat(str1, str2);
+        out = concat(out, va_arg(args, char*));
     }
 
     va_end(args);
 
-    return str1;
+    return out;
 }
 
 /**
