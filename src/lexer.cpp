@@ -167,6 +167,7 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
                             MS_ERROR, "dot appearing immediately after a number is always invalid",
                             null, filename, line, column + length
                         );
+
                         break;
                     }
 
@@ -338,6 +339,7 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
             if ((Lexer::token->tt == TT_STRING) && (!Lexer::token->bad)) {
                 char* importFilePath = trimQuotes(Lexer::token->tk, Lexer::token->length);
 
+                // check if we've already imported the file - you shouldn't ever need to import something multiple times
                 TableEntry<char, void>* entry = Lexer::files->lookup(importFilePath);
 
                 if (entry) {
@@ -348,7 +350,7 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
                 } else {
                     Lexer::files->insert(importFilePath, null);
 
-                    prevTokenImport = false; // this is necessary to stop the subsequent calls from trying to import the first token
+                    prevTokenImport = false; // this is necessary to stop the subsequent recursive calls from trying to import the first token
                     tokenize(fileRead(importFilePath), importFilePath);
                 }
             } else {

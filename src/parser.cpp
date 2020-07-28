@@ -76,12 +76,8 @@ static ASTNode* shuntingYard(Token tokens[]) {
 
                 if (os->isEmpty()) { // we never found a matching open paren...
                     Reporter::add(
-                        MS_ERROR,
-                        "Missing open parentheses.\n",
-                        null,
-                        tokens[i].filename,
-                        tokens[i].line,
-                        tokens[i].column
+                        MS_ERROR, "Missing open parentheses.\n",
+                        null, tokens[i].filename, tokens[i].line, tokens[i].column
                     );
 
                     break;
@@ -93,17 +89,16 @@ static ASTNode* shuntingYard(Token tokens[]) {
             case TT_SYMBOL:
                 // @TODO lookup in a symbol table, and act more like a operator if it's a weird operator keyword like 'sizeof'
                 // we should also maybe resolve scope at this point, but we haven't yet implemented closures
-                es->push(nodify(tokens, i));
+                es->push(makeSymbolNode(tokens + i));
                 break;
 
             case TT_STRING:
             case TT_NUMERIC:
-                printf("hi!\n"); fflush(stdout);
-                es->push(nodify(tokens, i));
+                es->push(makeNode(tokens + i));
                 break;
 
             case '(':
-                opNode = (ASTOperatorNode*) nodify(tokens, i); // @ROBUSTNESS will we always make the right kind of node here?
+                opNode = makeOperatorNode(tokens, i); // @ROBUSTNESS will we always make the right kind of node here?
 
                 if (opNode->op->call) {
                     // the open paren is being used as the 'grouping' operator
@@ -114,7 +109,9 @@ static ASTNode* shuntingYard(Token tokens[]) {
 
             default:
 
-                opNode = (ASTOperatorNode*) nodify(tokens, i);
+                printf("dickass\n"); fflush(stdout);
+                opNode = makeOperatorNode(tokens, i);
+                printf("dickass2\n"); fflush(stdout);
 
                 while (canPop(os, opNode)) {
                     parseOperation(es, os, os->pop());

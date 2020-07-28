@@ -25,6 +25,7 @@
 
 #include <signal.h> // needed on my chromebook for some reason?
 
+#include "clue.h"
 #include "operator.h"
 #include "print.h"
 #include "runtime.h"
@@ -46,8 +47,7 @@ static void handler(int signal) {
  * @TODO
  */
 static inline void help(const char* arg) {
-    if (!arg) {
-        // generic help
+    if (!arg) { // generic help
         printf("this should be some helpful text... but it probably isn't, huh.\n");
         return;
     }
@@ -58,7 +58,7 @@ static inline void help(const char* arg) {
 
 static inline void handleCommandLineArguments(int argc, const char* argv[]) {
     if (argc == 1) {
-        help(null);
+        help(null); exit(0);
     }
 
     for (int i = 1; i < argc; ++i) {
@@ -79,12 +79,11 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
         } else if (streq(argv[i], "--project-root")) {
             CLAs.src = argv[i];
 
-        #define CLUE_FILE_SUFFIX ".clue"
         } else if (hasSuffix(argv[i], CLUE_FILE_SUFFIX)) {
             clueFileRead(argv[i]);
 
         } else {
-            help(argv[i]);
+            help(argv[i]); exit(0);
         }
     }
 

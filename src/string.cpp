@@ -52,7 +52,7 @@ const char* strcp(const char* string, u32 length) {
  * like strrchr
  */
 const char* lastCharOccurence(const char* string, u32 length, char c) {
-    for (u32 i = length - 1; i >= 0; i--) {
+    for (s32 i = length - 1; i >= 0; i--) { // @NOTE needs to be a signed int here...
         if (*(string + i) == c) {
             return string + i;
         }

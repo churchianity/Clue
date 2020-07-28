@@ -1,5 +1,6 @@
 
 #include "clue.h"
+#include "lexer.h"
 #include "node.h"
 #include "operator.h"
 #include "print.h"
@@ -7,6 +8,7 @@
 #include "token.h"
 #include "trace.h"
 #include "util.h"
+
 
 void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
     if (!self) {
@@ -145,68 +147,73 @@ void addChild(ASTOperatorNode* self, ASTNode* child) {
 }
 
 /**
- * Resolve a token into a node.
+ * Resolve a token into an operator node.
  * Most of the work here is resolving operator precedence, associativity, and unary/postfix flags.
+ * That requires some amount of peeking, so the whole Lexer::tokens array should be passed w/ the index of the operator.
  */
-ASTNode* nodify(Token tokens[], u32 i) {
-    ASTNode* node = null;           // @FIXME
-    ASTSymbolNode* snode = null;    // @FIXME shouldn't have to define these here
+ASTOperatorNode* makeOperatorNode(Token tokens[], u32 i) {
+    print(tokens); printf("i: %u\n", i);
+    ASTOperatorNode* node = (ASTOperatorNode*) pMalloc(sizeof (ASTOperatorNode));
 
-    switch (tokens[i].tt) {
-        case TT_SYMBOL:
-            snode = (ASTSymbolNode*) pMalloc(sizeof (ASTSymbolNode));
-            snode->token = &tokens[i];
-            // @TODO do some symbol shit
-            return snode;
+    node->children = null;
+    node->childrenCount = 0;
 
-        case TT_NUMERIC:
-        case TT_STRING:
-            node = (ASTNode*) pMalloc(sizeof (ASTNode));
-            node->token = &tokens[i];
-            return node;
-
-        default:
-            break;
-    }
-
-    // operators...
-    ASTOperatorNode* onode = (ASTOperatorNode*) pMalloc(sizeof (ASTOperatorNode));
-
-    onode->children = null;
-    onode->childrenCount = 0;
-    onode->op->call = false;
+    node->op = (Operator*) pMalloc(sizeof (Operator));
+    node->op->call = false;
 
     // @NOTE if we pass a non-prefix operator in position 0 of the tokens array, this might be hard to catch
     if ((i < 1) || isOperator(&tokens[i - 1])) { // is unary prefix
-        onode->maxChildrenCount = 1;
-        onode->op->unary = true;
-        onode->op->postfix = false;
+        node->maxChildrenCount = 1;
+        node->op->unary = true;
+        node->op->postfix = false;
 
     } else {
         if (tokens[i].tt == TT_INCREMENT || tokens[i].tt == TT_DECREMENT) { // is postfix unary
-            onode->maxChildrenCount = 1;
-            onode->op->unary = true;
-            onode->op->postfix = true;
+            node->maxChildrenCount = 1;
+            node->op->unary = true;
+            node->op->postfix = true;
 
         } else if ((tokens[i].tt == '(') && (tokens[i - 1].tt == TT_SYMBOL)) { // is a function call
-            onode->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
-            onode->op->unary = false;
-            onode->op->postfix = false;
-            onode->op->call = true;
+            node->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
+            node->op->unary = false;
+            node->op->postfix = false;
+            node->op->call = true;
 
-        } else { // is binary
-            onode->maxChildrenCount = 2;
-            onode->op->unary = false;
-            onode->op->postfix = false;
+        } else { // is a binary operator
+            node->maxChildrenCount = 2;
+            node->op->unary = false;
+            node->op->postfix = false;
         }
     }
 
-    onode->op->precedence = precedence(onode->token->tt
-                                     , onode->op->unary
-                                     , onode->op->postfix);
+    node->op->precedence = precedence(node->token->tt
+                                    , node->op->unary
+                                    , node->op->postfix);
 
     // @TODO calculate associativity here too
 
-    return onode;
+    return node;
+}
+
+/**
+ *
+ */
+ASTSymbolNode* makeSymbolNode(Token* token) {
+    ASTSymbolNode* node = (ASTSymbolNode*) pMalloc(sizeof (ASTSymbolNode));
+    node->token = token;
+
+    // @TODO do some symbol shit
+    node->symbol = (Symbol*) pMalloc(sizeof (Symbol));
+
+    return node;
+}
+
+/**
+ * Numeric and string types can share a type for now.
+ */
+ASTNode* makeNode(Token* token) {
+    ASTNode* node = (ASTNode*) pMalloc(sizeof (ASTNode));
+    node->token = token;
+    return node;
 }
 

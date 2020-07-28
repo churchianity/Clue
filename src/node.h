@@ -23,7 +23,11 @@ struct ASTSymbolNode : ASTNode {
 
 extern void traverse(ASTOperatorNode* self, void (*callback) (const ASTNode*));
 extern void traverse(ASTNode* self, void (*callback) (const ASTNode*));
-extern ASTNode* nodify(Token tokens[], u32 currentIndex);
+
+extern ASTOperatorNode* makeOperatorNode(Token tokens[], u32 currentIndex);
+extern ASTSymbolNode* makeSymbolNode(Token* token);
+extern ASTNode* makeNode(Token* token);
+
 extern u8 precedence(u32 tt, bool unary, bool postfix);
 extern void addChild(ASTOperatorNode* self, ASTNode* child);
 

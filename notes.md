@@ -9,13 +9,13 @@
       if sandbox mode enabled and    |
      no source code files provided   |
                  |                   |
-                 v                   |
-  0.-------------.         when source code files
-.->| Input       |              are provided
-|  `-------------|                   |
-|                |                   |
-|                v                   |
-| 1.-------------.<------------------'
+                 v        when source code files
+  0.-------------.            are provided
+.->| Input       |                   |
+|  `-------------|<------------------'
+|                |
+|                v
+| 1.-------------.
 |  | Lexer       |
 |  `-------------|
 |                |
