@@ -41,7 +41,10 @@ extern const char* ANSI_CLEAR;
 // Reset Colors
 extern const char* ANSI_RESET;
 
-extern void die(const char* message, ...);
+/**
+ * This should end the program, use for fatal internal errors.
+ */
+extern void die(const char* formatString, ...);
 
 /**
  * @NOTE because we want to replace printf at some point maybe, I'm keeping all existing printf calls routed through here.

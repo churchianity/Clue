@@ -68,7 +68,7 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
             help(null); exit(0);
 
         } else if (streq(argv[i], "-v") || streq(argv[i], "--version")) {
-            printf("clue programming language v%s running on %s\n", CLUE_VERSION_NUMBER, OS); exit(0);
+            printf("clue programming language v%s, for %s\n", CLUE_VERSION_NUMBER, OS); exit(0);
 
         } else if (streq(argv[i], "-i") || streq(argv[i], "--interactive")) {
             CLAs.interactive = true;

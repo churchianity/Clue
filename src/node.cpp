@@ -2,11 +2,11 @@
 #include "clue.h"
 #include "node.h"
 #include "operator.h"
+#include "print.h"
 #include "table.hpp"
 #include "token.h"
 #include "trace.h"
 #include "util.h"
-#include "print.h"
 
 
 /**
@@ -121,7 +121,7 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
 
 void addChild(ASTNode* self, ASTNode* child) {
     if (!child) {
-        printf("attempting to add null child...\n");
+        return;
     }
 
     if (self->childrenCount == self->maxChildrenCount) {
@@ -134,7 +134,6 @@ void addChild(ASTNode* self, ASTNode* child) {
 
     self->children[self->childrenCount++] = *child;
 }
-
 
 /**
  * Resolve a token into a node.

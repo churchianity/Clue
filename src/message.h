@@ -15,7 +15,6 @@ struct Message {
     const char* content;
     const char* functionName;
     const char* filename;
-    const char* context;
 
     MessageSeverityEnum severity;
 
@@ -23,6 +22,7 @@ struct Message {
     u32 column;
 };
 
+extern const char* reconstruct(u32 line);
 extern const char* messageSeverityToColor(MessageSeverityEnum severity);
 extern const char* messageSeverityToString(MessageSeverityEnum severity);
 

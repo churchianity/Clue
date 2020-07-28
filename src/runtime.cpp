@@ -31,13 +31,13 @@ void clueFileRead(const char* filename) {
 void interactive() {
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
 
-    ASTNode* AST;
+    ASTNode* AST = null;
 
     do {
         printf(">>> ");
 
         if (fgets(s, CLUE_SANDBOX_MODE_MAX_LINE_LENGTH, stdin) == null) {
-            die("error reading line from stdin and storing it in buffer %p\nskipping...\n", (void*) s);
+            die("error reading line from stdin and storing it in buffer %p\n", s);
         }
 
         // super-secret interpreter options
@@ -68,6 +68,6 @@ void interactive() {
         AST = parse(Lexer::tokens);
         Reporter::flush();
 
-    } while (1);
+    } while (true);
 }
 

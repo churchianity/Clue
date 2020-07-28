@@ -8,7 +8,7 @@
 #include "print.h"
 #include "reporter.h"
 
-#define CLUE_MAX_NUMERIC_LENGTH 24
+
 
 
 Table<char, void>* Lexer::files = new Table<char, void>(10);
@@ -96,9 +96,6 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
         bad = false;
 
         if (isAlpha(*buffer)) {
-            /**
-             * Symbols
-             */
             tt = TT_SYMBOL;
 
             bool lastCharWasDigit = false;
@@ -118,12 +115,8 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
                         lastCharWasDigitLint = true;
 
                         Reporter::add(
-                                MS_LINT,
-                                "only alphabetical characters can follow a digit in an identifier name.",
-                                null,
-                                filename,
-                                line,
-                                column
+                            MS_LINT, "only alphabetical characters can follow a digit in an identifier name",
+                            null, filename, line, column
                         );
                     }
 
@@ -138,22 +131,32 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
             token->symbol->name = read(buffer - length, length);
 
         } else if (isDigit(*buffer)) {
-            /**
-             * Numeric
-             */
             tt = TT_NUMERIC;
 
             bool hasRadixPoint = false;
 
+            /**
+             *  handle 0-prefix special numerics...
+             *
+             *  0x / 0X : hexadecimal
+             *  0b / 0B : binary
+             *  0o / 0O : octal
+             *  0.      : fractional decimal
+             */
             if (*buffer == '0') {
                 switch (*(buffer + 1)) {
-                    case 'x': case 'X':
-                    case 'b': case 'B':
-                    case 'o': case 'O':
+                    case 'x': case 'X': // @TODO
+                    case 'b': case 'B': // @TODO
+                    case 'o': case 'O': // @TODO
                     case '.':
+                        break;
 
                     default:
-                        // @TODO report error: leading zeroes can only be in the form '0x', '0b', '0o', or '0.'
+                        Reporter::add(
+                            MS_ERROR, "leading zeroes can only be in the form '0x', '0b', 0o', or '0.'",
+                            null, filename, line, column
+                        );
+
                         break;
                 }
             }
@@ -164,7 +167,11 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
                 if (*buffer == '.') {
                     if (hasRadixPoint) {
                         bad = true;
-                        // @TODO report something?
+
+                        Reporter::add(
+                            MS_ERROR, "dot appearing immediately after a number is always invalid",
+                            null, filename, line, column + length
+                        );
                         break;
                     }
 
@@ -178,12 +185,18 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
 
             } while (*buffer != '\0');
 
+            if (length >= CLUE_MAX_NUMERIC_LENGTH) {
+                Reporter::add(
+                    MS_WARN, "numerics have a maximum precision of 24 characters - extra length is discarded",
+                    null, filename, line, column
+                );
+            }
+
+            // @FIXME use in-house string to double conversion?
+            // that might be really hard...
             token->number = atof(read(buffer - length, length));
 
         } else if ((*buffer == '"') || (*buffer == '\'')) {
-            /**
-             * String
-             */
             tt = TT_STRING;
 
             char quotemark = *buffer;

@@ -1,4 +1,5 @@
 
+#include <stdarg.h> // va_list, va_start, va_end
 #include <stdio.h> // stderr, stdout, stdin? | fprintf, printf
 
 #include "message.h"
@@ -43,19 +44,34 @@ const char* ANSI_CLEAR = "\x001B[2J\x001B[;H";
 const char* ANSI_RESET = "\x001B[0m";
 
 
-/*
-static inline FILE* getStandardStreamHandle(int fh) {
-    switch (fh) {
-        case 0: return stdin;
-        case 1: return stdout;
-        case 2: return stderr;
-        default: fprintf(stderr, "attempt to get illegal standard stream fd: |%d|\n", fh); exit(1);
-    }
+/**
+ * This should end the program, use for fatal internal errors.
+ */
+void die(const char* formatString...) {
+    va_list args;
+    va_start(args, formatString);
+
+    fprintf(stderr, formatString, args);
+
+    va_end(args);
+    exit(1);
 }
-*/
 
 void print(const char* string) {
     printf("%s", string);
+}
+
+/**
+ * The entire purpose of this is so we don't have to #import <stdio.h> everywhere
+ * +we intend to replace printf at some point
+ */
+void print(const char* formatString...) {
+    va_list args;
+    va_start(args, formatString);
+
+    printf(formatString, args);
+
+    va_end(args);
 }
 
 void print(const Token* token) {
@@ -186,27 +202,27 @@ static inline char* makePointyThing(u32 column) {
     return buffer;
 }
 
-/*
-      lint: alphabetical characters can't follow digits in identifier names
-      in function 'funcName': ./baz.clue:124:10
-              Int x2n;
-                    ^
-
-      warn: unused variable 'x'
-      in function 'doSomeStuff': ./bar.clue:10:10
-              Int x;
-                  ^
-
-      error: missing right-hand operand for operator
-      in function 'funcName': ./../src/foo.clue:14:51
-              Int x := 4 !;
-                         ^
-
-      error: missing right-hand operand for operator
-      ./../src/foo.clue:14:51
-              Int x := 4 !;
-                         ^
-*/
+/**
+ *    lint: alphabetical characters can't follow digits in identifier names
+ *    in function 'funcName': ./baz.clue:124:10
+ *            Int x2n;
+ *                  ^
+ *
+ *    warn: unused variable 'x'
+ *    in function 'doSomeStuff': ./bar.clue:10:10
+ *            Int x;
+ *                ^
+ *
+ *    error: missing right-hand operand for operator
+ *    in function 'funcName': ./../src/foo.clue:14:51
+ *            Int x := 4 !;
+ *                       ^
+ *
+ *    error: missing right-hand operand for operator
+ *    ./../src/foo.clue:14:51
+ *            Int x := 4 !;
+ *                       ^
+ */
 void print(const Message* message) {
     const char* fn = message->functionName;
     char* pointyThing = makePointyThing(message->column);
@@ -217,7 +233,7 @@ void print(const Message* message) {
            , message->content
            , fn ? "in function '" : "", fn ? fn : "", fn ? "': " : ""
            , message->filename, message->line, message->column
-           , message->context
+           , reconstruct(message->line)
            , ANSI_RED, pointyThing, ANSI_RESET
     );
 

@@ -6,6 +6,10 @@
 #include "operator.h"
 #include "symbol.h"
 
+#define CLUE_MAX_SYMBOL_LENGTH 127
+#define CLUE_MAX_STRING_LENGTH INT32_MAX
+#define CLUE_MAX_NUMERIC_LENGTH 24
+
 
 enum TokenTypeEnum {
     // 0-255 ascii chars here

@@ -18,23 +18,23 @@
  * Dependencies:
  *  C++11
  *
- *  <stdlib.h>
+ *  stdlib.h
  *  malloc, calloc, realloc, free, exit, null
  *
- *  <stdio.h>
+ *  stdio.h
  *  stdin, stdout, stderr
  *  fgets, fprintf, printf
  *
- *  <stdint.h>
+ *  stdint.h
  *  uint64_t, uint32_t, uint16_t, uint8_t, int64_t, int32_t, int16_t, int8_t
  *
- *  <stdarg.h>
+ *  stdarg.h
  *  just for a concatenate function in (our) string.h
  *
- *  <execinfo.h>
+ *  execinfo.h
  *  backtrace, backtrace_symbols
  *
- *  <signal.h>
+ *  signal.h ??
  *  SIGSEGV, SIGABRT
  *  signal
  */
