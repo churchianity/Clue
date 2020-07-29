@@ -10,21 +10,11 @@
 #include "trace.h"
 #include "util.h"
 
-
-void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
-    if (!self) {
-        print("root node is null...\n");
-        return;
-    }
-
-    callback(self);
-}
-
 /**
  * Iterates over the tree and calls |callback| on each node, with |root| as an argument.
  * Post-order traversal.
  */
-void traverse(ASTOperatorNode* self, void (*callback) (const ASTNode*)) {
+void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
     if (!self) {
         print("root node is null...\n");
         return;
@@ -130,7 +120,7 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
     return 0; // @NOTE will never get here, die() should always call exit(1) but gcc can't figure that out
 }
 
-void addChild(ASTOperatorNode* self, ASTNode* child) {
+void addChild(ASTNode* self, ASTNode* child) {
     if (self->childrenCount == self->maxChildrenCount) {
         Reporter::report(
             MS_ERROR, "attempting to add an operand to an operator that is already satisfied",
@@ -148,85 +138,67 @@ void addChild(ASTOperatorNode* self, ASTNode* child) {
 }
 
 /**
- * Resolve a token into an operator node.
+ * Resolve a token into a node.
+ *
+ * Nodes are mostly distinguished by whether or not they have children.
+ *
  * Most of the work here is resolving operator precedence, associativity, and unary/postfix flags.
  * That requires some amount of peeking, so the whole Lexer::tokens array should be passed w/ the index of the operator.
  */
-ASTOperatorNode* makeOperatorNode(Token tokens[], u32 i) {
-    ASTOperatorNode* node = (ASTOperatorNode*) pMalloc(sizeof (ASTOperatorNode));
+ASTNode* nodify(Token tokens[], u32 i) {
+    ASTNode* node = (ASTNode*) pMalloc(sizeof (ASTNode));
 
     node->token = &tokens[i];
 
-    node->children = null;
-    node->childrenCount = 0;
+    switch (node->token->tt) {
+        default:
+            break;
 
-    node->op = (Operator*) pMalloc(sizeof (Operator));
-    node->op->call = false;
+        case TT_SYMBOL:
+        case TT_NUMERIC:
+        case TT_STRING:
+            return node;
+    }
 
-    // check if it's the first token, so we know if we can safely peek backwards later
+    // check if it's the first token, so we know if we can safely look backwards later
     if (i < 1) {
+        // if we pass a non-unary operator as the first token, it's hard to detect because
+        // what makes an operator unary in the general case is that it is preceeded by another operator
+        // we could check if 'isMaybeUnary', but I don't want to have to remember to update that every
+        // time we add a new unary to the language, or modify the syntax of existing ones
+        Reporter::report(
+            MS_ERROR, "expecting a unary operator here",
+            null, node->token->filename, node->token->line, node->token->column
+        );
+
+        exit(1);
+
+    } else {
         if (isOperator(&tokens[i - 1])) { // is unary prefix
             node->maxChildrenCount = 1;
-            node->op->unary = true;
-            node->op->postfix = false;
+            node->unary = true;
 
-        } else { // is a mistake
-            Reporter::report(
-                MS_ERROR, "expecting a unary operator here",
-                null, node->token->filename, node->token->line, node->token->column
-            );
-
-            exit(1);
-        }
-    } else {
-        if ((tokens[i].tt == TT_INCREMENT) || (tokens[i].tt == TT_DECREMENT)) { // is postfix unary
+        } else if ((tokens[i].tt == TT_INCREMENT) || (tokens[i].tt == TT_DECREMENT)) { // is postfix unary
             node->maxChildrenCount = 1;
-            node->op->unary = true;
-            node->op->postfix = true;
+            node->unary = true;
+            node->postfix = true;
 
         } else if ((tokens[i].tt == '(') && (tokens[i - 1].tt == TT_SYMBOL)) { // is a function call
             node->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
-            node->op->unary = false;
-            node->op->postfix = false;
-            node->op->call = true;
+            node->call = true;
 
         } else { // is a binary operator
-
             node->maxChildrenCount = 2;
-            node->op->unary = false;
-            node->op->postfix = false;
         }
     }
 
-    node->op->precedence = precedence(node->token->tt
-                                    , node->op->unary
-                                    , node->op->postfix);
+    node->precedence = precedence(node->token->tt
+                                , node->unary
+                                , node->postfix);
 
     // @TODO calculate associativity here too
 
 
-    return node;
-}
-
-/**
- *
- */
-ASTSymbolNode* makeSymbolNode(Token* token) {
-    ASTSymbolNode* node = (ASTSymbolNode*) pMalloc(sizeof (ASTSymbolNode));
-    node->token = token;
-
-    // @TODO do some symbol shit
-    node->symbol = (Symbol*) pMalloc(sizeof (Symbol));
-
-    return node;
-}
-
-/**
- * Numeric and string types can share a type for now.
- */
-ASTNode* makeNode(Token* token) {
-    ASTNode* node = (ASTNode*) pMalloc(sizeof (ASTNode));
-    node->token = token;
     return node;
 }
 

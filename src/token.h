@@ -100,6 +100,7 @@ struct Token {
 };
 
 extern bool isOperator(Token* token);
+extern bool isUnaryOperator(Token* token);
 extern const char* tokenTypeToString(TokenTypeEnum tt);
 extern char* tokenValueToString(Token* token);
 extern void destroyToken(Token* token);

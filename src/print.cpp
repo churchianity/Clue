@@ -85,15 +85,6 @@ void print(const Token* token) {
            , (void*) token, token->filename, token->line, token->column, token->length, tt, token->bad, ANSI_YELLOW, token->tk, ANSI_RESET);
 }
 
-void print(const Operator* op) {
-    if (!op) {
-        printf("operator is null\n"); return;
-    }
-
-    printf("&Operator %p | name: %s | prec: %u, assoc: %d, unary?: %u, postfix?: %u, call?: %u\n"
-            , (void*) op, op->name, op->precedence, op->associativity, op->unary, op->postfix, op->call);
-}
-
 void print(const Symbol* symbol) {
     if (!symbol) {
         printf("symbol is null\n"); return;
@@ -107,32 +98,19 @@ void print(const ASTNode* node) {
         printf("node is null\n"); return;
     }
 
-    printf("&ASTNode %p\n", (void*) node);
-    print(node->token);
-}
-
-void print(const ASTSymbolNode* node) {
-    if (!node) {
-        printf("node is null\n"); return;
-    }
-
-    printf("&ASTNode %p\n", (void*) node);
-    print(node->symbol);
-}
-
-void print(const ASTOperatorNode* node) {
-    if (!node) {
-        printf("node is null\n"); return;
-    }
-
     printf("&ASTNode %p | childrenCount: %u, maxChildrenCount: %u\n"
            , (void*) node, node->childrenCount, node->maxChildrenCount);
 
-    print(node->op);
+    if (!node->childrenCount) {
+        return;
+    }
 
     for (u32 i = 0; i < node->childrenCount; i++) {
         printf("\tChild %u pointer: %p\n", i, (void*) (node->children + i));
     }
+
+    printf("prec: %u, assoc: %d, unary?: %u, postfix?: %u, call?: %u\n"
+            , node->precedence, node->associativity, node->unary, node->postfix, node->call);
 
     printf("\n");
 }

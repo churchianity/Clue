@@ -17,23 +17,23 @@
  *
  * if the operator stack is empty we don't care
  */
-static inline bool canPop(Stack<ASTOperatorNode>* os, ASTOperatorNode* node) {
-    return !os->isEmpty() && (os->peek()->op->precedence > node->op->precedence);
+static inline bool canPop(Stack<ASTNode>* os, ASTNode* node) {
+    return !os->isEmpty() && (os->peek()->precedence > node->precedence);
 }
 
 /**
  *
  */
-static void parseOperation(Stack<ASTNode>* es, Stack<ASTOperatorNode>* os, ASTOperatorNode* node) {
+static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node) {
     ASTNode* lhs = null;
     ASTNode* rhs = null;
 
-    if (node->op->unary) {
-        if (!os->peek()->op->unary) { // unary operators can only pop and apply other unary operators
+    if (node->unary) {
+        if (!os->peek()->unary) { // unary operators can only pop and apply other unary operators
             return;
         }
 
-        if (node->op->postfix) {
+        if (node->postfix) {
             lhs = es->pop();
 
         } else {
@@ -72,9 +72,9 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTOperatorNode>* os, ASTOp
  */
 static ASTNode* shuntingYard(Token tokens[]) {
     Stack<ASTNode>* es = new Stack<ASTNode>(10, true);
-    Stack<ASTOperatorNode>* os = new Stack<ASTOperatorNode>(10, true);
+    Stack<ASTNode>* os = new Stack<ASTNode>(10, true);
 
-    ASTOperatorNode* opNode = null; // @TODO remove this
+    ASTNode* opNode = null; // @TODO remove this
 
     u32 i = 0;
     while (i < (Lexer::tokenCount)) {
@@ -104,25 +104,25 @@ static ASTNode* shuntingYard(Token tokens[]) {
             case TT_SYMBOL:
                 // @TODO lookup in a symbol table, and act more like a operator if it's a weird operator keyword like 'sizeof'
                 // we should also maybe resolve scope at this point, but we haven't yet implemented closures
-                es->push(makeSymbolNode(tokens + i));
+                es->push(nodify(tokens, i));
                 break;
 
             case TT_STRING:
             case TT_NUMERIC:
-                es->push(makeNode(tokens + i));
+                es->push(nodify(tokens, i));
                 break;
 
             case '(':
-                //opNode = makeOperatorNode(tokens, i); // @ROBUSTNESS will we always make the right kind of node here?
+                opNode = nodify(tokens, i); // @ROBUSTNESS will we always make the right kind of node here?
 
-                //if (opNode->op->call) {
-                //    // the open paren is being used as the 'grouping' operator
-                //}
+                if (opNode->call) {
+                    // the open paren is being used as the 'grouping' operator
+                }
 
-                //os->push(opNode);
+                os->push(opNode);
 
             default:
-                opNode = makeOperatorNode(tokens, i);
+                opNode = nodify(tokens, i);
 
                 while (canPop(os, opNode)) {
                     parseOperation(es, os, os->pop());
@@ -140,7 +140,7 @@ static ASTNode* shuntingYard(Token tokens[]) {
         parseOperation(es, os, os->pop());
     }
 
-    ASTNode* root = es->pop();
+    ASTNode* root = (ASTNode*) es->pop();
 
     free(es);
     free(os);

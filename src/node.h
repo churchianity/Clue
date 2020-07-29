@@ -5,31 +5,34 @@
 #include "table.hpp"
 #include "token.h"
 
+
+enum OperatorAssociativityEnum {
+    OA_LEFT = -1,
+    OA_RIGHT = 1
+};
+
 struct ASTNode {
     Token* token;
+
+    ASTNode* children    = null;
+    u32 childrenCount    = 0;
+    u32 maxChildrenCount = 0;
+
+    OperatorAssociativityEnum associativity = OA_LEFT;
+
+    u8 precedence = 0;
+
+    bool unary   = false;
+    bool postfix = false;
+    bool call    = false;
 };
 
-struct ASTOperatorNode : ASTNode {
-    Operator* op;
-
-    ASTNode* children;
-    u32 childrenCount;
-    u32 maxChildrenCount;
-};
-
-struct ASTSymbolNode : ASTNode {
-    Symbol* symbol;
-};
-
-extern void traverse(ASTOperatorNode* self, void (*callback) (const ASTNode*));
 extern void traverse(ASTNode* self, void (*callback) (const ASTNode*));
 
-extern ASTOperatorNode* makeOperatorNode(Token tokens[], u32 currentIndex);
-extern ASTSymbolNode* makeSymbolNode(Token* token);
-extern ASTNode* makeNode(Token* token);
+extern ASTNode* nodify(Token tokens[], u32 currentIndex);
 
 extern u8 precedence(u32 tt, bool unary, bool postfix);
-extern void addChild(ASTOperatorNode* self, ASTNode* child);
+extern void addChild(ASTNode* self, ASTNode* child);
 
 #endif
 

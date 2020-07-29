@@ -24,8 +24,6 @@ const char* reconstruct(u32 line) {
         }
     }
 
-    printf("found %u, at index %u\n", found, i);
-
     if (!found) { // we didn't find anything on that line...
         return null;
     }
@@ -38,7 +36,6 @@ const char* reconstruct(u32 line) {
     do {
         u32 j = 1;
         token = Lexer::tokens[i++];
-        print(&token);
 
         char* scratch = (char*) pMalloc(sizeof (char) * (token.column + token.length - columnSoFar));
 

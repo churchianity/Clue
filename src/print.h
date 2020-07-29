@@ -55,7 +55,6 @@ extern void print(const char* string);
 
 extern void print(const Token* token);
 extern void print(const Symbol* symbol);
-extern void print(const Operator* op);
 
 extern void print(const ASTNode* node);
 
