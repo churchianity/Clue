@@ -66,7 +66,7 @@ const char* messageSeverityToColor(MessageSeverityEnum severity) {
         case MS_LINT: return ANSI_BLUE;
         case MS_WARN: return ANSI_YELLOW;
         case MS_ERROR: return ANSI_RED;
-        default: die("bad message severity\n");
+        default: die("bad message severity\n"); return null;
     }
 }
 
@@ -75,7 +75,7 @@ const char* messageSeverityToString(MessageSeverityEnum severity) {
         case MS_LINT: return "lint";
         case MS_WARN: return "warn";
         case MS_ERROR: return "error";
-        default: die("bad message sevevity\n");
+        default: die("bad message sevevity\n"); return null;
     }
 }
 
