@@ -4,6 +4,7 @@
 #include "node.h"
 #include "operator.h"
 #include "print.h"
+#include "reporter.h"
 #include "table.hpp"
 #include "token.h"
 #include "trace.h"
@@ -18,7 +19,6 @@ void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
 
     callback(self);
 }
-
 
 /**
  * Iterates over the tree and calls |callback| on each node, with |root| as an argument.
@@ -131,12 +131,13 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
 }
 
 void addChild(ASTOperatorNode* self, ASTNode* child) {
-    if (!child) {
-        return;
-    }
-
     if (self->childrenCount == self->maxChildrenCount) {
-        die("attempting to add a child to a full node...\n");
+        Reporter::report(
+            MS_ERROR, "attempting to add an operand to an operator that is already satisfied",
+            null, self->token->filename, self->token->line, self->token->column
+        );
+
+        exit(1);
     }
 
     if (!self->children) {
@@ -152,8 +153,9 @@ void addChild(ASTOperatorNode* self, ASTNode* child) {
  * That requires some amount of peeking, so the whole Lexer::tokens array should be passed w/ the index of the operator.
  */
 ASTOperatorNode* makeOperatorNode(Token tokens[], u32 i) {
-    print(tokens); printf("i: %u\n", i);
     ASTOperatorNode* node = (ASTOperatorNode*) pMalloc(sizeof (ASTOperatorNode));
+
+    node->token = &tokens[i];
 
     node->children = null;
     node->childrenCount = 0;
@@ -161,14 +163,23 @@ ASTOperatorNode* makeOperatorNode(Token tokens[], u32 i) {
     node->op = (Operator*) pMalloc(sizeof (Operator));
     node->op->call = false;
 
-    // @NOTE if we pass a non-prefix operator in position 0 of the tokens array, this might be hard to catch
-    if ((i < 1) || isOperator(&tokens[i - 1])) { // is unary prefix
-        node->maxChildrenCount = 1;
-        node->op->unary = true;
-        node->op->postfix = false;
+    // check if it's the first token, so we know if we can safely peek backwards later
+    if (i < 1) {
+        if (isOperator(&tokens[i - 1])) { // is unary prefix
+            node->maxChildrenCount = 1;
+            node->op->unary = true;
+            node->op->postfix = false;
 
+        } else { // is a mistake
+            Reporter::report(
+                MS_ERROR, "expecting a unary operator here",
+                null, node->token->filename, node->token->line, node->token->column
+            );
+
+            exit(1);
+        }
     } else {
-        if (tokens[i].tt == TT_INCREMENT || tokens[i].tt == TT_DECREMENT) { // is postfix unary
+        if ((tokens[i].tt == TT_INCREMENT) || (tokens[i].tt == TT_DECREMENT)) { // is postfix unary
             node->maxChildrenCount = 1;
             node->op->unary = true;
             node->op->postfix = true;
@@ -180,6 +191,7 @@ ASTOperatorNode* makeOperatorNode(Token tokens[], u32 i) {
             node->op->call = true;
 
         } else { // is a binary operator
+
             node->maxChildrenCount = 2;
             node->op->unary = false;
             node->op->postfix = false;
@@ -191,6 +203,7 @@ ASTOperatorNode* makeOperatorNode(Token tokens[], u32 i) {
                                     , node->op->postfix);
 
     // @TODO calculate associativity here too
+
 
     return node;
 }

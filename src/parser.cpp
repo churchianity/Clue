@@ -29,9 +29,7 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTOperatorNode>* os, ASTOp
     ASTNode* rhs = null;
 
     if (node->op->unary) {
-        ASTOperatorNode* temp = os->peek();
-
-        if (!temp->op->unary) { // unary operators can only pop and apply other unary operators
+        if (!os->peek()->op->unary) { // unary operators can only pop and apply other unary operators
             return;
         }
 
@@ -44,6 +42,23 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTOperatorNode>* os, ASTOp
     } else {
         rhs = es->pop();
         lhs = es->pop();
+
+        if (!rhs) {
+            Reporter::report(
+                MS_ERROR, "missing right hand operand for binary operator",
+                null, node->token->filename, node->token->line, node->token->column
+            );
+
+            exit(1);
+
+        } else if (!lhs) {
+            Reporter::report(
+                MS_ERROR, "missing left hand operand for binary operator",
+                null, node->token->filename, node->token->line, node->token->column
+            );
+
+            exit(1);
+        }
     }
 
     addChild(node, lhs);
@@ -67,7 +82,7 @@ static ASTNode* shuntingYard(Token tokens[]) {
         switch ((int) tokens[i].tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
             case ')':
                 while (os->peek()) {
-                    if (((Token*) os->peek())->tt == '(') {
+                    if (os->peek()->token->tt == '(') {
                         break;
                     }
 
@@ -98,20 +113,16 @@ static ASTNode* shuntingYard(Token tokens[]) {
                 break;
 
             case '(':
-                opNode = makeOperatorNode(tokens, i); // @ROBUSTNESS will we always make the right kind of node here?
+                //opNode = makeOperatorNode(tokens, i); // @ROBUSTNESS will we always make the right kind of node here?
 
-                if (opNode->op->call) {
-                    // the open paren is being used as the 'grouping' operator
-                }
+                //if (opNode->op->call) {
+                //    // the open paren is being used as the 'grouping' operator
+                //}
 
-                os->push(opNode);
-                break;
+                //os->push(opNode);
 
             default:
-
-                printf("dickass\n"); fflush(stdout);
                 opNode = makeOperatorNode(tokens, i);
-                printf("dickass2\n"); fflush(stdout);
 
                 while (canPop(os, opNode)) {
                     parseOperation(es, os, os->pop());

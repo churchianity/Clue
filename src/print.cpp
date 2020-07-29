@@ -217,7 +217,7 @@ static inline char* makePointyThing(u32 column) {
  */
 void print(const Message* message) {
     const char* fn = message->functionName;
-    char* pointyThing = makePointyThing(message->column);
+    char* pointyThing = makePointyThing(message->column); // @FIXME probably shouldn't be heap allocated lol
 
     // i'm so sorry.
     printf("\n    %s%s%s: %s\n    %s%s%s%s:%u:%u\n    %s\n    %s%s%s\n"
