@@ -2,13 +2,13 @@
 #include "clue.h"
 #include "lexer.h"
 #include "node.h"
-#include "operator.h"
 #include "print.h"
 #include "reporter.h"
 #include "table.hpp"
 #include "token.h"
 #include "trace.h"
 #include "util.h"
+
 
 /**
  * Iterates over the tree and calls |callback| on each node, with |root| as an argument.
@@ -126,8 +126,6 @@ void addChild(ASTNode* self, ASTNode* child) {
             MS_ERROR, "attempting to add an operand to an operator that is already satisfied",
             null, self->token->filename, self->token->line, self->token->column
         );
-
-        exit(1);
     }
 
     if (!self->children) {
@@ -164,15 +162,17 @@ ASTNode* nodify(Token tokens[], u32 i) {
     if (i < 1) {
         // if we pass a non-unary operator as the first token, it's hard to detect because
         // what makes an operator unary in the general case is that it is preceeded by another operator
-        // we could check if 'isMaybeUnary', but I don't want to have to remember to update that every
-        // time we add a new unary to the language, or modify the syntax of existing ones
-        Reporter::report(
-            MS_ERROR, "expecting a unary operator here",
-            null, node->token->filename, node->token->line, node->token->column
-        );
-
-        exit(1);
-
+        //
+        // this is a terrible solution - i'm going to forget to add tokentypes when we modify or add
+        // new unary operators to the languages @FIXME
+        switch ((int) node->token->tt) {
+            default:
+                Reporter::report(
+                    MS_ERROR, "expecting a unary operator here",
+                    null, node->token->filename, node->token->line, node->token->column
+                );
+            case '+': case '-': case '!': case '~': break;
+        }
     } else {
         if (isOperator(&tokens[i - 1])) { // is unary prefix
             node->maxChildrenCount = 1;
@@ -197,7 +197,6 @@ ASTNode* nodify(Token tokens[], u32 i) {
                                 , node->postfix);
 
     // @TODO calculate associativity here too
-
 
     return node;
 }

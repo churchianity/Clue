@@ -4,10 +4,7 @@
 
 #include <stdint.h>
 
-/**
- * Primitive (Non-struct/class, non-union) datatypes in this codebase:
- * @NOTE We are using u32 and s32 for almost everything right now, and will optimze later.
- */
+
 typedef uint64_t u64;
 typedef uint32_t u32;
 typedef uint16_t u16;

@@ -57,10 +57,6 @@ void die(const char* formatString...) {
     exit(1);
 }
 
-void print(const char* string) {
-    printf("%s", string);
-}
-
 /**
  * The entire purpose of this is so we don't have to #import <stdio.h> everywhere
  * +we intend to replace printf at some point
@@ -171,6 +167,9 @@ void print(const Stack<T>* stack) {
     }
 }
 
+/**
+ * @TODO move me
+ */
 static inline char* makePointyThing(u32 column) {
     char* buffer = (char*) pCalloc(column + 1, sizeof (char));
 
@@ -185,6 +184,9 @@ static inline char* makePointyThing(u32 column) {
 }
 
 /**
+ *    @TODO this probably shouldn't live here...
+ *    should print something like this:
+ *
  *    lint: alphabetical characters can't follow digits in identifier names
  *    in function 'funcName': ./baz.clue:124:10
  *            Int x2n;

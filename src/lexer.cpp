@@ -73,6 +73,15 @@ void Lexer :: add(Token* token) {
 
 /**
  * Given a string |buffer|, append to the lexer's |tokens| array.
+ *
+ * |_line| is sometimes necessary to provide in the 'stdin' interpreter case, because you can
+ * lex tokens from the same source in batches.
+ *
+ * It's like partially lexing a file, going off and doing something else, then returning
+ * and wanting to remember where you left off.
+ *
+ * In most (file read) cases it is not provided and defaults to 1.
+ *
  * @STATEFUL
  */
 Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
@@ -90,7 +99,7 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
     while (*buffer != '\0') {
 
-        length = 1;
+        length = 1; // if it's not the null character, we probably have a token of atleast 1 in length
         bad = false;
 
         if (isAlpha(*buffer)) {
@@ -341,8 +350,8 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 // check if we've already imported the file - you shouldn't ever need to import something multiple times
                 TableEntry<char, void>* entry = Lexer::files->lookup(importFilePath, Lexer::token->length - 2);
 
-                if (entry) {
-                    Reporter::report(
+                if (entry) { // @TODO would be cool if we could detect a recursive import vs. a duplicate import
+                    Reporter::add(
                         MS_WARN, "trying to import file that has already been imported",
                         null, filename, line, column
                     );
@@ -353,14 +362,10 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     tokenize(fileRead(importFilePath), importFilePath);
                 }
             } else {
-                Reporter::report(
+                Reporter::add(
                     MS_ERROR, "trying to import something that isn't a string",
                     null, filename, line, column
                 );
-
-                if (CLAs.interactive) {
-                    exit(1);
-                }
             }
         }
 

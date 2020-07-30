@@ -18,8 +18,7 @@ void clueFileRead(const char* filename) {
     char* codebuffer = fileRead(filename);
     Lexer::tokenize(codebuffer, filename);
     ASTNode* AST = parse(Lexer::tokens);
-
-    traverse(AST, print);
+    Reporter::flush();
 
     free(AST);
     free(codebuffer);
@@ -37,7 +36,7 @@ void interactive() {
     ASTNode* AST = null;
 
     do {
-        printf(">>> ");
+        print(">>> ");
 
         if (fgets(s, CLUE_SANDBOX_MODE_MAX_LINE_LENGTH, stdin) == null) {
             die("error reading line from stdin and storing it in buffer %p\n", s);
@@ -46,7 +45,7 @@ void interactive() {
         // super-secret interpreter options
         switch (s[0]) {
             case '.':
-                printf("Bye!\n");
+                print("Bye!\n");
                 return;
 
             case '`':

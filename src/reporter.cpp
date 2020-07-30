@@ -38,7 +38,7 @@ void Reporter :: add(MessageSeverityEnum severity, const char* content, const ch
 
 /**
  * Immediately constructs a message on the stack and prints it without ever storing it on the heap.
- * These should probably all be fatal error... we currently exit after reporting.
+ * These should probably all be fatal errors... we currently exit after reporting.
  */
 void Reporter :: report(MessageSeverityEnum severity, const char* content, const char* functionName, const char* filename, u32 line, u32 column) {
     Message message = {

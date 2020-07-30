@@ -23,10 +23,9 @@
     #define OS "Android"
 #endif
 
-#include <signal.h> // needed on my chromebook for some reason?
+#include <signal.h> // for signal() - needed on my chromebook for some reason?
 
 #include "clue.h"
-#include "operator.h"
 #include "print.h"
 #include "runtime.h"
 #include "string.h"
@@ -62,8 +61,6 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
     }
 
     for (int i = 1; i < argc; ++i) {
-
-        // early-exit cases first
         if (streq(argv[i], "-h") || streq(argv[i], "--help")) {
             help(null); exit(0);
 
@@ -93,8 +90,8 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
 }
 
 int main(int argc, const char* argv[]) {
-    signal(11, handler); // SIGSEGV
-    signal(6, handler);  // SIGABRT
+    signal(SIGSEGV, handler);
+    signal(SIGABRT, handler);
 
     handleCommandLineArguments(argc, argv);
 

@@ -57,7 +57,6 @@ const char* reconstruct(const char* filename, u32 line) {
     return out;
 }
 
-
 const char* messageSeverityToColor(MessageSeverityEnum severity) {
     switch (severity) {
         case MS_LINT: return ANSI_BLUE;

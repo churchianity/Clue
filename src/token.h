@@ -3,7 +3,6 @@
 #define TOKEN_H
 
 #include "clue.h"
-#include "operator.h"
 #include "symbol.h"
 
 #define CLUE_MAX_SYMBOL_LENGTH 127
@@ -78,15 +77,6 @@ enum TokenTypeEnum {
 
 struct Token {
     const char* filename;
-
-    /* fuck this shit
-    union {
-        Symbol* symbol;
-        double number;
-        const char* string;
-        Operator* op;
-    };
-    */
 
     const char* tk;
 

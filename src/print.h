@@ -49,9 +49,7 @@ extern void die(const char* formatString, ...);
 /**
  * @NOTE because we want to replace printf at some point maybe, I'm keeping all existing printf calls routed through here.
  */
-extern void print(const char* fmt, void* varargs);
-
-extern void print(const char* string);
+extern void print(const char* fmt, ...);
 
 extern void print(const Token* token);
 extern void print(const Symbol* symbol);
