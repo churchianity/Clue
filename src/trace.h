@@ -22,7 +22,7 @@ inline void trace(FILE* out = stderr, u32 maxFrames = 63) {
     char** traces = backtrace_symbols(stack, stackSize);
 
     if (stackSize < 2) {
-        die("stack has a weird number (%d) of frames! and we segfaulted anyway...\n", &stackSize);
+        fprintf(stderr, "stack has a weird number (%d) of frames! and we segfaulted anyway...\n", stackSize);
         exit(1);
     }
 

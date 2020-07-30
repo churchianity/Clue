@@ -38,10 +38,10 @@ char* fileRead(const char* filename) {
     fread(buffer, 1, length, fp);
 
     if (isAscii(buffer, length)) {
-        printf("loaded file %s, as 7-bit ASCII.\n", filename);
+        print("loaded file %s, as 7-bit ASCII.\n", filename);
 
     } else {
-        printf("loaded file %s, as unknown encoding.\n", filename);
+        print("loaded file %s, as unknown encoding.\n", filename);
     }
 
     fclose(fp);

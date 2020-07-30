@@ -1,12 +1,12 @@
 
 #include "clue.h"
 #include "lexer.h"
+#include "print.h"
+#include "reporter.h"
 #include "string.h"
 #include "token.h"
 #include "table.hpp"
 #include "util.h"
-#include "print.h"
-#include "reporter.h"
 
 
 Table<char, void>* Lexer::files = new Table<char, void>(10);
@@ -35,7 +35,7 @@ void Lexer :: clear() {
  * @STATEFUL
  */
 void Lexer :: print() {
-    printf("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokenCount, Lexer::capacity);
+    ::print("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokenCount, Lexer::capacity);
 
     u32 i = 0;
     TableEntry<char, void>* entry = Lexer::files->entries[i];
@@ -43,16 +43,16 @@ void Lexer :: print() {
     for (; i < Lexer::files->lanes; i++) {
 
         while (entry) {
-            printf("%s   ", entry->key);
+            ::print("%s   ", entry->key);
 
             entry = entry->next;
         }
     }
 
-    printf("\nprev token: "); print(Lexer::token); printf("\ntokens:\n");
+    ::print("\nprev token: "); ::print(Lexer::token); ::print("\ntokens:\n");
 
     for (u32 i = 0; i < Lexer::tokenCount; i++) {
-        print(Lexer::tokens + i);
+        ::print(Lexer::tokens + i);
     }
 }
 

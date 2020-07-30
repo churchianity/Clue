@@ -128,6 +128,9 @@ inline bool isAscii(const char* buffer, u32 length) {
     return true;
 }
 
+/*
+ * @TODO ALL OF THESE
+ */
 inline char* trimStart(const char* str, u32 count) {
     return null;
 }
@@ -141,11 +144,6 @@ inline char* trim(const char* str, u32 count) {
 }
 
 inline char* trimQuotes(const char* str, u32 length) {
-    if (length < 2) {
-        fprintf(stderr, "trying to trim quotes off string smaller than 2 in length\n");
-        exit(1);
-    }
-
     char* buffer = (char*) pMalloc(sizeof (char) * (length - 1));
 
     u32 i = 0;

@@ -37,7 +37,7 @@
  * Handler for SIGSEG, SIGABRT
  */
 static void handler(int signal) {
-    printf("%serror%s: %d\n", ANSI_RED, ANSI_RESET, signal);
+    print("%serror%s: %d\n", ANSI_RED, ANSI_RESET, signal);
     trace();
     exit(1);
 }
@@ -47,12 +47,12 @@ static void handler(int signal) {
  */
 static inline void help(const char* arg) {
     if (!arg) { // generic help
-        printf("this should be some helpful text... but it probably isn't, huh.\n");
+        print("this should be some helpful text... but it probably isn't, huh.\n");
         return;
     }
 
     // specific help
-    printf("'%s' isn't a valid argument and i should probably help you figure that out but i can't yet.\n", arg);
+    print("'%s' isn't a valid argument and i should probably help you figure that out but i can't yet.\n", arg);
 }
 
 static inline void handleCommandLineArguments(int argc, const char* argv[]) {
@@ -65,7 +65,7 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
             help(null); exit(0);
 
         } else if (streq(argv[i], "-v") || streq(argv[i], "--version")) {
-            printf("clue programming language v%s, for %s\n", CLUE_VERSION_NUMBER, OS); exit(0);
+            print("clue programming language v%s, for %s\n", CLUE_VERSION_NUMBER, OS); exit(0);
 
         } else if (streq(argv[i], "-i") || streq(argv[i], "--interactive")) {
             CLAs.interactive = true;
