@@ -2,6 +2,7 @@
 #ifndef STRING_H
 #define STRING_H
 
+#include <assert.h>
 #include <stdarg.h>
 
 #include "alloc.h"
