@@ -49,15 +49,11 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node
                 null, node->token->filename, node->token->line, node->token->column
             );
 
-            exit(1);
-
         } else if (!lhs) {
             Reporter::report(
                 MS_ERROR, "missing left hand operand for binary operator",
                 null, node->token->filename, node->token->line, node->token->column
             );
-
-            exit(1);
         }
     }
 

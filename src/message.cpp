@@ -4,6 +4,9 @@
 #include "print.h"
 
 
+/**
+ * @TODO i should just make a memset() like thingy in string.h
+ */
 static inline char* fillWithSpaces(u32 length) {
     char* buffer = (char*) pMalloc(sizeof (char) * length + 1);
 
@@ -18,7 +21,7 @@ static inline char* fillWithSpaces(u32 length) {
 }
 
 /**
- * Because atm we discard the buffers containing all of the read-in source code,
+ * Because atm we free the buffers containing all of the read-in source code,
  * we have to reconstruct code segments for linter/warning/error message context.
  *
  * Tokens can do this because they store where they are in the file + how long they are.
@@ -30,22 +33,26 @@ const char* reconstruct(const char* filename, u32 line) {
     // find the first token in the request file, on the requested line
     const Token* token = null;
 
-    u32 columnSoFar = 0;
+    s32 columnSoFar = 0;
+    s32 amountOfLeadingWhitespace = 0;
+
+    const char* out = "";
 
     u32 i = 0;
     for (; i < Lexer::tokenCount; i++) {
+
         if (streq(Lexer::tokens[i].filename, filename) && (Lexer::tokens[i].line == line)) {
             token = Lexer::tokens + i;
+
+            // the -1 is because column counts are 1-indexed
+            amountOfLeadingWhitespace += (token->column - 1) - columnSoFar;
+            columnSoFar += (token->column - 1) + token->length;
+
+            char* leadingWhitespace = fillWithSpaces(amountOfLeadingWhitespace);
+
+            out = concat(3, out, leadingWhitespace, token->tk);
         }
     }
-
-    do {
-        char* scratch = fillWithSpaces(token->column);
-        concat(scratch, token);
-
-
-
-    } while ((token->line == line) && (i >= 0) && streq(token->filename, filename));
 
     return out;
 }
