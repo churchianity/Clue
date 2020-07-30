@@ -31,6 +31,9 @@ void clueFileRead(const char* filename) {
 void interactive() {
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
 
+    u32 line = 1;
+
+    Token* tokens = null;
     ASTNode* AST = null;
 
     do {
@@ -63,10 +66,13 @@ void interactive() {
                 continue;
         }
 
-        AST = null;
-        Lexer::tokenize(s, "stdin");
-        AST = parse(Lexer::tokens);
+        Lexer::tokenize(s, "stdin", line);
+
+        ASTNode* AST = parse(Lexer::tokens);
+
         Reporter::flush();
+
+        line++; // do this last
 
     } while (true);
 }

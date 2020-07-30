@@ -75,18 +75,18 @@ void Lexer :: add(Token* token) {
  * Given a string |buffer|, append to the lexer's |tokens| array.
  * @STATEFUL
  */
-void Lexer :: tokenize(char* buffer, const char* filename) {
+Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     // const char* beginning = buffer;
     static bool prevTokenImport = false;
 
     Token* token = null;
     TokenTypeEnum tt;
 
+    u32 line = _line;
+    u32 column = 1;
+
     u32 length = 0;
     bool bad;
-
-    u32 line = 1;
-    u32 column = 1;
 
     while (*buffer != '\0') {
 
@@ -97,7 +97,7 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
             tt = TT_SYMBOL;
 
             bool lastCharWasDigit = false;
-            bool lastCharWasDigitLint = false;
+            bool lastCharWasDigitLint = false; // @TODO get rid of this, the reporter should handle duplicate messages
             do {
                 buffer++;
 
@@ -148,7 +148,7 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
 
                     default:
                         Reporter::add(
-                            MS_ERROR, "leading zeroes can only be in the form '0x', '0b', 0o', or '0.'",
+                            MS_ERROR, "leading zeroes can only be in the form '0x' (hexadecimal), '0b' (binary), 0o' (octal), or '0.' (fractional decimal)",
                             null, filename, line, column
                         );
 
@@ -220,11 +220,10 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
             tt = (TokenTypeEnum) *buffer;
             bad = false;
 
-            // then check correctness:
             switch (*buffer) {
                 case '\n': column = 1; line++; buffer++; continue;
-                case '\t': column+= 4;         buffer++; continue;
-                case ' ':  column++;           buffer++; continue;
+                case '\t': column+= 4;                buffer++; continue;
+                case ' ':  column++;                  buffer++; continue;
 
                 case ';':
                 case ',':
@@ -340,15 +339,15 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
                 char* importFilePath = trimQuotes(Lexer::token->tk, Lexer::token->length);
 
                 // check if we've already imported the file - you shouldn't ever need to import something multiple times
-                TableEntry<char, void>* entry = Lexer::files->lookup(importFilePath);
+                TableEntry<char, void>* entry = Lexer::files->lookup(importFilePath, Lexer::token->length - 2);
 
                 if (entry) {
                     Reporter::report(
-                        MS_WARN, "trying to import file that has already been imported\n",
+                        MS_WARN, "trying to import file that has already been imported",
                         null, filename, line, column
                     );
                 } else {
-                    Lexer::files->insert(importFilePath, null);
+                    Lexer::files->insert(importFilePath, Lexer::token->length - 2, null);
 
                     prevTokenImport = false; // this is necessary to stop the subsequent recursive calls from trying to import the first token
                     tokenize(fileRead(importFilePath), importFilePath);
@@ -372,8 +371,10 @@ void Lexer :: tokenize(char* buffer, const char* filename) {
             prevTokenImport = false;
         }
 
-        // do this after handling EVERYTHING having to do with the current token
+        // do this only after handling EVERYTHING having to do with the token we just lexed
         column += Lexer::token->length;
     }
+
+    return Lexer::tokens;
 }
 

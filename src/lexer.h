@@ -15,7 +15,7 @@ namespace Lexer {
     extern Token* token;   // the complete token most recently lexed
     extern Token* tokens;  // every token lexer so far, in order, probably but not necessarily including the token above
 
-    extern void tokenize(char* buffer, const char* filename);
+    extern Token* tokenize(char* buffer, const char* filename, u32 _line = 1);
     extern void add(Token* token);
     extern void print();
     extern void clear();

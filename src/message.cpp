@@ -4,6 +4,19 @@
 #include "print.h"
 
 
+static inline char* fillWithSpaces(u32 length) {
+    char* buffer = (char*) pMalloc(sizeof (char) * length + 1);
+
+    u32 i = 0;
+    for (; i < length; i++) {
+        buffer[i] = ' ';
+    }
+
+    buffer[i] = '\0';
+
+    return buffer;
+}
+
 /**
  * Because atm we discard the buffers containing all of the read-in source code,
  * we have to reconstruct code segments for linter/warning/error message context.
@@ -13,49 +26,26 @@
  * @TODO support multiple lines of context via an offset, above or below or both.
  * @STATEFUL
  */
-const char* reconstruct(u32 line) {
-    // find the first token on the requested line...
-    u32 i = 0;
-    bool found = false;
-    for (; i < Lexer::tokenCount; i++) {
-        if (Lexer::tokens[i].line == line) {
-            found = true;
-            break;
-        }
-    }
+const char* reconstruct(const char* filename, u32 line) {
+    // find the first token in the request file, on the requested line
+    const Token* token = null;
 
-    if (!found) { // we didn't find anything on that line...
-        return null;
-    }
-
-    // begin reconconsituting the tokens on that line as one string
-    const char* out = "";
-
-    Token token;
     u32 columnSoFar = 0;
-    do {
-        u32 j = 1;
-        token = Lexer::tokens[i++];
 
-        char* scratch = (char*) pMalloc(sizeof (char) * (token.column + token.length - columnSoFar));
-
-        for (; j < (token.column + token.length - columnSoFar); j++) {
-            if (j < (token.column - columnSoFar)) {
-                scratch[j - 1] = ' ';
-
-            } else {
-                scratch[j - 1] = token.tk[j - token.column + columnSoFar];
-            }
+    u32 i = 0;
+    for (; i < Lexer::tokenCount; i++) {
+        if (streq(Lexer::tokens[i].filename, filename) && (Lexer::tokens[i].line == line)) {
+            token = Lexer::tokens + i;
         }
+    }
 
-        scratch[j - 1] = '\0';
+    do {
+        char* scratch = fillWithSpaces(token->column);
+        concat(scratch, token);
 
-        out = concat(out, scratch);
-        free(scratch);
 
-        columnSoFar += token.column + token.length - 1;
 
-    } while (token.line == line && (i < Lexer::tokenCount));
+    } while ((token->line == line) && (i >= 0) && streq(token->filename, filename));
 
     return out;
 }

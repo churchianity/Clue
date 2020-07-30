@@ -38,7 +38,24 @@ inline bool streq(const char* s1, const char* s2) {
     return true;
 }
 
-inline const char* strcp(const char* string, u32 length) {
+/**
+ * Compare two blocks of memory |p1| & |p2|, of lengths |l1| & |l2|, for equality.
+ */
+inline bool memCmp(const char* m1, u32 l1, const char* m2, u32 l2) {
+    if (l1 != l2) {
+        return false;
+    }
+
+    for (u32 i = 0; i < l1; i++) {
+        if (m1[i] != m2[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+inline char* strcp(const char* string, u32 length) {
     char* buffer = (char*) pMalloc(sizeof (char) * (length + 1));
 
     u32 i = 0;

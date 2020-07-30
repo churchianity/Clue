@@ -74,6 +74,9 @@ void print(const char* formatString...) {
     va_end(args);
 }
 
+/**
+ *
+ */
 void print(const Token* token) {
     if (!token) {
         printf("token is null\n"); return;
@@ -85,6 +88,9 @@ void print(const Token* token) {
            , (void*) token, token->filename, token->line, token->column, token->length, tt, token->bad, ANSI_YELLOW, token->tk, ANSI_RESET);
 }
 
+/**
+ *
+ */
 void print(const Symbol* symbol) {
     if (!symbol) {
         printf("symbol is null\n"); return;
@@ -93,20 +99,23 @@ void print(const Symbol* symbol) {
     printf("&Symbol %p | name: %s, reserved?: %d\n", (void*) symbol, symbol->name, symbol->reserved);
 }
 
+/**
+ *
+ */
 void print(const ASTNode* node) {
     if (!node) {
         printf("node is null\n"); return;
     }
 
-    printf("&ASTNode %p | childrenCount: %u, maxChildrenCount: %u\n"
-           , (void*) node, node->childrenCount, node->maxChildrenCount);
+    printf("&ASTNode %p | childrenCount: %u, maxChildrenCount: %u | tk: %s%s%s\n"
+           , (void*) node, node->childrenCount, node->maxChildrenCount, ANSI_YELLOW, node->token->tk, ANSI_RESET);
 
     if (!node->childrenCount) {
         return;
     }
 
     for (u32 i = 0; i < node->childrenCount; i++) {
-        printf("\tChild %u pointer: %p\n", i, (void*) (node->children + i));
+        printf("\tChild %u pointer: %p | tk: %s\n", i, (void*) (node->children + i), (node->children + i)->token->tk);
     }
 
     printf("prec: %u, assoc: %d, unary?: %u, postfix?: %u, call?: %u\n"
@@ -115,6 +124,9 @@ void print(const ASTNode* node) {
     printf("\n");
 }
 
+/**
+ *
+ */
 template <class K, class V>
 void print(const Table<K, V>* table) {
     if (!table) {
@@ -195,7 +207,7 @@ static inline char* makePointyThing(u32 column) {
  */
 void print(const Message* message) {
     const char* fn = message->functionName;
-    char* pointyThing = makePointyThing(message->column); // @FIXME probably shouldn't be heap allocated lol
+    char* pointyThing = makePointyThing(message->column);
 
     // i'm so sorry.
     printf("\n    %s%s%s: %s\n    %s%s%s%s:%u:%u\n    %s\n    %s%s%s\n"
@@ -203,7 +215,7 @@ void print(const Message* message) {
            , message->content
            , fn ? "in function '" : "", fn ? fn : "", fn ? "': " : ""
            , message->filename, message->line, message->column
-           , reconstruct(message->line)
+           , reconstruct(message->filename, message->line)
            , ANSI_RED, pointyThing, ANSI_RESET
     );
 

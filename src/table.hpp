@@ -3,12 +3,16 @@
 #define TABLE_H
 
 #include "alloc.h"
+#include "string.h"
 #include "types.h"
 
 
 template <class K, class V>
 struct TableEntry {
     TableEntry<K, V>* next;
+
+    u32 keyLength;
+
     K* key;
     V* value;
 };
@@ -18,35 +22,33 @@ struct Table {
     u32 lanes;
     TableEntry<K, V>** entries;
 
-    /**
-     * @NOTE
-     */
     Table<K, V>(u32 _lanes) {
         lanes = _lanes;
         entries = (TableEntry<K, V>**) pCalloc(lanes, sizeof (TableEntry<K, V>*));
     }
 
-    static u32 hash(K* key, u32 capacity) {
+    static u32 hash(K* key, u32 keyLength, u32 capacity) {
         u32 hash = 0;
 
-        while (*key) {
+        for (u32 i = 0; i < keyLength; i++) {
             hash = hash * 31 + *key++;
         }
 
         return hash % capacity;
     }
 
-    signed int insert(K* key, V* value) {
-        TableEntry<K, V>* entry = lookup(key);
+    signed int insert(K* key, u32 keyLength, V* value) {
+        TableEntry<K, V>* entry = lookup(key, keyLength);
 
         u32 hashValue;
 
         if (!entry) {
             entry = (TableEntry<K, V>*) pMalloc(sizeof (TableEntry<K, V>));
             entry->key = key;
+            entry->keyLength = keyLength;
             entry->value = value;
 
-            hashValue = hash(key, lanes);
+            hashValue = hash(key, keyLength, lanes);
             entry->next = entries[hashValue];
             entries[hashValue] = entry;
 
@@ -60,27 +62,27 @@ struct Table {
         }
     }
 
-    TableEntry<K, V>* lookup(K* key) {
-        TableEntry<K, V>* entry = entries[hash(key, lanes)];
+    /**
+     * @FIXME
+     * this is completely and totally unsafe for non char* keys, and probably weird values too.
+     * we want to support arbitrary data - we could do this (with minor gotchas) by passing the size
+     * of the key and the size of the value at init time, then we can check for equality on some POD.
+     *
+     * we would need an array wrapper so we can know the length/sizeof array keys...
+     * if we could store two keys that are bitwise identical, but represent different encodings, it breaks...
+     *
+     * for example this float ...000101010100101
+     * versus the integer     ...000101010100101
+     *
+     * mean very different things to the user, but is the same piece of POD.
+     */
+    TableEntry<K, V>* lookup(K* key, u32 keyLength) {
+        TableEntry<K, V>* entry = entries[hash(key, keyLength, lanes)];
 
         for (; entry != null; entry = entry->next) {
-
-            bool equal = true;
-
-            for (u32 i = 0; i < sizeof (K); i++) {
-                if (entry->key[i] != key[i]) {
-                    equal = false;
-                    break;
-                }
-            }
-
-            if (equal) {
+            if (memCmp(key, keyLength, entry->key, entry->keyLength)) {
                 return entry;
             }
-
-            // if (streq(key, entry->key)) {
-            //     return entry;
-            // }
         }
 
         return null;

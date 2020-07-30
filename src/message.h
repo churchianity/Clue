@@ -22,7 +22,7 @@ struct Message {
     u32 column;
 };
 
-extern const char* reconstruct(u32 line);
+extern const char* reconstruct(const char* filename, u32 line);
 extern const char* messageSeverityToColor(MessageSeverityEnum severity);
 extern const char* messageSeverityToString(MessageSeverityEnum severity);
 
