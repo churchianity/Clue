@@ -7,8 +7,11 @@
 #include "util.h"
 
 
+/**
+ * @TODO @FIXME these need to be using the windows api & unistd.h instead of stdio.h
+ */
 u32 getFileSize(FILE* fp) {
-    u32 size;
+    s32 size;
 
     fseek(fp, 0, SEEK_END);
     size = ftell(fp);
@@ -18,7 +21,7 @@ u32 getFileSize(FILE* fp) {
         die("ftell returned a negative value: %d\n", (s32) size);
     }
 
-    return size;
+    return (u32) size;
 }
 
 /**
@@ -41,7 +44,7 @@ char* fileRead(const char* filename) {
         print("loaded file %s, as 7-bit ASCII.\n", filename);
 
     } else {
-        print("loaded file %s, as unknown encoding.\n", filename);
+        print("loaded file %s, unknown encoding.\n", filename);
     }
 
     fclose(fp);
