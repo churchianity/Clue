@@ -67,7 +67,7 @@ void interactive() {
 
         Lexer::tokenize(s, "stdin", line);
 
-        ASTNode* AST = parse(Lexer::tokens);
+        AST = parse(Lexer::tokens);
 
         Reporter::flush();
 
