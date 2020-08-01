@@ -41,18 +41,17 @@ void Lexer :: print() {
     TableEntry<char, void>* entry = Lexer::files->entries[i];
 
     for (; i < Lexer::files->lanes; i++) {
-
         while (entry) {
-            ::print("%s   ", entry->key);
 
+            ::print("%s   ", entry->key);
             entry = entry->next;
         }
     }
 
-    ::print("\nprev token: "); ::print(Lexer::token); ::print("\ntokens:\n");
-
-    for (u32 i = 0; i < Lexer::tokenCount; i++) {
-        ::print(Lexer::tokens + i);
+    if (Lexer::tokenCount > 0) {
+        for (u32 i = 0; i < Lexer::tokenCount; i++) {
+            ::print(Lexer::tokens + i);
+        }
     }
 }
 
@@ -231,8 +230,8 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
             switch (*buffer) {
                 case '\n': column = 1; line++; buffer++; continue;
-                case '\t': column+= 4;                buffer++; continue;
-                case ' ':  column++;                  buffer++; continue;
+                case '\t': column += 4;        buffer++; continue;
+                case ' ':  column++;           buffer++; continue;
 
                 case ';':
                 case ',':

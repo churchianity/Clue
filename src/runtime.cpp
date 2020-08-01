@@ -10,6 +10,38 @@
 #include "token.h"
 #include "util.h"
 
+const char* evalString(ASTNode* node) {
+    return node->token->tk;
+}
+
+double evalNumeric(ASTNode* node) {
+    return strtod(node->token->tk, null);
+}
+
+double evalBinaryAddition(ASTNode* node) {
+    return evalNumeric(node->children + 0) + evalNumeric(node->children + 1);
+}
+
+double evalBinarySubtraction(ASTNode* node) {
+    return evalNumeric(node->children + 0) - evalNumeric(node->children + 1);
+}
+
+void evalOperator(ASTNode* node) {
+
+}
+
+/**
+ *
+ */
+void eval(ASTNode* node) {
+    switch (node->token->tt) {
+        case TT_SYMBOL: // go lookup its value in a table
+        case TT_NUMERIC: evalNumeric(node); break;
+        case TT_STRING: evalString(node); break;
+        default: evalOperator(node); break;
+    }
+}
+
 
 /**
  * Finds a file in the project by name and loads it into a buffer then returns it.
@@ -17,7 +49,7 @@
 void clueFileRead(const char* filename) {
     char* codebuffer = fileRead(filename);
     Lexer::tokenize(codebuffer, filename);
-    ASTNode* AST = parse(Lexer::tokens);
+    ASTNode* AST = parse(Lexer::tokens, Lexer::tokenCount);
     Reporter::flush();
 
     free(AST);
@@ -65,9 +97,8 @@ void interactive() {
                 continue;
         }
 
-        Lexer::tokenize(s, "stdin", line);
-
-        AST = parse(Lexer::tokens);
+        tokens = Lexer::tokenize(s, "stdin", line);
+        AST = parse(tokens, Lexer::tokenCount);
 
         Reporter::flush();
 

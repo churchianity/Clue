@@ -48,8 +48,9 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node
                 MS_ERROR, "missing right hand operand for binary operator",
                 null, node->token->filename, node->token->line, node->token->column
             );
+        }
 
-        } else if (!lhs) {
+        if (!lhs) {
             Reporter::report(
                 MS_ERROR, "missing left hand operand for binary operator",
                 null, node->token->filename, node->token->line, node->token->column
@@ -66,14 +67,14 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node
 /**
  * Parses expressions into an AST.
  */
-static ASTNode* shuntingYard(Token tokens[]) {
+static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
     Stack<ASTNode>* es = new Stack<ASTNode>(10, true);
     Stack<ASTNode>* os = new Stack<ASTNode>(10, true);
 
     ASTNode* opNode = null; // @TODO remove this
 
     u32 i = 0;
-    while (i < (Lexer::tokenCount)) {
+    while (i < tokenCount) {
 
         switch ((int) tokens[i].tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
             case ')':
@@ -109,14 +110,6 @@ static ASTNode* shuntingYard(Token tokens[]) {
                 break;
 
             case '(':
-                opNode = nodify(tokens, i); // @ROBUSTNESS will we always make the right kind of node here?
-
-                if (opNode->call) {
-                    // the open paren is being used as the 'grouping' operator
-                }
-
-                os->push(opNode);
-
             default:
                 opNode = nodify(tokens, i);
 
@@ -130,7 +123,6 @@ static ASTNode* shuntingYard(Token tokens[]) {
 
         i++;
     }
-
 
     while (!os->isEmpty()) {
         parseOperation(es, os, os->pop());
@@ -147,7 +139,7 @@ static ASTNode* shuntingYard(Token tokens[]) {
 /**
  * Given a list of |tokens| return the root node of an abstract syntax tree.
  */
-ASTNode* parse(Token tokens[]) {
-    return shuntingYard(tokens);
+ASTNode* parse(Token tokens[], u32 tokenCount) {
+    return shuntingYard(tokens, tokenCount);
 }
 

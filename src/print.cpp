@@ -2,7 +2,6 @@
 #include <stdarg.h> // va_list, va_start, va_end
 #include <stdio.h> // stderr, stdout, stdin? | fprintf, printf
 
-#include "message.h"
 #include "node.h"
 #include "table.hpp"
 #include "token.h"
@@ -70,159 +69,90 @@ void print(const char* formatString...) {
     va_end(args);
 }
 
-/**
- *
- */
 void print(const Token* token) {
     if (!token) {
-        printf("token is null\n"); return;
+        print("token is null\n"); return;
     }
 
     const char* tt = tokenTypeToString(token->tt);
 
-    printf("&Token %p | file: %s, line: %u, col: %u, len: %u | tt: %s, bad?: %u | tk: %s%s%s\n"
-           , (void*) token, token->filename, token->line, token->column, token->length, tt, token->bad, ANSI_YELLOW, token->tk, ANSI_RESET);
+    print("&Token %p | file: %s, line: %u, col: %u, len: %u | tt: %s, bad?: %u | tk: %s%s%s\n"
+          , (void*) token, token->filename, token->line, token->column, token->length, tt, token->bad, ANSI_YELLOW, token->tk, ANSI_RESET);
 }
 
-/**
- *
- */
 void print(const Symbol* symbol) {
     if (!symbol) {
-        printf("symbol is null\n"); return;
+        print("symbol is null\n"); return;
     }
 
-    printf("&Symbol %p | name: %s, reserved?: %d\n", (void*) symbol, symbol->name, symbol->reserved);
+    print("&Symbol %p | name: %s, reserved?: %d\n", (void*) symbol, symbol->name, symbol->reserved);
 }
 
-/**
- *
- */
 void print(const ASTNode* node) {
     if (!node) {
-        printf("node is null\n"); return;
+        print("node is null\n"); return;
     }
 
-    printf("&ASTNode %p | childrenCount: %u, maxChildrenCount: %u | tk: %s%s%s\n"
-           , (void*) node, node->childrenCount, node->maxChildrenCount, ANSI_YELLOW, node->token->tk, ANSI_RESET);
+    print("&ASTNode %p | childrenCount: %u, maxChildrenCount: %u | tk: %s%s%s\n"
+          , (void*) node, node->childrenCount, node->maxChildrenCount, ANSI_YELLOW, node->token->tk, ANSI_RESET);
 
     if (!node->childrenCount) {
-        printf("\n");
+        print("\n");
         return;
     }
 
+    printf("prec: %u, assoc: %d, unary?: %u, postfix?: %u, call?: %u\n"
+           , node->precedence, node->associativity, node->unary, node->postfix, node->call);
+
     for (u32 i = 0; i < node->childrenCount; i++) {
-        printf("\tChild %u pointer: %p | tk: %s%s%s\n"
-               , i, (void*) (node->children + i), ANSI_YELLOW, (node->children + i)->token->tk, ANSI_RESET);
+        print("\tChild %u pointer: %p | tk: %s%s%s\n"
+              , i, (void*) (node->children + i), ANSI_YELLOW, (node->children + i)->token->tk, ANSI_RESET);
     }
 
-    printf("prec: %u, assoc: %d, unary?: %u, postfix?: %u, call?: %u\n"
-            , node->precedence, node->associativity, node->unary, node->postfix, node->call);
-
-    printf("\n");
+    print("\n");
 }
 
-/**
- *
- */
 template <class K, class V>
 void print(const Table<K, V>* table) {
     if (!table) {
-        printf("table is null\n"); return;
+        print("table is null\n"); return;
     }
 
-    printf("&Table %p | capacity: %u | entries:\n", (void*) table, table->capacity);
+    print("&Table %p | capacity: %u | entries:\n", (void*) table, table->capacity);
 
     for (u32 i = 0; i < table->capacity; ++i) {
         TableEntry<K, V>* entry = *(table->entries + i);
-        printf("%u : %p", i, (void*) entry);
+        print("%u : %p", i, (void*) entry);
 
         if (entry) {
-            printf(" | %s", entry->key);
+            print(" | %s", entry->key);
 
             while (entry->next) {
                 entry = entry->next;
 
-                printf(" ---> %p | %s", (void*) entry, entry->key);
+                print(" ---> %p | %s", (void*) entry, entry->key);
             }
         }
 
-        printf("\n");
+        print("\n");
     }
 }
 
 template <class T>
 void print(const Stack<T>* stack) {
     if (!stack) {
-        printf("stack is null\n"); return;
+        print("stack is null\n"); return;
     }
 
-    printf("&Stack %p | capacity: %u, grow?: %u, top: %u, size: %u, data:\n"
-            , (void*) stack
-            , stack->capacity
-            , stack->grow
-            , stack->top
-            , stack->size());
+    print("&Stack %p | capacity: %u, grow?: %u, top: %u, size: %u, data:\n"
+          , (void*) stack
+          , stack->capacity
+          , stack->grow
+          , stack->top
+          , stack->size());
 
     for (u32 i = 0; i < stack->size(); i++) {
         print(stack->data[i]);
     }
-}
-
-/**
- * @TODO move me
- */
-static inline char* makePointyThing(u32 column) {
-    char* buffer = (char*) pCalloc(column + 1, sizeof (char));
-
-    for (u32 i = 0; i < (column - 1); i++) {
-        buffer[i] = ' ';
-    }
-
-    buffer[column - 1] = '^';
-    buffer[column] = '\0';
-
-    return buffer;
-}
-
-/**
- *    @TODO this probably shouldn't live here...
- *    should print something like this:
- *
- *    lint: alphabetical characters can't follow digits in identifier names
- *    in function 'funcName': ./baz.clue:124:10
- *            Int x2n;
- *                  ^
- *
- *    warn: unused variable 'x'
- *    in function 'doSomeStuff': ./bar.clue:10:10
- *            Int x;
- *                ^
- *
- *    error: missing right-hand operand for operator
- *    in function 'funcName': ./../src/foo.clue:14:51
- *            Int x := 4 !;
- *                       ^
- *
- *    error: missing right-hand operand for operator
- *    ./../src/foo.clue:14:51
- *            Int x := 4 !;
- *                       ^
- */
-void print(const Message* message) {
-    const char* fn = message->functionName;
-    char* pointyThing = makePointyThing(message->column);
-
-    // i'm so sorry.
-    printf("\n    %s%s%s: %s\n    %s%s%s%s:%u:%u\n    %s\n    %s%s%s\n"
-           , messageSeverityToColor(message->severity), messageSeverityToString(message->severity), ANSI_RESET
-           , message->content
-           , fn ? "in function '" : "", fn ? fn : "", fn ? "': " : ""
-           , message->filename, message->line, message->column
-           , reconstruct(message->filename, message->line)
-           , ANSI_RED, pointyThing, ANSI_RESET
-    );
-
-    free(pointyThing);
 }
 

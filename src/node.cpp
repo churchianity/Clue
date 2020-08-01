@@ -45,7 +45,7 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
         case '}': //????
         case ';':
         case ',':
-            return 0;
+            return 10;
 
         case '=':
         case TT_COLON_EQUALS:
@@ -61,21 +61,21 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
         case TT_LEFT_SHIFT_EQUALS:
         case TT_BITWISE_NOT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
-            return 1;
+            return 9;
 
         case TT_GREATER_THAN_OR_EQUAL:
         case '>':
         case TT_LESS_THAN_OR_EQUAL:
         case '<':
-            return 2;
+            return 8;
 
         case '+':
         case '-':
             if (unary) {
-                return 7;
+                return 3;
             }
 
-            return 3;
+            return 7;
 
         case '*':
         case '/':
@@ -86,7 +86,7 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
         case '^':
         case TT_LEFT_SHIFT:
         case TT_RIGHT_SHIFT:
-            return 4;
+            return 6;
         case '~':
             return 5;
 
@@ -94,13 +94,13 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
         case TT_EQUALITY:
         case TT_LOGICAL_OR:
         case TT_LOGICAL_AND:
-            return 6;
+            return 4;
 
         case '!':
-            return 7;
+            return 3;
 
         case TT_EXPONENTIATION:
-            return 8;
+            return 2;
 
         case '(':
         case '[':
@@ -108,7 +108,7 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
         case TT_INCREMENT:
         case '.':
         case ':':
-            return 9;
+            return 1;
 
         case TT_SYMBOL:
             // @FIXME do a lookup for global symbols like 'sizeof' equivalent or stuff like that
@@ -142,6 +142,20 @@ void addChild(ASTNode* self, ASTNode* child) {
  *
  * Most of the work here is resolving operator precedence, associativity, and unary/postfix flags.
  * That requires some amount of peeking, so the whole Lexer::tokens array should be passed w/ the index of the operator.
+ *
+ * Some notes on grouping operators/punctuators as in [], {}, ()
+ * because they are weird...
+ *
+ * One way to deal with them is to mostly ignore the opening versions, and then treat the closers as a unary postfix
+ * operator, where their 'single' child is:
+ *
+ *      )   -   an expression (used for grouping/precdence),
+ *              a comma separated list of expressions (function call),
+ *              a comma separated list of definitions (function definition)
+ *
+ *      }   -   a comma separated list of tuples (dict literal), a group of statements or expressions (closure)
+ *      ]   -   a comma separated list of expressions (array literal), a group of expressions (indexer)
+ *
  */
 ASTNode* nodify(Token tokens[], u32 i) {
     ASTNode* node = (ASTNode*) pMalloc(sizeof (ASTNode));
@@ -167,14 +181,14 @@ ASTNode* nodify(Token tokens[], u32 i) {
         // new unary operators to the languages @FIXME
         switch ((int) node->token->tt) {
             default:
-                Reporter::report(
+                Reporter::add(
                     MS_ERROR, "expecting a unary operator here",
                     null, node->token->filename, node->token->line, node->token->column
                 );
             case '+': case '-': case '!': case '~': break;
         }
     } else {
-        if (isOperator(&tokens[i - 1])) { // is unary prefix
+        if (isOperator(&tokens[i - 1]) && (tokens[i].tt != '(')) { // is unary prefix
             node->maxChildrenCount = 1;
             node->unary = true;
 

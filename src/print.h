@@ -2,7 +2,6 @@
 #ifndef PRINT_H
 #define PRINT_H
 
-#include "message.h"
 #include "node.h"
 #include "table.hpp"
 #include "token.h"
@@ -44,19 +43,17 @@ extern const char* ANSI_RESET;
 /**
  * This should end the program, use for fatal internal errors.
  */
-extern void die(const char* formatString, ...);
+extern void die(const char* format, ...);
 
 /**
  * @NOTE because we want to replace printf at some point maybe, I'm keeping all existing printf calls routed through here.
  */
-extern void print(const char* fmt, ...);
+extern void print(const char* format, ...);
 
 extern void print(const Token* token);
 extern void print(const Symbol* symbol);
 
 extern void print(const ASTNode* node);
-
-extern void print(const Message* message);
 
 template <class T>
 extern void print(const Stack<T>* stack);

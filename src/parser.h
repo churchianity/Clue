@@ -6,7 +6,7 @@
 #include "node.h"
 
 
-extern ASTNode* parse(Token tokens[]);
+extern ASTNode* parse(Token tokens[], u32 tokenCount);
 
 #endif
 

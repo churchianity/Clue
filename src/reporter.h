@@ -3,8 +3,24 @@
 #define REPORTER_H
 
 #include "clue.h"
-#include "message.h"
 
+
+enum MessageSeverityEnum {
+    MS_LINT,
+    MS_WARN,
+    MS_ERROR
+};
+
+struct Message {
+    const char* content;
+    const char* functionName;
+    const char* filename;
+
+    MessageSeverityEnum severity;
+
+    u32 line;
+    u32 column;
+};
 
 namespace Reporter {
     extern Message* messages;
@@ -13,8 +29,6 @@ namespace Reporter {
     extern void report(MessageSeverityEnum severity, const char* content, const char* functionName, const char* filename, u32 line, u32 column);
     extern void flush();
 }
-
-extern const char* reconstruct(u32 line);
 
 #endif
 
