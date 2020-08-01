@@ -46,11 +46,11 @@ const char* ANSI_RESET = "\x001B[0m";
 /**
  * This should end the program, use for fatal internal errors.
  */
-void die(const char* formatString...) {
+void die(const char* format, ...) {
     va_list args;
-    va_start(args, formatString);
+    va_start(args, format);
 
-    fprintf(stderr, formatString, args);
+    fprintf(stderr, format, args);
 
     va_end(args);
     exit(1);
@@ -58,13 +58,13 @@ void die(const char* formatString...) {
 
 /**
  * The entire purpose of this is so we don't have to #import <stdio.h> everywhere
- * +we intend to replace printf at some point
+ * +we intend to replace printf at some point with this
  */
-void print(const char* formatString...) {
+void print(const char* format, ...) {
     va_list args;
-    va_start(args, formatString);
+    va_start(args, format);
 
-    printf(formatString, args);
+    vfprintf(stdout, format, args);
 
     va_end(args);
 }

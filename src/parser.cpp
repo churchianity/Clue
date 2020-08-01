@@ -40,6 +40,10 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node
             rhs = es->pop();
         }
     } else {
+        for (u32 i = 0; i < es->size(); i++) {
+            print(es->data[i]);
+        }
+
         rhs = es->pop();
         lhs = es->pop();
 
