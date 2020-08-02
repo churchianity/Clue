@@ -63,10 +63,10 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
         case ')':
         case ']':
         case '{':
-        case '}': //????
+        case '}':
         case ';':
         case ',':
-            return 10;
+            return 0;
 
         case '=':
         case TT_COLON_EQUALS:
@@ -82,54 +82,68 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
         case TT_LEFT_SHIFT_EQUALS:
         case TT_BITWISE_NOT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
-            return 9;
+            return 1;
 
+        // comparison
         case TT_GREATER_THAN_OR_EQUAL:
         case '>':
         case TT_LESS_THAN_OR_EQUAL:
         case '<':
-            return 8;
+            return 2;
 
+        // unary & binary plus & minus
         case '+':
         case '-':
             if (unary) {
-                return 3;
+                return 7;
             }
 
-            return 7;
+            return 3;
 
+        // other arithmetic...
         case '*':
         case '/':
         case '%':
 
+        // bitwise binary operations...
         case '&':
         case '|':
         case '^':
         case TT_LEFT_SHIFT:
         case TT_RIGHT_SHIFT:
-            return 6;
+            return 4;
+
+        // unary bitwise is slightly higher than binary!
         case '~':
             return 5;
 
+        // logical operator (non-comparison)
         case TT_NOT_EQUALS:
         case TT_EQUALITY:
         case TT_LOGICAL_OR:
         case TT_LOGICAL_AND:
-            return 4;
+            return 6;
 
+        // negation is slightly higher!
         case '!':
-            return 3;
+            return 7;
 
+        // exponentation
         case TT_EXPONENTIATION:
-            return 2;
+            return 8;
 
+        // i'm not entirely certain why, but you get problems if ( is lower than assignment
+        // when it's invoking a function it's pretty high precedence tho
         case '(':
+            if (unary) {
+                return 2;
+            }
         case '[':
         case TT_DECREMENT:
         case TT_INCREMENT:
         case '.':
         case ':':
-            return 1;
+            return 9;
 
         case TT_SYMBOL:
             // @FIXME do a lookup for global symbols like 'sizeof' equivalent or stuff like that
@@ -142,6 +156,15 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
 }
 
 void addChild(ASTNode* self, ASTNode* child) {
+    if (!child) {
+        Reporter::add(
+            MS_ERROR, "missing operand for operator",
+            null, self->token->filename, self->token->line, self->token->column
+        );
+
+        return;
+    }
+
     if (self->childrenCount == self->maxChildrenCount) {
         Reporter::report(
             MS_ERROR, "attempting to add an operand to an operator that is already satisfied",
@@ -191,7 +214,6 @@ ASTNode* nodify(Token tokens[], u32 i) {
         case TT_SYMBOL:
         case TT_NUMERIC:
         case TT_STRING:
-            print(node);
             return node;
     }
 
@@ -204,43 +226,47 @@ ASTNode* nodify(Token tokens[], u32 i) {
         // new unary operators to the languages @FIXME
         switch ((int) node->token->tt) {
             default:
-                Reporter::add(
-                    MS_ERROR, "expecting a unary operator here",
+                Reporter::report(
+                    MS_ERROR, "missing left hand operand for binary operator",
                     null, node->token->filename, node->token->line, node->token->column
                 );
-            case '+': case '-': case '!': case '~': break;
+                break;
+
+            case '+':
+            case '-':
+            case TT_INCREMENT:
+            case TT_DECREMENT:
+            case '~':
+            case '!':
+                node->maxChildrenCount = 1;
+                node->unary = true;
+                break;
         }
     } else {
-        // deal with punctuators first, because they suck
-        /*
-        switch ((int) node->token->tt) {
-            case '(':
-            case '{':
-            case '[':
-        }
-        */
-
         if (isOperator(&tokens[i - 1])) { // is unary prefix
             node->maxChildrenCount = 1;
             node->unary = true;
 
-        /**
-         *  (anything not an operator) ++
-         */
         } else if ((tokens[i].tt == TT_INCREMENT) || (tokens[i].tt == TT_DECREMENT)) { // is postfix unary
             node->maxChildrenCount = 1;
             node->unary = true;
             node->postfix = true;
 
-        /**
-         *  func(
-         */
         } else if ((tokens[i].tt == '(') && (tokens[i - 1].tt == TT_SYMBOL)) { // is a function call
             node->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
             node->call = true;
 
-        } else { // is a binary operator
-            node->maxChildrenCount = 2;
+        } else { // is a binary operator or a postfix-ish punctuator
+            switch ((int) tokens[i].tt) {
+                case ')':
+                case ';':
+                    node->punctuator = true;
+                    return node;
+
+                default:
+                    node->maxChildrenCount = 2;
+                    break;
+            }
         }
     }
 

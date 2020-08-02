@@ -96,7 +96,7 @@ void print(const ASTNode* node) {
     print("&ASTNode %p | childrenCount: %u, maxChildrenCount: %u | tk: %s%s%s\n"
           , (void*) node, node->childrenCount, node->maxChildrenCount, ANSI_YELLOW, node->token->tk, ANSI_RESET);
 
-    if (!node->childrenCount) {
+    if (node->maxChildrenCount == 0) {
         print("\n");
         return;
     }

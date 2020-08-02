@@ -18,54 +18,44 @@
  * if the operator stack is empty we don't care
  */
 static inline bool canPop(Stack<ASTNode>* os, ASTNode* node) {
-    return !os->isEmpty() && (node->precedence > os->peek()->precedence);
+    return !os->isEmpty() && (node->precedence <= os->peek()->precedence);
 }
 
-/**
- *
- */
 static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node) {
-    ASTNode* lhs = null;
-    ASTNode* rhs = null;
+    if (node->punctuator) {
+        return;
 
-    if (node->unary) {
-        if (!os->peek()->unary) { // unary operators can only pop and apply other unary operators
+    } else if (node->unary) {
+        if (!(os->isEmpty() || os->peek()->unary)) { // unary operators can only pop and apply other unary operators
             return;
         }
 
-        if (node->postfix) {
-            lhs = es->pop();
+        ASTNode* child = es->pop();
 
-        } else {
-            rhs = es->pop();
+        if (!child) {
+            Reporter::report(
+                MS_ERROR, "missing operand for unary operator",
+                null, node->token->filename, node->token->line, node->token->column
+            );
         }
+
+        addChild(node, child);
     } else {
-        print("for operator: "); print(node);
-        for (u32 i = 0; i < es->size(); i++) {
-            print("entry %u in es:", i);
-            print(es->data[i]);
-        }
 
-        rhs = es->pop();
-        lhs = es->pop();
+        ASTNode* rhs = es->pop();
+        ASTNode* lhs = es->pop();
 
-        if (!rhs) {
+        if (!(rhs || lhs)) {
             Reporter::report(
-                MS_ERROR, "missing right hand operand for binary operator",
+                MS_ERROR, "missing operand for binary operator",
                 null, node->token->filename, node->token->line, node->token->column
             );
         }
 
-        if (!lhs) {
-            Reporter::report(
-                MS_ERROR, "missing left hand operand for binary operator",
-                null, node->token->filename, node->token->line, node->token->column
-            );
-        }
+        addChild(node, lhs);
+        addChild(node, rhs);
+
     }
-
-    addChild(node, lhs);
-    addChild(node, rhs);
 
     es->push(node);
 }
@@ -133,6 +123,7 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
     while (!os->isEmpty()) {
         parseOperation(es, os, os->pop());
     }
+
 
     ASTNode* root = (ASTNode*) es->pop();
 

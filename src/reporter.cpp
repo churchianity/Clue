@@ -8,12 +8,6 @@
 #include "util.h"
 
 
-static u32 messageCount = 0;
-static u32 messageCapacity = CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY;
-
-Message* Reporter::messages = (Message*) pMalloc(sizeof (Message) * CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
-
-
 const char* messageSeverityToColor(MessageSeverityEnum severity) {
     switch (severity) {
         case MS_LINT: return ANSI_BLUE;
@@ -38,12 +32,20 @@ const char* messageSeverityToString(MessageSeverityEnum severity) {
 static inline char* fillWithSpaces(s32 length) {
     char* buffer = (char*) pMalloc(sizeof (char) * length + 1);
 
-    s32 i = 0;
+    u32 i = 0;
     for (; i < length; i++) {
         buffer[i] = ' ';
     }
 
     buffer[i] = '\0';
+
+    return buffer;
+}
+
+static inline char* makePointyThing(u32 column) {
+    char* buffer = fillWithSpaces(column);
+
+    buffer[column - 1] = '^';
 
     return buffer;
 }
@@ -86,19 +88,6 @@ static inline const char* reconstruct(const char* filename, u32 line) {
     return out;
 }
 
-static inline char* makePointyThing(u32 column) {
-    char* buffer = (char*) pCalloc(column + 1, sizeof (char));
-
-    for (u32 i = 0; i < (column - 1); i++) {
-        buffer[i] = ' ';
-    }
-
-    buffer[column - 1] = '^';
-    buffer[column] = '\0';
-
-    return buffer;
-}
-
 /**
  *  Example printed message:
  *
@@ -123,6 +112,12 @@ static void print(const Message* message) {
 
     free(pointyThing);
 }
+
+u32 Reporter::messageCount = 0;
+u32 Reporter::messageCapacity = CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY;
+
+Message* Reporter::messages = (Message*) pMalloc(sizeof (Message) * CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
+
 
 /**
  * @STATEFUL
@@ -149,8 +144,6 @@ void Reporter :: add(MessageSeverityEnum severity, const char* content, const ch
 /**
  * Immediately constructs a message on the stack and prints it without ever storing it on the heap.
  * These should probably all be fatal errors... we currently exit after reporting.
- *
- * @NOTE @FIXME @TODO this is kinda broken... don't use it for now
  */
 void Reporter :: report(MessageSeverityEnum severity, const char* content, const char* functionName, const char* filename, u32 line, u32 column) {
     Message message = {

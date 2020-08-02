@@ -22,9 +22,10 @@ struct ASTNode {
 
     u8 precedence = 0;
 
-    bool unary   = false;
-    bool postfix = false;
-    bool call    = false;
+    bool unary      = false;
+    bool postfix    = false;
+    bool call       = false;
+    bool punctuator = false;
 };
 
 extern void traverse(ASTNode* self, void (*callback) (ASTNode*));
