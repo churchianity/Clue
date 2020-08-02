@@ -2,8 +2,6 @@
 #ifndef REPORTER_H
 #define REPORTER_H
 
-#include "clue.h"
-
 
 enum MessageSeverityEnum {
     MS_LINT,

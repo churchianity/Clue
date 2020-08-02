@@ -2,8 +2,18 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include <stdint.h>
 
+// there isn't a really good reason for this, i just like it
+#define null NULL
+
+// bool is included by default for C++11
+#ifndef __cplusplus
+    typedef _Bool bool;
+    #define true 1
+    #define false 0
+#endif
+
+// char // i don't know if we should use char8_t, seems like a medium sized pain for a small sized gain
 
 typedef uint64_t u64;
 typedef uint32_t u32;
@@ -15,12 +25,10 @@ typedef int32_t s32;
 typedef int16_t s16;
 typedef int8_t s8;
 
-// there isn't a really good reason for this
-#define null NULL
+typedef float float32;
+typedef double float64;
+typedef long double extended;
 
-// bool - true, false
-// char // i don't know if we should use char8_t, seems like a medium sized pain for a small sized gain
-// float, double, extended. probably only double.
 // string? probably not - see string.h
 
 #endif

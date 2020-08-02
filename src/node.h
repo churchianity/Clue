@@ -27,12 +27,14 @@ struct ASTNode {
     bool call    = false;
 };
 
+extern void traverse(ASTNode* self, void (*callback) (ASTNode*));
 extern void traverse(ASTNode* self, void (*callback) (const ASTNode*));
 
 extern ASTNode* nodify(Token tokens[], u32 currentIndex);
 
 extern u8 precedence(u32 tt, bool unary, bool postfix);
 extern void addChild(ASTNode* self, ASTNode* child);
+extern void freeNode(ASTNode* node);
 
 #endif
 

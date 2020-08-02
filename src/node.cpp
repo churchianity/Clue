@@ -14,6 +14,27 @@
  * Iterates over the tree and calls |callback| on each node, with |root| as an argument.
  * Post-order traversal.
  */
+void traverse(ASTNode* self, void (*callback) (ASTNode*)) {
+    if (!self) {
+        print("root node is null...\n");
+        return;
+    }
+
+    if (self->children != null) {
+        for (u32 i = 0; i < self->childrenCount; i++) {
+            if (self->children + i) {
+                traverse(self->children + i, callback);
+            }
+        }
+    }
+
+    callback(self);
+}
+
+/**
+ * Iterates over the tree and calls |callback| on each node, with |root| as an argument.
+ * Post-order traversal.
+ */
 void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
     if (!self) {
         print("root node is null...\n");
@@ -129,7 +150,7 @@ void addChild(ASTNode* self, ASTNode* child) {
     }
 
     if (!self->children) {
-        self->children = (ASTNode*) pMalloc(sizeof (ASTNode) * self->maxChildrenCount);
+        self->children = (ASTNode*) pCalloc(self->maxChildrenCount, sizeof (ASTNode));
     }
 
     self->children[self->childrenCount++] = *child;
@@ -146,16 +167,17 @@ void addChild(ASTNode* self, ASTNode* child) {
  * Some notes on grouping operators/punctuators as in [], {}, ()
  * because they are weird...
  *
- * One way to deal with them is to mostly ignore the opening versions, and then treat the closers as a unary postfix
+ * One way to deal with them is to treat openers as sentinels, and then treat the closers as a unary postfix
  * operator, where their 'single' child is:
  *
  *      )   -   an expression (used for grouping/precdence),
  *              a comma separated list of expressions (function call),
- *              a comma separated list of definitions (function definition)
+ *              a comma separated list of definitions (function arg definition)
  *
  *      }   -   a comma separated list of tuples (dict literal), a group of statements or expressions (closure)
  *      ]   -   a comma separated list of expressions (array literal), a group of expressions (indexer)
  *
+ *      ? more bullshit ?
  */
 ASTNode* nodify(Token tokens[], u32 i) {
     ASTNode* node = (ASTNode*) pMalloc(sizeof (ASTNode));
@@ -169,6 +191,7 @@ ASTNode* nodify(Token tokens[], u32 i) {
         case TT_SYMBOL:
         case TT_NUMERIC:
         case TT_STRING:
+            print(node);
             return node;
     }
 
@@ -188,15 +211,30 @@ ASTNode* nodify(Token tokens[], u32 i) {
             case '+': case '-': case '!': case '~': break;
         }
     } else {
-        if (isOperator(&tokens[i - 1]) && (tokens[i].tt != '(')) { // is unary prefix
+        // deal with punctuators first, because they suck
+        /*
+        switch ((int) node->token->tt) {
+            case '(':
+            case '{':
+            case '[':
+        }
+        */
+
+        if (isOperator(&tokens[i - 1])) { // is unary prefix
             node->maxChildrenCount = 1;
             node->unary = true;
 
+        /**
+         *  (anything not an operator) ++
+         */
         } else if ((tokens[i].tt == TT_INCREMENT) || (tokens[i].tt == TT_DECREMENT)) { // is postfix unary
             node->maxChildrenCount = 1;
             node->unary = true;
             node->postfix = true;
 
+        /**
+         *  func(
+         */
         } else if ((tokens[i].tt == '(') && (tokens[i - 1].tt == TT_SYMBOL)) { // is a function call
             node->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
             node->call = true;
@@ -213,5 +251,9 @@ ASTNode* nodify(Token tokens[], u32 i) {
     // @TODO calculate associativity here too
 
     return node;
+}
+
+void freeNode(ASTNode* node) {
+    //
 }
 

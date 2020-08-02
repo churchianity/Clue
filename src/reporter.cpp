@@ -102,10 +102,10 @@ static inline char* makePointyThing(u32 column) {
 /**
  *  Example printed message:
  *
- *    error: missing right-hand operand for operator
- *    in function 'funcName': ./../src/foo.clue:14:51
- *            Int x := 4 !;
- *                       ^
+ *  error: missing right-hand operand for operator
+ *  in function 'funcName': ./../src/foo.clue:14:51
+ *          Int x := 4 !;
+ *                     ^
  */
 static void print(const Message* message) {
     const char* fn = message->functionName;
@@ -180,6 +180,4 @@ void Reporter :: flush() {
 
     Reporter::messages = (Message*) pMalloc(sizeof (Message) * CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
 }
-
-
 

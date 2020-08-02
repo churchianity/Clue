@@ -1,6 +1,6 @@
 
 #include <stdarg.h> // va_list, va_start, va_end
-#include <stdio.h> // stderr, stdout, stdin? | fprintf, printf
+#include <stdio.h> // stderr, stdout, stdin? | vfprintf
 
 #include "node.h"
 #include "table.hpp"
@@ -44,19 +44,6 @@ const char* ANSI_RESET = "\x001B[0m";
 
 
 /**
- * This should end the program, use for fatal internal errors.
- */
-void die(const char* format, ...) {
-    va_list args;
-    va_start(args, format);
-
-    fprintf(stderr, format, args);
-
-    va_end(args);
-    exit(1);
-}
-
-/**
  * The entire purpose of this is so we don't have to #import <stdio.h> everywhere
  * +we intend to replace printf at some point with this
  */
@@ -67,6 +54,19 @@ void print(const char* format, ...) {
     vfprintf(stdout, format, args);
 
     va_end(args);
+}
+
+/**
+ * This should end the program, use for fatal internal errors.
+ */
+void die(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    vfprintf(stderr, format, args);
+
+    va_end(args);
+    exit(1);
 }
 
 void print(const Token* token) {
@@ -101,7 +101,7 @@ void print(const ASTNode* node) {
         return;
     }
 
-    printf("prec: %u, assoc: %d, unary?: %u, postfix?: %u, call?: %u\n"
+    print("prec: %u, assoc: %d, unary?: %u, postfix?: %u, call?: %u\n"
            , node->precedence, node->associativity, node->unary, node->postfix, node->call);
 
     for (u32 i = 0; i < node->childrenCount; i++) {

@@ -69,13 +69,18 @@
 
 
 1. Lexer
+    The lexer's purpose is to reduce noise in the input. Most whitespace, for example, is mostly irrelevant when parsing, so we eliminate it.
+    Given that the range of possible inputs to the compiler is basically only limited by:
+        - memory/max file size
+        - the number of possible/probable text encodings + how many characters exist in that encoding
 
-
+    We *could*, be given a gigantic bag of garbage, so cleaning that up seems reasonable as a first step.
+    We can use this stage to identify early problems, like bad file encoding, or sequences of characters which are either never valid,
+    or 'ugly' from the perspective of the linter.
 
 2. Parser
-    The parser's purpose is to resolve operator precedence, associativity, and unary/binary-ness, while producing an abstract syntax tree.
+    The parser's purpose is produce the initial AST.
 
 3. Typing
     Perform a pass on the AST and for each operation, verify the types of the operands against the valid sets of types for said operation.
 
-4.

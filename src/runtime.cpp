@@ -10,19 +10,20 @@
 #include "token.h"
 #include "util.h"
 
+
 const char* evalString(ASTNode* node) {
     return node->token->tk;
 }
 
-double evalNumeric(ASTNode* node) {
+float64 evalNumeric(ASTNode* node) {
     return strtod(node->token->tk, null);
 }
 
-double evalBinaryAddition(ASTNode* node) {
+float64 evalBinaryAddition(ASTNode* node) {
     return evalNumeric(node->children + 0) + evalNumeric(node->children + 1);
 }
 
-double evalBinarySubtraction(ASTNode* node) {
+float64 evalBinarySubtraction(ASTNode* node) {
     return evalNumeric(node->children + 0) - evalNumeric(node->children + 1);
 }
 
@@ -86,6 +87,7 @@ void interactive() {
 
             case '/':
                 Lexer::clear();
+                traverse(AST, freeNode);
                 continue;
 
             case '#':
@@ -98,6 +100,11 @@ void interactive() {
         }
 
         tokens = Lexer::tokenize(s, "stdin", line);
+
+        if (AST) {
+            free(AST);
+        }
+
         AST = parse(tokens, Lexer::tokenCount);
 
         Reporter::flush();

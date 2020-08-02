@@ -18,7 +18,7 @@
  * if the operator stack is empty we don't care
  */
 static inline bool canPop(Stack<ASTNode>* os, ASTNode* node) {
-    return !os->isEmpty() && (os->peek()->precedence > node->precedence);
+    return !os->isEmpty() && (node->precedence > os->peek()->precedence);
 }
 
 /**
@@ -40,7 +40,9 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node
             rhs = es->pop();
         }
     } else {
+        print("for operator: "); print(node);
         for (u32 i = 0; i < es->size(); i++) {
+            print("entry %u in es:", i);
             print(es->data[i]);
         }
 
@@ -92,7 +94,7 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
 
                 if (os->isEmpty()) { // we never found a matching open paren...
                     Reporter::add(
-                        MS_ERROR, "Missing open parentheses.\n",
+                        MS_ERROR, "Missing open parentheses.",
                         null, tokens[i].filename, tokens[i].line, tokens[i].column
                     );
 

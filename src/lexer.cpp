@@ -53,6 +53,8 @@ void Lexer :: print() {
             ::print(Lexer::tokens + i);
         }
     }
+
+    ::print("\n");
 }
 
 /**
@@ -105,7 +107,7 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             tt = TT_SYMBOL;
 
             bool lastCharWasDigit = false;
-            bool lastCharWasDigitLint = false; // @TODO get rid of this, the reporter should handle duplicate messages
+            // bool lastCharWasDigitLint = false; // @TODO get rid of this, the reporter should handle duplicate messages
             do {
                 buffer++;
 
@@ -117,8 +119,8 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     lastCharWasDigit = true;
 
                 } else {
-                    if (!lastCharWasDigitLint && lastCharWasDigit) {
-                        lastCharWasDigitLint = true;
+                    if (/*!lastCharWasDigitLint &&*/ lastCharWasDigit) {
+                        //lastCharWasDigitLint = true;
 
                         Reporter::add(
                             MS_LINT, "only alphabetical characters can follow a digit in an identifier name",

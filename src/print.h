@@ -8,6 +8,7 @@
 #include "stack.hpp"
 
 
+//#region ANSI ESCAPE SEQUENCES
 // Text Colors
 extern const char* ANSI_BLACK;
 extern const char* ANSI_RED;
@@ -40,19 +41,21 @@ extern const char* ANSI_CLEAR;
 // Reset Colors
 extern const char* ANSI_RESET;
 
-/**
- * This should end the program, use for fatal internal errors.
- */
-extern void die(const char* format, ...);
+//#endregion
+
 
 /**
  * @NOTE because we want to replace printf at some point maybe, I'm keeping all existing printf calls routed through here.
  */
 extern void print(const char* format, ...);
 
+/**
+ * This should end the program, use for fatal internal errors.
+ */
+extern void die(const char* format, ...);
+
 extern void print(const Token* token);
 extern void print(const Symbol* symbol);
-
 extern void print(const ASTNode* node);
 
 template <class T>
