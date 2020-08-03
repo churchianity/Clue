@@ -135,9 +135,6 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
         // i'm not entirely certain why, but you get problems if ( is lower than assignment
         // when it's invoking a function it's pretty high precedence tho
         case '(':
-            if (unary) {
-                return 2;
-            }
         case '[':
         case TT_DECREMENT:
         case TT_INCREMENT:
@@ -199,7 +196,6 @@ ASTNode* nodify(Token tokens[], u32 i) {
         case TT_SYMBOL:
         case TT_NUMERIC:
         case TT_STRING:
-            print(node);
             return node;
     }
 
@@ -246,7 +242,6 @@ ASTNode* nodify(Token tokens[], u32 i) {
             switch ((int) tokens[i].tt) {
                 case ';':
                     node->punctuator = true;
-                    print(node);
                     return node;
 
                 default:
@@ -262,7 +257,6 @@ ASTNode* nodify(Token tokens[], u32 i) {
 
     // @TODO calculate associativity here too
 
-    print(node);
     return node;
 }
 

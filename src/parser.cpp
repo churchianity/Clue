@@ -45,7 +45,8 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node
         ASTNode* rhs = es->pop();
         ASTNode* lhs = es->pop();
 
-        if (!(rhs || lhs)) {
+        if (!(rhs && lhs)) {
+
             Reporter::report(
                 MS_ERROR, "missing operand for binary operator",
                 null, node->token->filename, node->token->line, node->token->column
@@ -108,6 +109,10 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
             case '(':
             default:
                 opNode = nodify(tokens, i);
+                print("curr: \t");
+                print(opNode);
+                print("peeked: \t");
+                print(os->peek());
 
                 while (canPop(os, opNode)) {
                     parseOperation(es, os, os->pop());
