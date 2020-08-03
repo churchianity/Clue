@@ -199,55 +199,52 @@ ASTNode* nodify(Token tokens[], u32 i) {
             return node;
     }
 
-    // check if it's the first token, so we know if we can safely look backwards later
-    if (i < 1) {
-        // if we pass a non-unary operator as the first token, it's hard to detect because
-        // what makes an operator unary in the general case is that it is preceeded by another operator
-        //
-        // this is a terrible solution - i'm going to forget to add tokentypes when we modify or add
-        // new unary operators to the languages @FIXME
+    if (i < 1 || isOperator(&tokens[i - 1])) { // is unary prefix... or...
         switch ((int) node->token->tt) {
-            default:
-                Reporter::report(
-                    MS_ERROR, "missing left hand operand for binary operator",
-                    null, node->token->filename, node->token->line, node->token->column
-                );
-                break;
-
             case '+':
             case '-':
-            case TT_INCREMENT:
-            case TT_DECREMENT:
             case '~':
             case '!':
                 node->maxChildrenCount = 1;
                 node->unary = true;
                 break;
+
+            case ';':
+                Reporter::add(
+                    MS_WARN, "semicolon with nothing before it has no effect",
+                    null, node->token->filename, node->token->line, node->token->column
+                );
+
+            case '{':
+            case '(':
+                return node;
+
+            default:
+                Reporter::report(
+                    MS_ERROR, "invalid operator",
+                    null, node->token->filename, node->token->line, node->token->column
+                );
+
+                break;
         }
-    } else {
-        if ((tokens[i].tt == '(') && (tokens[i - 1].tt == TT_SYMBOL)) { // is a function call
-            node->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
-            node->call = true;
+    } else if ((tokens[i].tt == '(') && (tokens[i - 1].tt == TT_SYMBOL)) { // is a function call
+        node->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
+        node->call = true;
 
-        } else if (isOperator(&tokens[i - 1])) { // is unary prefix
-            node->maxChildrenCount = 1;
-            node->unary = true;
+    } else if ((tokens[i].tt == TT_INCREMENT) || (tokens[i].tt == TT_DECREMENT)) { // is postfix unary
+        node->maxChildrenCount = 1;
+        node->unary = true;
+        node->postfix = true;
 
-        } else if ((tokens[i].tt == TT_INCREMENT) || (tokens[i].tt == TT_DECREMENT)) { // is postfix unary
-            node->maxChildrenCount = 1;
-            node->unary = true;
-            node->postfix = true;
+    } else { // is a binary operator or a postfix-ish punctuator
+        switch ((int) tokens[i].tt) {
+            case ';':
+                node->punctuator = true;
+                return node;
 
-        } else { // is a binary operator or a postfix-ish punctuator
-            switch ((int) tokens[i].tt) {
-                case ';':
-                    node->punctuator = true;
-                    return node;
-
-                default:
-                    node->maxChildrenCount = 2;
-                    break;
-            }
+            default:
+                node->maxChildrenCount = 2;
+                break;
         }
     }
 
