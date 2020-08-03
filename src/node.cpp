@@ -186,21 +186,6 @@ void addChild(ASTNode* self, ASTNode* child) {
  *
  * Most of the work here is resolving operator precedence, associativity, and unary/postfix flags.
  * That requires some amount of peeking, so the whole Lexer::tokens array should be passed w/ the index of the operator.
- *
- * Some notes on grouping operators/punctuators as in [], {}, ()
- * because they are weird...
- *
- * One way to deal with them is to treat openers as sentinels, and then treat the closers as a unary postfix
- * operator, where their 'single' child is:
- *
- *      )   -   an expression (used for grouping/precdence),
- *              a comma separated list of expressions (function call),
- *              a comma separated list of definitions (function arg definition)
- *
- *      }   -   a comma separated list of tuples (dict literal), a group of statements or expressions (closure)
- *      ]   -   a comma separated list of expressions (array literal), a group of expressions (indexer)
- *
- *      ? more bullshit ?
  */
 ASTNode* nodify(Token tokens[], u32 i) {
     ASTNode* node = (ASTNode*) pMalloc(sizeof (ASTNode));
@@ -214,6 +199,7 @@ ASTNode* nodify(Token tokens[], u32 i) {
         case TT_SYMBOL:
         case TT_NUMERIC:
         case TT_STRING:
+            print(node);
             return node;
     }
 
@@ -243,7 +229,11 @@ ASTNode* nodify(Token tokens[], u32 i) {
                 break;
         }
     } else {
-        if (isOperator(&tokens[i - 1])) { // is unary prefix
+        if ((tokens[i].tt == '(') && (tokens[i - 1].tt == TT_SYMBOL)) { // is a function call
+            node->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
+            node->call = true;
+
+        } else if (isOperator(&tokens[i - 1])) { // is unary prefix
             node->maxChildrenCount = 1;
             node->unary = true;
 
@@ -252,15 +242,11 @@ ASTNode* nodify(Token tokens[], u32 i) {
             node->unary = true;
             node->postfix = true;
 
-        } else if ((tokens[i].tt == '(') && (tokens[i - 1].tt == TT_SYMBOL)) { // is a function call
-            node->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
-            node->call = true;
-
         } else { // is a binary operator or a postfix-ish punctuator
             switch ((int) tokens[i].tt) {
-                case ')':
                 case ';':
                     node->punctuator = true;
+                    print(node);
                     return node;
 
                 default:
@@ -276,6 +262,7 @@ ASTNode* nodify(Token tokens[], u32 i) {
 
     // @TODO calculate associativity here too
 
+    print(node);
     return node;
 }
 

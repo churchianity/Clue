@@ -1,4 +1,7 @@
 
+#include <math.h> // pow(), remainder()
+                  // strtod
+
 #include "clue.h"
 #include "lexer.h"
 #include "node.h"
@@ -11,38 +14,93 @@
 #include "util.h"
 
 
-const char* evalString(ASTNode* node) {
-    return node->token->tk;
-}
-
-float64 evalNumeric(ASTNode* node) {
-    return strtod(node->token->tk, null);
+float64 evalUnaryPlus(ASTNode* node) {
+    return +eval(node->children + 0).number;
 }
 
 float64 evalBinaryAddition(ASTNode* node) {
-    return evalNumeric(node->children + 0) + evalNumeric(node->children + 1);
+    return eval(node->children + 0).number + eval(node->children + 1).number;
+}
+
+float64 evalUnaryMinus(ASTNode* node) {
+    return -eval(node->children + 0).number;
 }
 
 float64 evalBinarySubtraction(ASTNode* node) {
-    return evalNumeric(node->children + 0) - evalNumeric(node->children + 1);
+    return eval(node->children + 0).number - eval(node->children + 1).number;
 }
 
-void evalOperator(ASTNode* node) {
-
+float64 evalMultiplication(ASTNode* node) {
+    return eval(node->children + 0).number * eval(node->children + 1).number;
 }
 
-/**
- *
- */
-void eval(ASTNode* node) {
-    switch (node->token->tt) {
-        case TT_SYMBOL: // go lookup its value in a table
-        case TT_NUMERIC: evalNumeric(node); break;
-        case TT_STRING: evalString(node); break;
-        default: evalOperator(node); break;
+float64 evalDivision(ASTNode* node) {
+    return eval(node->children + 0).number / eval(node->children + 1).number;
+}
+
+float64 evalModulus(ASTNode* node) {
+    return remainder(eval(node->children + 0).number, eval(node->children + 1).number);
+}
+
+float64 evalExponentiation(ASTNode* node) {
+    return pow(eval(node->children + 0).number, eval(node->children + 1).number);
+}
+
+Value evalOperator(ASTNode* node) {
+    Value v;
+
+    switch ((int) node->token->tt) {
+        case '+':
+            if (node->childrenCount == 1) {
+                v.number = evalUnaryPlus(node);
+
+            } else {
+                v.number = evalBinaryAddition(node);
+            }
+
+            break;
+
+        case '-':
+            if (node->childrenCount == 1) {
+                v.number = evalUnaryMinus(node);
+
+            } else {
+                v.number = evalBinarySubtraction(node);
+            }
+
+            break;
+
+        case '*': v.number = evalMultiplication(node); break;
+        case '/': v.number = evalDivision(node); break;
+        case '%': v.number = evalModulus(node); break;
+
+        case TT_EXPONENTIATION: v.number = evalExponentiation(node); break;
+
+        default:
+            v.string = "not implemented yet, sorry!\n";
     }
+
+    return v;
 }
 
+Value eval(ASTNode* node) {
+    Value v;
+
+    switch (node->token->tt) {
+        case TT_SYMBOL:
+            v.string = "symbol!"; break;
+
+        case TT_NUMERIC:
+            v.number = strtod(node->token->tk, null); break;
+
+        case TT_STRING:
+            v.string = node->token->tk; break;
+
+        default: v = evalOperator(node);
+    }
+
+    return v;
+}
 
 /**
  * Finds a file in the project by name and loads it into a buffer then returns it.
@@ -106,6 +164,8 @@ void interactive() {
         }
 
         AST = parse(tokens, Lexer::tokenCount);
+
+        printf("%.2f\n", eval(AST).number);
 
         Reporter::flush();
 

@@ -143,10 +143,10 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
              *  handle 0-prefix special numerics...
              *
              *  0x / 0X : hexadecimal
-             *  0b / 0B : binary
              *  0o / 0O : octal
+             *  0b / 0B : binary
              *  0.      : fractional decimal
-             */
+
             if (*buffer == '0') {
                 switch (*(buffer + 1)) {
                     case 'x': case 'X': // @TODO
@@ -164,6 +164,7 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                         break;
                 }
             }
+             */
 
             do {
                 buffer++;

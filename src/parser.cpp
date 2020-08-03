@@ -40,8 +40,8 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node
         }
 
         addChild(node, child);
-    } else {
 
+    } else { // is binary
         ASTNode* rhs = es->pop();
         ASTNode* lhs = es->pop();
 
@@ -84,7 +84,7 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
 
                 if (os->isEmpty()) { // we never found a matching open paren...
                     Reporter::add(
-                        MS_ERROR, "Missing open parentheses.",
+                        MS_ERROR, "Missing open parentheses",
                         null, tokens[i].filename, tokens[i].line, tokens[i].column
                     );
 

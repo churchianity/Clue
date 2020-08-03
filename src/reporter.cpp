@@ -29,7 +29,7 @@ const char* messageSeverityToString(MessageSeverityEnum severity) {
 /**
  * @TODO i should just make a memset() like thingy in string.h
  */
-static inline char* fillWithSpaces(s32 length) {
+static inline char* fillWithSpaces(u32 length) {
     char* buffer = (char*) pMalloc(sizeof (char) * length + 1);
 
     u32 i = 0;
@@ -63,20 +63,19 @@ static inline const char* reconstruct(const char* filename, u32 line) {
     // find the first token in the request file, on the requested line
     const Token* token = null;
 
-    s32 columnSoFar = 0;
-    s32 amountOfLeadingWhitespace = 0;
+    u32 columnSoFar = 0; // prev token's length + prev amount of leading whitespace
+    u32 amountOfLeadingWhitespace = 0;
 
     const char* out = "";
 
-    s32 i = 0;
+    u32 i = 0;
     for (; i < Lexer::tokenCount; i++) {
-
         if (streq(Lexer::tokens[i].filename, filename) && (Lexer::tokens[i].line == line)) {
             token = Lexer::tokens + i;
 
             // the -1 is because column counts are 1-indexed
-            amountOfLeadingWhitespace += (token->column - 1) - columnSoFar;
-            columnSoFar += (token->column - 1) + token->length;
+            amountOfLeadingWhitespace = token->column - columnSoFar - 1;
+            columnSoFar += token->length + amountOfLeadingWhitespace;
 
             char* leadingWhitespace = fillWithSpaces(amountOfLeadingWhitespace);
 
