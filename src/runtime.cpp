@@ -165,7 +165,7 @@ void interactive() {
 
         AST = parse(tokens, Lexer::tokenCount);
 
-        // printf("%.2f\n", eval(AST).number);
+        printf("%.14g\n", eval(AST).number);
 
         Reporter::flush();
 

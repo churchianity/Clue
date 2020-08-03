@@ -27,11 +27,13 @@
     if, when we find a <(>, the token to left of it is a symbol, then we have scanned across a function call or definition
         if what we scanned across is a bunch of expressions, then it's a function call...
             func(<expression>, <expression>, ...)
-            func()
+            func();
+            func().
+            func() -
 
         else if what we scanned is a bunch of definitions, then it's a function definition
             func(<definition>, <definition>)
-            func()
+            func() { ... }
 
     else, then we have scanned across a group of sub-expressions
         (4 + 2 - x) * 5

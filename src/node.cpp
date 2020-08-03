@@ -199,7 +199,7 @@ ASTNode* nodify(Token tokens[], u32 i) {
             return node;
     }
 
-    if (i < 1 || isOperator(&tokens[i - 1])) { // is unary prefix... or...
+    if (i < 1 || isOperator(&tokens[i - 1])) { // is unary prefix, or a punctuator used weirdly
         switch ((int) node->token->tt) {
             case '+':
             case '-':
@@ -217,6 +217,7 @@ ASTNode* nodify(Token tokens[], u32 i) {
 
             case '{':
             case '(':
+                node->punctuator = true;
                 return node;
 
             default:
