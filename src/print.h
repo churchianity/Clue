@@ -5,6 +5,7 @@
 #include "node.h"
 #include "table.hpp"
 #include "token.h"
+#include "runtime.h"
 #include "stack.hpp"
 
 
@@ -48,6 +49,15 @@ extern const char* ANSI_RESET;
  * @NOTE because we want to replace printf at some point maybe, I'm keeping all existing printf calls routed through here.
  */
 extern void print(const char* format, ...);
+
+extern void print(bool b);
+extern void print(char c);
+extern void print(signed int i);
+extern void print(unsigned int i);
+extern void print(float f);
+extern void print(double d);
+
+extern void print(Value v);
 
 /**
  * This should end the program, use for fatal internal errors.

@@ -14,10 +14,10 @@ struct Stack {
     T** data;
 
     Stack<T>(u32 _capacity, bool _grow) {
-        capacity    = _capacity;
-        grow        = _grow;
-        top         = -1;
-        data        = (T**) pMalloc(sizeof (T*) * capacity);
+        capacity = _capacity;
+        grow     = _grow;
+        top      = -1;
+        data     = (T**) pMalloc(sizeof (T*) * capacity);
     }
 
     u32 size() const {

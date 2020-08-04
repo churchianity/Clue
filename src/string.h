@@ -2,8 +2,7 @@
 #ifndef STRING_H
 #define STRING_H
 
-#include <assert.h>
-#include <stdarg.h>
+#include <stdarg.h> // concat function has varags
 
 #include "alloc.h"
 
@@ -24,7 +23,7 @@ inline bool isHexDigit(char c) {
 }
 
 inline bool isOctalDigit(char c) {
-    return ((c >= '0') && (c <= '7'));
+    return (c >= '0') && (c <= '7');
 }
 
 inline bool isBinaryDigit(char c) {
@@ -103,7 +102,7 @@ inline bool streq(const char* s1, const char* s2) {
 /**
  * Compare two blocks of memory |p1| & |p2|, of lengths |l1| & |l2|, for equality.
  */
-inline bool memCmp(const char* m1, u32 l1, const char* m2, u32 l2) {
+inline bool memeq(const char* m1, u32 l1, const char* m2, u32 l2) {
     if (l1 != l2) {
         return false;
     }

@@ -14,39 +14,39 @@
 #include "util.h"
 
 
-float64 evalUnaryPlus(ASTNode* node) {
+static inline float64 evalUnaryPlus(ASTNode* node) {
     return +eval(node->children + 0).number;
 }
 
-float64 evalBinaryAddition(ASTNode* node) {
+static inline float64 evalBinaryAddition(ASTNode* node) {
     return eval(node->children + 0).number + eval(node->children + 1).number;
 }
 
-float64 evalUnaryMinus(ASTNode* node) {
+static inline float64 evalUnaryMinus(ASTNode* node) {
     return -eval(node->children + 0).number;
 }
 
-float64 evalBinarySubtraction(ASTNode* node) {
+static inline float64 evalBinarySubtraction(ASTNode* node) {
     return eval(node->children + 0).number - eval(node->children + 1).number;
 }
 
-float64 evalMultiplication(ASTNode* node) {
+static inline float64 evalMultiplication(ASTNode* node) {
     return eval(node->children + 0).number * eval(node->children + 1).number;
 }
 
-float64 evalDivision(ASTNode* node) {
+static inline float64 evalDivision(ASTNode* node) {
     return eval(node->children + 0).number / eval(node->children + 1).number;
 }
 
-float64 evalModulus(ASTNode* node) {
+static inline float64 evalModulus(ASTNode* node) {
     return remainder(eval(node->children + 0).number, eval(node->children + 1).number);
 }
 
-float64 evalExponentiation(ASTNode* node) {
+static inline float64 evalExponentiation(ASTNode* node) {
     return pow(eval(node->children + 0).number, eval(node->children + 1).number);
 }
 
-Value evalOperator(ASTNode* node) {
+static inline Value evalOperator(ASTNode* node) {
     Value v;
 
     switch ((int) node->token->tt) {
@@ -135,25 +135,29 @@ void interactive() {
 
         // super-secret interpreter options
         switch (s[0]) {
-            case '.':
+            case '.': // exit the interpreter
                 print("Bye!\n");
                 return;
 
-            case '`':
+            case '`': // show all the messages
                 Reporter::flush();
                 continue;
 
-            case '/':
+            case '/': // delete everything
                 Lexer::clear();
                 traverse(AST, freeNode);
                 continue;
 
-            case '#':
+            case '#': // show state of the lexer
                 Lexer::print();
                 continue;
 
-            case '?':
+            case '?': // show state of the AST
                 traverse(AST, print);
+                continue;
+
+            case '$': // run eval() on the AST
+                print(eval(AST));
                 continue;
         }
 
@@ -164,8 +168,6 @@ void interactive() {
         }
 
         AST = parse(tokens, Lexer::tokenCount);
-
-        printf("%.14g\n", eval(AST).number);
 
         Reporter::flush();
 

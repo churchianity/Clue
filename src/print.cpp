@@ -69,6 +69,21 @@ void die(const char* format, ...) {
     exit(1);
 }
 
+void print(bool b)          { print("%s\n", boolToString(b)); }
+void print(char c)          { print("%c\n", c); }
+void print(signed int i)    { print("%d\n", i); }
+void print(unsigned int i)  { print("%u\n", i); }
+void print(float f)         { print("%.14g\n", f); }
+void print(double d)        { print("%.14g\n", d); }
+
+void print(Value v) {
+    if (v.type == VT_NUMBER) {
+        print(v.number);
+    } else {
+        print(v.string);
+    }
+}
+
 void print(const Token* token) {
     if (!token) {
         print("token is null\n"); return;

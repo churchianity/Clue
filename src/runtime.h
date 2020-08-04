@@ -5,9 +5,18 @@
 #include "clue.h"
 
 
-union Value {
-    const char* string;
-    float64 number;
+enum ValueTypeEnum {
+    VT_STRING,
+    VT_NUMBER
+};
+
+struct Value {
+    ValueTypeEnum type = VT_NUMBER;
+
+    union {
+        const char* string;
+        float64 number;
+    };
 };
 
 extern Value eval(ASTNode* node);

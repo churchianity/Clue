@@ -20,7 +20,7 @@ struct ASTNode {
 
     OperatorAssociativityEnum associativity = OA_LEFT;
 
-    u8 precedence = 0;
+    u8 precedence = -1;
 
     bool unary      = false;
     bool postfix    = false;

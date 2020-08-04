@@ -18,7 +18,7 @@
  * if the operator stack is empty we don't care
  */
 static inline bool canPop(Stack<ASTNode>* os, ASTNode* node) {
-    return !os->isEmpty() && (node->precedence <= os->peek()->precedence);
+    return !os->isEmpty() && (node->precedence < os->peek()->precedence);
 }
 
 static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node) {
@@ -42,11 +42,10 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node
         addChild(node, child);
 
     } else { // is binary
-        ASTNode* rhs = es->pop();
+        ASTNode* rhs = es->pop(); // rhs was pushed most recently
         ASTNode* lhs = es->pop();
 
         if (!(rhs && lhs)) {
-
             Reporter::report(
                 MS_ERROR, "missing operand for binary operator",
                 null, node->token->filename, node->token->line, node->token->column
@@ -55,7 +54,6 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node
 
         addChild(node, lhs);
         addChild(node, rhs);
-
     }
 
     es->push(node);
@@ -75,6 +73,10 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
 
         switch ((int) tokens[i].tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
             case ')':
+                for (u32 j = 0; j < os->size(); j++) {
+                    print(&os->data[j]);
+                }
+
                 while (os->peek()) {
                     if (os->peek()->token->tt == '(') {
                         break;

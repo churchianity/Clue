@@ -218,7 +218,7 @@ ASTNode* nodify(Token tokens[], u32 i) {
             case '{':
             case '(':
                 node->punctuator = true;
-                return node;
+                break;
 
             default:
                 Reporter::report(
@@ -241,7 +241,7 @@ ASTNode* nodify(Token tokens[], u32 i) {
         switch ((int) tokens[i].tt) {
             case ';':
                 node->punctuator = true;
-                return node;
+                break;
 
             default:
                 node->maxChildrenCount = 2;

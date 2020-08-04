@@ -64,7 +64,7 @@ struct Table {
 
     /**
      * @FIXME
-     * this is completely and totally unsafe for non char* keys, and probably weird values too.
+     * this is completely and totally unsafe for non char* keys, and probably other weird values too.
      * we want to support arbitrary data - we could do this (with minor gotchas) by passing the size
      * of the key and the size of the value at init time, then we can check for equality on some POD.
      *
@@ -80,7 +80,7 @@ struct Table {
         TableEntry<K, V>* entry = entries[hash(key, keyLength, lanes)];
 
         for (; entry != null; entry = entry->next) {
-            if (memCmp(key, keyLength, entry->key, entry->keyLength)) {
+            if (memeq(key, keyLength, entry->key, entry->keyLength)) {
                 return entry;
             }
         }
