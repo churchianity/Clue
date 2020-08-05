@@ -2,7 +2,6 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-
 // there isn't a really good reason for this, i just like it
 #define null NULL
 
@@ -14,6 +13,9 @@
 #endif
 
 // char // i don't know if we should use char8_t, seems like a medium sized pain for a small sized gain
+
+#include <stdint.h> // required on my chromebook for some reason
+                    // @NOTE chrome gcc -v 8.3.0   | maybe gcc version is the cause - im using the same flags tho
 
 typedef uint64_t u64;
 typedef uint32_t u32;
