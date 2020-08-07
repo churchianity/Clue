@@ -58,12 +58,33 @@ void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
  *     2. Whether or not it is being used as a unary operator
  *     3. Whether or not it is being used in postfix
  */
+
+/*
+PRECEDENCE       OPERATOR(S)          ASSOCIATIVITY
+    +----+--------------------------+---------------+
+    |  8 |  ++ -- : ( [ { . @ $     |               |
+    |----|--------------------------|---------------+
+    |  7 |  **                      | right-to-left |
+    |----|--------------------------|---------------+
+    |  6 |  ++ -- + - ~ !           | n/a (or r->l  |
+    |----|--------------------------|---------------+
+    |  5 |  * / % & ^ | << >>       |               |
+    |----|--------------------------|               |
+    |  4 |  + -                     |               |
+    |----|--------------------------| left-to-right |
+    |  3 |  != == <= < >= >         |               |
+    |----|--------------------------|               |
+    |  2 |  || &&                   |               |
+    |----|--------------------------|---------------+
+    |    |  = :=                    |               |
+    |  1 |  += -= *= /= %= **=      | right-to-left |
+    |    |  <<= >>= &= ^= |=        |               |
+    |----|--------------------------|---------------|
+    |  0 |  , ; ) ] }               | left-to-right |
+    +----+--------------------------+---------------+
+ */
 u8 precedence(u32 tt, bool unary, bool postfix) {
     switch (tt) {
-        case ')':
-        case ']':
-        case '{':
-        case '}':
         case ';':
         case ',':
             return 0;
@@ -78,29 +99,38 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
         case TT_BITWISE_AND_EQUALS:
         case TT_BITWISE_OR_EQUALS:
         case TT_BITWISE_XOR_EQUALS:
+        case TT_BITWISE_NOT_EQUALS:
         case TT_RIGHT_SHIFT_EQUALS:
         case TT_LEFT_SHIFT_EQUALS:
-        case TT_BITWISE_NOT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
             return 1;
 
-        // comparison
+        // logical operator (non-comparison)
+        case TT_LOGICAL_OR:
+        case TT_LOGICAL_AND:
+            return 2;
+
+        // equality & comparison
+        // these can be the same because you basically never use them in tandem...
+        case TT_NOT_EQUALS:
+        case TT_EQUALITY:
         case TT_GREATER_THAN_OR_EQUAL:
         case '>':
         case TT_LESS_THAN_OR_EQUAL:
         case '<':
-            return 2;
+            return 3;
 
         // unary & binary plus & minus
         case '+':
         case '-':
             if (unary) {
-                return 7;
+                return 6;
             }
 
-            return 3;
+            // binary...
+            return 4;
 
-        // other arithmetic...
+        // other arithmetic... BEGIN LEFT_TO_RIGHT
         case '*':
         case '/':
         case '%':
@@ -111,41 +141,33 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
         case '^':
         case TT_LEFT_SHIFT:
         case TT_RIGHT_SHIFT:
-            return 4;
-
-        // unary bitwise is slightly higher than binary!
-        case '~':
             return 5;
 
-        // logical operator (non-comparison)
-        case TT_NOT_EQUALS:
-        case TT_EQUALITY:
-        case TT_LOGICAL_OR:
-        case TT_LOGICAL_AND:
-            return 6;
+        // END LEFT_TO_RIGHT
 
-        // negation is slightly higher!
+        // unary bitwise/negation
         case '!':
-            return 7;
+        case '~':
+            return 6;
 
         // exponentation
         case TT_EXPONENTIATION:
-            return 8;
+            return 7;
 
         // i'm not entirely certain why, but you get problems if ( is lower than assignment
         // when it's invoking a function it's pretty high precedence tho
-        case '(':
-        case '[':
         case TT_DECREMENT:
         case TT_INCREMENT:
-        case '.':
-        case ':':
-            return 9;
+            if (postfix) {
+                return 8;
+            }
 
-        case TT_SYMBOL:
-            // @FIXME do a lookup for global symbols like 'sizeof' equivalent or stuff like that
-            die("symbol operator!\n");
-            break;
+        case '(':
+        case '[':
+
+        case '.':
+        case ':': // @NOTE should it be this high tho?
+            return 9;
     }
 
     die("attempt to lookup precedence for unknown operator/tokentype: %c/%d\n", tt, tt);
