@@ -7,8 +7,8 @@
 
 
 enum OperatorAssociativityEnum {
-    OA_LEFT = -1,
-    OA_RIGHT = 1
+    LEFT_TO_RIGHT = -1,
+    RIGHT_TO_LEFT = 1
 };
 
 struct ASTNode {
@@ -18,7 +18,7 @@ struct ASTNode {
     u32 childrenCount    = 0;
     u32 maxChildrenCount = 0;
 
-    OperatorAssociativityEnum associativity = OA_LEFT;
+    OperatorAssociativityEnum associativity = LEFT_TO_RIGHT;
 
     u8 precedence = -1;
 

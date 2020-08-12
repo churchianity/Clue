@@ -13,11 +13,16 @@
 enum TokenTypeEnum {
     // 0-255 ascii chars here
 
-    TT_SYMBOL                   = 256,  // any value that can be returned by lexSymbol
-    TT_NUMERIC                  = 257,  // any value that can be returned by lexNumeric
-    TT_STRING                   = 258,  // any value that can be returned by lexString
-    TT_OPERATOR                 = 259,  // unused (operators have one of the types below);
+    // anything that the lexer considers to be a symbol
+    TT_SYMBOL                   = 256,
 
+    // anything that the lexer considers to be a number
+    TT_NUMERIC                  = 257,
+
+    // anything that the lexer considers to be a string
+    TT_STRING                   = 258,
+
+    // TT_OPERATOR              = 259,  // unused (operators have one of the types below);
     // TT_DOUBLE_TILDE          = 260,  // ~~
     // TT_DOUBLE_BACKTICK       = 261,  // ``
     // TT_BOOL_CAST             = 262,  // !!
@@ -47,7 +52,7 @@ enum TokenTypeEnum {
     TT_LEFT_SHIFT               = 286,  // <<
     // TT_IMPOSSIBLE_7          = 287,  // ,,
     TT_RIGHT_SHIFT              = 288,  // >>
-    // TT_IMPOSSIBLE_8          = 289,  // ..
+    // TT_DOUBLE_DOT            = 289,  // ..
     // TT_DOUBLE_QMARK          = 290,  // ??
     TT_SINGLE_LINE_COMMENT      = 291,  // //
 
@@ -72,7 +77,6 @@ enum TokenTypeEnum {
     TT_RIGHT_SHIFT_EQUALS       = 309,  // >>=
     TT_LEFT_SHIFT_EQUALS        = 310,  // <<=
     TT_EXPONENTIATION_EQUALS    = 311,  // **=
-
 };
 
 struct Token {

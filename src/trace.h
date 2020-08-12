@@ -2,7 +2,7 @@
 #ifndef TRACE_H
 #define TRACE_H
 
-#include <stdio.h> // FILE, stderr, fprintf
+#include <stdio.h> // FILE, stderr, fprintf // can't #include print.h cuz recursive dependency
 #include <execinfo.h> // backtrace, backtrace_symbols
 
 #include "alloc.h"

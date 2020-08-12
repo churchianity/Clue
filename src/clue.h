@@ -20,24 +20,25 @@
  *  C++11
  *
  *  stdlib.h
- *  malloc, calloc, realloc, free, exit, null
+ *      malloc, calloc, realloc, free, exit, NULL
  *
  *  stdio.h
- *  stdin, stdout, stderr
- *  fgets, fprintf, printf
+ *      stdin, stdout, stderr
+ *      fgets, fprintf, printf
  *
  *  stdint.h
- *  uint64_t, uint32_t, uint16_t, uint8_t, int64_t, int32_t, int16_t, int8_t
+ *      uint64_t, uint32_t, uint16_t, uint8_t, int64_t, int32_t, int16_t, int8_t
  *
  *  stdarg.h
- *  just for a concatenate function in (our) string.h
+ *      concatenate function in (our) string.h
+ *      printf wrapper
+ *
  *
  *  execinfo.h
- *  backtrace, backtrace_symbols
+ *      backtrace, backtrace_symbols
  *
- *  signal.h ??
- *  SIGSEGV, SIGABRT
- *  signal
+ *  signal.h
+ *      SIGSEGV, SIGABRT, signal
  */
 
 /**
