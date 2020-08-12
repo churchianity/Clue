@@ -4,12 +4,9 @@
 
 #include "table.hpp"
 #include "token.h"
+#include "operator.h"
 
 
-enum OperatorAssociativityEnum {
-    LEFT_TO_RIGHT = -1,
-    RIGHT_TO_LEFT = 1
-};
 
 struct ASTNode {
     Token* token;
@@ -18,7 +15,7 @@ struct ASTNode {
     u32 childrenCount    = 0;
     u32 maxChildrenCount = 0;
 
-    OperatorAssociativityEnum associativity = LEFT_TO_RIGHT;
+    OperatorAssociativityEnum associativity = OA_LEFT_TO_RIGHT;
 
     u8 precedence = -1;
 

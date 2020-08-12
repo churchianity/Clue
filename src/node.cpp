@@ -52,37 +52,6 @@ void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
     callback(self);
 }
 
-
-/*
-    There are three pieces of information needed to determine an operator's precedence:
-        1. Its base type, which overlaps with TokenTypeEnum
-        2. Whether or not it is being used as a unary operator
-        3. Whether or not it is being used in postfix
-
-
-        PRECEDENCE       OPERATOR(S)          ASSOCIATIVITY
-            .----.--------------------------.---------------.
-(prefix)    |  8 |  ++ -- : ( [ { . @ $     |               |
-            |----|--------------------------|---------------|
-            |  7 |  **                      | right-to-left |
-            |----|--------------------------|---------------|
-(postfix)   |  6 |  ++ -- + - ~ !           | n/a (or r->l  |
-            |----|--------------------------|---------------|
-            |  5 |  * / % & ^ | << >>       |               |
-            |----|--------------------------|               |
-            |  4 |  + -                     |               |
-            |----|--------------------------| left-to-right |
-            |  3 |  != == <= < >= >         |               |
-            |----|--------------------------|               |
-            |  2 |  || &&                   |               |
-            |----|--------------------------|---------------|
-            |    |  = :=                    |               |
-            |  1 |  += -= *= /= %= **=      | right-to-left |
-            |    |  <<= >>= &= ^= |=        |               |
-            |----|--------------------------|---------------|
-            |  0 |  , ; ) ] }               | left-to-right |
-            '----'--------------------------'---------------'
-*/
 u8 precedence(u32 tt, bool unary, bool postfix) {
     switch (tt) {
         case ';':
