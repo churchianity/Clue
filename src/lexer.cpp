@@ -88,7 +88,6 @@ void Lexer :: add(Token* token) {
  * @STATEFUL
  */
 Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
-    // ::print(sizeof (TokenTypeEnum));
     // const char* beginning = buffer;
     static bool prevTokenImport = false;
 

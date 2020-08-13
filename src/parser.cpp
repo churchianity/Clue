@@ -10,6 +10,7 @@
 #include "token.h"
 #include "util.h"
 
+// @TODO ASSOCIATIVITY
 
 /**
  * checks if the precedence of the operator on top of the stack is less than the precedence of
@@ -73,10 +74,6 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
 
         switch ((int) tokens[i].tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
             case ')':
-                for (u32 j = 0; j < os->size(); j++) {
-                    print(&os->data[j]);
-                }
-
                 while (os->peek()) {
                     if (os->peek()->token->tt == '(') {
                         break;

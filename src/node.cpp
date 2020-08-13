@@ -52,8 +52,18 @@ void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
     callback(self);
 }
 
-u8 precedence(u32 tt, bool unary, bool postfix) {
-    switch (tt) {
+/**
+ * Once we expect a node to be an operator, and have expectations about it regarding:
+ *  - unary-ness
+ *  - postfix/prefix-ness
+ *
+ * We can calculate absolute precedence by looking up a base precedence and then modifying it based on
+ * the above criteria.
+ */
+u8 calculatePrecedence(const char* tk, u32 length, bool unary, bool postfix) {
+    const TableEntry<const char, Operator>* entry = getOperatorTable()->lookup(tk, length);
+
+    switch (entry->value->type) {
         // unary & binary plus & minus
         case '+':
         case '-':
@@ -61,27 +71,17 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
                 return 6;
             }
 
-            // binary...
-            return 4;
-
-        // i'm not entirely certain why, but you get problems if ( is lower than assignment
-        // when it's invoking a function it's pretty high precedence tho
         case TT_DECREMENT:
         case TT_INCREMENT:
             if (postfix) {
                 return 8;
             }
 
-        case '(':
-        case '[':
-
-        case '.':
-        case ':': // @NOTE should it be this high tho?
-            return 9;
+        default:
+            return entry->value->precedence;
     }
 
-    die("attempt to lookup precedence for unknown operator/tokentype: %c/%d\n", tt, tt);
-    return 0; // @NOTE will never get here, die() should always call exit(1) but gcc can't figure that out
+    die("attempt to lookup precedence for unknown operator/tokentype: %s\n", tk);
 }
 
 void addChild(ASTNode* self, ASTNode* child) {
@@ -181,9 +181,10 @@ ASTNode* nodify(Token tokens[], u32 i) {
         }
     }
 
-    node->precedence = precedence(node->token->tt
-                                , node->unary
-                                , node->postfix);
+    node->precedence = calculatePrecedence(node->token->tk
+                                         , node->token->length
+                                         , node->unary
+                                         , node->postfix);
 
     // @TODO calculate associativity here too
 

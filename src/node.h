@@ -7,6 +7,7 @@
 #include "operator.h"
 
 
+// @TODO make this more polymorphic
 struct ASTNode {
     Token* token;
 

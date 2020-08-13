@@ -4,19 +4,6 @@
 #include "table.hpp"
 
 
-Table<const char, Operator>* ot = null;
-
-
-static Operator* op(u8 precedence, OperatorAssociativityEnum associativity, u32 type) {
-    Operator* o = (Operator*) pMalloc(sizeof (Operator));
-
-    o->precedence = precedence;
-    o->associativity = associativity;
-    o->type = type;
-
-    return o;
-}
-
 /*
         PRECEDENCE       OPERATOR(S)          ASSOCIATIVITY
             .----.--------------------------.---------------.
@@ -49,6 +36,19 @@ static Operator* op(u8 precedence, OperatorAssociativityEnum associativity, u32 
 
 associativity = none means an operator for which there should never be adjacent operators of equal precedence.
 */
+
+Table<const char, Operator>* ot = null;
+
+
+static Operator* op(u8 precedence, OperatorAssociativityEnum associativity, u32 type) {
+    Operator* o = (Operator*) pMalloc(sizeof (Operator));
+
+    o->precedence = precedence;
+    o->associativity = associativity;
+    o->type = type;
+
+    return o;
+}
 
 /**
  * inits and returns a table which is information about the operators in the language,
