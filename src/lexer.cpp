@@ -229,7 +229,6 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
         } else {
             tt = (TokenTypeEnum) *buffer;
-            bad = false;
 
             switch (*buffer) {
                 case '\n': column = 1; line++; buffer++; continue;
@@ -355,6 +354,8 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             }
         }
 
+        // being here means we have a fully-formed token, and it should probably not be modified past this point save
+        // for exceptional circumstances
         Lexer::add(token);
 
         // handle import statement
@@ -384,12 +385,7 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             }
         }
 
-        if ((tt == TT_SYMBOL) && streq(Lexer::token->tk, "import")) {
-            prevTokenImport = true;
-
-        } else {
-            prevTokenImport = false;
-        }
+        prevTokenImport = token->tt == TT_IMPORT;
 
         // do this only after handling EVERYTHING having to do with the token we just lexed
         column += Lexer::token->length;
