@@ -19,7 +19,11 @@
  * if the operator stack is empty we don't care
  */
 static inline bool canPop(Stack<ASTNode>* os, ASTNode* node) {
-    return !os->isEmpty() && (node->precedence >= os->peek()->precedence);
+    if (os->isEmpty() || os->peek()->punctuator) {
+        return false;
+    }
+
+    return node->precedence <= os->peek()->precedence;
 }
 
 static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node) {
@@ -64,8 +68,8 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node
  * Parses expressions into an AST.
  */
 static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
-    Stack<ASTNode>* es = new Stack<ASTNode>(10, true);
-    Stack<ASTNode>* os = new Stack<ASTNode>(10, true);
+    auto es = new Stack<ASTNode>(10, true);
+    auto os = new Stack<ASTNode>(10, true);
 
     ASTNode* opNode = null; // @TODO remove this
 
@@ -118,7 +122,6 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
     while (!os->isEmpty()) {
         parseOperation(es, os, os->pop());
     }
-
 
     ASTNode* root = (ASTNode*) es->pop();
 

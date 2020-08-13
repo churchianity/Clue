@@ -79,7 +79,7 @@ u8 calculatePrecedence(const char* tk, u32 length, bool unary, bool postfix, boo
 
         case '(':
             if (punctuator) {
-                return 8;
+                return 9;
             }
 
         default:
