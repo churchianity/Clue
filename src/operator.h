@@ -3,6 +3,7 @@
 #define OPERATOR_H
 
 #include "table.hpp"
+#include "token.h"
 
 
 enum OperatorAssociativityEnum {
@@ -14,9 +15,10 @@ enum OperatorAssociativityEnum {
 struct Operator {
     u8 precedence;
     OperatorAssociativityEnum associativity = OA_LEFT_TO_RIGHT;
+    u32 type;
 };
 
-extern Table<const char, Operator>* OperatorTable;
+extern Table<const char, Operator>* getOperatorTable();
 
 #endif
 

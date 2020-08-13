@@ -5,6 +5,7 @@
 #include "node.h"
 #include "table.hpp"
 #include "token.h"
+#include "operator.h"
 #include "runtime.h"
 #include "stack.hpp"
 
@@ -67,6 +68,7 @@ extern void die(const char* format, ...);
 extern void print(const Token* token);
 extern void print(const Symbol* symbol);
 extern void print(const ASTNode* node);
+extern void print(const Operator* op);
 
 template <class T>
 extern void print(const Stack<T>* stack);

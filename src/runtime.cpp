@@ -167,7 +167,7 @@ void interactive() {
             free(AST);
         }
 
-        AST = parse(tokens, Lexer::tokenCount);
+        // AST = parse(tokens, Lexer::tokenCount);
 
         Reporter::flush();
 

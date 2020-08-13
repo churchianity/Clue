@@ -26,6 +26,7 @@
 #include <signal.h> // for signal() - needed on my chromebook for some reason?
 
 #include "clue.h"
+#include "operator.h"
 #include "print.h"
 #include "runtime.h"
 #include "string.h"
@@ -96,6 +97,8 @@ int main(int argc, const char* argv[]) {
     handleCommandLineArguments(argc, argv);
 
     // if we're here, we probably want to compile and/or run some code.
+    getOperatorTable();
+
     if (CLAs.interactive) {
         interactive();
     }

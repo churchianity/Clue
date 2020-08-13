@@ -77,6 +77,13 @@ enum TokenTypeEnum {
     TT_RIGHT_SHIFT_EQUALS       = 309,  // >>=
     TT_LEFT_SHIFT_EQUALS        = 310,  // <<=
     TT_EXPONENTIATION_EQUALS    = 311,  // **=
+
+    TT_IMPORT                   = 400,  // import
+    TT_IF                       = 401,  // if
+    TT_ELSE                     = 402,  // else
+    TT_WHILE                    = 403,  // while
+
+    // TT_MAKE_IT_BIG              = 0xFFFFFFFFFFFFFFFF
 };
 
 struct Token {

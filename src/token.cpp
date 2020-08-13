@@ -17,7 +17,8 @@ const char* tokenTypeToString(TokenTypeEnum tt) {
         case TT_STRING: return "STRING";
 
         default:
-            return "OPERATOR";
+            // these should all be operators
+            return intToString(tt);
     }
 }
 

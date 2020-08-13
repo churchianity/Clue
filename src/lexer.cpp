@@ -88,6 +88,7 @@ void Lexer :: add(Token* token) {
  * @STATEFUL
  */
 Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
+    // ::print(sizeof (TokenTypeEnum));
     // const char* beginning = buffer;
     static bool prevTokenImport = false;
 
@@ -340,6 +341,19 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         token->tt       = tt;
         token->tk       = read(buffer - length, length);
         token->bad      = bad;
+
+        // check if we used a symbol that is a reserved operator/word
+        if (token->tt == TT_SYMBOL) {
+            TableEntry<const char, Operator>* entry = getOperatorTable()->lookup(token->tk, token->length);
+
+            if (entry) {
+                // retroactively fix its type
+                token->tt = (TokenTypeEnum) entry->value->type;
+
+            } else if (false) { // @TODO global symbol table/constant lookup
+
+            }
+        }
 
         Lexer::add(token);
 

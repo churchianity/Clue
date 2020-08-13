@@ -7,7 +7,6 @@
 #include "operator.h"
 
 
-
 struct ASTNode {
     Token* token;
 

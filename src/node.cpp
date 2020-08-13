@@ -54,41 +54,6 @@ void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
 
 u8 precedence(u32 tt, bool unary, bool postfix) {
     switch (tt) {
-        case ';':
-        case ',':
-            return 0;
-
-        case '=':
-        case TT_COLON_EQUALS:
-        case TT_PLUS_EQUALS:
-        case TT_MINUS_EQUALS:
-        case TT_TIMES_EQUALS:
-        case TT_DIVIDE_EQUALS:
-        case TT_MODULO_EQUALS:
-        case TT_BITWISE_AND_EQUALS:
-        case TT_BITWISE_OR_EQUALS:
-        case TT_BITWISE_XOR_EQUALS:
-        case TT_BITWISE_NOT_EQUALS:
-        case TT_RIGHT_SHIFT_EQUALS:
-        case TT_LEFT_SHIFT_EQUALS:
-        case TT_EXPONENTIATION_EQUALS:
-            return 1;
-
-        // logical operator (non-comparison)
-        case TT_LOGICAL_OR:
-        case TT_LOGICAL_AND:
-            return 2;
-
-        // equality & comparison
-        // these can be the same because you basically never use them in tandem...
-        case TT_NOT_EQUALS:
-        case TT_EQUALITY:
-        case TT_GREATER_THAN_OR_EQUAL:
-        case '>':
-        case TT_LESS_THAN_OR_EQUAL:
-        case '<':
-            return 3;
-
         // unary & binary plus & minus
         case '+':
         case '-':
@@ -98,30 +63,6 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
 
             // binary...
             return 4;
-
-        // other arithmetic... BEGIN LEFT_TO_RIGHT
-        case '*':
-        case '/':
-        case '%':
-
-        // bitwise binary operations...
-        case '&':
-        case '|':
-        case '^':
-        case TT_LEFT_SHIFT:
-        case TT_RIGHT_SHIFT:
-            return 5;
-
-        // END LEFT_TO_RIGHT
-
-        // unary bitwise/negation
-        case '!':
-        case '~':
-            return 6;
-
-        // exponentation
-        case TT_EXPONENTIATION:
-            return 7;
 
         // i'm not entirely certain why, but you get problems if ( is lower than assignment
         // when it's invoking a function it's pretty high precedence tho

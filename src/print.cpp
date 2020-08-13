@@ -127,6 +127,14 @@ void print(const ASTNode* node) {
     print("\n");
 }
 
+void print(const Operator* op) {
+    if (!op) {
+        print("operator is null\n"); return;
+    }
+
+    print("&Operator %p | prec: %u, assoc: %d\n");
+}
+
 template <class K, class V>
 void print(const Table<K, V>* table) {
     if (!table) {

@@ -102,6 +102,17 @@ struct Table {
 
         entries = (TableEntry<K, V>**) pCalloc(lanes, sizeof (TableEntry<K, V>*));
     }
+
+    void traverse(void (*callback) (TableEntry<K, V>)) {
+        for (u32 i = 0; i < lanes; i++) {
+            TableEntry<K, V>* entry = entries[i];
+
+            while (entry) {
+                callback(entry);
+                entry = entry->next;
+            }
+        }
+    }
 };
 
 #endif
