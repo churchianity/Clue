@@ -243,6 +243,8 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 case '}':
                 case '[':
                 case ']':
+                case '@':
+                case '$':
                     break;
 
                 case '>':
@@ -293,7 +295,6 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                             case '+': tt = TT_PLUS_EQUALS;           break;
                             case '-': tt = TT_MINUS_EQUALS;          break;
                             case '/': tt = TT_DIVIDE_EQUALS;         break;
-                            case '=': tt = TT_EQUALITY;              break;
                             case '&': tt = TT_BITWISE_AND_EQUALS;    break;
                             case '|': tt = TT_BITWISE_OR_EQUALS;     break;
                             case '!': tt = TT_NOT_EQUALS;            break;
@@ -310,8 +311,6 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
                 // invalid or unimplemented single-chars
                 case '#':
-                case '@':
-                case '$':
                 case '`':
                 case '?':
                 case '\\':
