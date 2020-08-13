@@ -34,9 +34,8 @@
             |  0 |  , ; ) ] }               | left-to-right |
             '----'--------------------------'---------------'
 
-associativity = none means an operator for which there should never be adjacent operators of equal precedence.
+    { associativity = none } means an operator for which there should never be adjacent operators of equal precedence.
 */
-
 Table<const char, Operator>* ot = null;
 
 
@@ -53,8 +52,9 @@ static Operator* op(u8 precedence, OperatorAssociativityEnum associativity, u32 
 /**
  * inits and returns a table which is information about the operators in the language,
  * without contextual modifications, where 'contextual modifications' means:
- *      - it is unknown if the operator is being used in unary or postfix mode.
- *        if it only functions as a unary operator, then it is assumed to be unary prefix.
+ *
+ *      - it is unknown if the operator is being used in a unary or postfix context,
+ *        except when the operator is only ever unary
  */
 static Table<const char, Operator>* initOperatorTable() {
     Table<const char, Operator>* t = new Table<const char, Operator>(25);

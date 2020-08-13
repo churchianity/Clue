@@ -100,7 +100,7 @@ static void print(const Message* message) {
     char* pointyThing = makePointyThing(message->column);
 
     // i'm so sorry.
-    printf("\n    %s%s%s: %s\n    %s%s%s%s:%u:%u\n    %s\n    %s%s%s\n"
+    print("\n    %s%s%s: %s\n    %s%s%s%s:%u:%u\n    %s\n    %s%s%s\n"
            , messageSeverityToColor(message->severity), messageSeverityToString(message->severity), ANSI_RESET
            , message->content
            , fn ? "in function '" : "", fn ? fn : "", fn ? "': " : ""

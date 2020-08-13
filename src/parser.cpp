@@ -95,11 +95,6 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
                 break;
 
             case TT_SYMBOL:
-                // @TODO lookup in a symbol table, and act more like a operator if it's a weird operator keyword like 'sizeof'
-                // we should also maybe resolve scope at this point, but we haven't yet implemented closures
-                es->push(nodify(tokens, i));
-                break;
-
             case TT_STRING:
             case TT_NUMERIC:
                 es->push(nodify(tokens, i));
