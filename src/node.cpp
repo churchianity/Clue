@@ -60,8 +60,8 @@ void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
  * We can calculate absolute precedence by looking up a base precedence and then modifying it based on
  * the above criteria.
  */
-u8 calculatePrecedence(const char* tk, u32 length, bool unary, bool postfix) {
-    const TableEntry<const char, Operator>* entry = getOperatorTable()->lookup(tk, length);
+u8 calculatePrecedence(const char* tk, u32 length, bool unary, bool postfix, bool punctuator) {
+    const auto entry = getOperatorTable()->lookup(tk, length);
 
     switch (entry->value->type) {
         // unary & binary plus & minus
@@ -77,11 +77,14 @@ u8 calculatePrecedence(const char* tk, u32 length, bool unary, bool postfix) {
                 return 8;
             }
 
+        case '(':
+            if (punctuator) {
+                return 8;
+            }
+
         default:
             return entry->value->precedence;
     }
-
-    die("attempt to lookup precedence for unknown operator/tokentype: %s\n", tk);
 }
 
 void addChild(ASTNode* self, ASTNode* child) {
@@ -184,7 +187,8 @@ ASTNode* nodify(Token tokens[], u32 i) {
     node->precedence = calculatePrecedence(node->token->tk
                                          , node->token->length
                                          , node->unary
-                                         , node->postfix);
+                                         , node->postfix
+                                         , node->punctuator);
 
     // @TODO calculate associativity here too
 

@@ -62,6 +62,12 @@ struct Stack {
 
         return data[top--];
     }
+
+    void forEach(void (*callback) (const T*)) {
+        for (u32 i = 0; i < size(); i++) {
+            callback(data[i]);
+        }
+    }
 };
 
 #endif

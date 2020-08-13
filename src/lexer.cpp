@@ -9,7 +9,7 @@
 #include "util.h"
 
 
-Table<char, void>* Lexer::files = new Table<char, void>(10);
+auto Lexer::files = new Table<char, void>(10);
 
 u32 Lexer::tokenCount = 0;
 u32 Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
@@ -38,7 +38,7 @@ void Lexer :: print() {
     ::print("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokenCount, Lexer::capacity);
 
     u32 i = 0;
-    TableEntry<char, void>* entry = Lexer::files->entries[i];
+    auto entry = Lexer::files->entries[i];
 
     for (; i < Lexer::files->lanes; i++) {
         while (entry) {
@@ -341,7 +341,7 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
         // check if we used a symbol that is a reserved operator/word
         if (token->tt == TT_SYMBOL) {
-            TableEntry<const char, Operator>* entry = getOperatorTable()->lookup(token->tk, token->length);
+            auto entry = getOperatorTable()->lookup(token->tk, token->length);
 
             if (entry) {
                 // retroactively fix its type
@@ -362,7 +362,7 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 char* importFilePath = trimQuotes(Lexer::token->tk, Lexer::token->length);
 
                 // check if we've already imported the file - you shouldn't ever need to import something multiple times
-                TableEntry<char, void>* entry = Lexer::files->lookup(importFilePath, Lexer::token->length - 2);
+                auto entry = Lexer::files->lookup(importFilePath, Lexer::token->length - 2);
 
                 if (entry) { // @TODO would be cool if we could detect a recursive import vs. a duplicate import
                     Reporter::add(

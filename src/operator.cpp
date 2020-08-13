@@ -57,7 +57,7 @@ static Operator* op(u8 precedence, OperatorAssociativityEnum associativity, u32 
  *        except when the operator is only ever unary
  */
 static Table<const char, Operator>* initOperatorTable() {
-    Table<const char, Operator>* t = new Table<const char, Operator>(25);
+    auto t = new Table<const char, Operator>(25);
 
     t->insert("import",     6, op(9, OA_NONE, TT_IMPORT));
     t->insert("if",         2, op(9, OA_NONE, TT_IF));

@@ -19,7 +19,7 @@
  * if the operator stack is empty we don't care
  */
 static inline bool canPop(Stack<ASTNode>* os, ASTNode* node) {
-    return !os->isEmpty() && (node->precedence < os->peek()->precedence);
+    return !os->isEmpty() && (node->precedence >= os->peek()->precedence);
 }
 
 static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node) {
