@@ -9,7 +9,7 @@
 #include "util.h"
 
 
-auto Lexer::files = new Table<char, void>(10);
+Table<char, void>* Lexer::files = new Table<char, void>(10);
 
 u32 Lexer::tokenCount = 0;
 u32 Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;

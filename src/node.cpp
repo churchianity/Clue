@@ -52,6 +52,190 @@ void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
     callback(self);
 }
 
+/*
+        PRECEDENCE       OPERATOR(S)          ASSOCIATIVITY
+            .----.--------------------------.---------------.
+            |    |  :                       |     none      |
+            |    |--------------------------|---------------|
+            |  8 |  .                       | left-to-right |
+            |    |--------------------------|---------------|
+(prefix)    |    |  ++ -- ( [ { @ $         |               |
+            |----|--------------------------|               |
+            |  7 |  **                      | right-to-left |
+            |----|--------------------------|               |
+(unary)     |    |  + - ~ !                 |               |
+            |  6 |--------------------------|---------------|
+(postfix)   |    |  ++ --                   | left-to-right |
+            |----|--------------------------|---------------|
+            |  5 |  * / % & ^ | << >>       |               |
+            |----|--------------------------|               |
+(binary)    |  4 |  + -                     |               |
+            |----|--------------------------| left-to-right |
+            |  3 |  != == <= < >= >         |               |
+            |----|--------------------------|               |
+            |  2 |  || &&                   |               |
+            |----|--------------------------|---------------|
+            |    |  = :=                    |               |
+            |  1 |  += -= *= /= %= **=      |     none      |
+            |    |  <<= >>= &= ^= |=        |               |
+            |----|--------------------------|---------------|
+            |  0 |  , ; ) ] }               | left-to-right |
+            '----'--------------------------'---------------'
+
+    { associativity = none } means an operator for which there should never be adjacent operators of equal precedence.
+*/
+OperatorAssociativityEnum associativity(u32 tt, bool unary, bool postfix) {
+    switch (tt) {
+        case ';':
+        case ':':
+        case ')':
+        case ']':
+        case '}':
+        case '(':
+        case '[':
+        case '{':
+
+        case '=':
+        case TT_COLON_EQUALS:
+        case TT_PLUS_EQUALS:
+        case TT_MINUS_EQUALS:
+        case TT_TIMES_EQUALS:
+        case TT_DIVIDE_EQUALS:
+        case TT_MODULO_EQUALS:
+        case TT_BITWISE_AND_EQUALS:
+        case TT_BITWISE_OR_EQUALS:
+        case TT_BITWISE_XOR_EQUALS:
+        case TT_BITWISE_NOT_EQUALS:
+        case TT_RIGHT_SHIFT_EQUALS:
+        case TT_LEFT_SHIFT_EQUALS:
+        case TT_EXPONENTIATION_EQUALS:
+            return OA_NONE;
+
+        case ',':
+        case TT_LOGICAL_AND:
+        case TT_LOGICAL_OR:
+        case TT_EQUALITY:
+        case TT_NOT_EQUALS:
+        case '>':
+        case '<':
+        case TT_GREATER_THAN_OR_EQUAL:
+        case TT_LESS_THAN_OR_EQUAL:
+        case '*':
+        case '/':
+        case '%':
+        case '&':
+        case '|':
+        case '^':
+        case TT_LEFT_SHIFT:
+        case TT_RIGHT_SHIFT:
+        case '+':
+        case '-':
+            if (unary) {
+                return OA_RIGHT_TO_LEFT;
+            }
+
+            return OA_LEFT_TO_RIGHT;
+
+        case TT_INCREMENT:
+        case TT_DECREMENT:
+            if (postfix) {
+                return OA_LEFT_TO_RIGHT;
+            }
+        case '~':
+        case '!':
+        case TT_EXPONENTIATION:
+        case '@':
+        case '$':
+            return OA_RIGHT_TO_LEFT;
+
+        default:
+            die("unknown operator type: %u\n", tt); return OA_NONE;
+    }
+}
+
+u8 precedence(u32 tt, bool unary, bool postfix) {
+    switch (tt) {
+        case ',':
+        case ';':
+        case ')':
+        case ']':
+        case '}':
+            return 0;
+
+        case '=':
+        case TT_COLON_EQUALS:
+        case TT_PLUS_EQUALS:
+        case TT_MINUS_EQUALS:
+        case TT_TIMES_EQUALS:
+        case TT_DIVIDE_EQUALS:
+        case TT_MODULO_EQUALS:
+        case TT_BITWISE_AND_EQUALS:
+        case TT_BITWISE_OR_EQUALS:
+        case TT_BITWISE_XOR_EQUALS:
+        case TT_BITWISE_NOT_EQUALS:
+        case TT_RIGHT_SHIFT_EQUALS:
+        case TT_LEFT_SHIFT_EQUALS:
+        case TT_EXPONENTIATION_EQUALS:
+            return 1;
+
+        case TT_LOGICAL_AND:
+        case TT_LOGICAL_OR:
+            return 2;
+
+        case TT_EQUALITY:
+        case TT_NOT_EQUALS:
+        case '>':
+        case '<':
+        case TT_GREATER_THAN_OR_EQUAL:
+        case TT_LESS_THAN_OR_EQUAL:
+            return 3;
+
+        case '+':
+        case '-':
+            if (unary) {
+                return 6;
+            }
+
+            return 4;
+
+        case '*':
+        case '/':
+        case '%':
+        case '&':
+        case '|':
+        case '^':
+        case TT_LEFT_SHIFT:
+        case TT_RIGHT_SHIFT:
+            return 5;
+
+        case '~':
+        case '!':
+            return 6;
+
+        case TT_EXPONENTIATION:
+            return 7;
+
+        case TT_INCREMENT:
+        case TT_DECREMENT:
+            if (postfix) {
+                return 6;
+            }
+
+        case '@':
+        case '$':
+        case '.':
+        case ':':
+        case '(':
+        case '[':
+        case '{':
+            return 8;
+
+        default:
+            die("unknown operator type: %u\n", tt); return 0;
+    }
+}
+
+
 /**
  * Once we expect a node to be an operator, and have expectations about it regarding:
  *  - unary-ness
@@ -181,11 +365,11 @@ ASTNode* nodify(Token tokens[], u32 i) {
     }
 
     // calculate precedence...
-    node->precedence = calculatePrecedence(node->token, node->unary, node->postfix);
+    // node->precedence = calculatePrecedence(node->token, node->unary, node->postfix);
 
     // calculate associativity...
-    const auto entry = OperatorTable->lookup(node->token->tk, node->token->length);
-    node->associativity = entry->value->associativity;
+    // const auto entry = OperatorTable->lookup(node->token->tk, node->token->length);
+    // node->associativity = entry->value->associativity;
 
     return node;
 }

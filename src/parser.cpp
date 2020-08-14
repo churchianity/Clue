@@ -44,12 +44,18 @@ static inline bool canPop(Stack<ASTNode>* os, ASTNode* node) {
         return false;
     }
 
-    if (node->associativity == OA_LEFT_TO_RIGHT) {
-        return node->precedence <= os->peek()->precedence;
+    const auto top = os->peek();
 
-    } else if (node->associativity == OA_RIGHT_TO_LEFT) {
-        return node->precedence < os->peek()->precedence;
+    if (associativity(node->token->tt, node->unary, node->postfix) == OA_LEFT_TO_RIGHT) {
+        return precedence(node->token->tt, node->unary, node->postfix)
+            <= precedence(top->token->tt, top->unary, top->postfix);
+
+    } else if (associativity(node->token->tt, node->unary, node->postfix) == OA_RIGHT_TO_LEFT) {
+        return precedence(node->token->tt, node->unary, node->postfix)
+             < precedence(top->token->tt, top->unary, top->postfix);
     }
+
+    print(node);
 
     die("we're checking if we can pop & apply when the assoc : NONE\n"); return false;
 }

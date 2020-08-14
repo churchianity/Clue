@@ -42,10 +42,10 @@ struct ASTNode {
     // benefits
 
     // associativity is looked up in a table, and then modified by the flags below
-    OperatorAssociativityEnum associativity = OA_LEFT_TO_RIGHT;
+    // OperatorAssociativityEnum associativity = OA_LEFT_TO_RIGHT;
 
     // precedence is looked up in a table, and then modified by the flags below
-    u8 precedence = 8;
+    // u8 precedence = 8;
 
     // all of these require some degree of peeking backwards in the tokens array
     bool unary      = false; // useful for telling if a '+' is being used as unary plus, for example
@@ -57,9 +57,10 @@ struct ASTNode {
 extern void traverse(ASTNode* self, void (*callback) (ASTNode*));
 extern void traverse(ASTNode* self, void (*callback) (const ASTNode*));
 
+extern OperatorAssociativityEnum associativity(u32 tt, bool unary, bool postfix);
+extern u8 precedence(u32 tt, bool unary, bool postfix);
 extern ASTNode* nodify(Token tokens[], u32 currentIndex);
 
-extern u8 precedence(u32 tt, bool unary, bool postfix);
 extern void addChild(ASTNode* self, ASTNode* child);
 extern void freeNode(ASTNode* node);
 
