@@ -69,6 +69,7 @@ void die(const char* format, ...) {
     exit(1);
 }
 
+void print(char* s)       { print("%s\n", s); }
 void print(bool b)          { print("%s\n", boolToString(b)); }
 void print(char c)          { print("%c\n", c); }
 void print(signed int i)    { print("%d\n", i); }

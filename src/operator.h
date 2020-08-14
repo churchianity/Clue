@@ -13,12 +13,13 @@ enum OperatorAssociativityEnum {
 };
 
 struct Operator {
-    u8 precedence;
+    u8 precedence = 8;
     OperatorAssociativityEnum associativity = OA_LEFT_TO_RIGHT;
     u32 type; // heavily overlaps with TokenTypeEnum
 };
 
-extern Table<const char, Operator>* getOperatorTable();
+extern Table<const char, Operator>* OperatorTable;
+extern void initOperatorTable();
 
 #endif
 

@@ -36,8 +36,7 @@
 
     { associativity = none } means an operator for which there should never be adjacent operators of equal precedence.
 */
-Table<const char, Operator>* ot = null;
-
+Table<const char, Operator>* OperatorTable = null;
 
 static Operator* op(u8 precedence, OperatorAssociativityEnum associativity, u32 type) {
     Operator* o = (Operator*) pMalloc(sizeof (Operator));
@@ -49,14 +48,7 @@ static Operator* op(u8 precedence, OperatorAssociativityEnum associativity, u32 
     return o;
 }
 
-/**
- * inits and returns a table which is information about the operators in the language,
- * without contextual modifications, where 'contextual modifications' means:
- *
- *      - it is unknown if the operator is being used in a unary or postfix context,
- *        except when the operator is only ever unary
- */
-static Table<const char, Operator>* initOperatorTable() {
+void initOperatorTable() {
     auto t = new Table<const char, Operator>(25);
 
     t->insert("import",     6, op(9, OA_NONE, TT_IMPORT));
@@ -121,14 +113,6 @@ static Table<const char, Operator>* initOperatorTable() {
     t->insert("@",          1, op(8, OA_RIGHT_TO_LEFT, '@'));
     t->insert("$",          1, op(8, OA_RIGHT_TO_LEFT, '$'));
 
-    return t;
-}
-
-Table<const char, Operator>* getOperatorTable() {
-    if (!ot) {
-        return ot = initOperatorTable();
-    }
-
-    return ot;
+    OperatorTable = t;
 }
 

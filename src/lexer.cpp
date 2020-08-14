@@ -341,7 +341,7 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
         // check if we used a symbol that is a reserved operator/word
         if (token->tt == TT_SYMBOL) {
-            auto entry = getOperatorTable()->lookup(token->tk, token->length);
+            auto entry = OperatorTable->lookup(token->tk, token->length);
 
             if (entry) {
                 // retroactively fix its type

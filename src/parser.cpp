@@ -10,7 +10,28 @@
 #include "token.h"
 #include "util.h"
 
-// @TODO ASSOCIATIVITY
+
+// @TODO FUNCTION:
+//      definitions
+//      invocations
+//      array definitions
+//      substitution of arrays and comma separated lists
+//
+//
+//              func(a: Int, b: Int, c: Int): void {}
+//              foo(players: Player[]): void {}
+//
+//      ht := getHashTable();
+//      v := vec3(2, 1, 3)
+//
+//      1. func(v.x, v.y, v.z);
+//      2. func(v)
+//
+//      key: string = player name, value: int = player age
+//
+//      foo(ht);
+//
+//
 
 /**
  * checks if the precedence of the operator on top of the stack is less than the precedence of
@@ -23,7 +44,14 @@ static inline bool canPop(Stack<ASTNode>* os, ASTNode* node) {
         return false;
     }
 
-    return node->precedence <= os->peek()->precedence;
+    if (node->associativity == OA_LEFT_TO_RIGHT) {
+        return node->precedence <= os->peek()->precedence;
+
+    } else if (node->associativity == OA_RIGHT_TO_LEFT) {
+        return node->precedence < os->peek()->precedence;
+    }
+
+    die("we're checking if we can pop & apply when the assoc : NONE\n"); return false;
 }
 
 static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node) {
@@ -66,6 +94,9 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node
 
 /**
  * Parses expressions into an AST.
+ * @TODO re-purpose this into basically a arithmetic/math expression parser,
+ * then make subroutines for weird parses
+ * like function calls, indexers, etc.
  */
 static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
     auto es = new Stack<ASTNode>(10, true);
@@ -95,7 +126,10 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
                     break;
                 }
 
-                os->pop(); // discard opening parens
+                if (!os->peek()->call) {
+                    os->pop(); // discard opening parens
+                }
+
                 break;
 
             case TT_SYMBOL:
@@ -104,7 +138,6 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
                 es->push(nodify(tokens, i));
                 break;
 
-            case '(':
             default:
                 opNode = nodify(tokens, i);
 
