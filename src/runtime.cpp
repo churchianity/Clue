@@ -159,16 +159,13 @@ void interactive() {
             case '$': // run eval() on the AST
                 print(eval(AST));
                 continue;
+
+            case '\n':
+                continue;
         }
 
         tokens = Lexer::tokenize(s, "stdin", line);
-
-        if (AST) {
-            free(AST);
-        }
-
         AST = parse(tokens, Lexer::tokenCount);
-
         Reporter::flush();
 
         line++; // do this last

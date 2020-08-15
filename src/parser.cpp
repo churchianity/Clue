@@ -55,8 +55,6 @@ static inline bool canPop(Stack<ASTNode>* os, ASTNode* node) {
              < precedence(top->token->tt, top->unary, top->postfix);
     }
 
-    print(node);
-
     die("we're checking if we can pop & apply when the assoc : NONE\n"); return false;
 }
 

@@ -6,6 +6,7 @@
 #include "token.h"
 #include "operator.h"
 
+
 /*
 struct ASTBNode {
     Token* token;
@@ -30,7 +31,7 @@ struct ASTUnaryOperatorNode: ASTBranchNode {
 
 // @TODO make this more polymorphic
 struct ASTNode {
-    Token* token;
+    Token* token = null;
 
     ASTNode* children    = null;
     u32 childrenCount    = 0;

@@ -86,14 +86,7 @@ void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
 */
 OperatorAssociativityEnum associativity(u32 tt, bool unary, bool postfix) {
     switch (tt) {
-        case ';':
         case ':':
-        case ')':
-        case ']':
-        case '}':
-        case '(':
-        case '[':
-        case '{':
 
         case '=':
         case TT_COLON_EQUALS:
@@ -146,6 +139,7 @@ OperatorAssociativityEnum associativity(u32 tt, bool unary, bool postfix) {
         case TT_EXPONENTIATION:
         case '@':
         case '$':
+        case '(':
             return OA_RIGHT_TO_LEFT;
 
         default:
@@ -363,13 +357,6 @@ ASTNode* nodify(Token tokens[], u32 i) {
                 break;
         }
     }
-
-    // calculate precedence...
-    // node->precedence = calculatePrecedence(node->token, node->unary, node->postfix);
-
-    // calculate associativity...
-    // const auto entry = OperatorTable->lookup(node->token->tk, node->token->length);
-    // node->associativity = entry->value->associativity;
 
     return node;
 }
