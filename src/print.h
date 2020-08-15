@@ -66,9 +66,9 @@ extern void print(Value v);
  */
 extern void die(const char* format, ...);
 
-extern void print(const Token* token);
-extern void print(const Symbol* symbol);
-extern void print(const ASTNode* node);
+extern void print(Token* token);
+extern void print(Symbol* symbol);
+extern void print(ASTNode* node);
 
 template <class K, class V>
 extern void print(TableEntry<K, V>* entry);

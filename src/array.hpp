@@ -57,7 +57,7 @@ struct Array {
         return data[top--];
     }
 
-    void forEach(void (*callback) (const T*)) {
+    void forEach(void (*callback) (T*)) {
         for (u32 i = 0; i < size(); i++) {
             callback(data[i]);
         }

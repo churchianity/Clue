@@ -112,22 +112,14 @@ static void print(const Message* message) {
     free(pointyThing);
 }
 
-u32 Reporter::messageCount = 0;
-u32 Reporter::messageCapacity = CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY;
 
-Message* Reporter::messages = (Message*) pMalloc(sizeof (Message) * CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
+Array<Message>* Reporter::messages = new Array<Message>(CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
 
 
 /**
  * @STATEFUL
  */
 void Reporter :: add(MessageSeverityEnum severity, const char* content, const char* functionName, const char* filename, u32 line, u32 column) {
-    if (messageCapacity <= messageCount) {
-        messageCapacity *= 2;
-
-        Reporter::messages = (Message*) pRealloc(Reporter::messages, (sizeof (Message) * messageCapacity));
-    }
-
     Message* message = (Message*) pMalloc(sizeof (Message));
 
     message->content        = content;
@@ -137,7 +129,7 @@ void Reporter :: add(MessageSeverityEnum severity, const char* content, const ch
     message->line           = line;
     message->column         = column;
 
-    Reporter::messages[messageCount++] = *message;
+    Reporter::messages->push(message);
 }
 
 /**
@@ -162,14 +154,14 @@ void Reporter :: report(MessageSeverityEnum severity, const char* content, const
  * @STATEFUL
  */
 void Reporter :: flush() {
-    for (u32 i = 0; i < messageCount; i++) {
-        print(Reporter::messages + i);
-        free(Reporter::messages + i);
-    }
+    Reporter::messages->forEach(
+        [] (Message* message) {
+            print(message);
+            free(message);
+        }
+    );
 
-    messageCount = 0;
-    messageCapacity = CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY;
-
-    Reporter::messages = (Message*) pMalloc(sizeof (Message) * CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
+    delete Reporter::messages;
+    Reporter::messages = new Array<Message>(CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
 }
 

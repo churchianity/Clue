@@ -86,7 +86,7 @@ void print(Value v) {
     }
 }
 
-void print(const Token* token) {
+void print(Token* token) {
     if (!token) {
         print("token is null\n"); return;
     }
@@ -97,7 +97,7 @@ void print(const Token* token) {
           , (void*) token, token->filename, token->line, token->column, token->length, tt, token->bad, ANSI_YELLOW, token->tk, ANSI_RESET);
 }
 
-void print(const Symbol* symbol) {
+void print(Symbol* symbol) {
     if (!symbol) {
         print("symbol is null\n"); return;
     }
@@ -105,7 +105,7 @@ void print(const Symbol* symbol) {
     print("&Symbol %p | name: %s, reserved?: %d\n", (void*) symbol, symbol->name, symbol->reserved);
 }
 
-void print(const ASTNode* node) {
+void print(ASTNode* node) {
     if (!node) {
         print("node is null\n"); return;
     }
