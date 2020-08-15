@@ -283,6 +283,7 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
             case '-':
             case '~':
             case '!':
+            case TT_IMPORT:
                 node->maxChildrenCount = 1;
                 node->unary = true;
                 break;
@@ -292,6 +293,8 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
                     MS_WARN, "semicolon with nothing before it has no effect",
                     null, node->token->filename, node->token->line, node->token->column
                 );
+
+
 
             case '{':
             case '(':
