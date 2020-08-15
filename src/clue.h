@@ -8,11 +8,11 @@
 
 #define CLUE_GLOBAL_SYMBOL_TABLE_SIZE 20
 #define CLUE_INITIAL_TOKEN_ARRAY_CAPACITY 16
+#define CLUE_FILE_LIST_INITIAL_CAPACITY 10
 #define CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY 16
-#define CLUE_MAX_ARGUMENT_LIST_SIZE 256
 #define CLUE_SANDBOX_MODE_MAX_LINE_LENGTH 120
 
-#define _DIV "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
+#define CLUE_MAX_ARGUMENT_LIST_SIZE 256
 
 
 /**
@@ -40,19 +40,17 @@
  *  signal.h
  *      SIGSEGV, SIGABRT, signal
  */
-
-/**
- * A struct holding all of the relevant command line arguments
- */
 static struct {
     // whether or not to drop the user into interactive mode after reading source files (if present)
-    bool interactive;
+    bool interactive = false;
 
     // the name of the directory that is the root of the source tree of whatever project you are in
     // note that this is an assumption some percentage of the time, because the only way to be 100%
     // positive is to ask the user (and even then there's user error), which we don't want to make mandatory
-    const char* src;
+    const char* src = 0;
 
+    char** files = 0;
+    int filec = 0;
 } CLAs;
 
 #endif

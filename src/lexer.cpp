@@ -9,8 +9,6 @@
 #include "util.h"
 
 
-Table<char, void>* Lexer::files = new Table<char, void>(10);
-
 u32 Lexer::tokenCount = 0;
 u32 Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
 
@@ -22,8 +20,6 @@ Token* Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
  * @STATEFUL
  */
 void Lexer :: clear() {
-    Lexer::files->clear();
-
     Lexer::tokenCount = 0;
     Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
 
@@ -36,19 +32,6 @@ void Lexer :: clear() {
  */
 void Lexer :: print() {
     ::print("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokenCount, Lexer::capacity);
-
-    u32 i = 0;
-    auto entry = Lexer::files->entries[i];
-
-    for (; i < Lexer::files->lanes; i++) {
-        while (entry) {
-
-            ::print("%s   ", entry->key);
-            entry = entry->next;
-        }
-    }
-
-    ::print("\n");
 
     if (Lexer::tokenCount > 0) {
         for (u32 i = 0; i < Lexer::tokenCount; i++) {
@@ -74,6 +57,29 @@ void Lexer :: add(Token* token) {
     Lexer::tokens[Lexer::tokenCount++] = *token;
 }
 
+struct Keyword {
+    TokenTypeEnum tt;
+};
+
+static inline Keyword* keyword(TokenTypeEnum tt) {
+    Keyword* kw = (Keyword*) pMalloc(sizeof (kw));
+
+    kw->tt = tt;
+
+    return kw;
+}
+
+static Table<const char, Keyword>* initKeywordTable() {
+    auto t = new Table<const char, Keyword>(25);
+
+    t->insert("import",     6, keyword(TT_IMPORT));
+    t->insert("if",         2, keyword(TT_IF));
+    t->insert("else",       4, keyword(TT_ELSE));
+    t->insert("while",      5, keyword(TT_WHILE));
+
+    return t;
+}
+
 /**
  * Given a string |buffer|, append to the lexer's |tokens| array.
  *
@@ -88,6 +94,9 @@ void Lexer :: add(Token* token) {
  * @STATEFUL
  */
 Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
+    static auto keywords = initKeywordTable();
+    static auto files = new Table<const char, void>(10); // names of all the files loaded so far
+
     // const char* beginning = buffer;
     static bool prevTokenImport = false;
 
@@ -341,11 +350,11 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
         // check if we used a symbol that is a reserved operator/word
         if (token->tt == TT_SYMBOL) {
-            auto entry = OperatorTable->lookup(token->tk, token->length);
+            auto entry = keywords->lookup(token->tk, token->length);
 
             if (entry) {
                 // retroactively fix its type
-                token->tt = (TokenTypeEnum) entry->value->type;
+                token->tt = entry->value->tt;
 
             } else if (false) { // @TODO global symbol table/constant lookup
 
@@ -359,10 +368,10 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         // handle import statement
         if (prevTokenImport) {
             if ((Lexer::token->tt == TT_STRING) && (!Lexer::token->bad)) {
-                char* importFilePath = trimQuotes(Lexer::token->tk, Lexer::token->length);
+                const char* importFilePath = trimQuotes(Lexer::token->tk, Lexer::token->length);
 
                 // check if we've already imported the file - you shouldn't ever need to import something multiple times
-                auto entry = Lexer::files->lookup(importFilePath, Lexer::token->length - 2);
+                auto entry = files->lookup(importFilePath, Lexer::token->length - 2);
 
                 if (entry) { // @TODO would be cool if we could detect a recursive import vs. a duplicate import
                     Reporter::add(
@@ -370,10 +379,10 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                         null, filename, line, column
                     );
                 } else {
-                    Lexer::files->insert(importFilePath, Lexer::token->length - 2, null);
+                    files->insert(importFilePath, Lexer::token->length - 2, null);
 
                     prevTokenImport = false; // this is necessary to stop the subsequent recursive calls from trying to import the first token
-                    tokenize(fileRead(importFilePath), importFilePath);
+                    tokenize(clueFileRead(importFilePath), importFilePath);
                 }
             } else {
                 Reporter::add(

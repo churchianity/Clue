@@ -20,8 +20,8 @@ struct Value {
 };
 
 extern Value eval(ASTNode* node);
-extern void clueFileRead(const char* filename);
 extern void interactive();
+extern void doIt(char* codeBuffer, const char* filename);
 
 #endif
 

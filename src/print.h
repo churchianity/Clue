@@ -5,7 +5,6 @@
 #include "node.h"
 #include "table.hpp"
 #include "token.h"
-#include "operator.h"
 #include "runtime.h"
 #include "stack.hpp"
 
@@ -51,12 +50,14 @@ extern const char* ANSI_RESET;
  */
 extern void print(const char* format, ...);
 
+extern void prints(const char* s);
 extern void print(bool b);
 extern void print(char c);
 extern void print(signed int i);
 extern void print(unsigned int i);
 extern void print(float f);
 extern void print(double d);
+extern void print(void* v);
 
 extern void print(Value v);
 
@@ -68,13 +69,9 @@ extern void die(const char* format, ...);
 extern void print(const Token* token);
 extern void print(const Symbol* symbol);
 extern void print(const ASTNode* node);
-extern void print(const Operator* op);
-
-template <class T>
-extern void print(const Stack<T>* stack);
 
 template <class K, class V>
-extern void print(const Table<K, V>* table);
+extern void print(TableEntry<K, V>* entry);
 
 #endif
 

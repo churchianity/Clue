@@ -26,12 +26,12 @@
 #include <signal.h> // for signal() - needed on my chromebook for some reason?
 
 #include "clue.h"
-#include "operator.h"
 #include "print.h"
 #include "runtime.h"
 #include "string.h"
 #include "trace.h"
 #include "types.h"
+#include "util.h"
 
 
 /**
@@ -61,6 +61,11 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
         help(null); exit(0);
     }
 
+    u32 capacity = CLUE_FILE_LIST_INITIAL_CAPACITY;
+    u32 filec = 0;
+
+    char** files = (char**) pMalloc(sizeof (char*) * capacity);
+
     for (int i = 1; i < argc; ++i) {
         if (streq(argv[i], "-h") || streq(argv[i], "--help")) {
             help(null); exit(0);
@@ -78,12 +83,22 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
             CLAs.src = argv[i];
 
         } else if (hasSuffix(argv[i], CLUE_FILE_SUFFIX)) {
-            clueFileRead(argv[i]);
+            u32 size = strln(argv[i]);
+
+            if (filec == capacity) {
+                capacity *= 2;
+                files = (char**) pRealloc(files, sizeof (char*) * capacity);
+            }
+
+            files[filec++] = read(argv[i], size);
 
         } else {
             help(argv[i]); exit(0);
         }
     }
+
+    CLAs.files = files;
+    CLAs.filec = filec;
 
     if (!CLAs.src) {
         CLAs.src = "src"; // @TODO should be able to set this with a config file as well as CLAs
@@ -96,8 +111,9 @@ int main(int argc, const char* argv[]) {
 
     handleCommandLineArguments(argc, argv);
 
-    // if we're here, we probably want to compile and/or run some code.
-    initOperatorTable();
+    for (u32 i = 0; i < CLAs.filec; i++) {
+        doIt(clueFileRead(CLAs.files[i]), CLAs.files[i]);
+    }
 
     if (CLAs.interactive) {
         interactive();

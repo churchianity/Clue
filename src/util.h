@@ -9,7 +9,8 @@
 
 
 extern u32 getFileSize(FILE* fp);
-extern char* fileRead(const char* filename);
+extern char* fileRead(const char* filePath);
+extern char* clueFileRead(const char* filePath);
 
 #endif
 

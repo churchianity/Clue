@@ -265,7 +265,7 @@ inline char* concat(u32 argc, ...) {
  * Reads |length| characters from |buffer| into a newly allocated buffer and returns it.
  * Appends the null character, so the returned string is |length| + 1 in size.
  */
-inline char* read(char* buffer, u32 length) {
+inline char* read(const char* buffer, u32 length) {
     char* tk = (char*) pMalloc(sizeof (char) * length + 1);
 
     u32 i = 0;

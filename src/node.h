@@ -4,7 +4,6 @@
 
 #include "table.hpp"
 #include "token.h"
-#include "operator.h"
 
 
 /*
@@ -29,6 +28,11 @@ struct ASTUnaryOperatorNode: ASTBranchNode {
 };
 */
 
+enum OperatorAssociativityEnum {
+    OA_LEFT_TO_RIGHT    = -1,
+    OA_NONE             =  0,
+    OA_RIGHT_TO_LEFT    =  1
+};
 // @TODO make this more polymorphic
 struct ASTNode {
     Token* token = null;

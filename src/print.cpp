@@ -69,13 +69,14 @@ void die(const char* format, ...) {
     exit(1);
 }
 
-void print(char* s)       { print("%s\n", s); }
+void prints(const char* s)  { print("%s\n", s); }
 void print(bool b)          { print("%s\n", boolToString(b)); }
 void print(char c)          { print("%c\n", c); }
 void print(signed int i)    { print("%d\n", i); }
 void print(unsigned int i)  { print("%u\n", i); }
 void print(float f)         { print("%.14g\n", f); }
 void print(double d)        { print("%.14g\n", d); }
+void print(void* p)         { print("%p\n", p); }
 
 void print(Value v) {
     if (v.type == VT_NUMBER) {
@@ -128,55 +129,8 @@ void print(const ASTNode* node) {
     print("\n");
 }
 
-void print(const Operator* op) {
-    if (!op) {
-        print("operator is null\n"); return;
-    }
-
-    print("&Operator %p | prec: %u, assoc: %d\n");
-}
-
 template <class K, class V>
-void print(const Table<K, V>* table) {
-    if (!table) {
-        print("table is null\n"); return;
-    }
-
-    print("&Table %p | capacity: %u | entries:\n", (void*) table, table->capacity);
-
-    for (u32 i = 0; i < table->capacity; ++i) {
-        TableEntry<K, V>* entry = *(table->entries + i);
-        print("%u : %p", i, (void*) entry);
-
-        if (entry) {
-            print(" | %s", entry->key);
-
-            while (entry->next) {
-                entry = entry->next;
-
-                print(" ---> %p | %s", (void*) entry, entry->key);
-            }
-        }
-
-        print("\n");
-    }
-}
-
-template <class T>
-void print(const Stack<T>* stack) {
-    if (!stack) {
-        print("stack is null\n"); return;
-    }
-
-    print("&Stack %p | capacity: %u, grow?: %u, top: %u, size: %u, data:\n"
-          , (void*) stack
-          , stack->capacity
-          , stack->grow
-          , stack->top
-          , stack->size());
-
-    for (u32 i = 0; i < stack->size(); i++) {
-        print(stack->data[i]);
-    }
+void print(TableEntry<K, V>* entry) {
+    print(entry->key); print(entry->value);
 }
 

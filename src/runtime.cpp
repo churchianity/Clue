@@ -113,17 +113,10 @@ Value eval(ASTNode* node) {
     return v;
 }
 
-/**
- * Finds a file in the project by name and loads it into a buffer then returns it.
- */
-void clueFileRead(const char* filename) {
-    char* codebuffer = fileRead(filename);
-    Lexer::tokenize(codebuffer, filename);
-    ASTNode* AST = parse(Lexer::tokens, Lexer::tokenCount);
-    Reporter::flush();
-
-    free(AST);
-    free(codebuffer);
+void doIt(char* codeBuffer, const char* filename) {
+    Lexer::tokenize(codeBuffer, filename);
+    print(eval(parse(Lexer::tokens, Lexer::tokenCount)));
+    free(codeBuffer);
 }
 
 /**

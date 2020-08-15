@@ -27,27 +27,56 @@ u32 getFileSize(FILE* fp) {
 /**
  * Internally allocates the returned buffer - caller responsible for free'ing.
  */
-char* fileRead(const char* filename) {
-    FILE* fp = fopen(filename, "r");
+char* fileRead(const char* filePath) {
+    FILE* fp = fopen(filePath, "r");
 
     if (!fp) {
-        die("failed to get fp for filename: %s\n", filename);
+        die("failed to get fp for filepath: %s\n", filePath);
     }
 
     u32 length = getFileSize(fp);
 
     char* buffer = (char*) pMalloc(length);
 
-    fread(buffer, 1, length, fp);
+    fread(buffer, sizeof (char), length, fp);
+    fclose(fp);
 
-    if (isAscii(buffer, length)) {
-        print("loaded file %s, as 7-bit ASCII.\n", filename);
+    return buffer;
+}
 
-    } else {
-        print("loaded file %s, unknown encoding.\n", filename);
+char* clueFileRead(const char* filePath) {
+    // @TODO search the filesystem!
+    // assume the path is correct, but if the file is not found, make a series of educated guesses and try again!
+
+    // Guesses:
+    // 1. the source is all under some folder with some name
+    // probably, 'src'
+    //
+    // 2. the source is all under a folder that is a git or svn repository
+    //
+    // 3. heuristic: some number of filesystem ascensions is probably a good indicator we just can't find it
+    //
+    // ... ? do we do a spellchecker?
+
+    FILE* fp = fopen(filePath, "r");
+
+    if (!fp) {
+        die("failed to get fp for filepath: %s\n", filePath);
     }
 
+    u32 length = getFileSize(fp);
+
+    char* buffer = (char*) pMalloc(length);
+
+    fread(buffer, sizeof (char), length, fp);
     fclose(fp);
+
+    if (isAscii(buffer, length)) {
+        print("loaded file %s, as 7-bit ASCII.\n", filePath);
+
+    } else {
+        print("loaded file %s, unknown encoding.\n", filePath);
+    }
 
     return buffer;
 }
