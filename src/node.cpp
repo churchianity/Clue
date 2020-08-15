@@ -229,38 +229,6 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
     }
 }
 
-
-/**
- * Once we expect a node to be an operator, and have expectations about it regarding:
- *  - unary-ness
- *  - postfix/prefix-ness
- *
- * We can calculate absolute precedence by looking up a base precedence and then modifying it based on
- * the above criteria.
- */
-u8 calculatePrecedence(Token* token, bool unary, bool postfix) {
-    const auto entry = OperatorTable->lookup(token->tk, token->length);
-
-    switch (entry->value->type) {
-        // unary & binary plus & minus
-        case '+':
-        case '-':
-            if (unary) {
-                return 6;
-            }
-
-        case TT_DECREMENT:
-        case TT_INCREMENT:
-            if (postfix) {
-                return 8;
-            }
-
-        case '(':
-        default:
-            return entry->value->precedence;
-    }
-}
-
 void addChild(ASTNode* self, ASTNode* child) {
     if (!child) {
         Reporter::add(

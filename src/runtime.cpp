@@ -14,6 +14,14 @@
 #include "util.h"
 
 
+static inline float64 evalBitwiseNot(ASTNode* node) {
+    return ~ (u64) eval(node->children + 0).number;
+}
+
+static inline float64 evalNegation(ASTNode* node) {
+    return !eval(node->children + 0).number;
+}
+
 static inline float64 evalUnaryPlus(ASTNode* node) {
     return +eval(node->children + 0).number;
 }
@@ -75,6 +83,9 @@ static inline Value evalOperator(ASTNode* node) {
         case '%': v.number = evalModulus(node); break;
 
         case TT_EXPONENTIATION: v.number = evalExponentiation(node); break;
+
+        case '~': v.number = evalBitwiseNot(node); break;
+        case '!': v.number = evalNegation(node); break;
 
         default:
             v.string = "not implemented yet, sorry!\n";
@@ -162,6 +173,9 @@ void interactive() {
 
             case '\n':
                 continue;
+
+            case 'L':
+                print("\033[2J\033[H");
         }
 
         tokens = Lexer::tokenize(s, "stdin", line);

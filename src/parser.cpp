@@ -39,7 +39,7 @@
  *
  * if the operator stack is empty we don't care
  */
-static inline bool canPop(Stack<ASTNode>* os, ASTNode* node) {
+static inline bool canPopAndApply(Stack<ASTNode>* os, ASTNode* node) {
     if (os->isEmpty() || os->peek()->punctuator) {
         return false;
     }
@@ -63,10 +63,6 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node
         return;
 
     } else if (node->unary) {
-        if (!(os->isEmpty() || os->peek()->unary)) { // unary operators can only pop and apply other unary operators
-            return;
-        }
-
         ASTNode* child = es->pop();
 
         if (!child) {
@@ -106,15 +102,12 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
     auto es = new Stack<ASTNode>(10, true);
     auto os = new Stack<ASTNode>(10, true);
 
-    ASTNode* opNode = null; // @TODO remove this
-
     u32 i = 0;
     while (i < tokenCount) {
 
         switch ((int) tokens[i].tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
             case ')':
                 while (os->peek()) {
-                    print(os->peek());
                     if (os->peek()->token->tt == '(') {
                         break;
                     }
@@ -132,7 +125,6 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
                 }
 
                 if (!os->peek()->call) {
-                    print("hi!\n");
                     os->pop(); // discard opening parens
                 }
 
@@ -145,13 +137,13 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
                 break;
 
             default:
-                opNode = nodify(tokens, i);
+                const auto node = nodify(tokens, i);
 
-                while (canPop(os, opNode)) {
+                while (canPopAndApply(os, node)) {
                     parseOperation(es, os, os->pop());
                 }
 
-                os->push(opNode);
+                os->push(node);
                 break;
         }
 
