@@ -114,6 +114,7 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
         switch ((int) tokens[i].tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
             case ')':
                 while (os->peek()) {
+                    print(os->peek());
                     if (os->peek()->token->tt == '(') {
                         break;
                     }
@@ -122,7 +123,7 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
                 }
 
                 if (os->isEmpty()) { // we never found a matching open paren...
-                    Reporter::add(
+                    Reporter::report(
                         MS_ERROR, "Missing open parentheses",
                         null, tokens[i].filename, tokens[i].line, tokens[i].column
                     );
@@ -131,6 +132,7 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
                 }
 
                 if (!os->peek()->call) {
+                    print("hi!\n");
                     os->pop(); // discard opening parens
                 }
 
@@ -157,6 +159,17 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
     }
 
     while (!os->isEmpty()) {
+
+        // we shouldn't have any 'open' punctuators at this stage - if we do, there's a mismatch
+        if (os->peek()->token->tt == '(') {
+            const auto token = os->peek()->token;
+
+            Reporter::add(
+                MS_ERROR, "no matching close paren",
+                null, token->filename, token->line, token->column
+            );
+        }
+
         parseOperation(es, os, os->pop());
     }
 

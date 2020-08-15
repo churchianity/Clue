@@ -112,13 +112,13 @@ void print(const ASTNode* node) {
     print("&ASTNode %p | childrenCount: %u, maxChildrenCount: %u | tk: %s%s%s\n"
           , (void*) node, node->childrenCount, node->maxChildrenCount, ANSI_YELLOW, node->token->tk, ANSI_RESET);
 
+    print("unary?: %u, postfix?: %u, call?: %u, punc?: %u\n"
+         , node->unary, node->postfix, node->call, node->punctuator);
+
     if (node->maxChildrenCount == 0) {
         print("\n");
         // return;
     }
-
-    print("%d, unary?: %u, postfix?: %u, call?: %u, punc?: %u\n"
-         , node->unary, node->postfix, node->call, node->punctuator);
 
     for (u32 i = 0; i < node->childrenCount; i++) {
         print("\tChild %u pointer: %p | tk: %s%s%s\n"

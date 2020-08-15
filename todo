@@ -1,0 +1,46 @@
+
+
+1. debug and check unary operators are working for expressions generally speaking
+
+2. draw more clear distinctions between punctuators which have no meaning to a program, but have plenty of meaning to the compiler/interpreter
+
+    func(foo: Int,  bar: String) {
+        ...
+        ...
+        ...
+        ...
+        ...
+
+        return;
+    }
+
+    {
+    }
+    [
+    ]
+    (
+    )
+
+    array[expr...]
+
+            [
+           / \
+      array   index
+
+
+    func(foo, bar)
+
+            (
+           / \
+       func   list
+              / \
+            foo  bar
+
+
+            (
+          / |\
+        /   | \
+     func   |  \
+           foo  bar
+
+3. reporter needs a more lightweight api, message ids/something like that
