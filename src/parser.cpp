@@ -66,10 +66,7 @@ static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os, ASTNode* node
         ASTNode* child = es->pop();
 
         if (!child) {
-            Reporter::report(
-                MS_ERROR, "missing operand for unary operator",
-                null, node->token->filename, node->token->line, node->token->column
-            );
+            // @REPORT 8
         }
 
         addChild(node, child);
@@ -79,10 +76,7 @@ static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os, ASTNode* node
         ASTNode* lhs = es->pop();
 
         if (!(rhs && lhs)) {
-            Reporter::report(
-                MS_ERROR, "missing operand for binary operator",
-                null, node->token->filename, node->token->line, node->token->column
-            );
+            // @REPORT 9
         }
 
         addChild(node, lhs);
@@ -116,10 +110,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 }
 
                 if (os->isEmpty()) { // we never found a matching open paren...
-                    Reporter::report(
-                        MS_ERROR, "Missing open parentheses",
-                        null, tokens->data[i]->filename, tokens->data[i]->line, tokens->data[i]->column
-                    );
+                    // @REPORT 10
 
                     break;
                 }
@@ -156,10 +147,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
         if (os->peek()->token->tt == '(') {
             const auto token = os->peek()->token;
 
-            Reporter::add(
-                MS_ERROR, "no matching close paren",
-                null, token->filename, token->line, token->column
-            );
+            // @REPORT 11
         }
 
         parseOperation(es, os, os->pop());

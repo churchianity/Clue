@@ -104,10 +104,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
                 } else {
                     if (lastCharWasDigit) {
-                        Reporter::add(
-                            MS_LINT, "only alphabetical characters can follow a digit in an identifier name",
-                            null, filename, line, column + length
-                        );
+                        // @REPORT 1
                     }
 
                     lastCharWasDigit = false;
@@ -139,10 +136,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                         break;
 
                     default:
-                        Reporter::add(
-                            MS_ERROR, "leading zeroes can only be in the form '0x' (hexadecimal), '0b' (binary), 0o' (octal), or '0.' (fractional decimal)",
-                            null, filename, line, column
-                        );
+                        // @REPORT 2
 
                         break;
                 }
@@ -156,10 +150,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     if (hasRadixPoint) {
                         bad = true;
 
-                        Reporter::add(
-                            MS_ERROR, "dot appearing immediately after a number is always invalid",
-                            null, filename, line, column + length
-                        );
+                        // @REPORT 3
 
                         break;
                     }
@@ -175,10 +166,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             } while (*buffer != '\0');
 
             if (length >= CLUE_MAX_NUMERIC_LENGTH) {
-                Reporter::add(
-                    MS_WARN, "numerics have a maximum precision of 24 characters - extra length is discarded",
-                    null, filename, line, column
-                );
+                // @REPORT 4
             }
 
         } else if ((*buffer == '"') || (*buffer == '\'')) {
@@ -298,10 +286,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 case '?':
                 case '\\':
                 default:
-                    Reporter::add(
-                        MS_ERROR, "invalid character",
-                        null, filename, line, column
-                    );
+                    // @REPORT 5
 
                     break;
 
@@ -350,10 +335,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 auto entry = files->lookup(importFilePath, token->length - 2);
 
                 if (entry) { // @TODO would be cool if we could detect a recursive import vs. a duplicate import
-                    Reporter::add(
-                        MS_WARN, "trying to import file that has already been imported",
-                        null, filename, line, column
-                    );
+                    // @REPORT 6
                 } else {
                     files->insert(importFilePath, token->length - 2, null);
 
@@ -361,10 +343,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     tokenize(clueFileRead(importFilePath), importFilePath);
                 }
             } else {
-                Reporter::add(
-                    MS_ERROR, "trying to import something that isn't a string",
-                    null, filename, line, column
-                );
+                // @REPORT 7
             }
         }
 

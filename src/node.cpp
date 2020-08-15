@@ -232,19 +232,13 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
 
 void addChild(ASTNode* self, ASTNode* child) {
     if (!child) {
-        Reporter::add(
-            MS_ERROR, "missing operand for operator",
-            null, self->token->filename, self->token->line, self->token->column
-        );
+        // @REPORT 12
 
         return;
     }
 
     if (self->childrenCount == self->maxChildrenCount) {
-        Reporter::report(
-            MS_ERROR, "attempting to add an operand to an operator that is already satisfied",
-            null, self->token->filename, self->token->line, self->token->column
-        );
+        // @REPORT 13
     }
 
     if (!self->children) {
@@ -289,12 +283,8 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
                 break;
 
             case ';':
-                Reporter::add(
-                    MS_WARN, "semicolon with nothing before it has no effect",
-                    null, node->token->filename, node->token->line, node->token->column
-                );
-
-
+                // @REPORT 13
+                die("LOL\n");
 
             case '{':
             case '(':
@@ -302,10 +292,8 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
                 break;
 
             default:
-                Reporter::report(
-                    MS_ERROR, "invalid operator",
-                    null, node->token->filename, node->token->line, node->token->column
-                );
+                // @REPORT 14
+                die("LOL\n");
 
                 break;
         }

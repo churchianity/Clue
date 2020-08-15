@@ -1,7 +1,4 @@
 
-
-- make array struct wrapper thingy
-
 - import file search!
 
 2. draw more clear distinctions between punctuators which have no meaning to a program, but have plenty of meaning to the compiler/interpreter

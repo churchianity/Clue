@@ -129,8 +129,3 @@ void print(ASTNode* node) {
     print("\n");
 }
 
-template <class K, class V>
-void print(TableEntry<K, V>* entry) {
-    print(entry->key); print(entry->value);
-}
-
