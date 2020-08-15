@@ -1,23 +1,21 @@
 
-#ifndef STACK_H
-#define STACK_H
+#ifndef ARRAY_H
+#define ARRAY_H
 
 #include "alloc.h"
 #include "types.h"
 
 
 template <class T>
-struct Stack {
+struct Array {
     u32 capacity;
     s32 top;
-    bool grow;
     T** data;
 
-    Stack<T>(u32 _capacity, bool _grow) {
+    Array<T>(u32 _capacity) {
         capacity = _capacity;
-        grow     = _grow;
         top      = -1;
-        data     = (T**) pMalloc(sizeof (T*) * capacity);
+        data     = (T**) pCalloc(sizeof (T*), capacity);
     }
 
     u32 size() const {
@@ -34,10 +32,6 @@ struct Stack {
 
     s32 push(T* dataItemAddr) {
         if (isFull()) {
-            if (!grow) {
-                return -1;
-            }
-
             capacity *= 2;
             data = (T**) pRealloc(data, sizeof (T*) * capacity);
         }

@@ -69,9 +69,9 @@ static inline const char* reconstruct(const char* filename, u32 line) {
     const char* out = "";
 
     u32 i = 0;
-    for (; i < Lexer::tokenCount; i++) {
-        if (streq(Lexer::tokens[i].filename, filename) && (Lexer::tokens[i].line == line)) {
-            token = Lexer::tokens + i;
+    for (; i < Lexer::tokens->size(); i++) {
+        if (streq(Lexer::tokens->data[i]->filename, filename) && (Lexer::tokens->data[i]->line == line)) {
+            token = Lexer::tokens->data[i];
 
             // the -1 is because column counts are 1-indexed
             amountOfLeadingWhitespace = token->column - columnSoFar - 1;

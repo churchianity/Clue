@@ -115,7 +115,7 @@ Value eval(ASTNode* node) {
 
 void doIt(char* codeBuffer, const char* filename) {
     Lexer::tokenize(codeBuffer, filename);
-    print(eval(parse(Lexer::tokens, Lexer::tokenCount)));
+    print(eval(parse(Lexer::tokens)));
     free(codeBuffer);
 }
 
@@ -127,7 +127,6 @@ void interactive() {
 
     u32 line = 1;
 
-    Token* tokens = null;
     ASTNode* AST = null;
 
     do {
@@ -171,8 +170,8 @@ void interactive() {
                 print("\033[2J\033[H");
         }
 
-        tokens = Lexer::tokenize(s, "stdin", line);
-        AST = parse(tokens, Lexer::tokenCount);
+        Lexer::tokenize(s, "stdin", line);
+        AST = parse(Lexer::tokens);
         Reporter::flush();
 
         line++; // do this last

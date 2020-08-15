@@ -24,7 +24,7 @@ struct Table {
 
     Table<K, V>(u32 _lanes) {
         lanes = _lanes;
-        entries = (TableEntry<K, V>**) pCalloc(lanes, sizeof (TableEntry<K, V>*));
+        entries = (TableEntry<K, V>**) pCalloc(sizeof (TableEntry<K, V>*), lanes);
     }
 
     static u32 hash(K* key, u32 keyLength, u32 capacity) {
@@ -100,7 +100,7 @@ struct Table {
             }
         }
 
-        entries = (TableEntry<K, V>**) pCalloc(lanes, sizeof (TableEntry<K, V>*));
+        entries = (TableEntry<K, V>**) pCalloc(sizeof (TableEntry<K, V>*), lanes);
     }
 
     void traverse(void (*keyCallback) (K*), void (*valueCallback) (V*)) {

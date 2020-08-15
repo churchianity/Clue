@@ -20,7 +20,7 @@ inline void* pMalloc(u32 size) {
     return p;
 }
 
-inline void* pCalloc(u32 maxNumOfElements, u32 elementSize) {
+inline void* pCalloc(u32 elementSize, u32 maxNumOfElements) {
     void* p = calloc(maxNumOfElements, elementSize);
 
     if (!p) {

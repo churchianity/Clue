@@ -1,10 +1,10 @@
 
+#include "array.hpp"
 #include "clue.h"
 #include "node.h"
 #include "lexer.h"
 #include "reporter.h"
 #include "print.h"
-#include "stack.hpp"
 #include "symbol.h"
 #include "table.hpp"
 #include "token.h"
@@ -39,7 +39,7 @@
  *
  * if the operator stack is empty we don't care
  */
-static inline bool canPopAndApply(Stack<ASTNode>* os, ASTNode* node) {
+static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
     if (os->isEmpty() || os->peek()->punctuator) {
         return false;
     }
@@ -58,7 +58,7 @@ static inline bool canPopAndApply(Stack<ASTNode>* os, ASTNode* node) {
     die("we're checking if we can pop & apply when the assoc : NONE\n"); return false;
 }
 
-static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node) {
+static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os, ASTNode* node) {
     if (node->punctuator) {
         return;
 
@@ -98,14 +98,14 @@ static void parseOperation(Stack<ASTNode>* es, Stack<ASTNode>* os, ASTNode* node
  * then make subroutines for weird parses
  * like function calls, indexers, etc.
  */
-static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
-    auto es = new Stack<ASTNode>(10, true);
-    auto os = new Stack<ASTNode>(10, true);
+static ASTNode* shuntingYard(Array<Token>* tokens) {
+    auto es = new Array<ASTNode>(10);
+    auto os = new Array<ASTNode>(10);
 
     u32 i = 0;
-    while (i < tokenCount) {
+    while (i < tokens->size()) {
 
-        switch ((int) tokens[i].tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
+        switch ((int) tokens->data[i]->tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
             case ')':
                 while (os->peek()) {
                     if (os->peek()->token->tt == '(') {
@@ -118,7 +118,7 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
                 if (os->isEmpty()) { // we never found a matching open paren...
                     Reporter::report(
                         MS_ERROR, "Missing open parentheses",
-                        null, tokens[i].filename, tokens[i].line, tokens[i].column
+                        null, tokens->data[i]->filename, tokens->data[i]->line, tokens->data[i]->column
                     );
 
                     break;
@@ -176,7 +176,7 @@ static ASTNode* shuntingYard(Token tokens[], u32 tokenCount) {
 /**
  * Given a list of |tokens| return the root node of an abstract syntax tree.
  */
-ASTNode* parse(Token tokens[], u32 tokenCount) {
-    return shuntingYard(tokens, tokenCount);
+ASTNode* parse(Array<Token>* tokens) {
+    return shuntingYard(tokens);
 }
 

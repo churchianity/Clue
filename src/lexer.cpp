@@ -9,52 +9,26 @@
 #include "util.h"
 
 
-u32 Lexer::tokenCount = 0;
-u32 Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
-
-Token* Lexer::token = null;
-Token* Lexer::tokens = (Token*) pMalloc(sizeof (Token) * Lexer::capacity);
+Array<Token>* Lexer::tokens = new Array<Token>(CLUE_INITIAL_TOKEN_ARRAY_CAPACITY);
 
 
 /**
  * @STATEFUL
  */
 void Lexer :: clear() {
-    Lexer::tokenCount = 0;
-    Lexer::capacity = CLUE_INITIAL_TOKEN_ARRAY_CAPACITY;
-
-    Lexer::tokens = (Token*) pRealloc(Lexer::tokens, sizeof (Token) * Lexer::capacity);
-    Lexer::token = null;
+    delete Lexer::tokens;
+    Lexer::tokens = new Array<Token>(CLUE_INITIAL_TOKEN_ARRAY_CAPACITY);
 }
 
 /**
  * @STATEFUL
  */
 void Lexer :: print() {
-    ::print("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokenCount, Lexer::capacity);
+    ::print("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokens->size(), Lexer::tokens->capacity);
 
-    if (Lexer::tokenCount > 0) {
-        for (u32 i = 0; i < Lexer::tokenCount; i++) {
-            ::print(Lexer::tokens + i);
-        }
-    }
+    Lexer::tokens->forEach(::print);
 
     ::print("\n");
-}
-
-/**
- * Adds a token to the tokens array.
- * @STATEFUL
- */
-void Lexer :: add(Token* token) {
-    Lexer::token = token;
-
-    if (Lexer::capacity <= Lexer::tokenCount) {
-        Lexer::capacity *= 2;
-        Lexer::tokens = (Token*) pRealloc(Lexer::tokens, (sizeof (Token)) * Lexer::capacity);
-    }
-
-    Lexer::tokens[Lexer::tokenCount++] = *token;
 }
 
 struct Keyword {
@@ -93,7 +67,7 @@ static Table<const char, Keyword>* initKeywordTable() {
  *
  * @STATEFUL
  */
-Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
+Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     static auto keywords = initKeywordTable();
     static auto files = new Table<const char, void>(10); // names of all the files loaded so far
 
@@ -363,15 +337,17 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
         // being here means we have a fully-formed token, and it should probably not be modified past this point save
         // for exceptional circumstances
-        Lexer::add(token);
+        Lexer::tokens->push(token);
 
         // handle import statement
         if (prevTokenImport) {
-            if ((Lexer::token->tt == TT_STRING) && (!Lexer::token->bad)) {
-                const char* importFilePath = trimQuotes(Lexer::token->tk, Lexer::token->length);
+            const auto top = Lexer::tokens->peek();
+
+            if ((token->tt == TT_STRING) && (!token->bad)) {
+                const char* importFilePath = trimQuotes(token->tk, token->length); // @TODO handle failure here
 
                 // check if we've already imported the file - you shouldn't ever need to import something multiple times
-                auto entry = files->lookup(importFilePath, Lexer::token->length - 2);
+                auto entry = files->lookup(importFilePath, token->length - 2);
 
                 if (entry) { // @TODO would be cool if we could detect a recursive import vs. a duplicate import
                     Reporter::add(
@@ -379,7 +355,7 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                         null, filename, line, column
                     );
                 } else {
-                    files->insert(importFilePath, Lexer::token->length - 2, null);
+                    files->insert(importFilePath, token->length - 2, null);
 
                     prevTokenImport = false; // this is necessary to stop the subsequent recursive calls from trying to import the first token
                     tokenize(clueFileRead(importFilePath), importFilePath);
@@ -395,7 +371,7 @@ Token* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         prevTokenImport = token->tt == TT_IMPORT;
 
         // do this only after handling EVERYTHING having to do with the token we just lexed
-        column += Lexer::token->length;
+        column += token->length;
     }
 
     return Lexer::tokens;

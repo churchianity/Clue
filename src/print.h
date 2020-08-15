@@ -6,7 +6,7 @@
 #include "table.hpp"
 #include "token.h"
 #include "runtime.h"
-#include "stack.hpp"
+#include "array.hpp"
 
 
 //#region ANSI ESCAPE SEQUENCES

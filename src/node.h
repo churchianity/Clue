@@ -2,6 +2,7 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include "array.hpp"
 #include "table.hpp"
 #include "token.h"
 
@@ -64,7 +65,7 @@ extern void traverse(ASTNode* self, void (*callback) (const ASTNode*));
 
 extern OperatorAssociativityEnum associativity(u32 tt, bool unary, bool postfix);
 extern u8 precedence(u32 tt, bool unary, bool postfix);
-extern ASTNode* nodify(Token tokens[], u32 currentIndex);
+extern ASTNode* nodify(Array<Token>* tokens, u32 i);
 
 extern void addChild(ASTNode* self, ASTNode* child);
 extern void freeNode(ASTNode* node);

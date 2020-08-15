@@ -1,4 +1,5 @@
 
+#include "array.hpp"
 #include "clue.h"
 #include "lexer.h"
 #include "node.h"
@@ -247,7 +248,7 @@ void addChild(ASTNode* self, ASTNode* child) {
     }
 
     if (!self->children) {
-        self->children = (ASTNode*) pCalloc(self->maxChildrenCount, sizeof (ASTNode));
+        self->children = (ASTNode*) pCalloc(sizeof (ASTNode), self->maxChildrenCount);
     }
 
     self->children[self->childrenCount++] = *child;
@@ -261,10 +262,10 @@ void addChild(ASTNode* self, ASTNode* child) {
  * Most of the work here is resolving operator precedence, associativity, and unary/postfix flags.
  * That requires some amount of peeking, so the whole Lexer::tokens array should be passed w/ the index of the operator.
  */
-ASTNode* nodify(Token tokens[], u32 i) {
+ASTNode* nodify(Array<Token>* tokens, u32 i) {
     ASTNode* node = (ASTNode*) pMalloc(sizeof (ASTNode));
 
-    node->token = &tokens[i];
+    node->token = tokens->data[i];
 
     switch (node->token->tt) {
         default:
@@ -276,7 +277,7 @@ ASTNode* nodify(Token tokens[], u32 i) {
             return node;
     }
 
-    if (i < 1 || isOperator(&tokens[i - 1])) { // is unary prefix, or a punctuator used weirdly
+    if (i < 1 || isOperator(tokens->data[i - 1])) { // is unary prefix, or a punctuator used weirdly
         switch ((int) node->token->tt) {
             case '+':
             case '-':
@@ -305,17 +306,17 @@ ASTNode* nodify(Token tokens[], u32 i) {
 
                 break;
         }
-    } else if ((tokens[i].tt == '(') && (tokens[i - 1].tt == TT_SYMBOL)) { // is a function call
+    } else if ((tokens->data[i]->tt == '(') && (tokens->data[i - 1]->tt == TT_SYMBOL)) { // is a function call
         node->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
         node->call = true;
 
-    } else if ((tokens[i].tt == TT_INCREMENT) || (tokens[i].tt == TT_DECREMENT)) { // is postfix unary
+    } else if ((tokens->data[i]->tt == TT_INCREMENT) || (tokens->data[i]->tt == TT_DECREMENT)) { // is postfix unary
         node->maxChildrenCount = 1;
         node->unary = true;
         node->postfix = true;
 
     } else { // is a binary operator or a postfix-ish punctuator
-        switch ((int) tokens[i].tt) {
+        switch ((int) tokens->data[i]->tt) {
             case ';':
                 node->punctuator = true;
                 break;

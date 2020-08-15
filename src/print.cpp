@@ -5,7 +5,7 @@
 #include "node.h"
 #include "table.hpp"
 #include "token.h"
-#include "stack.hpp"
+#include "array.hpp"
 #include "print.h"
 #include "util.h"
 
