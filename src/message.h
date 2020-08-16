@@ -17,8 +17,8 @@ struct MessageContext {
 };
 
 struct Message {
-    const char* content;
-    MessageSeverityEnum severity;
+    MessageContext* ctx;
+    u32 id;
 };
 
 #endif

@@ -7,22 +7,41 @@
 #include "trace.h"
 #include "util.h"
 
-static Message messages[] = {
-    { "only alphabetical characters can follow a digit in an identifier name", MS_LINT },
-    { "leading zeroes can only be in the form '0x' (hexadecimal), '0b' (binary), 0o' (octal), or '0.' (fractional decimal)", MS_ERROR },
-    { "dot appearing immediately after a number is always invalid", MS_ERROR },
-    { "numerics have a maximum precision of 24 characters - extra length is discarded", MS_WARN },
-    { "invalid character", MS_ERROR },
-    { "trying to import file that has already been imported", MS_WARN },
-    { "trying to import something that isn't a string", MS_ERROR },
-    { "missing operand for unary operator", MS_ERROR },
-    { "missing operand for binary operator", MS_ERROR },
-    { "Missing open parentheses", MS_ERROR },
-    { "no matching close paren", MS_ERROR },
-    { "missing operand for operator", MS_ERROR },
-    { "attempting to add an operand to an operator that is already satisfied", MS_ERROR },
-    { "semicolon with nothing before it has no effect", MS_WARN },
-    { "invalid operator", MS_ERROR },
+
+static Array<Message>* messages = new Array<Message>(CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
+
+
+
+
+
+
+
+
+
+
+struct MessageId {
+    MessageSeverityEnum severity;
+    const char* content;
+};
+
+// all of the contents of all of the messages the reporter can send.
+// keep the first element on a line number where it % 10 == 0.
+static MessageId messages[] = {
+    { MS_LINT, "only alphabetical characters can follow a digit in an identifier name" },
+    { MS_ERROR, "leading zeroes can only be in the form '0x' (hexadecimal), '0b' (binary), 0o' (octal), or '0.' (fractional decimal)" },
+    { MS_ERROR, "dot appearing immediately after a number is always invalid" },
+    { MS_WARN, "numerics have a maximum precision of 24 characters - extra length is discarded" },
+    { MS_ERROR, "invalid character" },
+    { MS_WARN, "trying to import file that has already been imported" },
+    { MS_ERROR, "trying to import something that isn't a string" },
+    { MS_ERROR, "missing operand for unary operator" },
+    { MS_ERROR, "missing operand for binary operator" },
+    { MS_ERROR, "Missing open parentheses" },
+    { MS_ERROR, "no matching close paren" },
+    { MS_ERROR, "missing operand for operator" },
+    { MS_ERROR, "attempting to add an operand to an operator that is already satisfied" },
+    { MS_WARN, "semicolon with nothing before it has no effect" },
+    { MS_ERROR, "invalid operator" },
 };
 
 static inline const char* messageSeverityToColor(MessageSeverityEnum severity) {
@@ -112,51 +131,53 @@ static inline const char* reconstruct(const char* filename, u32 line) {
  *          Int x := 4 !;
  *                     ^
  */
-static void print(const Message* message, const MessageContext* context) {
-    const char* fn = context->functionName;
-    char* pointyThing = makePointyThing(context->column);
+static void print(const Message* message) {
+    const char* fn = message->ctx->functionName;
+    char* pointyThing = makePointyThing(message->ctx->column);
 
     // i'm so sorry.
     print("\n    %s%s%s: %s\n    %s%s%s%s:%u:%u\n    %s\n    %s%s%s\n"
-           , messageSeverityToColor(message->severity), messageSeverityToString(message->severity), ANSI_RESET
-           , message->content
+           , messageSeverityToColor(messages[message->id].severity), messageSeverityToString(messages[message->id].severity), ANSI_RESET
+           , messages[message->id].content
            , fn ? "in function '" : "", fn ? fn : "", fn ? "': " : ""
-           , context->filename, context->line, context->column
-           , reconstruct(context->filename, context->line)
+           , message->ctx->filename, message->ctx->line, message->ctx->column
+           , reconstruct(message->ctx->filename, message->ctx->line)
            , ANSI_RED, pointyThing, ANSI_RESET
     );
 
     free(pointyThing);
 }
 
+static MessageContext* nodeToContext(ASTNode* node) {
+    MessageContext* ctx = (MessageContext*) pMalloc(sizeof (MessageContext));
 
-Array<Message>* Reporter::messages = new Array<Message>(CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
+    ctx->functionName   = null;
+    ctx->filename       = node->token->filename;
+    ctx->line           = node->token->line;
+    ctx->column         = node->token->column;
 
+    return ctx;
+}
 
-/**
- * @STATEFUL
- */
-void Reporter :: add(MessageSeverityEnum severity, const char* content, const char* functionName, const char* filename, u32 line, u32 column) {
+void add(u32 id, ASTNode* node) {
     Message* message = (Message*) pMalloc(sizeof (Message));
 
-    message->content        = content;
-    message->severity       = severity;
+    message->ctx = nodeToContext(node);
+    message->id = id;
 
     Reporter::messages->push(message);
 }
 
-/**
- * Immediately constructs a message on the stack and prints it without ever storing it on the heap.
- * These should probably all be fatal errors... we currently exit after reporting.
- */
-void Reporter :: report(MessageSeverityEnum severity, const char* content, const char* functionName, const char* filename, u32 line, u32 column) {
-    Message message = {
-        content,
-        severity,
-    };
+void add(u32 id, const char* functionName, const char* filename, u32 line, u32 column) {
+    Message* message = (Message*) pMalloc(sizeof (Message));
+}
 
-    print(&message);
-    exit(1);
+void report(u32 id, ASTNode* node) {
+
+}
+
+void report(u32 id, MessageContext context) {
+
 }
 
 /**
