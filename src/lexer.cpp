@@ -205,17 +205,21 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 case '\t': column += 4;        buffer++; continue;
                 case ' ':  column++;           buffer++; continue;
 
+                case '`':
+                case '@':
+                case '#':
+                case '$':
+                case '(':
+                case ')':
+                case '[':
+                case ']':
+                case '{':
+                case '}':
+                case '\\':
                 case ';':
                 case ',':
                 case '.':
-                case '(':
-                case ')':
-                case '{':
-                case '}':
-                case '[':
-                case ']':
-                case '@':
-                case '$':
+                case '?':
                     break;
 
                 case '>':
@@ -281,10 +285,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     break;
 
                 // invalid or unimplemented single-chars
-                case '#':
-                case '`':
-                case '?':
-                case '\\':
                 default:
                     // @REPORT 5
 
