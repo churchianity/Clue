@@ -11,25 +11,32 @@
 static Array<Message>* messages = new Array<Message>(CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
 
 /**
- * keys correlate directly with MessageEnum
+ * keys correlate directly with MessageEnum (message.h), but c++ doesn't let you use designated initializers
+ * so we just have to deal with the error-prone nature of this approach until we think of something better
+ *
+ * ensure the first element of the array is on a line with it % 10 == 0
+ * @TODO replace messages with localization keys (which should probably be the same name as the enum
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wc99-extensions"
 static const MessageId messageIds[] = {
-    { MS_LINT, "only alphabetical characters can follow a digit in an identifier name" },
-    { MS_ERROR, "leading zeroes can only be in the form '0x' (hexadecimal), '0b' (binary), '0o' (octal), or '0.' (fractional decimal)" },
-    { MS_ERROR, "dot appearing immediately after a number is always invalid" },
-    { MS_WARN, "numerics have a maximum precision of 24 characters - extra length is discarded" },
-    { MS_ERROR, "invalid character" },
-    { MS_WARN, "trying to import file that has already been imported" },
-    { MS_ERROR, "trying to import something that isn't a string" },
-    { MS_ERROR, "missing operand for unary operator" },
-    { MS_ERROR, "missing operand for binary operator" },
-    { MS_ERROR, "missing open parentheses" },
-    { MS_ERROR, "missing close parentheses" },
-    { MS_ERROR, "missing operand for operator" },
-    { MS_ERROR, "attempting to add an operand to an operator that is already satisfied" },
-    { MS_WARN, "semicolon with nothing before it has no effect" },
-    { MS_ERROR, "invalid operator" },
+    [L_FOLLOWING_DIGIT_IN_IDENTIFIER]       = { MS_LINT, "only digits can come after a digit in an identifier name" },
+    [E_BAD_LEADING_ZERO]                    = { MS_ERROR, "leading zeroes can only be in the form '0x' (hexadecimal), '0b' (binary), '0o' (octal), or '0.' (fractional decimal)" },
+    [E_MULTIPLE_DOTS_IN_NUMBER]             = { MS_ERROR, "dot appearing immediately after a number is always invalid" },
+    [E_INVALID_CHARACTER]                   = { MS_ERROR, "invalid character" },
+    [W_OVERPRECISE_NUMBER]                  = { MS_WARN, "numerics have a maximum precision of 24 characters - extra length is discarded" },
+    [W_DUPLICATE_IMPORT]                    = { MS_WARN, "trying to import file that has already been imported" },
+    [E_BAD_IMPORT]                          = { MS_ERROR, "trying to import something that isn't a string" },
+    [E_MISSING_OPERAND_FOR_UNARY_OPERATOR]  = { MS_ERROR, "missing operand for unary operator" },
+    [E_MISSING_OPERAND_FOR_BINARY_OPERATOR] = { MS_ERROR, "missing operand for binary operator" },
+    [E_MISSING_OPEN_PAREN]                  = { MS_ERROR, "missing open parentheses" },
+    [E_MISSING_CLOSE_PAREN]                 = { MS_ERROR, "missing close parentheses" },
+    [E_MISSING_OPERAND_FOR_OPERATOR]        = { MS_ERROR, "missing operand for operator" },
+    [E_TOO_MANY_OPERANDS]                   = { MS_ERROR, "attempting to add an operand to an operator that is already satisfied" },
+    [W_USELESS_SEMICOLON]                   = { MS_WARN, "semicolon with nothing before it has no effect" },
+    [E_INVALID_OPERATOR]                    = { MS_ERROR, "invalid operator" },
 };
+#pragma GCC diagnostic pop
 
 static inline const char* messageSeverityToColor(MessageSeverityEnum severity) {
     switch (severity) {

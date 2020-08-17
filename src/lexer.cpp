@@ -104,7 +104,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
                 } else {
                     if (lastCharWasDigit) {
-                        // @REPORT 1
+                        Reporter::add(L_FOLLOWING_DIGIT_IN_IDENTIFIER, null, filename, line, column + length);
                     }
 
                     lastCharWasDigit = false;
