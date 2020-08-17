@@ -66,7 +66,7 @@ static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os, ASTNode* node
         ASTNode* child = es->pop();
 
         if (!child) {
-            // @REPORT 8
+            Reporter::report(7, node); // @REPORT
         }
 
         addChild(node, child);
@@ -76,7 +76,7 @@ static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os, ASTNode* node
         ASTNode* lhs = es->pop();
 
         if (!(rhs && lhs)) {
-            // @REPORT 9
+            Reporter::report(8, node); // @REPORT
         }
 
         addChild(node, lhs);
@@ -110,8 +110,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 }
 
                 if (os->isEmpty()) { // we never found a matching open paren...
-                    // @REPORT 10
-
+                    Reporter::report(9, null, tokens->data[i]->filename, tokens->data[i]->line, tokens->data[i]->column);
                     break;
                 }
 
@@ -147,7 +146,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
         if (os->peek()->token->tt == '(') {
             const auto token = os->peek()->token;
 
-            // @REPORT 11
+            Reporter::report(9, null, token->filename, token->line, token->column);
         }
 
         parseOperation(es, os, os->pop());

@@ -9,17 +9,27 @@ enum MessageSeverityEnum {
     MS_ERROR
 };
 
-struct MessageContext {
+struct MessageId {
+    MessageSeverityEnum severity;
+    const char* content;
+};
+
+struct Message {
+    const char* content;
     const char* functionName;
     const char* filename;
     u32 line;
     u32 column;
+    MessageSeverityEnum severity;
 };
 
-struct Message {
-    MessageContext* ctx;
-    u32 id;
-};
+enum MessageEnum {
+    // L_ALPHABET_FOLLOWING_NUMERIC
+    // W_
+    // E_
+
+
+}
 
 #endif
 

@@ -10,25 +10,12 @@
 
 static Array<Message>* messages = new Array<Message>(CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
 
-
-
-
-
-
-
-
-
-
-struct MessageId {
-    MessageSeverityEnum severity;
-    const char* content;
-};
-
-// all of the contents of all of the messages the reporter can send.
-// keep the first element on a line number where it % 10 == 0.
-static MessageId messages[] = {
+/**
+ * keys correlate directly with MessageEnum
+ */
+static const MessageId messageIds[] = {
     { MS_LINT, "only alphabetical characters can follow a digit in an identifier name" },
-    { MS_ERROR, "leading zeroes can only be in the form '0x' (hexadecimal), '0b' (binary), 0o' (octal), or '0.' (fractional decimal)" },
+    { MS_ERROR, "leading zeroes can only be in the form '0x' (hexadecimal), '0b' (binary), '0o' (octal), or '0.' (fractional decimal)" },
     { MS_ERROR, "dot appearing immediately after a number is always invalid" },
     { MS_WARN, "numerics have a maximum precision of 24 characters - extra length is discarded" },
     { MS_ERROR, "invalid character" },
@@ -36,8 +23,8 @@ static MessageId messages[] = {
     { MS_ERROR, "trying to import something that isn't a string" },
     { MS_ERROR, "missing operand for unary operator" },
     { MS_ERROR, "missing operand for binary operator" },
-    { MS_ERROR, "Missing open parentheses" },
-    { MS_ERROR, "no matching close paren" },
+    { MS_ERROR, "missing open parentheses" },
+    { MS_ERROR, "missing close parentheses" },
     { MS_ERROR, "missing operand for operator" },
     { MS_ERROR, "attempting to add an operand to an operator that is already satisfied" },
     { MS_WARN, "semicolon with nothing before it has no effect" },
@@ -132,66 +119,64 @@ static inline const char* reconstruct(const char* filename, u32 line) {
  *                     ^
  */
 static void print(const Message* message) {
-    const char* fn = message->ctx->functionName;
-    char* pointyThing = makePointyThing(message->ctx->column);
+    const char* fn = message->functionName;
+    char* pointyThing = makePointyThing(message->column);
 
     // i'm so sorry.
     print("\n    %s%s%s: %s\n    %s%s%s%s:%u:%u\n    %s\n    %s%s%s\n"
-           , messageSeverityToColor(messages[message->id].severity), messageSeverityToString(messages[message->id].severity), ANSI_RESET
-           , messages[message->id].content
+           , messageSeverityToColor(message->severity), messageSeverityToString(message->severity), ANSI_RESET
+           , message->content
            , fn ? "in function '" : "", fn ? fn : "", fn ? "': " : ""
-           , message->ctx->filename, message->ctx->line, message->ctx->column
-           , reconstruct(message->ctx->filename, message->ctx->line)
+           , message->filename, message->line, message->column
+           , reconstruct(message->filename, message->line)
            , ANSI_RED, pointyThing, ANSI_RESET
     );
 
     free(pointyThing);
 }
 
-static MessageContext* nodeToContext(ASTNode* node) {
-    MessageContext* ctx = (MessageContext*) pMalloc(sizeof (MessageContext));
-
-    ctx->functionName   = null;
-    ctx->filename       = node->token->filename;
-    ctx->line           = node->token->line;
-    ctx->column         = node->token->column;
-
-    return ctx;
-}
-
-void add(u32 id, ASTNode* node) {
+void Reporter :: add(u32 id, const char* functionName, const char* filename, u32 line, u32 column) {
     Message* message = (Message*) pMalloc(sizeof (Message));
 
-    message->ctx = nodeToContext(node);
-    message->id = id;
+    MessageId messageId = messageIds[id];
 
-    Reporter::messages->push(message);
+    message->severity     = messageId.severity;
+    message->content      = messageId.content;
+
+    message->functionName = functionName;
+    message->filename     = filename;
+    message->line         = line;
+    message->column       = column;
+
+    messages->push(message);
 }
 
-void add(u32 id, const char* functionName, const char* filename, u32 line, u32 column) {
-    Message* message = (Message*) pMalloc(sizeof (Message));
+void Reporter :: add(u32 id, ASTNode* node) {
+    add(id, null, node->token->filename, node->token->line, node->token->column);
 }
 
-void report(u32 id, ASTNode* node) {
+void Reporter :: report(u32 id, const char* functionName, const char* filename, u32 line, u32 column) {
+    add(id, null, filename, line, column);
 
+    Reporter::flush();
 }
 
-void report(u32 id, MessageContext context) {
-
+void Reporter :: report(u32 id, ASTNode* node) {
+    report(id, null, node->token->filename, node->token->line, node->token->column);
 }
 
 /**
  * @STATEFUL
  */
 void Reporter :: flush() {
-    Reporter::messages->forEach(
+    messages->forEach(
         [] (Message* message) {
             print(message);
             free(message);
         }
     );
 
-    delete Reporter::messages;
-    Reporter::messages = new Array<Message>(CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
+    delete messages;
+    messages = new Array<Message>(CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
 }
 
