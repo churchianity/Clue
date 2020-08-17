@@ -57,8 +57,8 @@ static Table<const char, Keyword>* initKeywordTable() {
 /**
  * Given a string |buffer|, append to the lexer's |tokens| array.
  *
- * |_line| is sometimes necessary to provide in the 'stdin' interpreter case, because you can
- * lex tokens from the same source in batches.
+ * |_line| is sometimes necessary to provide, because you can
+ * lex tokens from the same source in batches, like in the 'stdin' interpreter case,
  *
  * It's like partially lexing a file, going off and doing something else, then returning
  * and wanting to remember where you left off.
@@ -85,7 +85,8 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
     while (*buffer != '\0') {
 
-        length = 1; // if it's not the null character, we probably have a token of atleast 1 in length
+        // if it's not the null character, we (probably) have a valid token of atleast 1 in length
+        length = 1;
         bad = false;
 
         if (isAlpha(*buffer)) {
@@ -129,16 +130,21 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
             if (*buffer == '0') {
                 switch (*(buffer + 1)) {
-                    case 'x': case 'X': // @TODO
-                    case 'b': case 'B': // @TODO
-                    case 'o': case 'O': // @TODO
-                    case '.':
-                        break;
-
                     default:
                         // @REPORT 2
-
                         break;
+
+                    case '.': // fractional decimal, we don't need to do anything special
+                        break;
+
+                    // octal constant. you can choose whether or not to be explicit about octal with 'o' or 'O'
+                    // a leading zero that isn't one of the other cases has octal semantics by default
+                    case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+                    case 'o': case 'O':
+
+                    case 'x': case 'X': // @TODO hexadecimal constant
+
+                    case 'b': case 'B': // @TODO binary constant
                 }
             }
              */
