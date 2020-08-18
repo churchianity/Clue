@@ -168,25 +168,6 @@ void interactive() {
 
             case '\n':
                 continue;
-
-            case 244:
-                switch (s[1]) {
-                    case 72: // up
-                        print(history->pop());
-                        continue;
-
-                    case 75: // left
-                        print("left!\n");
-                        continue;
-
-                    case 77: // right
-                        print("right!\n");
-                        continue;
-
-                    case 80: // down
-                        print("down!\n");
-                        continue;
-                }
         }
 
         history->push(s);

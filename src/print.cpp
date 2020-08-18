@@ -48,6 +48,10 @@ const char* ANSI_RESET = "\x001B[0m";
  * +we intend to replace printf at some point with this
  */
 void print(const char* format, ...) {
+    if (!format) {
+        print("null\n"); return;
+    }
+
     va_list args;
     va_start(args, format);
 
@@ -69,7 +73,6 @@ void die(const char* format, ...) {
     exit(1);
 }
 
-void prints(const char* s)  { print("%s\n", s); }
 void print(bool b)          { print("%s\n", boolToString(b)); }
 void print(char c)          { print("%c\n", c); }
 void print(signed int i)    { print("%d\n", i); }

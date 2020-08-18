@@ -1,6 +1,4 @@
 
-#include <stdlib.h>
-
 #include "clue.h"
 #include "print.h"
 #include "string.h"
@@ -57,6 +55,7 @@ char* clueFileRead(const char* filePath) {
     // 3. heuristic: some number of filesystem ascensions is probably a good indicator we just can't find it
     //
     // ... ? do we do a spellchecker?
+    const char* filename = filePath;
 
     FILE* fp = fopen(filePath, "r");
 

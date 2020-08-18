@@ -1,7 +1,10 @@
 
 
+
+
+`   Simple program to calculate fibonnaci numbers
 fib(n: Int) {
-    if (n == 1 || n == 2) {
+    if n == 1 || n == 2 {
         return 1;
     }
 

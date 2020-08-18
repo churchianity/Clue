@@ -211,7 +211,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 case '\t': column += 4;        buffer++; continue;
                 case ' ':  column++;           buffer++; continue;
 
-                case '`':
                 case '@':
                 case '#':
                 case '$':
@@ -226,6 +225,9 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 case ',':
                 case '.':
                 case '?':
+                    break;
+
+                case '`': // @TODO single-line and multi-line comments
                     break;
 
                 case '>':
