@@ -111,7 +111,7 @@ int main(int argc, const char* argv[]) {
 
     handleCommandLineArguments(argc, argv);
 
-    for (u32 i = 0; i < CLAs.filec; i++) {
+    for (s32 i = 0; i < CLAs.filec; i++) {
         doIt(clueFileRead(CLAs.files[i]), CLAs.files[i]);
     }
 
