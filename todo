@@ -1,5 +1,7 @@
 
-- import file search!
+1. comments multi-line?
+
+4. import file search!
 
 2. draw more clear distinctions between punctuators which have no meaning to a program, but have plenty of meaning to the compiler/interpreter
 
@@ -41,6 +43,4 @@
         /   | \
      func   |  \
            foo  bar
-
-3. reporter needs a more lightweight api, message ids/something like that
 

@@ -73,6 +73,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
     // const char* beginning = buffer;
     static bool prevTokenImport = false;
+    bool isSingleLineComment = false;
 
     Token* token = null;
     TokenTypeEnum tt;
@@ -207,9 +208,22 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             tt = (TokenTypeEnum) *buffer;
 
             switch (*buffer) {
-                case '\n': column = 1; line++; buffer++; continue;
-                case '\t': column += 4;        buffer++; continue;
-                case ' ':  column++;           buffer++; continue;
+                case '\n':
+                    isSingleLineComment = false;
+                    column = 1;
+                    line++;
+                    buffer++;
+                    continue;
+
+                case '\t':
+                    column += 4;
+                    buffer++;
+                    continue;
+
+                case ' ':
+                    column++;
+                    buffer++;
+                    continue;
 
                 case '@':
                 case '#':
@@ -227,7 +241,8 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 case '?':
                     break;
 
-                case '`': // @TODO single-line and multi-line comments
+                case '`':
+                    isSingleLineComment = true;
                     break;
 
                 case '>':
@@ -305,6 +320,11 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             buffer += length;
         }
 
+        if (isSingleLineComment) {
+            continue;
+        }
+
+        // if we're here, we should be able to make a token
         token = (Token*) pMalloc(sizeof (Token));
 
         token->filename = filename;
