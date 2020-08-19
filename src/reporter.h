@@ -7,13 +7,20 @@
 
 
 namespace Reporter {
+    /**
+     * This set of functions lets you interact with the reporter by adding messages.
+     *
+     * flush() empties the internal array and shows you everything.
+     * add() appends to the array.
+     * report() calls add(), then calls flush()
+     */
+    extern void flush();
+
     extern void add(u32 id, const char* functionName, const char* filename, u32 line, u32 column);
     extern void add(u32 id, ASTNode* node);
 
     extern void report(u32 id, const char* functionName, const char* filename, u32 line, u32 column);
     extern void report(u32 id, ASTNode* node);
-
-    extern void flush();
 }
 
 #endif

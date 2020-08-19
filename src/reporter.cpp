@@ -8,13 +8,7 @@
 #include "util.h"
 
 
-static Array<Message>* messages = new Array<Message>(CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
-
-
-
-
-
-
+// @TODO move me.
 static inline const char* messageSeverityToColor(MessageSeverityEnum severity) {
     switch (severity) {
         case MS_LINT: return ANSI_BLUE;
@@ -24,6 +18,7 @@ static inline const char* messageSeverityToColor(MessageSeverityEnum severity) {
     }
 }
 
+// @TODO move me.
 static inline const char* messageSeverityToString(MessageSeverityEnum severity) {
     switch (severity) {
         case MS_LINT: return "lint";
@@ -32,6 +27,10 @@ static inline const char* messageSeverityToString(MessageSeverityEnum severity) 
         default: die("bad message sevevity\n"); return null;
     }
 }
+
+
+static Array<Message>* messages = new Array<Message>(10);
+
 
 /**
  * @TODO i should just make a memset() like thingy in string.h
@@ -63,8 +62,8 @@ static inline char* makePointyThing(u32 column) {
  *
  * Tokens can do this because they store where they are in the file + how long they are.
  *
- * @TODO support multiple lines of context via an offset, above or below or both.
- * @STATEFUL
+ * @TODO support multiple lines of context via an offset? (above or below or both?)
+ * @STATEFUL - needs the lexer state (just the tokens array, really)
  */
 static inline const char* reconstruct(const char* filename, u32 line) {
     // find the first token in the request file, on the requested line
@@ -95,12 +94,17 @@ static inline const char* reconstruct(const char* filename, u32 line) {
 }
 
 /**
- *  Example printed message:
+ *  Example printed messages:
  *
  *  error: missing right-hand operand for operator
  *  in function 'funcName': ./../src/foo.clue:14:51
  *          Int x := 4 !;
  *                     ^
+ *
+ *  lint: only digits can follow a digit in an identifier name
+ *  ./../src/subfolder/bar.clue:2109:7
+ *      y2k : String = "message example";
+ *        ^
  */
 static void print(const Message* message) {
     const char* fn = message->functionName;
@@ -117,6 +121,17 @@ static void print(const Message* message) {
     );
 
     free(pointyThing);
+}
+
+void Reporter :: flush() {
+    messages->forEach(
+        [] (Message* message) {
+            print(message);
+        }
+    );
+
+    delete messages;
+    messages = new Array<Message>(CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
 }
 
 void Reporter :: add(u32 id, const char* functionName, const char* filename, u32 line, u32 column) {
@@ -147,20 +162,5 @@ void Reporter :: report(u32 id, const char* functionName, const char* filename, 
 
 void Reporter :: report(u32 id, ASTNode* node) {
     report(id, null, node->token->filename, node->token->line, node->token->column);
-}
-
-/**
- * @STATEFUL
- */
-void Reporter :: flush() {
-    messages->forEach(
-        [] (Message* message) {
-            print(message);
-            free(message);
-        }
-    );
-
-    delete messages;
-    messages = new Array<Message>(CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
 }
 

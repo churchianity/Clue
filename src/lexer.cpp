@@ -24,7 +24,7 @@ void Lexer :: clear() {
  * @STATEFUL
  */
 void Lexer :: print() {
-    :print("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokens->size(), Lexer::tokens->capacity);
+    ::print("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokens->size(), Lexer::tokens->capacity);
 
     Lexer::tokens->forEach(::print);
 
