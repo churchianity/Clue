@@ -68,9 +68,6 @@ inline char* intToString(u64 integer) {
     return buffer;
 }
 
-/**
- *
- */
 inline u32 strln(const char* string) {
     u32 length = 0;
 
@@ -82,9 +79,6 @@ inline u32 strln(const char* string) {
     return length;
 }
 
-/**
- *
- */
 inline bool streq(const char* s1, const char* s2) {
     if (strln(s1) != strln(s2)) {
         return false;
@@ -92,23 +86,6 @@ inline bool streq(const char* s1, const char* s2) {
 
     for (u32 i = 0; i < strln(s1); i++) {
         if (s1[i] != s2[i]) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-/**
- * Compare two blocks of memory |p1| & |p2|, of lengths |l1| & |l2|, for equality.
- */
-inline bool memeq(const char* m1, u32 l1, const char* m2, u32 l2) {
-    if (l1 != l2) {
-        return false;
-    }
-
-    for (u32 i = 0; i < l1; i++) {
-        if (m1[i] != m2[i]) {
             return false;
         }
     }
@@ -129,9 +106,30 @@ inline char* strcp(const char* string, u32 length) {
     return buffer;
 }
 
-/**
- * like strrchr
- */
+inline bool memeq(const char* m1, u32 l1, const char* m2, u32 l2) {
+    if (l1 != l2) {
+        return false;
+    }
+
+    for (u32 i = 0; i < l1; i++) {
+        if (m1[i] != m2[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+inline void* memset(void* p, char c, u32 length) {
+    char* a = (char*) p;
+
+    for (u32 i = 0; i < length; i++) {
+        a[i] = c;
+    }
+
+    return a;
+}
+
 inline const char* lastCharOccurence(const char* string, u32 length, char c) {
     for (s32 i = length - 1; i >= 0; i--) { // @NOTE 'i' needs to be a signed int here...
         if (*(string + i) == c) {
@@ -142,9 +140,6 @@ inline const char* lastCharOccurence(const char* string, u32 length, char c) {
     return null;
 }
 
-/**
- *
- */
 inline bool hasSuffix(const char* string, const char* suffix) {
     const char* p = lastCharOccurence(string, strln(string), suffix[0]);
 
@@ -155,9 +150,6 @@ inline bool hasSuffix(const char* string, const char* suffix) {
     return false;
 }
 
-/**
- *
- */
 inline u32 countLines(const char* buffer) {
     u32 lines = 0;
     char c;
@@ -174,7 +166,7 @@ inline u32 countLines(const char* buffer) {
 }
 
 /**
- * Ascii encoded text won't ever set the 8th bit of any of its bytes.
+ * Ascii encoded text won't ever set the 8th (big) bit of any of its bytes.
  * @TODO is |length| necessary here?
  */
 inline bool isAscii(const char* buffer, u32 length) {
@@ -217,9 +209,6 @@ inline char* trimQuotes(const char* str, u32 length) {
     return buffer;
 }
 
-/**
- *
- */
 inline char* concat(const char* str1, const char* str2) {
     u32 l1 = strln(str1);
     u32 l2 = strln(str2);
@@ -243,9 +232,6 @@ inline char* concat(const char* str1, const char* str2) {
     return newBuffer;
 }
 
-/**
- *
- */
 inline char* concat(u32 argc, ...) {
     va_list args;
     va_start(args, argc);
