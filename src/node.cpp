@@ -272,10 +272,6 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
         case TT_NUMERIC:
         case TT_STRING:
             return node;
-
-        case TT_IMPORT:
-        // case TT_OTHER_PRE_PROCESSOR:
-
     }
 
     if (i < 1 || isOperator(tokens->data[i - 1])) { // is unary prefix, or a punctuator used weirdly

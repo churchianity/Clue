@@ -24,7 +24,7 @@ void Lexer :: clear() {
  * @STATEFUL
  */
 void Lexer :: print() {
-    ::print("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokens->size(), Lexer::tokens->capacity);
+    :print("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokens->size(), Lexer::tokens->capacity);
 
     Lexer::tokens->forEach(::print);
 
@@ -351,7 +351,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
         // check if we used a symbol that is a reserved operator/word
         if (token->tt == TT_SYMBOL) {
-            auto entry = keywords->lookup(token->tk, token->length);
+            const auto entry = keywords->lookup(token->tk, token->length);
 
             if (entry) {
                 // retroactively fix its type
