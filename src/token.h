@@ -11,6 +11,8 @@
 
 
 enum TokenTypeEnum {
+    TT_ANY                      = -1,
+
     // 0-255 ascii chars here
 
     // anything that the lexer considers to be a symbol
@@ -88,7 +90,6 @@ enum TokenTypeEnum {
 
 struct Token {
     const char* filename;
-
     const char* tk;
 
     u32 line;

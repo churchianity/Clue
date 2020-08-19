@@ -71,7 +71,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     static auto keywords = initKeywordTable();
     static auto files = new Table<const char, void>(10); // names of all the files loaded so far
 
-    // const char* beginning = buffer;
     static bool prevTokenImport = false;
     bool isSingleLineComment = false;
 
@@ -208,6 +207,11 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             tt = (TokenTypeEnum) *buffer;
 
             switch (*buffer) {
+                // invalid or unimplemented single-chars
+                default:
+                    Reporter::report(E_INVALID_CHARACTER, null, filename, line, column);
+                    break;
+
                 case '\n':
                     isSingleLineComment = false;
                     column = 1;
@@ -226,7 +230,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     continue;
 
                 case '@':
-                case '#':
                 case '$':
                 case '(':
                 case ')':
@@ -234,11 +237,16 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 case ']':
                 case '{':
                 case '}':
-                case '\\':
                 case ';':
                 case ',':
                 case '.':
                 case '?':
+                    break;
+
+                case '\\': // @TODO?
+                    break;
+
+                case '#': // @TODO
                     break;
 
                 case '`':
@@ -250,15 +258,31 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 case '*':
                     if (*(buffer + 1) == *buffer) {
                         switch (*buffer) {
-                            case '>': tt = TT_RIGHT_SHIFT; break;
-                            case '<': tt = TT_LEFT_SHIFT; break;
-                            case '*': tt = TT_EXPONENTIATION; break;
+                            case '>':
+                            case '<':
+                            case '*':
+                                length = 2;
+
+                                // check for assignment by right/left shift and exponentiation
+                                if (*(buffer + 2) == '=') {
+                                    length = 3;
+
+                                    switch (*buffer) {
+                                        case '>': tt = TT_RIGHT_SHIFT_EQUALS; break;
+                                        case '<': tt = TT_LEFT_SHIFT_EQUALS; break;
+                                        case '*': tt = TT_EXPONENTIATION_EQUALS; break;
+                                    }
+                                } else {
+                                    switch (*buffer) {
+                                        case '>': tt = TT_RIGHT_SHIFT; break;
+                                        case '<': tt = TT_LEFT_SHIFT; break;
+                                        case '*': tt = TT_EXPONENTIATION; break;
+                                    }
+                                }
                         }
-
-                        // @TODO right & left shift assignment & assignment by exponentiation
-
-                        length = 2;
                     }
+
+                    break;
 
                 case '+':
                 case '-':
@@ -271,7 +295,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                             case '+': tt = TT_INCREMENT;           break;
                             case '-': tt = TT_DECREMENT;           break;
                             case '*': tt = TT_EXPONENTIATION;      break;
-                            case '/': tt = TT_SINGLE_LINE_COMMENT; break;
                             case '=': tt = TT_EQUALITY;            break;
                             case '&': tt = TT_LOGICAL_AND;         break;
                             case '|': tt = TT_LOGICAL_OR;          break;
@@ -306,15 +329,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     }
 
                     break;
-
-                // invalid or unimplemented single-chars
-                default:
-                    // @REPORT 5
-
-                    break;
-
-                case '\0':
-                    die("got null character while trying to lex an operator...\n");
             }
 
             buffer += length;
@@ -354,8 +368,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
         // handle import statement
         if (prevTokenImport) {
-            const auto top = Lexer::tokens->peek();
-
             if ((token->tt == TT_STRING) && (!token->bad)) {
                 const char* importFilePath = trimQuotes(token->tk, token->length); // @TODO handle failure here
 
@@ -363,7 +375,8 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 auto entry = files->lookup(importFilePath, token->length - 2);
 
                 if (entry) { // @TODO would be cool if we could detect a recursive import vs. a duplicate import
-                    // @REPORT 6
+                    Reporter::report(W_DUPLICATE_IMPORT, null, filename, line, column);
+
                 } else {
                     files->insert(importFilePath, token->length - 2, null);
 
@@ -371,7 +384,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     tokenize(clueFileRead(importFilePath), importFilePath);
                 }
             } else {
-                // @REPORT 7
+                Reporter::report(E_BAD_IMPORT, null, filename, line, column);
             }
         }
 

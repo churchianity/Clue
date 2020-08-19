@@ -88,6 +88,8 @@ void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
 OperatorAssociativityEnum associativity(u32 tt, bool unary, bool postfix) {
     switch (tt) {
         case ':':
+        case ';':
+        case TT_IMPORT:
 
         case '=':
         case TT_COLON_EQUALS:
@@ -155,6 +157,7 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
         case ')':
         case ']':
         case '}':
+        case TT_IMPORT:
             return 0;
 
         case '=':
@@ -269,6 +272,10 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
         case TT_NUMERIC:
         case TT_STRING:
             return node;
+
+        case TT_IMPORT:
+        // case TT_OTHER_PRE_PROCESSOR:
+
     }
 
     if (i < 1 || isOperator(tokens->data[i - 1])) { // is unary prefix, or a punctuator used weirdly
@@ -283,8 +290,8 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
                 break;
 
             case ';':
-                // @REPORT 13
-                die("LOL\n");
+                Reporter::add(W_USELESS_SEMICOLON, node);
+                break;
 
             case '{':
             case '(':
@@ -292,9 +299,7 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
                 break;
 
             default:
-                // @REPORT 14
-                die("LOL\n");
-
+                Reporter::add(E_INVALID_OPERATOR, node);
                 break;
         }
     } else if ((tokens->data[i]->tt == '(') && (tokens->data[i - 1]->tt == TT_SYMBOL)) { // is a function call

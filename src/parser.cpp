@@ -55,7 +55,8 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
              < precedence(top->token->tt, top->unary, top->postfix);
     }
 
-    die("we're checking if we can pop & apply when the assoc : NONE\n"); return false;
+    return false;
+    // die("we're checking if we can pop & apply when the assoc : NONE\n"); return false;
 }
 
 static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os, ASTNode* node) {
