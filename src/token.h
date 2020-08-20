@@ -89,23 +89,22 @@ enum TokenTypeEnum {
 };
 
 struct Token {
-    const char* filename;
-    const char* tk;
+    const char* filename = null;
+    const char* tk       = null;
 
-    u32 line;
-    u32 column;
-    u32 length;
+    u32 line             = -1;
+    u32 column           = -1;
+    u32 length           = -1;
 
-    TokenTypeEnum tt;
+    TokenTypeEnum tt     = TT_ANY;
 
-    bool bad;
+    bool bad             = false;
+    bool ignore          = false;
 };
 
 extern bool isOperator(Token* token);
-extern bool isUnaryOperator(Token* token);
 extern const char* tokenTypeToString(TokenTypeEnum tt);
 extern char* tokenValueToString(Token* token);
-extern void destroyToken(Token* token);
 
 #endif
 

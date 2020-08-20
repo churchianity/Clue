@@ -18,14 +18,7 @@ const char* tokenTypeToString(TokenTypeEnum tt) {
 
         default:
             // these should all be operators
-            return intToString(tt);
+            return concat("OPERATOR ", intToString(tt));
     }
-}
-
-/**
- * @FIXME
- */
-void destroyToken(Token* token) {
-    token = null;
 }
 
