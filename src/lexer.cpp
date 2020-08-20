@@ -9,7 +9,7 @@
 #include "util.h"
 
 
-Array<Token>* Lexer::tokens = new Array<Token>(CLUE_INITIAL_TOKEN_ARRAY_CAPACITY);
+Array<Token>* Lexer::tokens = new Array<Token>(10);
 
 
 /**
@@ -17,7 +17,7 @@ Array<Token>* Lexer::tokens = new Array<Token>(CLUE_INITIAL_TOKEN_ARRAY_CAPACITY
  */
 void Lexer :: clear() {
     delete Lexer::tokens;
-    Lexer::tokens = new Array<Token>(CLUE_INITIAL_TOKEN_ARRAY_CAPACITY);
+    Lexer::tokens = new Array<Token>(10);
 }
 
 /**

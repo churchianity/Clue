@@ -131,7 +131,7 @@ void Reporter :: flush() {
     );
 
     delete messages;
-    messages = new Array<Message>(CLUE_INITIAL_MESSAGE_ARRAY_CAPACITY);
+    messages = new Array<Message>(10);
 }
 
 void Reporter :: add(u32 id, const char* functionName, const char* filename, u32 line, u32 column) {

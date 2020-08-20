@@ -61,7 +61,7 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
         help(null); exit(0);
     }
 
-    u32 capacity = CLUE_FILE_LIST_INITIAL_CAPACITY;
+    u32 capacity = 10;
     u32 filec = 0;
 
     char** files = (char**) pMalloc(sizeof (char*) * capacity);
