@@ -30,8 +30,8 @@ enum MessageEnum {
     L_FOLLOWING_DIGIT_IN_IDENTIFIER,
     E_BAD_LEADING_ZERO,
     E_MULTIPLE_DOTS_IN_NUMBER,
-    W_OVERPRECISE_NUMBER,
     E_INVALID_CHARACTER,
+    W_OVERPRECISE_NUMBER,
     W_DUPLICATE_IMPORT,
     E_BAD_IMPORT,
     E_MISSING_OPERAND_FOR_UNARY_OPERATOR,
@@ -56,7 +56,7 @@ enum MessageEnum {
  * ensure the first element of the array is on a line with it % 10 == 0
  * @TODO replace messages with localization keys (which should probably be the same name as the enum
  */
-static const MessageId messageIds[] = {
+const MessageId messageIds[] = {
      { MS_LINT, "only digits can come after a digit in an identifier name" },
      { MS_ERROR, "leading zeroes can only be in the form '0x' (hexadecimal), '0b' (binary), '0o' (octal), or '0.' (fractional decimal)" },
      { MS_ERROR, "dot appearing immediately after a number is always invalid" },
@@ -73,7 +73,6 @@ static const MessageId messageIds[] = {
      { MS_WARN, "semicolon with nothing before it has no effect" },
      { MS_ERROR, "invalid operator" },
 };
-
 
 #endif
 
