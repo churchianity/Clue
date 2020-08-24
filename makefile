@@ -2,7 +2,7 @@
 CC=g++
 
 SRC=./src/
-FILES=$(SRC)clue.cpp $(SRC)runtime.cpp $(SRC)lexer.cpp $(SRC)parser.cpp $(SRC)token.cpp $(SRC)node.cpp $(SRC)util.cpp $(SRC)symbol.cpp $(SRC)print.cpp $(SRC)reporter.cpp
+FILES=$(SRC)clue.cpp $(SRC)runtime.cpp $(SRC)lexer.cpp $(SRC)parser.cpp $(SRC)token.cpp $(SRC)node.cpp $(SRC)symbol.cpp $(SRC)print.cpp $(SRC)reporter.cpp
 FLAGS=-ansi -pedantic -std=c++11 -Wall -fshort-enums -g
 
 TEST_SRC=./test/
