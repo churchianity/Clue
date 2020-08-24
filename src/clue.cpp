@@ -26,12 +26,12 @@
 #include <signal.h> // for signal() - needed on my chromebook for some reason?
 
 #include "clue.h"
+#include "file.h"
 #include "print.h"
 #include "runtime.h"
 #include "string.h"
 #include "trace.h"
 #include "types.h"
-#include "util.h"
 
 
 /**
