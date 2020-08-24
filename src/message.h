@@ -42,6 +42,9 @@ enum MessageEnum {
     E_TOO_MANY_OPERANDS,
     W_USELESS_SEMICOLON,
     E_INVALID_OPERATOR,
+    E_NO_CLOSING_QUOTEMARK,
+    L_LONG_SYMBOL,
+    E_LONG_STRING,
 };
 
 
@@ -72,6 +75,9 @@ const MessageId messageIds[] = {
      { MS_ERROR, "attempting to add an operand to an operator that is already satisfied" },
      { MS_WARN, "semicolon with nothing before it has no effect" },
      { MS_ERROR, "invalid operator" },
+     { MS_ERROR, "no matching quotemark" },
+     { MS_LINT, "an identifier name shouldn't be this long." },
+     { MS_ERROR, "consider storing data of this size somewhere else." }
 };
 
 #endif

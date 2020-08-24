@@ -50,6 +50,7 @@ static Table<const char, Keyword>* initKeywordTable() {
     t->insert("if",         2, keyword(TT_IF));
     t->insert("else",       4, keyword(TT_ELSE));
     t->insert("while",      5, keyword(TT_WHILE));
+    t->insert("return",     6, keyword(TT_RETURN));
 
     return t;
 }
@@ -115,6 +116,10 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
             } while (*buffer != '\0');
 
+            if (length >= CLUE_MAX_SYMBOL_LENGTH) {
+                Reporter::add(L_LONG_SYMBOL, null, filename, line, column + CLUE_MAX_SYMBOL_LENGTH);
+            }
+
         } else if (isDigit(*buffer)) {
             tt = TT_NUMERIC;
 
@@ -127,11 +132,12 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
              *  0o / 0O : octal
              *  0b / 0B : binary
              *  0.      : fractional decimal
-
+             */
             if (*buffer == '0') {
                 switch (*(buffer + 1)) {
+                    case '\0':
                     default:
-                        // @REPORT 2
+                        Reporter::add(E_BAD_LEADING_ZERO, null, filename, line, column + 1);
                         break;
 
                     case '.': // fractional decimal, we don't need to do anything special
@@ -141,13 +147,15 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     // a leading zero that isn't one of the other cases has octal semantics by default
                     case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
                     case 'o': case 'O':
+                        break;
 
-                    case 'x': case 'X': // @TODO hexadecimal constant
+                    case 'x': case 'X':
+                        break;
 
-                    case 'b': case 'B': // @TODO binary constant
+                    case 'b': case 'B':
+                        break;
                 }
             }
-             */
 
             do {
                 buffer++;
@@ -156,8 +164,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     if (hasRadixPoint) {
                         bad = true;
 
-                        // @REPORT 3
-
+                        Reporter::add(E_MULTIPLE_DOTS_IN_NUMBER, null, filename, line, column + length + 1);
                         break;
                     }
 
@@ -172,7 +179,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             } while (*buffer != '\0');
 
             if (length >= CLUE_MAX_NUMERIC_LENGTH) {
-                // @REPORT 4
+                Reporter::add(W_OVERPRECISE_NUMBER, null, filename, line, column);
             }
 
         } else if ((*buffer == '"') || (*buffer == '\'')) {
@@ -196,12 +203,16 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     column = 1; line++; continue;
 
                 } else if (*buffer == '\t') {
-                    column += 4; continue; // @TODO robustness
+                    column += 4; continue;
                 }
 
                 length++;
 
             } while (*buffer != '\0');
+
+            if (bad) {
+                Reporter::add(E_NO_CLOSING_QUOTEMARK, null, filename, line, column + length + 1);
+            }
 
         } else {
             tt = (TokenTypeEnum) *buffer;
@@ -209,7 +220,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             switch (*buffer) {
                 // invalid or unimplemented single-chars
                 default:
-                    Reporter::report(E_INVALID_CHARACTER, null, filename, line, column);
+                    Reporter::add(E_INVALID_CHARACTER, null, filename, line, column);
                     break;
 
                 case '\n':
@@ -375,7 +386,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 auto entry = files->lookup(importFilePath, token->length - 2);
 
                 if (entry) { // @TODO would be cool if we could detect a recursive import vs. a duplicate import
-                    Reporter::report(W_DUPLICATE_IMPORT, null, filename, line, column);
+                    Reporter::add(W_DUPLICATE_IMPORT, null, filename, line, column);
 
                 } else {
                     files->insert(importFilePath, token->length - 2, null);

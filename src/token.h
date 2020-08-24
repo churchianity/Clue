@@ -5,7 +5,7 @@
 #include "clue.h"
 #include "symbol.h"
 
-#define CLUE_MAX_SYMBOL_LENGTH 127
+#define CLUE_MAX_SYMBOL_LENGTH 32
 #define CLUE_MAX_STRING_LENGTH INT32_MAX
 #define CLUE_MAX_NUMERIC_LENGTH 24
 
@@ -83,7 +83,8 @@ enum TokenTypeEnum {
     TT_IMPORT                   = 400,  // import
     TT_IF                       = 401,  // if
     TT_ELSE                     = 402,  // else
-    TT_WHILE                    = 403  // while
+    TT_WHILE                    = 403,  // while
+    TT_RETURN                   = 404   // return
 
     // TT_MAKE_IT_BIG              = 0xFFFFFFFFFFFFFFFF
 };
@@ -99,7 +100,6 @@ struct Token {
     TokenTypeEnum tt     = TT_ANY;
 
     bool bad             = false;
-    bool ignore          = false;
 };
 
 extern bool isOperator(Token* token);

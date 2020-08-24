@@ -21,11 +21,9 @@ void traverse(ASTNode* self, void (*callback) (ASTNode*)) {
         return;
     }
 
-    if (self->children != null) {
-        for (u32 i = 0; i < self->childrenCount; i++) {
-            if (self->children + i) {
-                traverse(self->children + i, callback);
-            }
+    for (u32 i = 0; i < self->childrenCount; i++) {
+        if (self->children + i) {
+            traverse(self->children + i, callback);
         }
     }
 
@@ -42,11 +40,9 @@ void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
         return;
     }
 
-    if (self->children != null) {
-        for (u32 i = 0; i < self->childrenCount; i++) {
-            if (self->children + i) {
-                traverse(self->children + i, callback);
-            }
+    for (u32 i = 0; i < self->childrenCount; i++) {
+        if (self->children + i) {
+            traverse(self->children + i, callback);
         }
     }
 
@@ -154,9 +150,6 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
     switch (tt) {
         case ',':
         case ';':
-        case ')':
-        case ']':
-        case '}':
         case TT_IMPORT:
             return 0;
 
@@ -226,6 +219,9 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
         case '(':
         case '[':
         case '{':
+        case ')':
+        case ']':
+        case '}':
             return 8;
 
         default:
@@ -253,11 +249,7 @@ void addChild(ASTNode* self, ASTNode* child) {
 
 /**
  * Resolve a token into a node.
- *
- * Nodes are mostly distinguished by whether or not they have children.
- *
- * Most of the work here is resolving operator precedence, associativity, and unary/postfix flags.
- * That requires some amount of peeking, so the whole Lexer::tokens array should be passed w/ the index of the operator.
+ * This requires some amount of peeking, so the whole Lexer::tokens array should be passed w/ the index of the operator.
  */
 ASTNode* nodify(Array<Token>* tokens, u32 i) {
     ASTNode* node = (ASTNode*) pMalloc(sizeof (ASTNode));
@@ -307,7 +299,7 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
         node->unary = true;
         node->postfix = true;
 
-    } else { // is a binary operator or a postfix-ish punctuator
+    } else { // is a binary operator or a postfix-ish punctuator, or a mistake
         switch ((int) tokens->data[i]->tt) {
             case ';':
                 node->punctuator = true;
@@ -320,9 +312,5 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
     }
 
     return node;
-}
-
-void freeNode(ASTNode* node) {
-    //
 }
 

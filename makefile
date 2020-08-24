@@ -21,6 +21,9 @@ test:
 e:
 		$(CC) -E $(file)
 
+d:
+		gdb ./bin/clue
+
 clean:
 		rm ./bin/clue
 		rm ./bin/test/table

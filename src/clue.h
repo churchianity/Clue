@@ -26,8 +26,7 @@
  *
  *  stdarg.h
  *      concatenate function in (our) string.h
- *      printf wrapper
- *
+ *      printf wrapper(s) in print.cpp/h
  *
  *  execinfo.h
  *      backtrace, backtrace_symbols

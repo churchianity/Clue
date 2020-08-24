@@ -68,7 +68,6 @@ extern u8 precedence(u32 tt, bool unary, bool postfix);
 extern ASTNode* nodify(Array<Token>* tokens, u32 i);
 
 extern void addChild(ASTNode* self, ASTNode* child);
-extern void freeNode(ASTNode* node);
 
 #endif
 

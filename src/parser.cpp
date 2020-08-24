@@ -67,7 +67,7 @@ static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os, ASTNode* node
         ASTNode* child = es->pop();
 
         if (!child) {
-            Reporter::report(7, node); // @REPORT
+            Reporter::report(E_MISSING_OPERAND_FOR_UNARY_OPERATOR, node); // @REPORT
         }
 
         addChild(node, child);
@@ -77,7 +77,7 @@ static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os, ASTNode* node
         ASTNode* lhs = es->pop();
 
         if (!(rhs && lhs)) {
-            Reporter::report(8, node); // @REPORT
+            Reporter::report(E_MISSING_OPERAND_FOR_BINARY_OPERATOR, node); // @REPORT
         }
 
         addChild(node, lhs);
@@ -111,7 +111,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 }
 
                 if (os->isEmpty()) { // we never found a matching open paren...
-                    Reporter::report(9, null, tokens->data[i]->filename, tokens->data[i]->line, tokens->data[i]->column);
+                    Reporter::report(E_MISSING_OPEN_PAREN, null, tokens->data[i]->filename, tokens->data[i]->line, tokens->data[i]->column);
                     break;
                 }
 
@@ -130,6 +130,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
             default:
                 const auto node = nodify(tokens, i);
 
+                // handle precedence & associativity before pushing the operator onto the stack
                 while (canPopAndApply(os, node)) {
                     parseOperation(es, os, os->pop());
                 }
@@ -147,7 +148,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
         if (os->peek()->token->tt == '(') {
             const auto token = os->peek()->token;
 
-            Reporter::report(9, null, token->filename, token->line, token->column);
+            Reporter::report(E_MISSING_CLOSE_PAREN, null, token->filename, token->line, token->column);
         }
 
         parseOperation(es, os, os->pop());

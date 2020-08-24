@@ -151,7 +151,12 @@ void interactive() {
 
             case '/': // delete everything
                 Lexer::clear();
-                traverse(AST, freeNode);
+                traverse(AST,
+                    [] (ASTNode* node) {
+                        print(node); fflush(stdout);
+                        free(node);
+                    }
+                );
                 continue;
 
             case '#': // show state of the lexer
