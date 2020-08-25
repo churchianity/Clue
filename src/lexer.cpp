@@ -73,7 +73,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     static auto files = new Table<const char, void>(10); // names of all the files loaded so far
 
     static bool prevTokenImport = false;
-    bool isSingleLineComment = false;
+    bool ignore = false;
 
     Token* token = null;
     TokenTypeEnum tt;
@@ -190,6 +190,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             do {
                 buffer++;
 
+                // @TODO - we can lex otherwise invalid characters if they're inside a string! like invalid codepoints...
                 if (*buffer == quotemark) {
                     length++; buffer++;
                     bad = false; // if we found a closing quotemark, the string is probably valid
@@ -224,7 +225,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     break;
 
                 case '\n':
-                    isSingleLineComment = false;
+                    ignore = false;
                     column = 1;
                     line++;
                     buffer++;
@@ -251,17 +252,36 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 case ';':
                 case ',':
                 case '.':
-                case '?':
+                case '?': // unused
                     break;
 
                 case '\\': // @TODO?
                     break;
 
                 case '#': // @TODO
+                    // get a pre-processor statement
+                    do {
+                        buffer++;
+
+                        if (*buffer) {
+                            break;
+                        }
+
+                        length++;
+
+                    } while (*buffer != '\0');
+
+                    // figure out what it is
+
+                    // get its arguments
+
+                    // do it
+
                     break;
 
                 case '`':
-                    isSingleLineComment = true;
+                    ::print("hi!\n");
+                    ignore = !ignore;
                     break;
 
                 case '>':
@@ -345,7 +365,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             buffer += length;
         }
 
-        if (isSingleLineComment) {
+        if (ignore) {
             continue;
         }
 
@@ -359,6 +379,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         token->tt       = tt;
         token->tk       = read(buffer - length, length);
         token->bad      = bad;
+        token->ignore   = ignore;
 
         // check if we used a symbol that is a reserved operator/word
         if (token->tt == TT_SYMBOL) {

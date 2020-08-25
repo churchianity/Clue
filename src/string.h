@@ -16,6 +16,32 @@ inline bool isAlpha(char c) {
         || (c >= 'a' && c <= 'z');
 }
 
+inline bool isSpaceSeparator(char c) {
+    switch (c) {
+        case ' ':
+        case 0x00A0: // no-break-space
+        case 0x1680: // ogham space mark
+        case 0x2000: // en quad
+        case 0x2001: // em quad
+        case 0x2002: // en space
+        case 0x2003: // em space
+        case 0x2004: // three-per-em space
+        case 0x2005: // four-per-em space
+        case 0x2006: // six-per-em space
+        case 0x2007: // figure space
+        case 0x2008: // punctuation space
+        case 0x2009: // thin space
+        case 0x200A: // hair space
+        case 0x202F: // narrow no-break space
+        case 0x205F: // medium mathematical space
+        case 0x3000: // ideographic space
+            return true;
+
+        default:
+            return false;
+    }
+}
+
 inline bool isHexDigit(char c) {
     return ((c >= '0') && (c <= '9'))
         || ((c >= 'A') && (c <= 'F'))

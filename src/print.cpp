@@ -81,11 +81,11 @@ void print(float f)         { print("%.14g\n", f); }
 void print(double d)        { print("%.14g\n", d); }
 void print(void* p)         { print("%p\n", p); }
 
-void print(Value v) {
-    if (v.type == VT_NUMBER) {
-        print(v.number);
+void print(Value* v) {
+    if (v->type == VT_NUMBER) {
+        print(v->number);
     } else {
-        print(v.string);
+        print(v->string);
     }
 }
 

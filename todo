@@ -44,3 +44,53 @@
      func   |  \
            foo  bar
 
+
+
+
+
+            +
+           / \
+          -   1
+         / \
+        5   2
+
+
+evaluate(TREE) {
+    traverses the tree:
+        for each operator:
+            evaluate it with its children
+}
+
+
+
+
+
+tokens: 4 - 2 * 4 
+-----------
+
+
+expr: [- 2 4] 4
+----------
+ops: *
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

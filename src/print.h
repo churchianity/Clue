@@ -59,7 +59,7 @@ extern void print(float f);
 extern void print(double d);
 extern void print(void* v);
 
-extern void print(Value v);
+extern void print(Value* v);
 
 /**
  * This should end the program, use for fatal internal errors.

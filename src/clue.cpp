@@ -56,6 +56,8 @@ static inline void help(const char* arg) {
     print("'%s' isn't a valid argument and i should probably help you figure that out but i can't yet.\n", arg);
 }
 
+
+
 static inline void handleCommandLineArguments(int argc, const char* argv[]) {
     if (argc == 1) {
         help(null); exit(0);

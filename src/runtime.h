@@ -14,12 +14,12 @@ struct Value {
     ValueTypeEnum type = VT_NUMBER;
 
     union {
-        const char* string;
         float64 number;
+        const char* string;
     };
 };
 
-extern Value eval(ASTNode* node);
+extern Value* eval(ASTNode* node);
 extern void interactive();
 extern void doIt(char* codeBuffer, const char* filename);
 

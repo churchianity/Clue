@@ -16,97 +16,105 @@
 
 
 static inline float64 evalBitwiseNot(ASTNode* node) {
-    return ~ (u64) eval(node->children + 0).number;
+    return ~ (u64) eval(node->children + 0)->number;
 }
 
 static inline float64 evalNegation(ASTNode* node) {
-    return !eval(node->children + 0).number;
+    return !eval(node->children + 0)->number;
 }
 
 static inline float64 evalUnaryPlus(ASTNode* node) {
-    return +eval(node->children + 0).number;
+    return +eval(node->children + 0)->number;
 }
 
 static inline float64 evalBinaryAddition(ASTNode* node) {
-    return eval(node->children + 0).number + eval(node->children + 1).number;
+    return eval(node->children + 0)->number + eval(node->children + 1)->number;
 }
 
 static inline float64 evalUnaryMinus(ASTNode* node) {
-    return -eval(node->children + 0).number;
+    return -eval(node->children + 0)->number;
 }
 
 static inline float64 evalBinarySubtraction(ASTNode* node) {
-    return eval(node->children + 0).number - eval(node->children + 1).number;
+    return eval(node->children + 0)->number - eval(node->children + 1)->number;
 }
 
 static inline float64 evalMultiplication(ASTNode* node) {
-    return eval(node->children + 0).number * eval(node->children + 1).number;
+    return eval(node->children + 0)->number * eval(node->children + 1)->number;
 }
 
 static inline float64 evalDivision(ASTNode* node) {
-    return eval(node->children + 0).number / eval(node->children + 1).number;
+    return eval(node->children + 0)->number / eval(node->children + 1)->number;
 }
 
 static inline float64 evalModulus(ASTNode* node) {
-    return remainder(eval(node->children + 0).number, eval(node->children + 1).number);
+    return remainder(eval(node->children + 0)->number, eval(node->children + 1)->number);
 }
 
 static inline float64 evalExponentiation(ASTNode* node) {
-    return pow(eval(node->children + 0).number, eval(node->children + 1).number);
+    return pow(eval(node->children + 0)->number, eval(node->children + 1)->number);
 }
 
-static inline Value evalOperator(ASTNode* node) {
-    Value v;
+static Table<const char, Value>* global = new Table<const char, Value>(10);
+
+static inline void evalAssignment(ASTNode* node) {
+    global->insert((node->children + 0)->token->tk, (node->children + 0)->token->length, eval(node->children + 1));
+}
+
+static inline Value* evalOperator(ASTNode* node) {
+    Value* v = (Value*) pMalloc(sizeof (Value));
 
     switch ((int) node->token->tt) {
         case '+':
             if (node->childrenCount == 1) {
-                v.number = evalUnaryPlus(node);
+                v->number = evalUnaryPlus(node);
 
             } else {
-                v.number = evalBinaryAddition(node);
+                v->number = evalBinaryAddition(node);
             }
 
             break;
 
         case '-':
             if (node->childrenCount == 1) {
-                v.number = evalUnaryMinus(node);
+                v->number = evalUnaryMinus(node);
 
             } else {
-                v.number = evalBinarySubtraction(node);
+                v->number = evalBinarySubtraction(node);
             }
 
             break;
 
-        case '*': v.number = evalMultiplication(node); break;
-        case '/': v.number = evalDivision(node); break;
-        case '%': v.number = evalModulus(node); break;
+        case '*': v->number = evalMultiplication(node); break;
+        case '/': v->number = evalDivision(node); break;
+        case '%': v->number = evalModulus(node); break;
 
-        case TT_EXPONENTIATION: v.number = evalExponentiation(node); break;
+        case '=': evalAssignment(node); break;
 
-        case '~': v.number = evalBitwiseNot(node); break;
-        case '!': v.number = evalNegation(node); break;
+        case TT_EXPONENTIATION: v->number = evalExponentiation(node); break;
+
+        case '~': v->number = evalBitwiseNot(node); break;
+        case '!': v->number = evalNegation(node); break;
 
         default:
-            v.string = "not implemented yet, sorry!\n";
+            v->string = "not implemented yet, sorry!\n";
     }
 
     return v;
 }
 
-Value eval(ASTNode* node) {
-    Value v;
+Value* eval(ASTNode* node) {
+    Value* v = (Value*) pMalloc(sizeof (Value));
 
     switch (node->token->tt) {
         case TT_SYMBOL:
-            v.string = "symbol!"; break;
+            v->string = "symbol!"; break;
 
         case TT_NUMERIC:
-            v.number = strtod(node->token->tk, null); break;
+            v->number = strtod(node->token->tk, null); break;
 
         case TT_STRING:
-            v.string = node->token->tk; break;
+            v->string = node->token->tk; break;
 
         default: v = evalOperator(node);
     }
@@ -151,16 +159,25 @@ void interactive() {
 
             case '/': // delete everything
                 Lexer::clear();
+                /*
                 traverse(AST,
                     [] (ASTNode* node) {
                         print(node); fflush(stdout);
                         free(node);
                     }
                 );
+                */
                 continue;
 
             case '#': // show state of the lexer
                 Lexer::print();
+                global->traverse(
+                    [] (const char* key) {
+                        print("%s : ", key);
+                    },
+                    [] (Value* v) {
+                        print(v);
+                    });
                 continue;
 
             case '?': // show state of the AST
