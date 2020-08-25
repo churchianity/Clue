@@ -5,7 +5,6 @@
 #include "reporter.h"
 #include "token.h"
 #include "trace.h"
-#include "util.h"
 
 
 // @TODO move me.

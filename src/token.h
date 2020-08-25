@@ -2,14 +2,6 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include "clue.h"
-#include "symbol.h"
-
-#define CLUE_MAX_SYMBOL_LENGTH 32
-#define CLUE_MAX_STRING_LENGTH INT32_MAX
-#define CLUE_MAX_NUMERIC_LENGTH 24
-
-
 enum TokenTypeEnum {
     TT_ANY                      = -1,
 
@@ -103,9 +95,21 @@ struct Token {
     bool ignore          = false;
 };
 
-extern bool isOperator(Token* token);
-extern const char* tokenTypeToString(TokenTypeEnum tt);
-extern char* tokenValueToString(Token* token);
+
+inline bool isOperator(Token* token) {
+    return !(token->tt == TT_SYMBOL || token->tt == TT_NUMERIC || token->tt == TT_STRING);
+}
+
+inline const char* tokenTypeToString(TokenTypeEnum tt) {
+    switch (tt) {
+        case TT_SYMBOL: return "SYMBOL";
+        case TT_NUMERIC: return "NUMERIC";
+        case TT_STRING: return "STRING";
+
+        default: // these should all be operators
+            return "OPERATOR";
+    }
+}
 
 #endif
 

@@ -5,10 +5,8 @@
 #include "lexer.h"
 #include "reporter.h"
 #include "print.h"
-#include "symbol.h"
 #include "table.hpp"
 #include "token.h"
-#include "util.h"
 
 
 // @TODO FUNCTION:

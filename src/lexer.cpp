@@ -8,6 +8,9 @@
 #include "token.h"
 #include "table.hpp"
 
+#define CLUE_MAX_SYMBOL_LENGTH 24
+#define CLUE_MAX_NUMERIC_LENGTH 24
+
 
 Array<Token>* Lexer::tokens = new Array<Token>(10);
 

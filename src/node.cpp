@@ -8,7 +8,6 @@
 #include "table.hpp"
 #include "token.h"
 #include "trace.h"
-#include "util.h"
 
 
 /**

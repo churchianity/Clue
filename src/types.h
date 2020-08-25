@@ -12,6 +12,10 @@
     #define false 0
 #endif
 
+inline const char* boolToString(bool b) {
+    return b ? "true" : "false";
+}
+
 // char // i don't know if we should use char8_t, seems like a medium sized pain for a small sized gain
 
 #include <stdint.h> // required on my chromebook for some reason
@@ -30,8 +34,6 @@ typedef int8_t s8;
 typedef float float32;
 typedef double float64;
 typedef long double extended;
-
-// string? probably not - see string.h
 
 #endif
 

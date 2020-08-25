@@ -6,6 +6,7 @@
 
 #include "alloc.h"
 #include "print.h"
+#include "string.h"
 #include "types.h"
 
 

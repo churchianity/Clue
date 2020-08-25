@@ -2,17 +2,15 @@
 #include <math.h> // pow(), remainder()
                   // strtod
 
-#include "array.hpp"
-#include "clue.h"
 #include "lexer.h"
 #include "node.h"
-#include "print.h"
 #include "parser.h"
+#include "print.h"
 #include "reporter.h"
-#include "runtime.h"
-#include "string.h"
-#include "token.h"
-#include "util.h"
+#include "runtime.h" // eval() - weird self-dependency
+#include "table.hpp"
+#include "types.h"
+#include "value.h"
 
 
 static inline float64 evalBitwiseNot(ASTNode* node) {
@@ -144,6 +142,7 @@ void doIt(char* codeBuffer, const char* filename) {
  * Enters the 'interactive' mode of the language which allows you to run/analyze code as you type it.
  */
 void interactive() {
+    #define CLUE_SANDBOX_MODE_MAX_LINE_LENGTH 160
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
 
     u32 line = 1;
