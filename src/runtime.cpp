@@ -89,7 +89,10 @@ static inline Value* evalOperator(ASTNode* node) {
         case '/': v->number = evalDivision(node); break;
         case '%': v->number = evalModulus(node); break;
 
-        case '=': evalAssignment(node); break;
+        case '=':
+        case TT_COLON_EQUALS:
+            evalAssignment(node);
+            break;
 
         case TT_EXPONENTIATION: v->number = evalExponentiation(node); break;
 
@@ -104,19 +107,28 @@ static inline Value* evalOperator(ASTNode* node) {
 }
 
 Value* eval(ASTNode* node) {
-    Value* v = (Value*) pMalloc(sizeof (Value));
+    Value* v = null;
 
     switch (node->token->tt) {
         case TT_SYMBOL:
-            v->string = "symbol!"; break;
+            v = global->lookup(node->token->tk, node->token->length)->value;
+            break;
 
         case TT_NUMERIC:
-            v->number = strtod(node->token->tk, null); break;
+            v = (Value*) pMalloc(sizeof (Value));
+            v->type = VT_NUMBER;
+            v->number = strtod(node->token->tk, null);
+            break;
 
         case TT_STRING:
-            v->string = node->token->tk; break;
+            v = (Value*) pMalloc(sizeof (Value));
+            v->type = VT_STRING;
+            v->string = node->token->tk;
+            break;
 
-        default: v = evalOperator(node);
+        default:
+            v = evalOperator(node);
+            break;
     }
 
     return v;
@@ -171,13 +183,6 @@ void interactive() {
 
             case '#': // show state of the lexer
                 Lexer::print();
-                global->traverse(
-                    [] (const char* key) {
-                        print("%s : ", key);
-                    },
-                    [] (Value* v) {
-                        print(v);
-                    });
                 continue;
 
             case '?': // show state of the AST
@@ -186,6 +191,15 @@ void interactive() {
 
             case '$': // run eval() on the AST
                 print(eval(AST));
+
+                print("\nGlobal Scope:\n");
+                global->traverse(
+                    [] (const char* key) {
+                        print("%s : ", key);
+                    },
+                    [] (Value* v) {
+                        print(v);
+                    });
                 continue;
 
             case '\n':

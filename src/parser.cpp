@@ -101,6 +101,12 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
     while (i < tokens->size()) {
 
         switch ((int) tokens->data[i]->tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
+            case ';':
+
+
+
+                break;
+
             case ')':
                 while (os->peek()) {
                     if (os->peek()->token->tt == '(') {
