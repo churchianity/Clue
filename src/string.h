@@ -76,11 +76,14 @@ inline u32 strln(const char* string) {
 }
 
 inline bool streq(const char* s1, const char* s2) {
-    if (strln(s1) != strln(s2)) {
+    u32 l1 = strln(s1);
+    u32 l2 = strln(s2);
+
+    if (l1 != l2) {
         return false;
     }
 
-    for (u32 i = 0; i < strln(s1); i++) {
+    for (u32 i = 0; i < l1; i++) {
         if (s1[i] != s2[i]) {
             return false;
         }
@@ -198,6 +201,44 @@ inline char* trimQuotes(const char* str, u32 length) {
     u32 i = 0;
     for (; i < (length - 2); i++) {
         buffer[i] = str[i + 1];
+    }
+
+    buffer[i] = '\0';
+
+    return buffer;
+}
+
+inline char* toLower(const char* str) {
+    u32 length = strln(str);
+    char* buffer = (char*) pMalloc(sizeof (char) * length + 1);
+
+    u32 i = 0;
+    for (; i < length; i++) {
+        if (isAlpha(str[i]) && (str[i] < 'a')) {
+            buffer[i] = str[i] + 32;
+
+        } else {
+            buffer[i] = str[i];
+        }
+    }
+
+    buffer[i] = '\0';
+
+    return buffer;
+}
+
+inline char* toUpper(const char* str) {
+    u32 length = strln(str);
+    char* buffer = (char*) pMalloc(sizeof (char) * length + 1);
+
+    u32 i = 0;
+    for (; i < length; i++) {
+        if (isAlpha(str[i]) && (str[i] > 'Z')) {
+            buffer[i] = str[i] - 32;
+
+        } else {
+            buffer[i] = str[i];
+        }
     }
 
     buffer[i] = '\0';

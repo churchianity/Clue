@@ -283,9 +283,8 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     break;
 
                 case '`':
-                    ::print("hi!\n");
                     ignore = !ignore;
-                    break;
+                    continue;
 
                 case '>':
                 case '<':
