@@ -1,5 +1,5 @@
 
-#include <math.h> // pow(), remainder()
+#include <math.h> // pow(), remainder(), floor()
                   // strtod
 
 #include "lexer.h"
@@ -12,9 +12,33 @@
 #include "types.h"
 #include "value.h"
 
+static inline s32 fToInt(float64 f) {
+    return (s32) floor(f + 0.5);
+}
+
 
 static inline float64 evalBitwiseNot(ASTNode* node) {
-    return ~ (u64) eval(node->children + 0).number;
+    return ~fToInt(eval(node->children + 0).number);
+}
+
+static inline u32 evalBitwiseAnd(ASTNode* node) {
+    return fToInt(eval(node->children + 0).number) & fToInt(eval(node->children + 1).number);
+}
+
+static inline u32 evalBitwiseOr(ASTNode* node) {
+    return fToInt(eval(node->children + 0).number) | fToInt(eval(node->children + 1).number);
+}
+
+static inline u32 evalBitwiseXor(ASTNode* node) {
+    return fToInt(eval(node->children + 0).number) ^ fToInt(eval(node->children + 1).number);
+}
+
+static inline u32 evalLeftShift(ASTNode* node) {
+    return fToInt(eval(node->children + 0).number) << fToInt(eval(node->children + 1).number);
+}
+
+static inline u32 evalRightShift(ASTNode* node) {
+    return fToInt(eval(node->children + 0).number) >> fToInt(eval(node->children + 1).number);
 }
 
 static inline float64 evalNegation(ASTNode* node) {
@@ -132,11 +156,48 @@ static inline Value evalOperator(ASTNode* node) {
             v.number = evalBitwiseNot(node);
             break;
 
+        case '&':
+            v.type = VT_NUMBER;
+            v.number = evalBitwiseAnd(node);
+            break;
+
+        case '|':
+            v.type = VT_NUMBER;
+            v.number = evalBitwiseOr(node);
+            break;
+
+        case '^':
+            v.type = VT_NUMBER;
+            v.number = evalBitwiseXor(node);
+            break;
+
+        case TT_LEFT_SHIFT:
+            v.type = VT_NUMBER;
+            v.number = evalLeftShift(node);
+            break;
+
+        case TT_RIGHT_SHIFT:
+            v.type = VT_NUMBER;
+            v.number = evalRightShift(node);
+            break;
+
         case '!':
             v.type = VT_NUMBER;
             v.number = evalNegation(node);
             break;
 
+        //@TODO
+        case TT_PLUS_EQUALS:
+        case TT_MINUS_EQUALS:
+        case TT_TIMES_EQUALS:
+        case TT_DIVIDE_EQUALS:
+        case TT_BITWISE_NOT_EQUALS:
+        case TT_BITWISE_AND_EQUALS:
+        case TT_BITWISE_OR_EQUALS:
+        case TT_BITWISE_XOR_EQUALS:
+        case TT_LEFT_SHIFT_EQUALS:
+        case TT_RIGHT_SHIFT_EQUALS:
+        case TT_EXPONENTIATION_EQUALS:
         default:
             v.type = VT_STRING;
             v.string = "not implemented yet, sorry!\n";
