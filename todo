@@ -1,149 +1,20 @@
 
-0. there's a bunch of segfault-y things that happen in some circumstances
-
-1. construct list of statements to be executed
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-1. comments multi-line?
-
-4. import file search!
-
-2. draw more clear distinctions between punctuators which have no meaning to a program, but have plenty of meaning to the compiler/interpreter
-
-    func(foo: Int,  bar: String) {
-        ...
-        ...
-        ...
-        ...
-        ...
-
-        return;
-    }
-
-    {
-    }
-    [
-    ]
-    (
-    )
-
-    array[expr...]
-
-            [
-           / \
-      array   index
-
-
-    func(foo, bar)
-
-            (
-           / \
-       func   list
-              / \
-            foo  bar
-
-
-            (
-          / |\
-        /   | \
-     func   |  \
-           foo  bar
-
-
-
-
-
-            +
-           / \
-          -   1
-         / \
-        5   2
-
-
-evaluate(TREE) {
-    traverses the tree:
-        for each operator:
-            evaluate it with its children
-}
-
-
-
-
-
-tokens: 4 - 2 * 4
------------
-
-
-expr: [- 2 4] 4
-----------
-ops: *
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- string concatenation overload of +
+- typing stage - pass of ast
+- refactor ASTNode into a bunch of sub-types
+- function calls
+- flow control (if, else, loops)
+- string formatting overload of %
+- binary, hexadecimal, octal numeric types
+- import file search
+- pre-processor stuff (#define, conditional compiles)
+- multi-line comments, begin/end comment syntax
+- pointers
+- closures
+- machine code generation
+- boolean data type?
+- comparison, and logical operators (interpreter)
+- more bitwise operators
+- integer type? Value struct
+- flesh out string case of lexer more
 
