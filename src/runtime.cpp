@@ -12,10 +12,10 @@
 #include "types.h"
 #include "value.h"
 
+
 static inline s32 fToInt(float64 f) {
     return (s32) floor(f + 0.5);
 }
-
 
 static inline float64 evalBitwiseNot(ASTNode* node) {
     return ~fToInt(eval(node->children + 0).number);
@@ -75,6 +75,26 @@ static inline float64 evalModulus(ASTNode* node) {
 
 static inline float64 evalExponentiation(ASTNode* node) {
     return pow(eval(node->children + 0).number, eval(node->children + 1).number);
+}
+
+static inline bool evalLogicalAnd(ASTNode* node) {
+    return eval(node->children + 0).number && eval(node->children + 1).number;
+}
+
+static inline bool evalLogicalOr(ASTNode* node) {
+    return eval(node->children + 0).number || eval(node->children + 1).number;
+}
+
+static inline bool evalGreaterThanOrEqual(ASTNode* node) {
+    return eval(node->children + 0).number >= eval(node->children + 1).number;
+}
+
+static inline bool evalLessThanOrEqual(ASTNode* node) {
+    return eval(node->children + 0).number <= eval(node->children + 1).number;
+}
+
+static inline bool evalEquals(ASTNode* node) {
+    return eval(node->children + 0).number == eval(node->children + 1).number;
 }
 
 static Table<const char, Value>* global = new Table<const char, Value>(10);
@@ -184,6 +204,36 @@ static inline Value evalOperator(ASTNode* node) {
         case '!':
             v.type = VT_NUMBER;
             v.number = evalNegation(node);
+            break;
+
+        case TT_LOGICAL_AND:
+            v.type = VT_NUMBER;
+            v.number = evalLogicalAnd(node);
+            break;
+
+        case TT_LOGICAL_OR:
+            v.type = VT_NUMBER;
+            v.number = evalLogicalOr(node);
+            break;
+
+        case TT_GREATER_THAN_OR_EQUAL:
+            v.type = VT_NUMBER;
+            v.number = evalGreaterThanOrEqual(node);
+            break;
+
+        case TT_LESS_THAN_OR_EQUAL:
+            v.type = VT_NUMBER;
+            v.number = evalLessThanOrEqual(node);
+            break;
+
+        case TT_EQUALITY:
+            v.type = VT_NUMBER;
+            v.number = evalEquals(node);
+            break;
+
+        case TT_NOT_EQUALS:
+            v.type = VT_NUMBER;
+            v.number = !evalEquals(node);
             break;
 
         //@TODO
