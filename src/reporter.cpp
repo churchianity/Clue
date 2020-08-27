@@ -74,7 +74,7 @@ static inline const char* reconstruct(const char* filename, u32 line) {
     const char* out = "";
 
     u32 i = 0;
-    for (; i < Lexer::tokens->size(); i++) {
+    for (; i < Lexer::tokens->length; i++) {
         if (streq(Lexer::tokens->data[i]->filename, filename) && (Lexer::tokens->data[i]->line == line)) {
             token = Lexer::tokens->data[i];
 

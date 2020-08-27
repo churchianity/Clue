@@ -1,4 +1,57 @@
 
+0. there's a bunch of segfault-y things that happen in some circumstances
+
+1. construct list of statements to be executed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 1. comments multi-line?
 
 4. import file search!
@@ -65,7 +118,7 @@ evaluate(TREE) {
 
 
 
-tokens: 4 - 2 * 4 
+tokens: 4 - 2 * 4
 -----------
 
 

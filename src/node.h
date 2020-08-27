@@ -41,6 +41,33 @@ struct ASTNode {
     bool punctuator = false; // the above, vs. (2 + 1) * 5
 };
 
+struct ASTSymbolNode : ASTNode {
+    void* closure = null;
+};
+
+struct ASTNumberNode : ASTNode {};
+struct ASTStringNode : ASTNode {};
+
+
+
+
+
+
+
+
+
+struct Program {
+    Array<ASTNode>* statements = new Array<ASTNode>(10);
+};
+
+
+
+
+
+
+
+
+
 extern void traverse(ASTNode* self, void (*callback) (ASTNode*));
 extern void traverse(ASTNode* self, void (*callback) (const ASTNode*));
 

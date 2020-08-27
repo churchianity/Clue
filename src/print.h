@@ -8,6 +8,7 @@
 #include "runtime.h" // Value*
 #include "node.h" // ASTNode*
 #include "token.h" // Token*
+#include "trace.h"
 
 
 // Text Colors
@@ -63,6 +64,8 @@ inline void print(const char* format, ...) {
  * This should end the program, use for fatal **internal only** errors.
  */
 inline void die(const char* format, ...) {
+    trace();
+
     va_list args;
     va_start(args, format);
 
@@ -80,12 +83,12 @@ inline void print(float f)        { print("%.14g\n", f); }
 inline void print(double d)       { print("%.14g\n", d); }
 inline void print(void* p)        { print("%p\n", p); }
 
-inline void print(Value* v) {
-    if (v->type == VT_NUMBER) {
-        print(v->number);
+inline void print(Value v) {
+    if (v.type == VT_NUMBER) {
+        print(v.number);
 
     } else {
-        print(v->string);
+        print(v.string);
     }
 }
 
@@ -121,6 +124,20 @@ inline void print(ASTNode* node) {
     }
 
     print("\n");
+}
+
+inline void print(Program* program) {
+    if (!program) {
+        print("program is null\n"); return;
+    }
+
+    print("&Program %p | #statements: %u\n", (void*) program, program->statements->length);
+
+    for (u32 i = 0; i < program->statements->length; i++) {
+        print("STATEMENT #%u:\n", i);
+
+        traverse(program->statements->data[i], print);
+    }
 }
 
 #endif

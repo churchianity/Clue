@@ -6,7 +6,7 @@
 #include "types.h"
 #include "value.h"
 
-extern Value* eval(ASTNode* node);
+extern Value eval(ASTNode* node);
 extern void interactive();
 extern void doIt(char* codeBuffer, const char* filename);
 

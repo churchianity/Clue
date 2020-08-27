@@ -230,13 +230,12 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
 
 void addChild(ASTNode* self, ASTNode* child) {
     if (!child) {
-        // @REPORT 12
-
+        Reporter::add(E_MISSING_OPERAND_FOR_OPERATOR, self);
         return;
     }
 
     if (self->childrenCount == self->maxChildrenCount) {
-        // @REPORT 13
+        Reporter::add(E_TOO_MANY_OPERANDS, child);
     }
 
     if (!self->children) {

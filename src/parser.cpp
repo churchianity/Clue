@@ -38,7 +38,7 @@
  * if the operator stack is empty we don't care
  */
 static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
-    if (os->isEmpty() || os->peek()->punctuator) {
+    if (os->isEmpty()) {
         return false;
     }
 
@@ -58,10 +58,7 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
 }
 
 static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os, ASTNode* node) {
-    if (node->punctuator) {
-        return;
-
-    } else if (node->unary) {
+    if (node->unary) {
         ASTNode* child = es->pop();
 
         if (!child) {
@@ -87,23 +84,19 @@ static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os, ASTNode* node
 
 /**
  * Parses expressions into an AST.
+ * @NOTE this is basically shunting-yard.
  * @TODO re-purpose this into basically a arithmetic/math expression parser,
  * then make subroutines for weird parses
  * like function calls, indexers, etc.
  */
-static ASTNode* shuntingYard(Array<Token>* tokens) {
+static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* tokens) {
     auto es = new Array<ASTNode>(10);
     auto os = new Array<ASTNode>(10);
 
-    u32 i = 0;
-    while (i < tokens->size()) {
+    u32 i = startIndex;
+    while (i < endIndex) {
 
         switch ((int) tokens->data[i]->tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
-            case ';':
-
-
-
-                break;
 
             case ')':
                 while (os->peek()) {
@@ -158,18 +151,35 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
         parseOperation(es, os, os->pop());
     }
 
-    ASTNode* root = (ASTNode*) es->pop();
+    ASTNode* expression = (ASTNode*) es->pop();
 
-    free(es);
-    free(os);
+    delete es;
+    delete os;
 
-    return root;
+    return expression;
 }
 
 /**
  * Given a list of |tokens| return the root node of an abstract syntax tree.
  */
-ASTNode* parse(Array<Token>* tokens) {
-    return shuntingYard(tokens);
+Program* parse(Array<Token>* tokens) {
+    Program* program = (Program*) pMalloc(sizeof (Program));
+    program->statements = new Array<ASTNode>(10);
+
+    u32 i = 0;
+    u32 lastExpressionIndex = 0;
+
+    while (i < tokens->length) {
+        switch ((int) tokens->data[i]->tt) {
+            case ';':
+                program->statements->push(parseExpression(lastExpressionIndex, i, tokens));
+                lastExpressionIndex = ++i; // increment past the semicolon
+                break;
+        }
+
+        i++;
+    }
+
+    return program;
 }
 

@@ -9,25 +9,21 @@
 template <class T>
 struct Array {
     u32 capacity;
-    s32 top;
+    u32 length;
     T** data;
 
     Array<T>(u32 _capacity) {
         capacity = _capacity;
-        top      = -1;
+        length   = 0;
         data     = (T**) pCalloc(sizeof (T*), capacity);
     }
 
-    u32 size() const {
-        return (u32) (top + 1); // 'top' is signed
-    }
-
     bool isEmpty() const {
-        return top == -1;
+        return length == 0;
     }
 
     bool isFull() const {
-        return ((u32) top) == (capacity - 1);
+        return length == capacity;
     }
 
     s32 push(T* dataItemAddr) {
@@ -36,14 +32,13 @@ struct Array {
             data = (T**) pRealloc(data, sizeof (T*) * capacity);
         }
 
-        data[++top] = dataItemAddr;
+        data[length++] = dataItemAddr;
 
         return 0;
     }
 
     Array<T> filter(bool (*predicate) (T*)) {
-        const u32 length = size();
-        Array<T> out = new Array<T>(length * 2);
+        Array<T> out = new Array<T>(length);
 
         for (u32 i = 0; i < length; i++) {
             if (predicate(data[i])) {
@@ -59,7 +54,7 @@ struct Array {
             return null;
         }
 
-        return data[top];
+        return data[length - 1];
     }
 
     T* pop() {
@@ -67,11 +62,11 @@ struct Array {
             return null;
         }
 
-        return data[top--];
+        return data[--length];
     }
 
     void forEach(void (*callback) (T*)) {
-        for (u32 i = 0; i < size(); i++) {
+        for (u32 i = 0; i < length; i++) {
             callback(data[i]);
         }
     }
