@@ -119,7 +119,7 @@ static inline Value evalOperator(ASTNode* node) {
         case TT_COLON_EQUALS:
             evalAssignment(node);
             v.type = VT_STRING;
-            v.string = "assignment\n";
+            v.string = "";
             break;
 
         case TT_EXPONENTIATION:
@@ -246,7 +246,7 @@ void interactive() {
                     });
                 continue;
 
-            case '$': // run eval() on the AST
+            case '$': // re-run the whole program
                 eval(program);
                 continue;
 
