@@ -37,18 +37,6 @@ struct Array {
         return 0;
     }
 
-    Array<T> filter(bool (*predicate) (T*)) {
-        Array<T> out = new Array<T>(length);
-
-        for (u32 i = 0; i < length; i++) {
-            if (predicate(data[i])) {
-                out->push(data[i]);
-            }
-        }
-
-        return out;
-    }
-
     T* peek() const {
         if (isEmpty()) {
             return null;
@@ -69,6 +57,18 @@ struct Array {
         for (u32 i = 0; i < length; i++) {
             callback(data[i]);
         }
+    }
+
+    Array<T> filter(bool (*predicate) (T*)) {
+        Array<T> out = new Array<T>(length);
+
+        for (u32 i = 0; i < length; i++) {
+            if (predicate(data[i])) {
+                out->push(data[i]);
+            }
+        }
+
+        return out;
     }
 };
 

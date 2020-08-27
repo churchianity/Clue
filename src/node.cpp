@@ -279,11 +279,6 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
                 Reporter::add(W_USELESS_SEMICOLON, node);
                 break;
 
-            case '{':
-            case '(':
-                node->punctuator = true;
-                break;
-
             default:
                 Reporter::add(E_INVALID_OPERATOR, node);
                 break;
@@ -298,15 +293,7 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
         node->postfix = true;
 
     } else { // is a binary operator or a postfix-ish punctuator, or a mistake
-        switch ((int) tokens->data[i]->tt) {
-            case ';':
-                node->punctuator = true;
-                break;
-
-            default:
-                node->maxChildrenCount = 2;
-                break;
-        }
+        node->maxChildrenCount = 2;
     }
 
     return node;

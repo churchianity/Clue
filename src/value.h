@@ -5,15 +5,15 @@
 #include "types.h"
 
 enum ValueTypeEnum {
-    VT_STRING,
-    VT_NUMBER
+    VT_NUMBER,
+    VT_STRING
 };
 
 struct Value {
     ValueTypeEnum type = VT_NUMBER;
 
     union {
-        float64 number;
+        float64 number = 0xDEADBEEF;
         const char* string;
     };
 };

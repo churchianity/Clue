@@ -60,9 +60,11 @@ static inline void evalAssignment(ASTNode* node) {
     Value value = eval(node->children + 1);
 
     if (value.type == VT_NUMBER) {
+        valuePointer->type = value.type;
         valuePointer->number = value.number;
 
     } else {
+        valuePointer->type = value.type;
         valuePointer->string = value.string;
     }
 
