@@ -290,6 +290,25 @@ void eval(Program* program) {
     }
 }
 
+void deleteEverything(Program* program) {
+    if (!program) {
+        return;
+    }
+
+    program->statements->forEach(
+        [] (ASTNode* statement) {
+            traverse(statement,
+                [] (ASTNode* node) {
+                    node->childrenCount = 0;
+                    node->maxChildrenCount = 0;
+                    node->children = null;
+                    free(node);
+                }
+            );
+        }
+    );
+}
+
 void doIt(char* codeBuffer, const char* filename) {
     Lexer::tokenize(codeBuffer, filename);
     Program* program = parse(Lexer::tokens);
@@ -330,14 +349,7 @@ void interactive() {
 
             case '/': // delete everything
                 Lexer::clear();
-                /*
-                traverse(AST,
-                    [] (ASTNode* node) {
-                        print(node); fflush(stdout);
-                        free(node);
-                    }
-                );
-                */
+                deleteEverything(program);
                 continue;
 
             case '#': // show state of the lexer

@@ -131,12 +131,13 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
         parseOperation(es, os->pop());
     }
 
-    if (!es->isEmpty()) { // we have leftover operands...
+
+    ASTNode* expression = (ASTNode*) es->pop();
+
+    if (!es->isEmpty()) { // if we still have expressions on the stack, they are leftovers
         const auto node = es->peek();
         Reporter::report(E_LEFTOVER_OPERAND, node);
     }
-
-    ASTNode* expression = (ASTNode*) es->pop();
 
     delete es;
     delete os;

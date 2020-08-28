@@ -1,20 +1,26 @@
 
-- string concatenation overload of +
-- typing stage - pass of ast
+BLOCKING
 - refactor ASTNode into a bunch of sub-types
-- function calls
-- flow control (if, else, loops)
+
+BLOCKED BY ^
+- typing stage - pass of ast
+- string concatenation overload of +
 - string formatting overload of %
-- binary, hexadecimal, octal numeric types
-- import file search
-- pre-processor stuff (#define, conditional compiles)
-- multi-line comments, begin/end comment syntax
+- flow control (if, else, loops)
+- function calls
+- machine code generation
 - pointers
 - closures
-- machine code generation
+
+NON-BLOCKING
 - boolean data type?
-- comparison, and logical operators (interpreter)
-- more bitwise operators
-- integer type? Value struct
+
+- multi-line comments, begin/end comment syntax
+- pre-processor stuff (#define, conditional compiles)
+- import file search
+
 - flesh out string case of lexer more
+- binary, hexadecimal, octal numeric types
+
+- integer type? Value struct
 
