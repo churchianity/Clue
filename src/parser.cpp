@@ -9,36 +9,12 @@
 #include "token.h"
 
 
-// @TODO FUNCTION:
-//      definitions
-//      invocations
-//      array definitions
-//      substitution of arrays and comma separated lists
-//
-//
-//              func(a: Int, b: Int, c: Int): void {}
-//              foo(players: Player[]): void {}
-//
-//      ht := getHashTable();
-//      v := vec3(2, 1, 3)
-//
-//      1. func(v.x, v.y, v.z);
-//      2. func(v)
-//
-//      key: string = player name, value: int = player age
-//
-//      foo(ht);
-//
-//
-
 /**
- * checks if the precedence of the operator on top of the stack is less than the precedence of
- * the operator we are holding (thinking about putting on the stack)
- *
- * if the operator stack is empty we don't care
+ * Checks if the precedence of the operator on top of the stack is less than
+ * the precedence of the operator we are holding (thinking about putting on the stack)
  */
 static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
-    if (os->isEmpty()) {
+    if (os->isEmpty()) { // if the operator stack is empty we don't care
         return false;
     }
 
@@ -54,25 +30,26 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
     }
 
     return false;
-    // die("we're checking if we can pop & apply when the assoc : NONE\n"); return false;
 }
 
-static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os, ASTNode* node) {
+static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
     if (node->unary) {
         ASTNode* child = es->pop();
 
         if (!child) {
-            Reporter::report(E_MISSING_OPERAND_FOR_UNARY_OPERATOR, node); // @REPORT
+            Reporter::report(E_MISSING_OPERAND_FOR_UNARY_OPERATOR, node);
         }
 
         addChild(node, child);
 
     } else { // is binary
-        ASTNode* rhs = es->pop(); // rhs was pushed most recently
+
+        // rhs was pushed most recently, and this matters at runtime (2 - 4 vs. 4 - 2).
+        ASTNode* rhs = es->pop();
         ASTNode* lhs = es->pop();
 
         if (!(rhs && lhs)) {
-            Reporter::report(E_MISSING_OPERAND_FOR_BINARY_OPERATOR, node); // @REPORT
+            Reporter::report(E_MISSING_OPERAND_FOR_BINARY_OPERATOR, node);
         }
 
         addChild(node, lhs);
@@ -83,28 +60,28 @@ static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os, ASTNode* node
 }
 
 /**
- * Parses expressions into an AST.
- * @NOTE this is basically shunting-yard.
- * @TODO re-purpose this into basically a arithmetic/math expression parser,
- * then make subroutines for weird parses
- * like function calls, indexers, etc.
+ * Parses an Array of |tokens| into an AST expression node..
+ *
+ * You shouldn't call this unless you have a good reason to believe that there is an expression between
+ * the tokens array @ |startIndex| and |endIndex|, inclusive of start but not end.
+ *
+ * @NOTE this is basically shunting-yard with some bells & whistles to allow function calls, unary operators, postfix/prefix etc.
  */
 static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* tokens) {
     auto es = new Array<ASTNode>(10);
     auto os = new Array<ASTNode>(10);
 
     u32 i = startIndex;
+
     while (i < endIndex) {
-
         switch ((int) tokens->data[i]->tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
-
             case ')':
                 while (os->peek()) {
                     if (os->peek()->token->tt == '(') {
                         break;
                     }
 
-                    parseOperation(es, os, os->pop());
+                    parseOperation(es, os->pop());
                 }
 
                 if (os->isEmpty()) { // we never found a matching open paren...
@@ -118,18 +95,21 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
 
                 break;
 
+            // these types only ever act as operands
             case TT_SYMBOL:
             case TT_STRING:
             case TT_NUMERIC:
                 es->push(nodify(tokens, i));
                 break;
 
+            // all 'standard' operators
+            case '(':
             default:
                 const auto node = nodify(tokens, i);
 
                 // handle precedence & associativity before pushing the operator onto the stack
                 while (canPopAndApply(os, node)) {
-                    parseOperation(es, os, os->pop());
+                    parseOperation(es, os->pop());
                 }
 
                 os->push(node);
@@ -148,7 +128,12 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
             Reporter::report(E_MISSING_CLOSE_PAREN, null, token->filename, token->line, token->column);
         }
 
-        parseOperation(es, os, os->pop());
+        parseOperation(es, os->pop());
+    }
+
+    if (!es->isEmpty()) { // we have leftover operands...
+        const auto node = es->peek();
+        Reporter::report(E_LEFTOVER_OPERAND, node);
     }
 
     ASTNode* expression = (ASTNode*) es->pop();

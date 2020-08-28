@@ -24,39 +24,11 @@ struct Message {
 };
 
 /**
- * Keep the first element of this enum on a line where it % 10 == 0.
- */
-enum MessageEnum {
-    L_FOLLOWING_DIGIT_IN_IDENTIFIER,
-    E_BAD_LEADING_ZERO,
-    E_MULTIPLE_DOTS_IN_NUMBER,
-    E_INVALID_CHARACTER,
-    W_OVERPRECISE_NUMBER,
-    W_DUPLICATE_IMPORT,
-    E_BAD_IMPORT,
-    E_MISSING_OPERAND_FOR_UNARY_OPERATOR,
-    E_MISSING_OPERAND_FOR_BINARY_OPERATOR,
-    E_MISSING_OPEN_PAREN,
-    E_MISSING_CLOSE_PAREN,
-    E_MISSING_OPERAND_FOR_OPERATOR,
-    E_TOO_MANY_OPERANDS,
-    W_USELESS_SEMICOLON,
-    E_INVALID_OPERATOR,
-    E_NO_CLOSING_QUOTEMARK,
-    L_LONG_SYMBOL,
-    E_LONG_STRING,
-};
-
-
-
-
-
-
-/**
  * keys correlate directly with MessageEnum (message.h), but our compiler won't help us write good code,
  * so we just have to deal with the error-prone nature of this approach until we think of something better
  *
- * ensure the first element of the array is on a line with it % 10 == 0
+ * do NOT add anything to this list unless you also add an appropriate enum entry below as well, and vice-versa
+ *
  * @TODO replace messages with localization keys (which should probably be the same name as the enum
  */
 const MessageId messageIds[] = {
@@ -77,7 +49,33 @@ const MessageId messageIds[] = {
      { MS_ERROR, "invalid operator" },
      { MS_ERROR, "no matching quotemark" },
      { MS_LINT, "an identifier name shouldn't be this long." },
-     { MS_ERROR, "consider storing data of this size somewhere else." }
+     { MS_ERROR, "consider storing data of this size somewhere else." },
+     { MS_ERROR, "leftover operand" },
+};
+
+/**
+ * do NOT add anything to this list unless you also add an appropriate entry above as well, and vice-versa
+ */
+enum MessageEnum {
+    L_FOLLOWING_DIGIT_IN_IDENTIFIER,
+    E_BAD_LEADING_ZERO,
+    E_MULTIPLE_DOTS_IN_NUMBER,
+    E_INVALID_CHARACTER,
+    W_OVERPRECISE_NUMBER,
+    W_DUPLICATE_IMPORT,
+    E_BAD_IMPORT,
+    E_MISSING_OPERAND_FOR_UNARY_OPERATOR,
+    E_MISSING_OPERAND_FOR_BINARY_OPERATOR,
+    E_MISSING_OPEN_PAREN,
+    E_MISSING_CLOSE_PAREN,
+    E_MISSING_OPERAND_FOR_OPERATOR,
+    E_TOO_MANY_OPERANDS,
+    W_USELESS_SEMICOLON,
+    E_INVALID_OPERATOR,
+    E_NO_CLOSING_QUOTEMARK,
+    L_LONG_SYMBOL,
+    E_LONG_STRING,
+    E_LEFTOVER_OPERAND
 };
 
 #endif

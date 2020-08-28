@@ -97,6 +97,7 @@ static inline bool evalEquals(ASTNode* node) {
     return eval(node->children + 0).number == eval(node->children + 1).number;
 }
 
+// @TODO move me somewhere not dumb!
 static Table<const char, Value>* global = new Table<const char, Value>(10);
 
 static inline void evalAssignment(ASTNode* node) {
@@ -359,9 +360,6 @@ void interactive() {
 
             case '$': // re-run the whole program
                 eval(program);
-                continue;
-
-            case '\n':
                 continue;
         }
 

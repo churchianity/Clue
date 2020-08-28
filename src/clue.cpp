@@ -1,26 +1,27 @@
 
-#ifdef _WIN32
+#if defined(_WIN32)
     #define OS "Windows 32bit"
-#endif
-
-#ifdef _WIN64
+#elif defined(_WIN64)
     #define OS "Windows 64bit"
-#endif
-
-#ifdef __linux__
+#elif defined(__linux__)
     #define OS "Linux"
-#endif
-
-#ifdef __APPLE__
+#elif defined(__APPLE__)
     #define OS "MacOSX"
-#endif
-
-#ifdef __FreeBSD__
+#elif defined(__FreeBSD__)
     #define OS "FreeBSD"
+#elif defined(__ANDROID__)
+    #define OS "Android"
+#else
+    #define OS "Unknown os"
 #endif
 
-#ifdef __ANDROID__
-    #define OS "Android"
+// gcc specific
+#if defined(__i386__)
+    #define ARCH_ "i386"
+#elif defined(__x86_64__)
+    #define ARCH_ "x86_64"
+#else
+    #define ARCH_ "unknown architecture"
 #endif
 
 #include <signal.h> // for signal() - needed on my chromebook for some reason?
@@ -86,7 +87,7 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
             help(null); exit(0);
 
         } else if (streq(arg, "-v") || streq(arg, "--version")) {
-            print("clue programming language v%s, for %s\n", CLUE_VERSION_NUMBER, OS); exit(0);
+            print("clue programming language v%s, for %s, %s\n", CLUE_VERSION_NUMBER, OS, ARCH_); exit(0);
 
         } else if (streq(arg, "-i") || streq(arg, "--interactive")) {
             CLAs.interactive = true;

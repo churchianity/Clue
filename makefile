@@ -3,7 +3,7 @@ CC=g++
 
 SRC=./src/
 FILES=$(SRC)clue.cpp $(SRC)runtime.cpp $(SRC)lexer.cpp $(SRC)parser.cpp $(SRC)node.cpp $(SRC)reporter.cpp
-FLAGS=-ansi -pedantic -g -Wall -std=c++11 -fshort-enums
+FLAGS=-ansi -pedantic -g -Wall -std=c++11 -fshort-enums -rdynamic
 
 TEST_SRC=./test/
 TESTFILES=$(TEST_SRC)table.cpp
