@@ -1,0 +1,4 @@
+
+naming is really only hard for functions that aren't pure/modify state
+
+

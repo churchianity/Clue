@@ -20,20 +20,18 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
 
     const auto top = os->peek();
 
-    if (associativity(node->token->tt, node->unary, node->postfix) == OA_LEFT_TO_RIGHT) {
-        return precedence(node->token->tt, node->unary, node->postfix)
-            <= precedence(top->token->tt, top->unary, top->postfix);
+    if (associativity(node) == OA_LEFT_TO_RIGHT) {
+        return precedence(node) <= precedence(top);
 
-    } else if (associativity(node->token->tt, node->unary, node->postfix) == OA_RIGHT_TO_LEFT) {
-        return precedence(node->token->tt, node->unary, node->postfix)
-             < precedence(top->token->tt, top->unary, top->postfix);
+    } else if (associativity(node) == OA_RIGHT_TO_LEFT) {
+        return precedence(node) < precedence(top);
     }
 
     return false;
 }
 
 static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
-    if (node->unary) {
+    if (node->flags | NF_UNARY) {
         ASTNode* child = es->pop();
 
         if (!child) {
@@ -89,7 +87,7 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
                     break;
                 }
 
-                if (!os->peek()->call) {
+                if (!(os->peek()->flags | NF_CALL)) {
                     os->pop(); // discard opening parens
                 }
 
@@ -103,12 +101,12 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
                 break;
 
             // all 'standard' operators
-            case '(':
             default:
-                const auto node = nodify(tokens, i);
+                auto node = nodify(tokens, i);
 
                 // handle precedence & associativity before pushing the operator onto the stack
                 while (canPopAndApply(os, node)) {
+                    print(node);
                     parseOperation(es, os->pop());
                 }
 
@@ -130,7 +128,6 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
 
         parseOperation(es, os->pop());
     }
-
 
     ASTNode* expression = (ASTNode*) es->pop();
 
@@ -158,6 +155,11 @@ Program* parse(Array<Token>* tokens) {
     while (i < tokens->length) {
         switch ((int) tokens->data[i]->tt) {
             case ';':
+                if (lastExpressionIndex == i) {
+                    const auto token = tokens->data[i];
+                    Reporter::add(W_USELESS_SEMICOLON, null, token->filename, token->line, token->column);
+                }
+
                 program->statements->push(parseExpression(lastExpressionIndex, i, tokens));
                 lastExpressionIndex = ++i; // increment past the semicolon
                 break;

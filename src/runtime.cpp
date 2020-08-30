@@ -12,7 +12,7 @@
 #include "types.h"
 #include "value.h"
 
-
+/*
 static inline s32 fToInt(float64 f) {
     return (s32) floor(f + 0.5);
 }
@@ -284,36 +284,28 @@ Value eval(ASTNode* node) {
     return v;
 }
 
+
 void eval(Program* program) {
     for (u32 i = 0; i < program->statements->length; i++) {
         print(eval(program->statements->data[i]));
     }
 }
+*/
 
 void deleteEverything(Program* program) {
-    if (!program) {
-        return;
-    }
+    if (!program) return;
 
-    program->statements->forEach(
-        [] (ASTNode* statement) {
-            traverse(statement,
-                [] (ASTNode* node) {
-                    node->childrenCount = 0;
-                    node->maxChildrenCount = 0;
-                    node->children = null;
-                    free(node);
-                }
-            );
-        }
-    );
+    for (u32 i = program->statements->length; i >= 0; i--) {
+        // freeTree(program->statements->data[i]);
+        program->statements->pop();
+    }
 }
 
 void doIt(char* codeBuffer, const char* filename) {
     Lexer::tokenize(codeBuffer, filename);
     Program* program = parse(Lexer::tokens);
 
-    eval(program);
+    // eval(program);
 
     free(codeBuffer);
     free(program);
@@ -349,7 +341,7 @@ void interactive() {
 
             case '/': // delete everything
                 Lexer::clear();
-                deleteEverything(program);
+                // deleteEverything(program);
                 continue;
 
             case '#': // show state of the lexer
@@ -361,6 +353,7 @@ void interactive() {
                 continue;
 
             case '*': // show the state of the global scope
+                /*
                 global->traverse(
                     [] (const char* key) {
                         print("%s : ", key);
@@ -368,10 +361,11 @@ void interactive() {
                     [] (Value* v) {
                         print(*v);
                     });
+                */
                 continue;
 
             case '$': // re-run the whole program
-                eval(program);
+                // eval(program);
                 continue;
         }
 

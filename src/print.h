@@ -108,20 +108,15 @@ inline void print(ASTNode* node) {
         print("node is null\n"); return;
     }
 
-    print("&ASTNode %p | childrenCount: %u, maxChildrenCount: %u | tk: %s%s%s\n"
-          , (void*) node, node->childrenCount, node->maxChildrenCount, ANSI_YELLOW, node->token->tk, ANSI_RESET);
+    print("&ASTNode %p | childrenCount: %u | tk: %s%s%s\n"
+          , (void*) node, node->children->length, ANSI_YELLOW, node->token->tk, ANSI_RESET);
 
-    print("unary?: %u, postfix?: %u, call?: %u, punc?: %u\n"
-         , node->unary, node->postfix, node->call, node->punctuator);
-
-    if (node->maxChildrenCount == 0) {
-        print("\n");
-    }
-
+    /*
     for (u32 i = 0; i < node->childrenCount; i++) {
-        print("\tChild %u pointer: %p | tk: %s%s%s\n"
+        print("    Child %u pointer: %p | tk: %s%s%s\n"
               , i, (void*) (node->children + i), ANSI_YELLOW, (node->children + i)->token->tk, ANSI_RESET);
     }
+    */
 
     print("\n");
 }

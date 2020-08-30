@@ -20,29 +20,8 @@ void traverse(ASTNode* self, void (*callback) (ASTNode*)) {
         return;
     }
 
-    for (u32 i = 0; i < self->childrenCount; i++) {
-        if (self->children + i) {
-            traverse(self->children + i, callback);
-        }
-    }
-
-    callback(self);
-}
-
-/**
- * Iterates over the tree and calls |callback| on each node, with |root| as an argument.
- * Post-order traversal.
- */
-void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
-    if (!self) {
-        print("root node is null...\n");
-        return;
-    }
-
-    for (u32 i = 0; i < self->childrenCount; i++) {
-        if (self->children + i) {
-            traverse(self->children + i, callback);
-        }
+    for (u32 i = 0; i < self->children->length; i++) {
+        traverse(self->children->data[i], callback);
     }
 
     callback(self);
@@ -80,8 +59,8 @@ void traverse(ASTNode* self, void (*callback) (const ASTNode*)) {
 
     { associativity = none } means an operator for which there should never be adjacent operators of equal precedence.
 */
-OperatorAssociativityEnum associativity(u32 tt, bool unary, bool postfix) {
-    switch (tt) {
+OperatorAssociativityEnum associativity(ASTNode* node) {
+    switch ((int) node->token->tt) {
         case ':':
         case ';':
         case TT_IMPORT:
@@ -121,7 +100,7 @@ OperatorAssociativityEnum associativity(u32 tt, bool unary, bool postfix) {
         case TT_RIGHT_SHIFT:
         case '+':
         case '-':
-            if (unary) {
+            if ((node->flags | NF_UNARY)) {
                 return OA_RIGHT_TO_LEFT;
             }
 
@@ -129,7 +108,7 @@ OperatorAssociativityEnum associativity(u32 tt, bool unary, bool postfix) {
 
         case TT_INCREMENT:
         case TT_DECREMENT:
-            if (postfix) {
+            if (node->flags | NF_POSTFIX) {
                 return OA_LEFT_TO_RIGHT;
             }
         case '~':
@@ -141,17 +120,12 @@ OperatorAssociativityEnum associativity(u32 tt, bool unary, bool postfix) {
             return OA_RIGHT_TO_LEFT;
 
         default:
-            die("unknown operator type: %u\n", tt); return OA_NONE;
+            die("unknown operator type: %u\n", node->token->tt); return OA_NONE;
     }
 }
 
-u8 precedence(u32 tt, bool unary, bool postfix) {
-    switch (tt) {
-        case ',':
-        case ';':
-        case TT_IMPORT:
-            return 0;
-
+u8 precedence(ASTNode* node) {
+    switch ((int) node->token->tt) {
         case '=':
         case TT_COLON_EQUALS:
         case TT_PLUS_EQUALS:
@@ -182,7 +156,7 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
 
         case '+':
         case '-':
-            if (unary) {
+            if (node->flags | NF_UNARY) {
                 return 6;
             }
 
@@ -207,50 +181,72 @@ u8 precedence(u32 tt, bool unary, bool postfix) {
 
         case TT_INCREMENT:
         case TT_DECREMENT:
-            if (postfix) {
+            if (node->flags | NF_POSTFIX) {
                 return 6;
             }
 
+        case '(':
+            /*
+            if (!call) {
+                return 0;
+            }
+            */
+        case '{':
+        case '[':
         case '@':
         case '$':
         case '.':
         case ':':
-        case '(':
-        case '[':
-        case '{':
-        case ')':
-        case ']':
-        case '}':
             return 8;
 
         default:
-            die("unknown operator type: %u\n", tt); return 0;
+            die("unknown operator type: %u\n", node->token->tt); return 0;
     }
 }
 
 void addChild(ASTNode* self, ASTNode* child) {
     if (!child) {
-        Reporter::add(E_MISSING_OPERAND_FOR_OPERATOR, self);
+        Reporter::report(E_MISSING_OPERAND_FOR_OPERATOR, self);
         return;
     }
 
-    if (self->childrenCount == self->maxChildrenCount) {
-        Reporter::add(E_TOO_MANY_OPERANDS, child);
-    }
-
-    if (!self->children) {
-        self->children = (ASTNode*) pCalloc(sizeof (ASTNode), self->maxChildrenCount);
-    }
-
-    self->children[self->childrenCount++] = *child;
+    self->children->push(child);
 }
+
+/*
+static ASTNode* findBottomLeft(ASTNode* node) {
+    while (node->children) {
+        node = node->children;
+    }
+
+    return node;
+}
+
+**
+ * Flattens a tree into an array, free()'ing the whole thing.
+ * https://codegolf.stackexchange.com/questions/478/free-a-binary-tree
+void freeTree(ASTNode* root) {
+    if (!root) return;
+
+    ASTNode* bottomLeft = findBottomLeft(root);
+
+    while (root) {
+        bottomLeft->children = root->children + 1;
+        bottomLeft = findBottomLeft(bottomLeft);
+
+        ASTNode* old = root;
+        root = root->children;
+        free(old);
+    }
+}
+*/
 
 /**
  * Resolve a token into a node.
  * This requires some amount of peeking, so the whole Lexer::tokens array should be passed w/ the index of the operator.
  */
 ASTNode* nodify(Array<Token>* tokens, u32 i) {
-    ASTNode* node = (ASTNode*) pMalloc(sizeof (ASTNode));
+    ASTNode* node = (ASTNode*) pCalloc(sizeof (ASTNode), 1);
 
     node->token = tokens->data[i];
 
@@ -264,36 +260,40 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
             return node;
     }
 
-    if (i < 1 || isOperator(tokens->data[i - 1])) { // is unary prefix, or a punctuator used weirdly
+    if (i < 1 || isOperator(tokens->data[i - 1])) { // is unary prefix, or a opening punctuator
         switch ((int) node->token->tt) {
-            case '+':
-            case '-':
             case '~':
             case '!':
-            case TT_IMPORT:
-                node->maxChildrenCount = 1;
-                node->unary = true;
+            case '@':
+            case '$':
+            case '+':
+            case '-':
+            case TT_INCREMENT:
+            case TT_DECREMENT:
+                node->children = new Array<ASTNode>(1);
+                node->flags |= NF_UNARY;
                 break;
 
-            case ';':
-                Reporter::add(W_USELESS_SEMICOLON, node);
+            case '(':
+            case '[':
+            case '{':
                 break;
 
             default:
-                Reporter::add(E_INVALID_OPERATOR, node);
+                Reporter::report(E_INVALID_OPERATOR, node);
                 break;
         }
     } else if ((tokens->data[i]->tt == '(') && (tokens->data[i - 1]->tt == TT_SYMBOL)) { // is a function call
-        node->maxChildrenCount = CLUE_MAX_ARGUMENT_LIST_SIZE;
-        node->call = true;
+        node->children = new Array<ASTNode>(8);
+        node->flags |= NF_CALL;
 
     } else if ((tokens->data[i]->tt == TT_INCREMENT) || (tokens->data[i]->tt == TT_DECREMENT)) { // is postfix unary
-        node->maxChildrenCount = 1;
-        node->unary = true;
-        node->postfix = true;
+        node->children = new Array<ASTNode>(1);
+        node->flags |= NF_UNARY;
+        node->flags |= NF_POSTFIX;
 
     } else { // is a binary operator or a postfix-ish punctuator, or a mistake
-        node->maxChildrenCount = 2;
+        node->children = new Array<ASTNode>(2);
     }
 
     return node;

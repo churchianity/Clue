@@ -156,6 +156,7 @@ void Reporter :: add(u32 id, ASTNode* node) {
 void Reporter :: report(u32 id, const char* functionName, const char* filename, u32 line, u32 column) {
     add(id, null, filename, line, column);
     Reporter::flush();
+    exit(1);
 }
 
 void Reporter :: report(u32 id, ASTNode* node) {
