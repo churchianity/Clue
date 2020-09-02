@@ -331,28 +331,28 @@ void interactive() {
 
         // super-secret interpreter options
         switch (s[0]) {
-            case '.': // exit the interpreter
+            case '.':
                 print("Bye!\n");
                 return;
 
-            case '`': // show all the messages
+            case '`':
                 Reporter::flush();
                 continue;
 
-            case '/': // delete everything
+            case '/':
                 Lexer::clear();
                 // deleteEverything(program);
                 continue;
 
-            case '#': // show state of the lexer
+            case '#':
                 Lexer::print();
                 continue;
 
-            case '?': // print the whole thing
+            case '?':
                 print(program);
                 continue;
 
-            case '*': // show the state of the global scope
+            case '*':
                 /*
                 global->traverse(
                     [] (const char* key) {
@@ -364,17 +364,19 @@ void interactive() {
                 */
                 continue;
 
-            case '$': // re-run the whole program
+            case '$':
                 // eval(program);
                 continue;
         }
 
         Lexer::tokenize(s, "stdin", line);
 
+        /*
         if (program) {
             free(program);
             program = null;
         }
+        */
 
         program = parse(Lexer::tokens);
         Reporter::flush();

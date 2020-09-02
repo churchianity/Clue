@@ -15,12 +15,13 @@
  * Post-order traversal.
  */
 void traverse(ASTNode* self, void (*callback) (ASTNode*)) {
-    if (!self) {
+    if (!(self && callback)) {
         print("root node is null...\n");
         return;
     }
 
     for (u32 i = 0; i < self->children->length; i++) {
+        print("i: %u, len: %u\n", i, self->children->length);
         traverse(self->children->data[i], callback);
     }
 
@@ -100,7 +101,7 @@ OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_RIGHT_SHIFT:
         case '+':
         case '-':
-            if ((node->flags | NF_UNARY)) {
+            if ((node->flags & NF_UNARY) != 0) {
                 return OA_RIGHT_TO_LEFT;
             }
 
@@ -108,7 +109,7 @@ OperatorAssociativityEnum associativity(ASTNode* node) {
 
         case TT_INCREMENT:
         case TT_DECREMENT:
-            if (node->flags | NF_POSTFIX) {
+            if ((node->flags & NF_POSTFIX) != 0) {
                 return OA_LEFT_TO_RIGHT;
             }
         case '~':
@@ -156,7 +157,7 @@ u8 precedence(ASTNode* node) {
 
         case '+':
         case '-':
-            if (node->flags | NF_UNARY) {
+            if ((node->flags & NF_UNARY) != 0) {
                 return 6;
             }
 
@@ -181,7 +182,7 @@ u8 precedence(ASTNode* node) {
 
         case TT_INCREMENT:
         case TT_DECREMENT:
-            if (node->flags | NF_POSTFIX) {
+            if ((node->flags & NF_POSTFIX) != 0) {
                 return 6;
             }
 

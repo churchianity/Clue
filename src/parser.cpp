@@ -14,7 +14,7 @@
  * the precedence of the operator we are holding (thinking about putting on the stack)
  */
 static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
-    if (os->isEmpty()) { // if the operator stack is empty we don't care
+    if (os->isEmpty()) {
         return false;
     }
 
@@ -31,7 +31,7 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
 }
 
 static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
-    if (node->flags | NF_UNARY) {
+    if ((node->flags & NF_UNARY) != 0) {
         ASTNode* child = es->pop();
 
         if (!child) {
@@ -87,7 +87,7 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
                     break;
                 }
 
-                if (!(os->peek()->flags | NF_CALL)) {
+                if ((os->peek()->flags & NF_CALL) == 0) {
                     os->pop(); // discard opening parens
                 }
 
@@ -104,9 +104,9 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
             default:
                 auto node = nodify(tokens, i);
 
+
                 // handle precedence & associativity before pushing the operator onto the stack
                 while (canPopAndApply(os, node)) {
-                    print(node);
                     parseOperation(es, os->pop());
                 }
 
@@ -132,6 +132,8 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
     ASTNode* expression = (ASTNode*) es->pop();
 
     if (!es->isEmpty()) { // if we still have expressions on the stack, they are leftovers
+        print(es->peek());
+
         const auto node = es->peek();
         Reporter::report(E_LEFTOVER_OPERAND, node);
     }

@@ -12,7 +12,7 @@ namespace Reporter {
      *
      * flush() empties the internal array and shows you everything.
      * add() appends to the array.
-     * report() calls add(), then calls flush()
+     * report() calls add(), then calls flush(), then calls exit(1)
      */
     extern void flush();
 

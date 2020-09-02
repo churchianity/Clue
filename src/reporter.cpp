@@ -31,9 +31,6 @@ static inline const char* messageSeverityToString(MessageSeverityEnum severity) 
 static Array<Message>* messages = new Array<Message>(10);
 
 
-/**
- * @TODO i should just make a memset() like thingy in string.h
- */
 static inline char* fillWithSpaces(u32 length) {
     char* buffer = (char*) pMalloc(sizeof (char) * length + 1);
 

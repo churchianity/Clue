@@ -103,22 +103,41 @@ inline void print(Token* token) {
           , (void*) token, token->filename, token->line, token->column, token->length, tt, token->bad, ANSI_YELLOW, token->tk, ANSI_RESET);
 }
 
+
+
+/*
+template <class T>
+inline void print(Array<T>* array) {
+    print("[");
+    for (u32 i = 0; i < array->length; i++) {
+        print(array->data[i]);
+    }
+    print("]\n");
+}
+*/
+
 inline void print(ASTNode* node) {
+    print("hi!\n");
     if (!node) {
         print("node is null\n"); return;
     }
 
-    print("&ASTNode %p | childrenCount: %u | tk: %s%s%s\n"
-          , (void*) node, node->children->length, ANSI_YELLOW, node->token->tk, ANSI_RESET);
+    print("&ASTNode %p", (void*) node);
 
-    /*
-    for (u32 i = 0; i < node->childrenCount; i++) {
-        print("    Child %u pointer: %p | tk: %s%s%s\n"
-              , i, (void*) (node->children + i), ANSI_YELLOW, (node->children + i)->token->tk, ANSI_RESET);
+    if (node->children) {
+        print(" | childrenCount: %u", node->children->length);
     }
-    */
 
-    print("\n");
+    print(" | tk: %s%s%s\n", ANSI_YELLOW, node->token->tk, ANSI_RESET);
+
+    if (node->children) {
+        for (u32 i = 0; i < node->children->length; i++) {
+            print("    Child %u pointer: %p | tk: %s%s%s\n"
+                  , i, (void*) node->children->data[i], ANSI_YELLOW, node->children->data[i]->token->tk, ANSI_RESET);
+        }
+
+        print("\n");
+    }
 }
 
 inline void print(Program* program) {
@@ -126,13 +145,13 @@ inline void print(Program* program) {
         print("program is null\n"); return;
     }
 
-    print("&Program %p | #statements: %u\n", (void*) program, program->statements->length);
+    print("&Program %p | &statements: %p, #statements: %u\n", (void*) program, (void*) program->statements, program->statements->length);
 
-    for (u32 i = 0; i < program->statements->length; i++) {
-        print("STATEMENT #%u:\n", i);
-
-        traverse(program->statements->data[i], print);
-    }
+    program->statements->forEach(
+        [] (ASTNode* root) {
+            traverse(root, print);
+        }
+    );
 }
 
 #endif

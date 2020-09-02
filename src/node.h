@@ -30,7 +30,7 @@ struct ASTNode {
 
     Array<ASTNode>* children = null;
 
-    u8 flags = 0; // @TODO replace with a single u8...
+    u8 flags = 0;
     // bool unary      = false; // useful for telling if a '+' is being used as unary plus, for example
     // bool postfix    = false; // ++s vs. s++
     // bool call       = false; // func(foo, bar, baz); vs. func(foo: Int, bar: String) { ... }
