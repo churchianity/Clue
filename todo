@@ -1,7 +1,4 @@
 
-BLOCKING
-- refactor ASTNode into a bunch of sub-types
-
 BLOCKED BY ^
 - typing stage - pass of ast
 - string concatenation overload of +

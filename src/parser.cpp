@@ -9,12 +9,8 @@
 #include "token.h"
 
 
-/**
- * Checks if the precedence of the operator on top of the stack is less than
- * the precedence of the operator we are holding (thinking about putting on the stack)
- */
 static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
-    if (os->isEmpty()) {
+    if (os->isEmpty() || ((node->flags & NF_PUNCTUATOR) != 0)) {
         return false;
     }
 
@@ -31,6 +27,15 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
 }
 
 static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
+    if ((node->flags & NF_PUNCTUATOR) != 0) {
+        return;
+    }
+
+    if (!isOperator(node->token)) {
+        es->push(node); // operands are an operation that return themselves
+        return;
+    }
+
     if ((node->flags & NF_UNARY) != 0) {
         ASTNode* child = es->pop();
 
@@ -63,7 +68,7 @@ static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
  * You shouldn't call this unless you have a good reason to believe that there is an expression between
  * the tokens array @ |startIndex| and |endIndex|, inclusive of start but not end.
  *
- * @NOTE this is basically shunting-yard with some bells & whistles to allow function calls, unary operators, postfix/prefix etc.
+ * this is basically shunting-yard with some bells & whistles to allow function calls, unary operators, postfix/prefix etc.
  */
 static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* tokens) {
     auto es = new Array<ASTNode>(10);
@@ -87,7 +92,7 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
                     break;
                 }
 
-                if ((os->peek()->flags & NF_CALL) == 0) {
+                if ((os->peek()->flags & NF_PUNCTUATOR) != 0) {
                     os->pop(); // discard opening parens
                 }
 
@@ -101,9 +106,9 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
                 break;
 
             // all 'standard' operators
+            case '(':
             default:
                 auto node = nodify(tokens, i);
-
 
                 // handle precedence & associativity before pushing the operator onto the stack
                 while (canPopAndApply(os, node)) {
@@ -118,7 +123,6 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
     }
 
     while (!os->isEmpty()) {
-
         // we shouldn't have any 'open' punctuators at this stage - if we do, there's a mismatch
         if (os->peek()->token->tt == '(') {
             const auto token = os->peek()->token;
@@ -132,8 +136,6 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
     ASTNode* expression = (ASTNode*) es->pop();
 
     if (!es->isEmpty()) { // if we still have expressions on the stack, they are leftovers
-        print(es->peek());
-
         const auto node = es->peek();
         Reporter::report(E_LEFTOVER_OPERAND, node);
     }

@@ -12,89 +12,88 @@
 #include "types.h"
 #include "value.h"
 
-/*
 static inline s32 fToInt(float64 f) {
     return (s32) floor(f + 0.5);
 }
 
 static inline float64 evalBitwiseNot(ASTNode* node) {
-    return ~fToInt(eval(node->children + 0).number);
+    return ~fToInt(eval(node->children->data[0]).number);
 }
 
 static inline u32 evalBitwiseAnd(ASTNode* node) {
-    return fToInt(eval(node->children + 0).number) & fToInt(eval(node->children + 1).number);
+    return fToInt(eval(node->children->data[0]).number) & fToInt(eval(node->children->data[1]).number);
 }
 
 static inline u32 evalBitwiseOr(ASTNode* node) {
-    return fToInt(eval(node->children + 0).number) | fToInt(eval(node->children + 1).number);
+    return fToInt(eval(node->children->data[0]).number) | fToInt(eval(node->children->data[1]).number);
 }
 
 static inline u32 evalBitwiseXor(ASTNode* node) {
-    return fToInt(eval(node->children + 0).number) ^ fToInt(eval(node->children + 1).number);
+    return fToInt(eval(node->children->data[0]).number) ^ fToInt(eval(node->children->data[1]).number);
 }
 
 static inline u32 evalLeftShift(ASTNode* node) {
-    return fToInt(eval(node->children + 0).number) << fToInt(eval(node->children + 1).number);
+    return fToInt(eval(node->children->data[0]).number) << fToInt(eval(node->children->data[1]).number);
 }
 
 static inline u32 evalRightShift(ASTNode* node) {
-    return fToInt(eval(node->children + 0).number) >> fToInt(eval(node->children + 1).number);
+    return fToInt(eval(node->children->data[0]).number) >> fToInt(eval(node->children->data[1]).number);
 }
 
 static inline float64 evalNegation(ASTNode* node) {
-    return !eval(node->children + 0).number;
+    return !eval(node->children->data[0]).number;
 }
 
 static inline float64 evalUnaryPlus(ASTNode* node) {
-    return +eval(node->children + 0).number;
+    return +eval(node->children->data[0]).number;
 }
 
 static inline float64 evalBinaryAddition(ASTNode* node) {
-    return eval(node->children + 0).number + eval(node->children + 1).number;
+    return eval(node->children->data[0]).number + eval(node->children->data[1]).number;
 }
 
 static inline float64 evalUnaryMinus(ASTNode* node) {
-    return -eval(node->children + 0).number;
+    return -eval(node->children->data[0]).number;
 }
 
 static inline float64 evalBinarySubtraction(ASTNode* node) {
-    return eval(node->children + 0).number - eval(node->children + 1).number;
+    return eval(node->children->data[0]).number - eval(node->children->data[1]).number;
 }
 
 static inline float64 evalMultiplication(ASTNode* node) {
-    return eval(node->children + 0).number * eval(node->children + 1).number;
+    return eval(node->children->data[0]).number * eval(node->children->data[1]).number;
 }
 
 static inline float64 evalDivision(ASTNode* node) {
-    return eval(node->children + 0).number / eval(node->children + 1).number;
+    return eval(node->children->data[0]).number / eval(node->children->data[1]).number;
 }
 
 static inline float64 evalModulus(ASTNode* node) {
-    return remainder(eval(node->children + 0).number, eval(node->children + 1).number);
+    return remainder(eval(node->children->data[0]).number, eval(node->children->data[1]).number);
 }
 
 static inline float64 evalExponentiation(ASTNode* node) {
-    return pow(eval(node->children + 0).number, eval(node->children + 1).number);
+    return pow(eval(node->children->data[0]).number, eval(node->children->data[1]).number);
 }
 
 static inline bool evalLogicalAnd(ASTNode* node) {
-    return eval(node->children + 0).number && eval(node->children + 1).number;
+    return eval(node->children->data[0]).number && eval(node->children->data[1]).number;
 }
 
 static inline bool evalLogicalOr(ASTNode* node) {
-    return eval(node->children + 0).number || eval(node->children + 1).number;
+    return eval(node->children->data[0]).number || eval(node->children->data[1]).number;
 }
 
 static inline bool evalGreaterThanOrEqual(ASTNode* node) {
-    return eval(node->children + 0).number >= eval(node->children + 1).number;
+    return eval(node->children->data[0]).number >= eval(node->children->data[1]).number;
 }
 
 static inline bool evalLessThanOrEqual(ASTNode* node) {
-    return eval(node->children + 0).number <= eval(node->children + 1).number;
+    return eval(node->children->data[0]).number <= eval(node->children->data[1]).number;
 }
 
 static inline bool evalEquals(ASTNode* node) {
-    return eval(node->children + 0).number == eval(node->children + 1).number;
+    return eval(node->children->data[0]).number == eval(node->children->data[1]).number;
 }
 
 // @TODO move me somewhere not dumb!
@@ -102,7 +101,7 @@ static Table<const char, Value>* global = new Table<const char, Value>(10);
 
 static inline void evalAssignment(ASTNode* node) {
     Value* valuePointer = (Value*) pMalloc(sizeof (Value));
-    Value value = eval(node->children + 1);
+    Value value = eval(node->children->data[1]);
 
     if (value.type == VT_NUMBER) {
         valuePointer->type = value.type;
@@ -113,7 +112,7 @@ static inline void evalAssignment(ASTNode* node) {
         valuePointer->string = value.string;
     }
 
-    global->insert((node->children + 0)->token->tk, (node->children + 0)->token->length, valuePointer);
+    global->insert((node->children->data[0])->token->tk, (node->children->data[0])->token->length, valuePointer);
 }
 
 static inline Value evalOperator(ASTNode* node) {
@@ -122,7 +121,7 @@ static inline Value evalOperator(ASTNode* node) {
     switch ((int) node->token->tt) {
         case '+':
             // @TODO string concat
-            if (node->childrenCount == 1) {
+            if (node->children->length == 1) {
                 v.type = VT_NUMBER;
                 v.number = evalUnaryPlus(node);
 
@@ -136,7 +135,7 @@ static inline Value evalOperator(ASTNode* node) {
         case '-':
             v.type = VT_NUMBER;
 
-            if (node->childrenCount == 1) {
+            if (node->children->length == 1) {
                 v.number = evalUnaryMinus(node);
 
             } else {
@@ -286,17 +285,23 @@ Value eval(ASTNode* node) {
 
 
 void eval(Program* program) {
-    for (u32 i = 0; i < program->statements->length; i++) {
-        print(eval(program->statements->data[i]));
-    }
+    program->statements->forEach(
+        [] (ASTNode* statement) {
+            print(eval(statement));
+        }
+    );
 }
-*/
 
 void deleteEverything(Program* program) {
     if (!program) return;
 
     for (u32 i = program->statements->length; i >= 0; i--) {
-        // freeTree(program->statements->data[i]);
+        traverse(program->statements->data[i],
+            [] (ASTNode* node) {
+                free(node);
+            }
+        );
+
         program->statements->pop();
     }
 }
@@ -305,7 +310,7 @@ void doIt(char* codeBuffer, const char* filename) {
     Lexer::tokenize(codeBuffer, filename);
     Program* program = parse(Lexer::tokens);
 
-    // eval(program);
+    eval(program);
 
     free(codeBuffer);
     free(program);
@@ -353,7 +358,6 @@ void interactive() {
                 continue;
 
             case '*':
-                /*
                 global->traverse(
                     [] (const char* key) {
                         print("%s : ", key);
@@ -361,24 +365,17 @@ void interactive() {
                     [] (Value* v) {
                         print(*v);
                     });
-                */
                 continue;
 
             case '$':
-                // eval(program);
+                eval(program);
                 continue;
         }
 
         Lexer::tokenize(s, "stdin", line);
 
-        /*
-        if (program) {
-            free(program);
-            program = null;
-        }
-        */
-
         program = parse(Lexer::tokens);
+        print(eval(program->statements->peek()));
         Reporter::flush();
 
         line++; // do this last

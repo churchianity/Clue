@@ -117,7 +117,6 @@ inline void print(Array<T>* array) {
 */
 
 inline void print(ASTNode* node) {
-    print("hi!\n");
     if (!node) {
         print("node is null\n"); return;
     }

@@ -14,18 +14,19 @@
  * Iterates over the tree and calls |callback| on each node, with |root| as an argument.
  * Post-order traversal.
  */
-void traverse(ASTNode* self, void (*callback) (ASTNode*)) {
-    if (!(self && callback)) {
+void traverse(ASTNode* node, void (*callback) (ASTNode*)) {
+    if (!node) {
         print("root node is null...\n");
         return;
     }
 
-    for (u32 i = 0; i < self->children->length; i++) {
-        print("i: %u, len: %u\n", i, self->children->length);
-        traverse(self->children->data[i], callback);
+    if (node->children) { // nodes without children have it null'ed
+        for (u32 i = 0; i < node->children->length; i++) {
+            traverse(node->children->data[i], callback);
+        }
     }
 
-    callback(self);
+    callback(node);
 }
 
 /*
@@ -186,14 +187,12 @@ u8 precedence(ASTNode* node) {
                 return 6;
             }
 
-        case '(':
-            /*
-            if (!call) {
-                return 0;
-            }
-            */
+        case '(': // @NOTE this may or may not be correct for '{' and '['
         case '{':
         case '[':
+            if ((node->flags & NF_PUNCTUATOR) != 0) {
+                return 0;
+            }
         case '@':
         case '$':
         case '.':
@@ -214,29 +213,28 @@ void addChild(ASTNode* self, ASTNode* child) {
     self->children->push(child);
 }
 
-/*
+/* @TODO this
 static ASTNode* findBottomLeft(ASTNode* node) {
     while (node->children) {
-        node = node->children;
+        node = node->children->data[0];
     }
 
     return node;
 }
 
-**
+
  * Flattens a tree into an array, free()'ing the whole thing.
- * https://codegolf.stackexchange.com/questions/478/free-a-binary-tree
 void freeTree(ASTNode* root) {
     if (!root) return;
 
     ASTNode* bottomLeft = findBottomLeft(root);
 
     while (root) {
-        bottomLeft->children = root->children + 1;
+        bottomLeft->children->data[0] = root->children->data[1];
         bottomLeft = findBottomLeft(bottomLeft);
 
         ASTNode* old = root;
-        root = root->children;
+        root = root->children->data[0];
         free(old);
     }
 }
@@ -278,6 +276,7 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
             case '(':
             case '[':
             case '{':
+                node->flags |= NF_PUNCTUATOR;
                 break;
 
             default:
