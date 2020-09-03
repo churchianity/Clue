@@ -13,6 +13,7 @@
 
 
 Array<Token>* Lexer::tokens = new Array<Token>(10);
+Table<const char, FileInfo>* Lexer::files = new Table<const char, FileInfo>(10);
 
 
 /**
@@ -64,16 +65,12 @@ static Table<const char, Keyword>* initKeywordTable() {
  * |_line| is sometimes necessary to provide, because you can
  * lex tokens from the same source in batches, like in the 'stdin' interpreter case,
  *
- * It's like partially lexing a file, going off and doing something else, then returning
- * and wanting to remember where you left off.
- *
  * In most (file read) cases it is not provided and defaults to 1.
  *
  * @STATEFUL
  */
 Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     static auto keywords = initKeywordTable();
-    static auto files = new Table<const char, void>(10); // names of all the files loaded so far
 
     static bool prevTokenImport = false;
     bool ignore = false;
@@ -207,6 +204,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     column = 1; line++; continue;
 
                 } else if (*buffer == '\t') {
+                    Lexer::files->lookup(filename)->value->hasTabs = true;
                     column += 4; continue;
                 }
 
@@ -284,7 +282,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
                 case '`':
                     ignore = !ignore;
-                    continue;
+                    break;
 
                 case '>':
                 case '<':

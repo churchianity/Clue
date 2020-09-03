@@ -9,6 +9,15 @@
 #include "string.h"
 #include "types.h"
 
+enum FileFlags {
+    FF_HAS_CARRIAGE_RETURN,
+    FF_HAS_TABS
+};
+
+struct FileInfo {
+    u32 size;
+    u8 flags;
+};
 
 /**
  * @TODO @FIXME these need to be using the windows api & unistd.h instead of stdio.h
@@ -27,26 +36,6 @@ inline u32 getFileSize(FILE* fp) {
     return (u32) size;
 }
 
-/**
- * Internally allocates the returned buffer - caller responsible for free'ing.
- */
-inline char* fileRead(const char* filePath) {
-    FILE* fp = fopen(filePath, "r");
-
-    if (!fp) {
-        die("failed to get fp for filepath: %s\n", filePath);
-    }
-
-    u32 length = getFileSize(fp);
-
-    char* buffer = (char*) pMalloc(length);
-
-    fread(buffer, sizeof (char), length, fp);
-    fclose(fp);
-
-    return buffer;
-}
-
 inline char* clueFileRead(const char* filePath) {
     // @TODO search the filesystem!
     // assume the path is correct, but if the file is not found, make a series of educated guesses and try again!
@@ -62,14 +51,11 @@ inline char* clueFileRead(const char* filePath) {
     // ... ? do we do a spellchecker?
     FILE* fp = fopen(filePath, "r");
 
-    if (!fp) {
-        die("failed to get fp for filepath: %s\n", filePath);
-    }
+    if (!fp) die("failed to get fp for filepath: %s\n", filePath);
 
     u32 length = getFileSize(fp);
 
     char* buffer = (char*) pMalloc(length);
-
     fread(buffer, sizeof (char), length, fp);
     fclose(fp);
 

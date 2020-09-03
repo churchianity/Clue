@@ -5,9 +5,11 @@ BLOCKED BY ^
 - string formatting overload of %
 - flow control (if, else, loops)
 - function calls
+
+- closures
+
 - machine code generation
 - pointers
-- closures
 
 NON-BLOCKING
 - boolean data type?
