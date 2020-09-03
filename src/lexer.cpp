@@ -85,6 +85,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     bool bad;
 
     while (*buffer != '\0') {
+        ::print(ignore);
 
         // if it's not the null character, we (probably) have a valid token of atleast 1 in length
         length = 1;
@@ -204,7 +205,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     column = 1; line++; continue;
 
                 } else if (*buffer == '\t') {
-                    Lexer::files->lookup(filename)->value->hasTabs = true;
                     column += 4; continue;
                 }
 
@@ -273,9 +273,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     } while (*buffer != '\0');
 
                     // figure out what it is
-
                     // get its arguments
-
                     // do it
 
                     break;

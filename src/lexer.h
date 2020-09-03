@@ -3,6 +3,7 @@
 #define LEXER_H
 
 #include "array.hpp"
+#include "file.h"
 #include "table.hpp"
 #include "token.h"
 
