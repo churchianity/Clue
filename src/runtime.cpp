@@ -115,6 +115,10 @@ static inline void evalAssignment(ASTNode* node) {
     global->insert((node->children->data[0])->token->tk, (node->children->data[0])->token->length, valuePointer);
 }
 
+static inline Value evalDecrement(ASTNode* node) {
+    return null;
+}
+
 static inline Value evalOperator(ASTNode* node) {
     Value v;
 

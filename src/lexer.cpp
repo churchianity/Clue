@@ -85,7 +85,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     bool bad;
 
     while (*buffer != '\0') {
-        ::print(ignore);
 
         // if it's not the null character, we (probably) have a valid token of atleast 1 in length
         length = 1;
@@ -126,21 +125,11 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
             bool hasRadixPoint = false;
 
-            /**
-             *  handle 0-prefix special numerics...
-             *
-             *  0x / 0X : hexadecimal
-             *  0o / 0O : octal
-             *  0b / 0B : binary
-             *  0.      : fractional decimal
-             */
+            // handle 0-prefix special numerics...
             if (*buffer == '0') {
                 switch (*(buffer + 1)) {
                     case '\0':
                     default:
-                        Reporter::add(E_BAD_LEADING_ZERO, null, filename, line, column + 1);
-                        break;
-
                     case '.': // fractional decimal, we don't need to do anything special
                         break;
 
@@ -150,9 +139,11 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     case 'o': case 'O':
                         break;
 
+                    // hexadecimal constant
                     case 'x': case 'X':
                         break;
 
+                    // binary constant
                     case 'b': case 'B':
                         break;
                 }
@@ -215,7 +206,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             if (bad) {
                 Reporter::add(E_NO_CLOSING_QUOTEMARK, null, filename, line, column + length + 1);
             }
-
         } else {
             tt = (TokenTypeEnum) *buffer;
 
@@ -253,7 +243,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 case ';':
                 case ',':
                 case '.':
-                case '?': // unused
+                case '?':
                     break;
 
                 case '\\': // @TODO?
