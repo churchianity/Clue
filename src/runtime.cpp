@@ -115,14 +115,25 @@ static inline void evalAssignment(ASTNode* node) {
     global->insert((node->children->data[0])->token->tk, (node->children->data[0])->token->length, valuePointer);
 }
 
+/*
+static inline Value evalIncrement(ASTNode* node) {
+    return null;
+}
+
 static inline Value evalDecrement(ASTNode* node) {
     return null;
 }
+*/
 
 static inline Value evalOperator(ASTNode* node) {
     Value v;
 
     switch ((int) node->token->tt) {
+        case TT_IMPORT: // imports are a pre-processor, and have already been run...
+            v.type = VT_STRING;
+            v.string = "";
+            break;
+
         case '+':
             // @TODO string concat
             if (node->children->length == 1) {
@@ -337,16 +348,13 @@ void interactive() {
         if (fgets(s, CLUE_SANDBOX_MODE_MAX_LINE_LENGTH, stdin) == null) {
             die("error reading line from stdin and storing it in buffer %p\n", s);
         }
+        print(s);
 
         // super-secret interpreter options
         switch (s[0]) {
             case '.':
                 print("Bye!\n");
                 return;
-
-            case '`':
-                Reporter::flush();
-                continue;
 
             case '/':
                 Lexer::clear();

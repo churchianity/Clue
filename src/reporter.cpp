@@ -28,7 +28,7 @@ static inline const char* messageSeverityToString(MessageSeverityEnum severity) 
 }
 
 
-static Array<Message>* messages = new Array<Message>(10);
+static Array<Message>* messages = new Array<Message>();
 
 
 static inline char* fillWithSpaces(u32 length) {

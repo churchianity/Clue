@@ -8,20 +8,16 @@
 #include "token.h"
 #include "table.hpp"
 
-#define CLUE_MAX_SYMBOL_LENGTH 24
-#define CLUE_MAX_NUMERIC_LENGTH 24
 
-
-Array<Token>* Lexer::tokens = new Array<Token>(10);
-Table<const char, FileInfo>* Lexer::files = new Table<const char, FileInfo>(10);
-
+Array<Token>* Lexer::tokens = new Array<Token>();
+Table<const char, FileInfo>* Lexer::files = new Table<const char, FileInfo>();
 
 /**
  * @STATEFUL
  */
 void Lexer :: clear() {
     delete Lexer::tokens;
-    Lexer::tokens = new Array<Token>(10);
+    Lexer::tokens = new Array<Token>();
 }
 
 /**
@@ -67,28 +63,41 @@ static Table<const char, Keyword>* initKeywordTable() {
  *
  * In most (file read) cases it is not provided and defaults to 1.
  *
+ * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ * There are two main ways to approach a tokenizer here,
+ *  1.
+ *      - pre-load a table with all possible tokens or a validator or some sort, for each possible token
+ *      - while the character in the buffer + all the previous characters we've looked at is a valid token, buffer++
+ *      - when we're done, and have a token, store it and reduce the buffer by its length/scan past it
+ *
+ *  2. (what we're doing)
+ *      - just make reasonable guesses about what we expect to see given some indicator, lookahead if we have to.
+ *
+ * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ *
  * @STATEFUL
  */
 Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     static auto keywords = initKeywordTable();
-
     static bool prevTokenImport = false;
-    bool ignore = false;
 
     Token* token = null;
-    TokenTypeEnum tt;
 
     u32 line = _line;
     u32 column = 1;
-
     u32 length = 0;
+
+    TokenTypeEnum tt;
     bool bad;
+    bool ignore;
 
     while (*buffer != '\0') {
 
+        print();
         // if it's not the null character, we (probably) have a valid token of atleast 1 in length
         length = 1;
         bad = false;
+        ignore = false;
 
         if (isAlpha(*buffer)) {
             tt = TT_SYMBOL;
@@ -116,6 +125,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
             } while (*buffer != '\0');
 
+            #define CLUE_MAX_SYMBOL_LENGTH 24
             if (length >= CLUE_MAX_SYMBOL_LENGTH) {
                 Reporter::add(L_LONG_SYMBOL, null, filename, line, column + CLUE_MAX_SYMBOL_LENGTH);
             }
@@ -170,6 +180,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
             } while (*buffer != '\0');
 
+            #define CLUE_MAX_NUMERIC_LENGTH 24
             if (length >= CLUE_MAX_NUMERIC_LENGTH) {
                 Reporter::add(W_OVERPRECISE_NUMBER, null, filename, line, column);
             }
@@ -189,8 +200,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     break;
                 }
 
-                if (*buffer == '\\') {
-                    // @TODO escape characters!
+                if (*buffer == '\\') { // @TODO escape characters!
 
                 } else if (*buffer == '\n') {
                     column = 1; line++; continue;
@@ -250,22 +260,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     break;
 
                 case '#': // @TODO
-                    // get a pre-processor statement
-                    do {
-                        buffer++;
-
-                        if (*buffer) {
-                            break;
-                        }
-
-                        length++;
-
-                    } while (*buffer != '\0');
-
-                    // figure out what it is
-                    // get its arguments
-                    // do it
-
                     break;
 
                 case '`':
@@ -354,6 +348,8 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         }
 
         if (ignore) {
+            buffer++;
+            column++;
             continue;
         }
 
@@ -367,7 +363,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         token->tt       = tt;
         token->tk       = read(buffer - length, length);
         token->bad      = bad;
-        token->ignore   = ignore;
 
         // check if we used a symbol that is a reserved operator/word
         if (token->tt == TT_SYMBOL) {
@@ -386,7 +381,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         // for exceptional circumstances
         Lexer::tokens->push(token);
 
-        // handle import statement
+        // @TODO make a preprocessor... import statements should be handled as part of some pre-processor stage...
         if (prevTokenImport) {
             if ((token->tt == TT_STRING) && (!token->bad)) {
                 const char* importFilePath = trimQuotes(token->tk, token->length); // @TODO handle failure here
@@ -401,7 +396,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     files->insert(importFilePath, token->length - 2, null);
 
                     prevTokenImport = false; // this is necessary to stop the subsequent recursive calls from trying to import the first token
-                    tokenize(clueFileRead(importFilePath), importFilePath);
+                    Lexer::tokenize(clueFileRead(importFilePath), importFilePath);
                 }
             } else {
                 Reporter::report(E_BAD_IMPORT, null, filename, line, column);
@@ -409,6 +404,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         }
 
         prevTokenImport = token->tt == TT_IMPORT;
+        // #endpreprocessorregion
 
         // do this only after handling EVERYTHING having to do with the token we just lexed
         column += token->length;

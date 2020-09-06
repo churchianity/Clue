@@ -256,8 +256,12 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
         case TT_SYMBOL:
         case TT_NUMERIC:
         case TT_STRING:
+            node->children = null;
             return node;
     }
+
+    // if it's not an operand itself, it should have some number of operands (children)
+    node->children = new Array<ASTNode>();
 
     if (i < 1 || isOperator(tokens->data[i - 1])) { // is unary prefix, or a opening punctuator
         switch ((int) node->token->tt) {
@@ -269,7 +273,7 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
             case '-':
             case TT_INCREMENT:
             case TT_DECREMENT:
-                node->children = new Array<ASTNode>(1);
+            case TT_IMPORT: // special case, shouldn't actually do much here
                 node->flags |= NF_UNARY;
                 break;
 
@@ -284,16 +288,14 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
                 break;
         }
     } else if ((tokens->data[i]->tt == '(') && (tokens->data[i - 1]->tt == TT_SYMBOL)) { // is a function call
-        node->children = new Array<ASTNode>(8);
         node->flags |= NF_CALL;
 
     } else if ((tokens->data[i]->tt == TT_INCREMENT) || (tokens->data[i]->tt == TT_DECREMENT)) { // is postfix unary
-        node->children = new Array<ASTNode>(1);
         node->flags |= NF_UNARY;
         node->flags |= NF_POSTFIX;
 
     } else { // is a binary operator or a postfix-ish punctuator, or a mistake
-        node->children = new Array<ASTNode>(2);
+        // @TODO
     }
 
     return node;

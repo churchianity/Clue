@@ -92,7 +92,6 @@ struct Token {
     TokenTypeEnum tt     = TT_ANY;
 
     bool bad             = false;
-    bool ignore          = false;
 };
 
 

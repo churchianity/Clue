@@ -15,14 +15,14 @@
 |  `-------------|<------------------'
 |                |
 |                v
-| 1.-------------.
+| 1.-------------.      :   goal - reduce noise in input
 |  | Lexer       |
 |  `-------------|
 |                |
 |                v
-| 2.-------------.
-|  | Parser      |
-|  `-------------|
+| 2.-------------.      :  produce initial Abstract Syntax Tree
+|  | Parser      |      :  resolve operators and operands into nodes, resolve precedence and associativity
+|  `-------------|      :
 |                |
 |                v
 | 3.-------------.
@@ -30,20 +30,6 @@
 |  `-------------|
 |                |
 |                v
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

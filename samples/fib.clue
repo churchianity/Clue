@@ -1,3 +1,4 @@
+import "./samples/long.clue";
 
 `   Simple program to calculate fibonnaci numbers
 fib(n: Int) {

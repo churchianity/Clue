@@ -12,7 +12,7 @@ struct Array {
     u32 length;
     T** data;
 
-    Array<T>(u32 _capacity) {
+    Array<T>(u32 _capacity = 10) {
         capacity = _capacity;
         length   = 0;
         data     = (T**) pCalloc(sizeof (T*), capacity);

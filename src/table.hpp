@@ -22,7 +22,7 @@ struct Table {
     u32 lanes;
     TableEntry<K, V>** entries;
 
-    Table<K, V>(u32 _lanes) {
+    Table<K, V>(u32 _lanes = 10) { // the default number of 'lanes' of 10 is arbitrary
         lanes = _lanes;
         entries = (TableEntry<K, V>**) pCalloc(sizeof (TableEntry<K, V>*), lanes);
     }
