@@ -81,6 +81,11 @@ enum TokenTypeEnum {
     // TT_MAKE_IT_BIG              = 0xFFFFFFFFFFFFFFFF
 };
 
+enum TokenFlagsEnum {
+    TF_BAD      = 1,
+    TF_IGNORE   = 2
+};
+
 struct Token {
     const char* filename = null;
     const char* tk       = null;
@@ -91,7 +96,7 @@ struct Token {
 
     TokenTypeEnum tt     = TT_ANY;
 
-    bool bad             = false;
+    u8 flags = 0;
 };
 
 

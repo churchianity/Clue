@@ -59,8 +59,8 @@ struct Array {
         }
     }
 
-    Array<T> filter(bool (*predicate) (T*)) {
-        Array<T> out = new Array<T>(length);
+    Array<T>* filter(bool (*predicate) (T*)) {
+        Array<T>* out = new Array<T>(length);
 
         for (u32 i = 0; i < length; i++) {
             if (predicate(data[i])) {

@@ -12,19 +12,17 @@
 Array<Token>* Lexer::tokens = new Array<Token>();
 Table<const char, FileInfo>* Lexer::files = new Table<const char, FileInfo>();
 
-/**
- * @STATEFUL
- */
+
+// @STATEFUL
 void Lexer :: clear() {
     delete Lexer::tokens;
     Lexer::tokens = new Array<Token>();
 }
 
-/**
- * @STATEFUL
- */
+// @STATEFUL
 void Lexer :: print() {
     ::print("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokens->length, Lexer::tokens->capacity);
+    ::print("\n");
 
     Lexer::tokens->forEach(::print);
 
@@ -36,7 +34,7 @@ struct Keyword {
 };
 
 static inline Keyword* keyword(TokenTypeEnum tt) {
-    Keyword* kw = (Keyword*) pMalloc(sizeof (kw));
+    Keyword* kw = (Keyword*) pMalloc(sizeof (Keyword));
 
     kw->tt = tt;
 
@@ -44,9 +42,10 @@ static inline Keyword* keyword(TokenTypeEnum tt) {
 }
 
 static Table<const char, Keyword>* initKeywordTable() {
-    auto t = new Table<const char, Keyword>(25);
+    auto t = new Table<const char, Keyword>();
 
     t->insert("import",     6, keyword(TT_IMPORT));
+
     t->insert("if",         2, keyword(TT_IF));
     t->insert("else",       4, keyword(TT_ELSE));
     t->insert("while",      5, keyword(TT_WHILE));
@@ -80,6 +79,7 @@ static Table<const char, Keyword>* initKeywordTable() {
 Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     static auto keywords = initKeywordTable();
     static bool prevTokenImport = false;
+    static bool ignore = false;
 
     Token* token = null;
 
@@ -89,15 +89,13 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
     TokenTypeEnum tt;
     bool bad;
-    bool ignore;
+
 
     while (*buffer != '\0') {
 
-        print();
         // if it's not the null character, we (probably) have a valid token of atleast 1 in length
         length = 1;
         bad = false;
-        ignore = false;
 
         if (isAlpha(*buffer)) {
             tt = TT_SYMBOL;
@@ -216,12 +214,12 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             if (bad) {
                 Reporter::add(E_NO_CLOSING_QUOTEMARK, null, filename, line, column + length + 1);
             }
+
         } else {
             tt = (TokenTypeEnum) *buffer;
 
             switch (*buffer) {
-                // invalid or unimplemented single-chars
-                default:
+                default: // invalid or unimplemented single-chars
                     Reporter::add(E_INVALID_CHARACTER, null, filename, line, column);
                     break;
 
@@ -263,7 +261,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     break;
 
                 case '`':
-                    ignore = !ignore;
+                    ignore = true;
                     break;
 
                 case '>':
@@ -347,14 +345,8 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             buffer += length;
         }
 
-        if (ignore) {
-            buffer++;
-            column++;
-            continue;
-        }
-
         // if we're here, we should be able to make a token
-        token = (Token*) pMalloc(sizeof (Token));
+        token = (Token*) pCalloc(sizeof (Token), 1);
 
         token->filename = filename;
         token->line     = line;
@@ -362,7 +354,14 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         token->length   = length;
         token->tt       = tt;
         token->tk       = read(buffer - length, length);
-        token->bad      = bad;
+
+        if (bad) {
+            token->flags |= TF_BAD;
+        }
+
+        if (ignore || token->tt == '`') { // we are inside of a comment
+            token->flags |= TF_IGNORE;
+        }
 
         // check if we used a symbol that is a reserved operator/word
         if (token->tt == TT_SYMBOL) {
@@ -379,27 +378,27 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
         // being here means we have a fully-formed token, and it should probably not be modified past this point save
         // for exceptional circumstances
-        Lexer::tokens->push(token);
+        Lexer :: tokens->push(token);
 
         // @TODO make a preprocessor... import statements should be handled as part of some pre-processor stage...
         if (prevTokenImport) {
-            if ((token->tt == TT_STRING) && (!token->bad)) {
+            if ((token->tt == TT_STRING) && ((token->flags & TF_BAD) == 0)) {
                 const char* importFilePath = trimQuotes(token->tk, token->length); // @TODO handle failure here
 
                 // check if we've already imported the file - you shouldn't ever need to import something multiple times
                 auto entry = files->lookup(importFilePath, token->length - 2);
 
                 if (entry) { // @TODO would be cool if we could detect a recursive import vs. a duplicate import
-                    Reporter::add(W_DUPLICATE_IMPORT, null, filename, line, column);
+                    Reporter :: add(W_DUPLICATE_IMPORT, null, filename, line, column);
 
                 } else {
                     files->insert(importFilePath, token->length - 2, null);
 
                     prevTokenImport = false; // this is necessary to stop the subsequent recursive calls from trying to import the first token
-                    Lexer::tokenize(clueFileRead(importFilePath), importFilePath);
+                    Lexer :: tokenize(clueFileRead(importFilePath), importFilePath);
                 }
             } else {
-                Reporter::report(E_BAD_IMPORT, null, filename, line, column);
+                Reporter :: report(E_BAD_IMPORT, null, filename, line, column);
             }
         }
 
@@ -410,6 +409,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         column += token->length;
     }
 
-    return Lexer::tokens;
+    return Lexer :: tokens;
 }
 

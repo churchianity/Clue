@@ -97,7 +97,7 @@ static inline bool evalEquals(ASTNode* node) {
 }
 
 // @TODO move me somewhere not dumb!
-static Table<const char, Value>* global = new Table<const char, Value>(10);
+static Table<const char, Value>* global = new Table<const char, Value>();
 
 static inline void evalAssignment(ASTNode* node) {
     Value* valuePointer = (Value*) pMalloc(sizeof (Value));
@@ -274,6 +274,10 @@ static inline Value evalOperator(ASTNode* node) {
 
 Value eval(ASTNode* node) {
     Value v;
+    v.type = VT_STRING;
+    v.string = "";
+
+    if (!node) return v;
 
     switch (node->token->tt) {
         case TT_SYMBOL:
@@ -346,9 +350,8 @@ void interactive() {
         print(">>> ");
 
         if (fgets(s, CLUE_SANDBOX_MODE_MAX_LINE_LENGTH, stdin) == null) {
-            die("error reading line from stdin and storing it in buffer %p\n", s);
+            die("error reading line from stdin and storing it in buffer %p\n", (void*) s);
         }
-        print(s);
 
         // super-secret interpreter options
         switch (s[0]) {
@@ -385,7 +388,6 @@ void interactive() {
         }
 
         Lexer::tokenize(s, "stdin", line);
-
         program = parse(Lexer::tokens);
         print(eval(program->statements->peek()));
         Reporter::flush();

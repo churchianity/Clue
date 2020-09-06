@@ -99,11 +99,9 @@ inline void print(Token* token) {
 
     const char* tt = tokenTypeToString(token->tt);
 
-    print("&Token %p | file: %s, line: %u, col: %u, len: %u | tt: %s, bad?: %u | tk: %s%s%s\n"
-          , (void*) token, token->filename, token->line, token->column, token->length, tt, token->bad, ANSI_YELLOW, token->tk, ANSI_RESET);
+    print("&Token %p | file: %s, line: %u, col: %u, len: %u | tt: %s, flags: %u | tk: %s%s%s\n"
+          , (void*) token, token->filename, token->line, token->column, token->length, tt, token->flags, ANSI_YELLOW, token->tk, ANSI_RESET);
 }
-
-
 
 /*
 template <class T>
@@ -131,7 +129,7 @@ inline void print(ASTNode* node) {
 
     if (node->children) {
         for (u32 i = 0; i < node->children->length; i++) {
-            print("    Child %u pointer: %p | tk: %s%s%s\n"
+            print("    Child #%u : &ASTNode %p | tk: %s%s%s\n"
                   , i, (void*) node->children->data[i], ANSI_YELLOW, node->children->data[i]->token->tk, ANSI_RESET);
         }
 

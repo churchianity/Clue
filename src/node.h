@@ -38,7 +38,7 @@ struct ASTNode {
 };
 
 struct Program {
-    Array<ASTNode>* statements = new Array<ASTNode>(10);
+    Array<ASTNode>* statements = new Array<ASTNode>();
 };
 
 extern void traverse(ASTNode* self, void (*callback) (ASTNode*));

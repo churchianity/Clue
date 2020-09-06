@@ -71,8 +71,8 @@ static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
  * this is basically shunting-yard with some bells & whistles to allow function calls, unary operators, postfix/prefix etc.
  */
 static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* tokens) {
-    auto es = new Array<ASTNode>(10);
-    auto os = new Array<ASTNode>(10);
+    auto es = new Array<ASTNode>();
+    auto os = new Array<ASTNode>();
 
     u32 i = startIndex;
 
@@ -149,9 +149,17 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
 /**
  * Given a list of |tokens| return the root node of an abstract syntax tree.
  */
-Program* parse(Array<Token>* tokens) {
+Program* parse(Array<Token>* _tokens) {
+
+    // ignored tokens include comments, and preprocessor stuff.. the parser doesn't care about them.
+    const auto tokens = _tokens->filter(
+        [] (Token* token) {
+            return (token->flags & TF_IGNORE) == 0;
+        }
+    );
+
     Program* program = (Program*) pMalloc(sizeof (Program));
-    program->statements = new Array<ASTNode>(10);
+    program->statements = new Array<ASTNode>();
 
     u32 i = 0;
     u32 lastExpressionIndex = 0;

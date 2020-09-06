@@ -127,7 +127,7 @@ void Reporter :: flush() {
     );
 
     delete messages;
-    messages = new Array<Message>(10);
+    messages = new Array<Message>();
 }
 
 void Reporter :: add(u32 id, const char* functionName, const char* filename, u32 line, u32 column) {
