@@ -62,18 +62,6 @@ static Table<const char, Keyword>* initKeywordTable() {
  *
  * In most (file read) cases it is not provided and defaults to 1.
  *
- * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- * There are two main ways to approach a tokenizer here,
- *  1.
- *      - pre-load a table with all possible tokens or a validator or some sort, for each possible token
- *      - while the character in the buffer + all the previous characters we've looked at is a valid token, buffer++
- *      - when we're done, and have a token, store it and reduce the buffer by its length/scan past it
- *
- *  2. (what we're doing)
- *      - just make reasonable guesses about what we expect to see given some indicator, lookahead if we have to.
- *
- * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- *
  * @STATEFUL
  */
 Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
@@ -89,7 +77,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
     TokenTypeEnum tt;
     bool bad;
-
 
     while (*buffer != '\0') {
 

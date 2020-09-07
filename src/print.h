@@ -146,7 +146,13 @@ inline void print(Program* program) {
 
     program->statements->forEach(
         [] (ASTNode* root) {
-            traverse(root, print);
+            traverse(root,
+                [] (ASTNode* node) {
+                    if (node->children) {
+                        print(node);
+                    }
+                }
+            );
         }
     );
 }
