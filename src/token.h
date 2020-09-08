@@ -66,7 +66,7 @@ enum TokenTypeEnum {
     TT_BITWISE_AND_EQUALS       = 305,  // &=
     TT_BITWISE_OR_EQUALS        = 306,  // |=
     TT_BITWISE_XOR_EQUALS       = 307,  // ^=
-    TT_BITWISE_NOT_EQUALS       = 308,  // ~=
+    // TT_BITWISE_NOT_EQUALS       = 308,  // ~= // doesn't make any sense
 
     TT_RIGHT_SHIFT_EQUALS       = 309,  // >>=
     TT_LEFT_SHIFT_EQUALS        = 310,  // <<=

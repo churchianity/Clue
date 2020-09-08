@@ -318,7 +318,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                             case '|': tt = TT_BITWISE_OR_EQUALS;     break;
                             case '!': tt = TT_NOT_EQUALS;            break;
                             case '%': tt = TT_MODULO_EQUALS;         break;
-                            case '~': tt = TT_BITWISE_NOT_EQUALS;    break;
                             case ':': tt = TT_COLON_EQUALS;          break;
                             case '^': tt = TT_BITWISE_XOR_EQUALS;    break;
                         }

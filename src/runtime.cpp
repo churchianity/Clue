@@ -256,7 +256,6 @@ static inline Value evalOperator(ASTNode* node) {
         case TT_MINUS_EQUALS:
         case TT_TIMES_EQUALS:
         case TT_DIVIDE_EQUALS:
-        case TT_BITWISE_NOT_EQUALS:
         case TT_BITWISE_AND_EQUALS:
         case TT_BITWISE_OR_EQUALS:
         case TT_BITWISE_XOR_EQUALS:

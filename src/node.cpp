@@ -45,7 +45,6 @@ OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_BITWISE_AND_EQUALS:
         case TT_BITWISE_OR_EQUALS:
         case TT_BITWISE_XOR_EQUALS:
-        case TT_BITWISE_NOT_EQUALS:
         case TT_RIGHT_SHIFT_EQUALS:
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
@@ -106,7 +105,6 @@ u8 precedence(ASTNode* node) {
         case TT_BITWISE_AND_EQUALS:
         case TT_BITWISE_OR_EQUALS:
         case TT_BITWISE_XOR_EQUALS:
-        case TT_BITWISE_NOT_EQUALS:
         case TT_RIGHT_SHIFT_EQUALS:
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
