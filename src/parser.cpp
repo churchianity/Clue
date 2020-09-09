@@ -31,7 +31,7 @@ static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
         return;
     }
 
-    if (!isOperator(node->token)) {
+    if (!tokenTypeIsOperator(node->token->tt)) {
         es->push(node); // operands are an operation that return themselves
         return;
     }

@@ -229,8 +229,9 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
     // if it's not an operand itself, it should have some number of operands (children)
     node->children = new Array<ASTNode>();
 
-    if (i < 1 || isOperator(tokens->data[i - 1])) { // is unary prefix, or a opening punctuator
+    if (i < 1 || tokenTypeIsOperator(tokens->data[i - 1]->tt)) { // is unary prefix, or a opening punctuator
         switch ((int) node->token->tt) {
+            case TT_IMPORT: // special case, shouldn't actually do much here
             case '~':
             case '!':
             case '@':
@@ -239,7 +240,6 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
             case '-':
             case TT_INCREMENT:
             case TT_DECREMENT:
-            case TT_IMPORT: // special case, shouldn't actually do much here
                 node->flags |= NF_UNARY;
                 break;
 
@@ -260,8 +260,11 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
         node->flags |= NF_UNARY;
         node->flags |= NF_POSTFIX;
 
-    } else { // is a binary operator or a postfix-ish punctuator, or a mistake
-        // @TODO
+    } else {
+        // should be a binary operator... if it isn't, report it.
+        if (tokenTypeBinaryness(tokens->data[i]->tt) < 1) {
+            Reporter::report(E_EXPECTING_BINARY_OPERATOR, node);
+        }
     }
 
     return node;

@@ -99,9 +99,54 @@ struct Token {
     u8 flags = 0;
 };
 
+inline bool tokenTypeIsOperator(TokenTypeEnum tt) {
+    return !((tt == TT_SYMBOL) || (tt == TT_NUMERIC) || (tt == TT_STRING));
+}
 
-inline bool isOperator(Token* token) {
-    return !(token->tt == TT_SYMBOL || token->tt == TT_NUMERIC || token->tt == TT_STRING);
+inline bool tokenTypeIsAssignment(TokenTypeEnum tt) {
+    switch ((int) tt) {
+        case '=':
+        case TT_COLON_EQUALS:
+        case TT_PLUS_EQUALS:
+        case TT_MINUS_EQUALS:
+        case TT_TIMES_EQUALS:
+        case TT_DIVIDE_EQUALS:
+        case TT_MODULO_EQUALS:
+        case TT_EXPONENTIATION_EQUALS:
+        case TT_RIGHT_SHIFT_EQUALS:
+        case TT_LEFT_SHIFT_EQUALS:
+        case TT_BITWISE_AND_EQUALS:
+        case TT_BITWISE_OR_EQUALS:
+        case TT_BITWISE_XOR_EQUALS:
+            return true;
+
+        default: return false;
+    }
+}
+
+// this is fuzzy because some operators ('+' and '-') are only sometimes (usually) binary
+// and it might be nice to be able to distinguish them, from the ones that can *only* be binary
+inline u8 tokenTypeBinaryness(TokenTypeEnum tt) {
+    switch ((int) tt) {
+        case '+':
+        case '-':
+            return 2;
+
+        case '*':
+        case '/':
+        case '%':
+        case TT_EXPONENTIATION:
+
+        case '&':
+        case '|':
+        case '^':
+        case TT_RIGHT_SHIFT:
+        case TT_LEFT_SHIFT:
+            return 1;
+
+        default:
+            return tokenTypeIsAssignment(tt);
+    }
 }
 
 inline const char* tokenTypeToString(TokenTypeEnum tt) {

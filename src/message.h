@@ -51,6 +51,7 @@ const MessageId messageIds[] = {
      { MS_LINT, "an identifier name shouldn't be this long." },
      { MS_ERROR, "consider storing data of this size somewhere else." },
      { MS_ERROR, "leftover operand" },
+     { MS_ERROR, "expecting a binary operator here. what's the previous token doing?" }
 };
 
 /**
@@ -75,7 +76,8 @@ enum MessageEnum {
     E_NO_CLOSING_QUOTEMARK,
     L_LONG_SYMBOL,
     E_LONG_STRING,
-    E_LEFTOVER_OPERAND
+    E_LEFTOVER_OPERAND,
+    E_EXPECTING_BINARY_OPERATOR
 };
 
 #endif
