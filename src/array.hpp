@@ -2,8 +2,8 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
-#include "alloc.h"
-#include "types.h"
+#include "alloc.h" // allocators...
+#include "types.h" // type definitions
 
 
 template <class T>
@@ -26,15 +26,13 @@ struct Array {
         return length == capacity;
     }
 
-    s32 push(T* dataItemAddr) {
+    void push(T* dataItemAddr) {
         if (isFull()) {
             capacity *= 2;
             data = (T**) pRealloc(data, sizeof (T*) * capacity);
         }
 
         data[length++] = dataItemAddr;
-
-        return 0;
     }
 
     T* peek() const {

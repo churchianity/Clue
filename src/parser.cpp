@@ -168,9 +168,13 @@ Program* parse(Array<Token>* _tokens) {
     u32 lastExpressionIndex = 0;
 
     while (i < tokens->length) {
+        print("hi %d, %d\n", lastExpressionIndex, i);
+        print("len: %d\n", tokens->length);
+        print(tokens->data[i]);
         switch ((int) tokens->data[i]->tt) {
             case ';':
-                if (lastExpressionIndex == i) {
+
+                if (lastExpressionIndex == (i - 1)) {
                     const auto token = tokens->data[i];
                     Reporter::add(W_USELESS_SEMICOLON, null, token->filename, token->line, token->column);
                 }

@@ -31,8 +31,8 @@ typedef int32_t s32;
 typedef int16_t s16;
 typedef int8_t s8;
 
-typedef float float32;
-typedef double float64;
+// typedef float float;
+// typedef double double;
 typedef long double extended;
 
 #endif

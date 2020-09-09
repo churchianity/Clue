@@ -3,11 +3,7 @@
 #define CLUE_H
 
 #define CLUE_VERSION_NUMBER "0.1.0"
-#define CLUE_DEBUG_LEVEL 1
 #define CLUE_FILE_SUFFIX ".clue"
-
-#define CLUE_SANDBOX_MODE_MAX_LINE_LENGTH 120
-#define CLUE_MAX_ARGUMENT_LIST_SIZE 256
 
 
 /**
@@ -26,13 +22,13 @@
  *
  *  stdarg.h
  *      concatenate function in (our) string.h
- *      printf wrapper(s) in print.cpp/h
+ *      printf wrapper(s) in print.h
  *
  *  execinfo.h
  *      backtrace, backtrace_symbols
  *
  *  signal.h
- *      SIGSEGV, SIGABRT, signal
+ *      SIGSEGV, SIGABRT, signal()
  */
 static struct {
     // whether or not to drop the user into interactive mode after reading source files (if present)

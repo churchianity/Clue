@@ -9,9 +9,13 @@
 #include "string.h"
 #include "types.h"
 
+
 enum FileFlags {
-    FF_HAS_CARRIAGE_RETURN,
-    FF_HAS_TABS
+    FF_HAS_CARRIAGE_RETURN = 0, // has atleast one '\r'
+    FF_HAS_REGULAR_NEWLINE = 1, // has atleast one '\n' without a preceding '\r'
+    FF_HAS_TABS            = 2, // has atleast one '\t'
+    FF_HAS_SPACES          = 4, // has atleast one instance of 4 consecutive spaces, or has no tabs
+    FF_IS_ASCII            = 8, // has no bytes with the 8th (most significant) bit set to 1
 };
 
 struct FileInfo {
@@ -28,16 +32,16 @@ inline char* clueFileRead(const char* filePath) {
     }
 
     fseek(fp, 0, SEEK_END);
-    u32 length = ftell(fp);
+    u32 size = ftell(fp);
     fseek(fp, 0L, SEEK_SET);
 
-    char* buffer = (char*) pMalloc(length + 1);
-    fread(buffer, sizeof (char), length + 1, fp);
-    buffer[length] = '\0';
+    char* buffer = (char*) pMalloc(size + 1);
+    fread(buffer, sizeof (char), size + 1, fp);
+    buffer[size] = '\0';
 
     fclose(fp);
 
-    if (isAscii(buffer, length)) {
+    if (isAscii(buffer, size)) {
         print("loaded file %s, as 7-bit ASCII.\n", filePath);
 
     } else {

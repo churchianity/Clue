@@ -12,11 +12,11 @@
 #include "types.h"
 #include "value.h"
 
-static inline s32 fToInt(float64 f) {
+static inline s32 fToInt(double f) {
     return (s32) floor(f + 0.5);
 }
 
-static inline float64 evalBitwiseNot(ASTNode* node) {
+static inline double evalBitwiseNot(ASTNode* node) {
     return ~fToInt(eval(node->children->data[0]).number);
 }
 
@@ -40,39 +40,39 @@ static inline u32 evalRightShift(ASTNode* node) {
     return fToInt(eval(node->children->data[0]).number) >> fToInt(eval(node->children->data[1]).number);
 }
 
-static inline float64 evalNegation(ASTNode* node) {
+static inline double evalNegation(ASTNode* node) {
     return !eval(node->children->data[0]).number;
 }
 
-static inline float64 evalUnaryPlus(ASTNode* node) {
+static inline double evalUnaryPlus(ASTNode* node) {
     return +eval(node->children->data[0]).number;
 }
 
-static inline float64 evalBinaryAddition(ASTNode* node) {
+static inline double evalBinaryAddition(ASTNode* node) {
     return eval(node->children->data[0]).number + eval(node->children->data[1]).number;
 }
 
-static inline float64 evalUnaryMinus(ASTNode* node) {
+static inline double evalUnaryMinus(ASTNode* node) {
     return -eval(node->children->data[0]).number;
 }
 
-static inline float64 evalBinarySubtraction(ASTNode* node) {
+static inline double evalBinarySubtraction(ASTNode* node) {
     return eval(node->children->data[0]).number - eval(node->children->data[1]).number;
 }
 
-static inline float64 evalMultiplication(ASTNode* node) {
+static inline double evalMultiplication(ASTNode* node) {
     return eval(node->children->data[0]).number * eval(node->children->data[1]).number;
 }
 
-static inline float64 evalDivision(ASTNode* node) {
+static inline double evalDivision(ASTNode* node) {
     return eval(node->children->data[0]).number / eval(node->children->data[1]).number;
 }
 
-static inline float64 evalModulus(ASTNode* node) {
+static inline double evalModulus(ASTNode* node) {
     return remainder(eval(node->children->data[0]).number, eval(node->children->data[1]).number);
 }
 
-static inline float64 evalExponentiation(ASTNode* node) {
+static inline double evalExponentiation(ASTNode* node) {
     return pow(eval(node->children->data[0]).number, eval(node->children->data[1]).number);
 }
 
