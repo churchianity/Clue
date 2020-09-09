@@ -357,7 +357,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 // retroactively fix its type
                 token->tt = entry->value->tt;
 
-            } else if (false) { // @TODO global symbol table/constant lookup
+            } else if (false) { // @TODO global symbol table/constant lookup?
 
             }
         }
@@ -366,7 +366,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         // for exceptional circumstances
         Lexer :: tokens->push(token);
 
-        // @TODO make a preprocessor... import statements should be handled as part of some pre-processor stage...
+        // @TODO make a preprocessor... import statements should (MAYBE) be handled as part of some pre-processor stage...
         if (prevTokenImport) {
             if ((token->tt == TT_STRING) && ((token->flags & TF_BAD) == 0)) {
                 const char* importFilePath = trimQuotes(token->tk, token->length); // @TODO handle failure here

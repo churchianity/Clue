@@ -124,6 +124,20 @@ inline bool tokenTypeIsAssignment(TokenTypeEnum tt) {
     }
 }
 
+inline bool tokenTypeIsBitwise(TokenTypeEnum tt) {
+    switch ((int) tt) {
+        case '&':
+        case '|':
+        case '^':
+        case '~':
+        case TT_RIGHT_SHIFT:
+        case TT_LEFT_SHIFT:
+            return true;
+
+        default: return false;
+    }
+}
+
 // this is fuzzy because some operators ('+' and '-') are only sometimes (usually) binary
 // and it might be nice to be able to distinguish them, from the ones that can *only* be binary
 inline u8 tokenTypeBinaryness(TokenTypeEnum tt) {
@@ -142,6 +156,8 @@ inline u8 tokenTypeBinaryness(TokenTypeEnum tt) {
         case '^':
         case TT_RIGHT_SHIFT:
         case TT_LEFT_SHIFT:
+
+        case ':':
             return 1;
 
         default:

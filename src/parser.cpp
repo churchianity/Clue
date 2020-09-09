@@ -92,8 +92,9 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
                     break;
                 }
 
-                if ((os->peek()->flags & NF_PUNCTUATOR) != 0) {
+                if ((os->peek()->flags & NF_CALL) == 0) {
                     os->pop(); // discard opening parens
+                    // @TODO not sure i understand the function call interaction here yet
                 }
 
                 break;
@@ -175,6 +176,13 @@ Program* parse(Array<Token>* _tokens) {
                 program->statements->push(parseExpression(lastExpressionIndex, i, tokens));
                 lastExpressionIndex = ++i; // increment past the semicolon
                 break;
+
+            case '{':
+            case '[':
+            case '}':
+            case ']':
+                break;
+
         }
 
         i++;
