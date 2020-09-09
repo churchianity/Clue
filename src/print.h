@@ -11,6 +11,7 @@
 #include "trace.h"
 
 
+// could use inline variables with c++17... meh
 // Text Colors
 #define ANSI_BLACK  "\x001B[30m"
 #define ANSI_RED    "\x001B[31m"

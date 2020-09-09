@@ -1,6 +1,7 @@
-import "samples/long.clue";
+
 
 `   Simple program to calculate fibonnaci numbers
+import "samples/long.clue";
 fib(n: Int) {
     if n == 1 || n == 2 { ` end of line comment
         return 1;

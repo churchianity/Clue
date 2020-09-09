@@ -123,6 +123,7 @@ void Reporter :: flush() {
     messages->forEach(
         [] (Message* message) {
             print(message);
+            free(message);
         }
     );
 

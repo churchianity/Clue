@@ -184,7 +184,6 @@ Program* parse(Array<Token>* _tokens) {
             case '}':
             case ']':
                 break;
-
         }
 
         i++;

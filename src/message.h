@@ -45,7 +45,7 @@ const MessageId messageIds[] = {
      { MS_ERROR, "missing close parentheses" },
      { MS_ERROR, "missing operand for operator" },
      { MS_ERROR, "attempting to add an operand to an operator that is already satisfied" },
-     { MS_WARN, "semicolon with nothing before it has no effect" },
+     { MS_WARN, "semicolon has no effect" },
      { MS_ERROR, "invalid operator" },
      { MS_ERROR, "no matching quotemark" },
      { MS_LINT, "an identifier name shouldn't be this long." },

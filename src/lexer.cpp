@@ -67,7 +67,7 @@ static Table<const char, Keyword>* initKeywordTable() {
 Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     static auto keywords = initKeywordTable();
     static bool prevTokenImport = false;
-    static bool ignore = false;
+    bool ignore = false;
 
     Token* token = null;
 
