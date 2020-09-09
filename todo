@@ -1,5 +1,6 @@
 
 
+- REPORTER CONTEXTUAL STRING STUFF (passing variables to message output)
 - pre-processor stuff (#define, conditional compiles)
 
 

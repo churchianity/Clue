@@ -154,7 +154,7 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
  */
 Program* parse(Array<Token>* _tokens) {
 
-    // ignored tokens include comments, and preprocessor stuff.. the parser doesn't care about them.
+    // ignored tokens include comments, and preprocessor stuff.. the parser doesn't (shouldn't) care (maybe) about them.
     const auto tokens = _tokens->filter(
         [] (Token* token) {
             return (token->flags & TF_IGNORE) == 0;
@@ -168,12 +168,8 @@ Program* parse(Array<Token>* _tokens) {
     u32 lastExpressionIndex = 0;
 
     while (i < tokens->length) {
-        print("hi %d, %d\n", lastExpressionIndex, i);
-        print("len: %d\n", tokens->length);
-        print(tokens->data[i]);
         switch ((int) tokens->data[i]->tt) {
             case ';':
-
                 if (lastExpressionIndex == (i - 1)) {
                     const auto token = tokens->data[i];
                     Reporter::add(W_USELESS_SEMICOLON, null, token->filename, token->line, token->column);

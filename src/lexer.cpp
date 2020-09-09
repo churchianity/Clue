@@ -1,6 +1,5 @@
 
 #include "clue.h"
-#include "file.h"
 #include "lexer.h"
 #include "print.h"
 #include "reporter.h"
@@ -10,7 +9,7 @@
 
 
 Array<Token>* Lexer::tokens = new Array<Token>();
-Table<const char, FileInfo>* Lexer::files = new Table<const char, FileInfo>();
+Table<const char, void>* Lexer::files = new Table<const char, void>();
 
 
 // @STATEFUL
@@ -364,8 +363,9 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
         // being here means we have a fully-formed token, and it should probably not be modified past this point save
         // for exceptional circumstances
-        Lexer :: tokens->push(token);
+        Lexer::tokens->push(token);
 
+        // HMMMMMMMMMMMMMMMMMMMMmmm
         // @TODO make a preprocessor... import statements should (MAYBE) be handled as part of some pre-processor stage...
         if (prevTokenImport) {
             if ((token->tt == TT_STRING) && ((token->flags & TF_BAD) == 0)) {
@@ -375,18 +375,23 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 auto entry = files->lookup(importFilePath, token->length - 2);
 
                 if (entry) { // @TODO would be cool if we could detect a recursive import vs. a duplicate import
-                    Reporter :: add(W_DUPLICATE_IMPORT, null, filename, line, column);
+                    Reporter::add(W_DUPLICATE_IMPORT, null, filename, line, column);
 
                 } else {
-                    files->insert(importFilePath, token->length - 2, null);
-
                     prevTokenImport = false; // this is necessary to stop the subsequent recursive calls from trying to import the first token
-                    Lexer :: tokenize(clueFileRead(importFilePath), importFilePath);
+
+                    char* codebuffer = clueFileRead(importFilePath);
+
+                    if (!codebuffer) {
+                        Reporter::report(E_COULDNT_GET_FILE_HANDLE, null, filename, line, column);
+                    }
+
+                    Lexer::tokenize(codebuffer, importFilePath);
                 }
 
                 token->flags |= TF_IGNORE; // we don't want to use this string later in the main program
             } else {
-                Reporter :: report(E_BAD_IMPORT, null, filename, line, column);
+                Reporter::report(E_BAD_IMPORT, null, filename, line, column);
             }
         }
 
@@ -401,6 +406,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         column += token->length;
     }
 
-    return Lexer :: tokens;
+    return Lexer::tokens;
 }
 

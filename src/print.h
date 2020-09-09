@@ -2,16 +2,12 @@
 #ifndef PRINT_H
 #define PRINT_H
 
-#include <stdarg.h> // va_list, va_start, va_end
-#include <stdio.h> // stderr, stdout, stdin? | vfprintf
-
-#include "runtime.h" // Value*
-#include "node.h" // ASTNode*
-#include "token.h" // Token*
-#include "trace.h"
+#include "node.h"
+#include "token.h"
+#include "value.h"
 
 
-// could use inline variables with c++17... meh
+// could use extern variables with c++17... meh
 // Text Colors
 #define ANSI_BLACK  "\x001B[30m"
 #define ANSI_RED    "\x001B[31m"
@@ -48,63 +44,27 @@
  * The entire purpose of this is so we don't have to #import <stdio.h> everywhere
  * +we intend to replace printf at some point with this
  */
-inline void print(const char* format, ...) {
-    if (!format) {
-        print("null\n"); return;
-    }
-
-    va_list args;
-    va_start(args, format);
-
-    vfprintf(stdout, format, args);
-
-    va_end(args);
-}
+extern void print(const char* format, ...);
 
 /**
  * This should end the program, use for fatal **internal only** errors.
  */
-inline void die(const char* format, ...) {
-    trace();
+extern void die(const char* format, ...);
 
-    va_list args;
-    va_start(args, format);
+extern void print(bool b);
+extern void print(char c);
+extern void print(signed int i);
+extern void print(unsigned int i);
+extern void print(float f);
+extern void print(double d);
+extern void print(void* p);
 
-    vfprintf(stderr, format, args);
+extern void print(Value v);
+extern void print(Token* token);
+extern void print(ASTNode* node);
+extern void print(Program* program);
 
-    va_end(args);
-    exit(1);
-}
-
-inline void print(bool b)         { print("%s\n", boolToString(b)); }
-inline void print(char c)         { print("%c\n", c); }
-inline void print(signed int i)   { print("%d\n", i); }
-inline void print(unsigned int i) { print("%u\n", i); }
-inline void print(float f)        { print("%.14g\n", f); }
-inline void print(double d)       { print("%.14g\n", d); }
-inline void print(void* p)        { print("%p\n", p); }
-
-inline void print(Value v) {
-    if (v.type == VT_NUMBER) {
-        print(v.number);
-
-    } else {
-        print(v.string);
-    }
-}
-
-inline void print(Token* token) {
-    if (!token) {
-        print("token is null\n"); return;
-    }
-
-    const char* tt = tokenTypeToString(token->tt);
-
-    print("&Token %p | file: %s, line: %u, col: %u, len: %u | tt: %s, flags: %u | tk: %s%s%s\n"
-          , (void*) token, token->filename, token->line, token->column, token->length, tt, token->flags, ANSI_YELLOW, token->tk, ANSI_RESET);
-}
-
-/*
+/* @TODO, and one for table too probably
 template <class T>
 inline void print(Array<T>* array) {
     print("[");
@@ -114,49 +74,6 @@ inline void print(Array<T>* array) {
     print("]\n");
 }
 */
-
-inline void print(ASTNode* node) {
-    if (!node) {
-        print("node is null\n"); return;
-    }
-
-    print("&ASTNode %p", (void*) node);
-
-    if (node->children) {
-        print(" | childrenCount: %u", node->children->length);
-    }
-
-    print(" | tk: %s%s%s\n", ANSI_YELLOW, node->token->tk, ANSI_RESET);
-
-    if (node->children) {
-        for (u32 i = 0; i < node->children->length; i++) {
-            print("    Child #%u : &ASTNode %p | tk: %s%s%s\n"
-                  , i, (void*) node->children->data[i], ANSI_YELLOW, node->children->data[i]->token->tk, ANSI_RESET);
-        }
-
-        print("\n");
-    }
-}
-
-inline void print(Program* program) {
-    if (!program) {
-        print("program is null\n"); return;
-    }
-
-    print("&Program %p | &statements: %p, #statements: %u\n", (void*) program, (void*) program->statements, program->statements->length);
-
-    program->statements->forEach(
-        [] (ASTNode* root) {
-            traverse(root,
-                [] (ASTNode* node) {
-                    if (node->children) {
-                        print(node);
-                    }
-                }
-            );
-        }
-    );
-}
 
 #endif
 

@@ -10,7 +10,7 @@
 
 namespace Lexer {
     extern Array<Token>* tokens;
-    extern Table<const char, FileInfo>* files;
+    extern Table<const char, void>* files;
 
     extern void add(Token* token);
     extern void print();
