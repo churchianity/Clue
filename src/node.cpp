@@ -249,8 +249,12 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
                 node->flags |= NF_PUNCTUATOR;
                 break;
 
+            case ';':
+                Reporter :: report(W_USELESS_SEMICOLON, node);
+                return null;
+
             default:
-                Reporter::report(E_INVALID_OPERATOR, node);
+                Reporter :: report(E_INVALID_OPERATOR, node);
                 break;
         }
     } else if ((tokens->data[i]->tt == '(') && (tokens->data[i - 1]->tt == TT_SYMBOL)) { // is a function call

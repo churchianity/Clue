@@ -383,12 +383,18 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     prevTokenImport = false; // this is necessary to stop the subsequent recursive calls from trying to import the first token
                     Lexer :: tokenize(clueFileRead(importFilePath), importFilePath);
                 }
+
+                token->flags |= TF_IGNORE; // we don't want to use this string later in the main program
             } else {
                 Reporter :: report(E_BAD_IMPORT, null, filename, line, column);
             }
         }
 
         prevTokenImport = token->tt == TT_IMPORT;
+
+        if (prevTokenImport) {
+            token->flags |= TF_IGNORE;
+        }
         // #endpreprocessorregion
 
         // do this only after handling EVERYTHING having to do with the token we just lexed

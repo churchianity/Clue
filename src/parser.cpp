@@ -109,7 +109,9 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
             // all 'standard' operators
             case '(':
             default:
-                auto node = nodify(tokens, i);
+                const auto node = nodify(tokens, i);
+
+                if (!node) break;
 
                 // handle precedence & associativity before pushing the operator onto the stack
                 while (canPopAndApply(os, node)) {
