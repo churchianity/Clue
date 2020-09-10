@@ -48,7 +48,7 @@ OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_RIGHT_SHIFT_EQUALS:
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
-            return OA_NONE;
+            return OA_LEFT_TO_RIGHT;
 
         case ',':
         case TT_LOGICAL_AND:

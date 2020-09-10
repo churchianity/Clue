@@ -115,16 +115,6 @@ static inline void evalAssignment(ASTNode* node) {
     global->insert((node->children->data[0])->token->tk, (node->children->data[0])->token->length, valuePointer);
 }
 
-/*
-static inline Value evalIncrement(ASTNode* node) {
-    return null;
-}
-
-static inline Value evalDecrement(ASTNode* node) {
-    return null;
-}
-*/
-
 static inline Value evalOperator(ASTNode* node) {
     Value v;
 
@@ -132,6 +122,11 @@ static inline Value evalOperator(ASTNode* node) {
         case TT_IMPORT: // imports are a pre-processor, and have already been run...
             v.type = VT_STRING;
             v.string = "";
+            break;
+
+        case ':':
+            // @TODO append type information
+            v = *global->lookup(node->token->tk, node->token->length)->value;
             break;
 
         case '+':
@@ -388,7 +383,7 @@ void interactive() {
 
         Lexer::tokenize(s, "stdin", line);
         program = parse(Lexer::tokens);
-        print(eval(program->statements->peek()));
+        // print(eval(program->statements->peek()));
         Reporter::flush();
 
         line++; // do this last
