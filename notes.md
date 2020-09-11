@@ -12,30 +12,46 @@
                  v        when source code files
   0.-------------.            are provided
 .->| Input       |                   |
-|  `-------------|<------------------'
+|  `-------------|<------------------' :  identify file encoding, we don't support non-ascii
 |                |
 |                v
-| 1.-------------.      :   goal - reduce noise in input
+| 1.-------------.      :  produce array of Tokens - reducing noise in input
 |  | Lexer       |
 |  `-------------|
 |                |
 |                v
 | 2.-------------.      :  produce initial Abstract Syntax Tree
-|  | Parser      |      :  resolve operators and operands into nodes, resolve precedence and associativity
-|  `-------------|      :
-|                |
-|                v
-| 3.-------------.
-|  | Typing      |
+|  | Parser      |      :  resolve operator precedence, resolve operator associativity
 |  `-------------|
 |                |
 |                v
-
+| 3.-------------.      :  this and subsequent stages perform optimization passes on the AST,
+|  | Typing      |      :  re-arranging the structure of the program/appending information or reporting structural issues
+|  `-------------|      :  specifically, this one should append static-type information to all operands
+|                |
+|                v
+| 4..?-----------.      :  there will probably be some number of stages here that are just optimization passes
+|  | ...         |      :  like removing operations on constants... a node of (4, 2, addition) can be reduced to just (6)
+|  `-------------|      :  i don't know what to call these stages at the moment
+|                |
+|                |
+|                |
+|                |--------------------------. :  if code is to be compile-time executed...
+|                |                          |
+| ".-------------------------. $.-------------------------.
+|  | Machine Code Generation | |         Runtime          |
+|  `-------------------------' `--------------------------'
+|                |                              |
+|                |                              |
+|                |                              |
+|                |                              |
+`<--<--<--<--<--<|- < if in interactive mode <--'
+                 |
+                 |
+                 |
 
 
 ```
-
--1. CLA Handler / Config Loader
 
     clue [args*] [?main.clue]
 
@@ -44,29 +60,4 @@
     -v  --version       prints version information
     -h  --help [?arg]   prints generalized help text, or specialized help if you provide another option name after
 
-
-0. Input
-
-    If a source code file is provided, its source (and the source of its dependencies, via the `import` statement) is read immediately.
-
-    In Clue, you should only need to provide one source code file per program.
-
-    If the --sandbox or --interactive mode is used, after reading any source files, you are dropped into an interactive prompt. Code you type is read in and injected into the program, evaluated immediately as if specified to be compile-time executed.
-
-
-1. Lexer
-    The lexer's purpose is to reduce noise in the input. Most whitespace, for example, is mostly irrelevant when parsing, so we eliminate it.
-    Given that the range of possible inputs to the compiler is basically only limited by:
-        - memory/max file size
-        - the number of possible/probable text encodings + how many characters exist in that encoding
-
-    We *could*, be given a gigantic bag of garbage, so cleaning that up seems reasonable as a first step.
-    We can use this stage to identify early problems, like bad file encoding, or sequences of characters which are either never valid,
-    or 'ugly' from the perspective of the linter.
-
-2. Parser
-    The parser's purpose is produce the initial AST.
-
-3. Typing
-    Perform a pass on the AST and for each operation, verify the types of the operands against the valid sets of types for said operation.
 
