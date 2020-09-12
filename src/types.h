@@ -2,6 +2,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <stdlib.h>
+
 // there isn't a really good reason for this, i just like it
 #define null NULL
 

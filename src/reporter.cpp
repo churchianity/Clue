@@ -4,7 +4,6 @@
 #include "string.h"
 #include "reporter.h"
 #include "token.h"
-#include "trace.h"
 
 
 // @TODO move me.

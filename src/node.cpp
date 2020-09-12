@@ -7,7 +7,6 @@
 #include "reporter.h"
 #include "table.hpp"
 #include "token.h"
-#include "trace.h"
 
 
 /**
@@ -31,10 +30,6 @@ void traverse(ASTNode* node, void (*callback) (ASTNode*)) {
 
 OperatorAssociativityEnum associativity(ASTNode* node) {
     switch ((int) node->token->tt) {
-        case ':':
-        case ';':
-        case TT_IMPORT:
-
         case '=':
         case TT_COLON_EQUALS:
         case TT_PLUS_EQUALS:
@@ -48,8 +43,9 @@ OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_RIGHT_SHIFT_EQUALS:
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
-            return OA_LEFT_TO_RIGHT;
+            return OA_NONE;
 
+        case ':':
         case ',':
         case TT_LOGICAL_AND:
         case TT_LOGICAL_OR:

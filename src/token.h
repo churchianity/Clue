@@ -2,6 +2,8 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include "types.h"
+
 enum TokenTypeEnum {
     TT_ANY                      = -1,
 

@@ -23,6 +23,7 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
         return precedence(node) < precedence(top);
     }
 
+    Reporter::add(E_NON_ASSOCIATIVE_SUBEXPRESSION, node);
     return false;
 }
 

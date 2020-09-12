@@ -43,5 +43,7 @@ static struct {
     int filec = 0;
 } CLAs;
 
+extern void trace();
+
 #endif
 

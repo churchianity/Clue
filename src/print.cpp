@@ -1,8 +1,13 @@
 
 #include <stdarg.h> // va_list, va_start, va_end
-#include <stdio.h> // stderr, stdout, stdin? | vfprintf
+#include <stdio.h> // stderr, stdout, vfprintf
+#include <stdlib.h> // exit
 
-#include "trace.h"
+#include "clue.h" // trace
+#include "print.h"
+#include "token.h"
+#include "types.h"
+#include "value.h"
 
 
 /**
