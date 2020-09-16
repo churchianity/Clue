@@ -31,9 +31,10 @@ void print(const char* format, ...) {
 /**
  * Prints a stack trace. Default args in the header is |out = stderr|, |maxFrames = 63|.
  */
-void trace(FILE* out, u32 maxFrames) {
-    void** stack = (void**) pMalloc(sizeof (void*) * maxFrames);
-    u32 stackSize = backtrace(stack, maxFrames);
+void trace() {
+    #define MAX_FRAMES__ 63
+    void** stack = (void**) pMalloc(sizeof (void*) * MAX_FRAMES__);
+    u32 stackSize = backtrace(stack, MAX_FRAMES__);
 
     // resolve addresses into strings containing "filename(function+address)"
     // this array must be free()-ed
@@ -46,7 +47,7 @@ void trace(FILE* out, u32 maxFrames) {
 
     // iterate over the returned symbol lines. skip the first, it is the address of this function
     for (u32 i = 1; i < stackSize; i++) {
-        fprintf(out, "  %s\n", traces[i]);
+        fprintf(stderr, "  %s\n", traces[i]);
     }
 
     pFree(traces);

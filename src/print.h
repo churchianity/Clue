@@ -2,8 +2,6 @@
 #ifndef PRINT_H
 #define PRINT_H
 
-#include <stdio.h> // FILE, stderr
-
 #include "node.h"
 #include "token.h"
 #include "value.h"
@@ -51,7 +49,7 @@ extern void print(const char* format, ...);
 /**
  * Prints a stack trace.
  */
-extern void trace(FILE* out = stderr, u32 maxFrames = 63);
+extern void trace();
 
 /**
  * This should end the program, use for fatal **internal only** errors.
