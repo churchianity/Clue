@@ -385,7 +385,6 @@ void interactive() {
 
         Lexer::tokenize(s, "stdin", line);
         program = parse(Lexer::tokens);
-        // print(eval(program->statements->peek()));
         Reporter::flush();
 
         line++; // do this last

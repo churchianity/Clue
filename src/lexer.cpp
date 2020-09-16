@@ -43,10 +43,6 @@ static Table<const char, Keyword>* initKeywordTable() {
     return t;
 }
 
-static void preprocessor() {
-
-};
-
 /**
  * Given a string |buffer|, append to the lexer's |tokens| array.
  *

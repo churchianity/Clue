@@ -27,7 +27,6 @@
 #include <stdlib.h> // exit
 #include <signal.h> // for signal() - needed on my chromebook for some reason?
 #include <execinfo.h> // backtrace, backtrace_symbols
-#include <stdlib.h> // exit
 
 #include "clue.h"
 #include "file.h"
@@ -37,18 +36,12 @@
 #include "types.h"
 
 
-/**
- * Handler for SIGSEG, SIGABRT
- */
 static void handler(int signal) {
     print("%serror%s: %d\n", ANSI_RED, ANSI_RESET, signal);
     trace();
     exit(1);
 }
 
-/**
- * @TODO
- */
 static inline void help(const char* arg) {
     if (!arg) { // generic help
         print("\n");

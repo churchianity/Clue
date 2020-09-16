@@ -2,7 +2,7 @@
 #include <stdlib.h> // malloc, calloc, realloc, free
 
 #include "print.h"
-#include "types.h" // @TODO make it easier to replace stuff in this file, maybe macro the types instead of typedef
+#include "types.h"
 
 
 void* pMalloc(u32 size) {

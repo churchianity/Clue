@@ -145,6 +145,7 @@ void Reporter :: add(u32 id, const char* functionName, const char* filename, u32
     message->column       = column;
 
     messages->push(message);
+    va_end(args);
 }
 
 void Reporter :: add(u32 id, ASTNode* node, ...) {
@@ -152,6 +153,7 @@ void Reporter :: add(u32 id, ASTNode* node, ...) {
     va_start(args, node);
 
     add(id, null, node->token->filename, node->token->line, node->token->column, args);
+    va_end(args);
 }
 
 void Reporter :: report(u32 id, const char* functionName, const char* filename, u32 line, u32 column, ...) {
@@ -160,6 +162,7 @@ void Reporter :: report(u32 id, const char* functionName, const char* filename, 
 
     add(id, null, filename, line, column, args);
     Reporter::flush();
+    va_end(args);
     exit(1);
 }
 
@@ -168,5 +171,6 @@ void Reporter :: report(u32 id, ASTNode* node, ...) {
     va_start(args, node);
 
     report(id, null, node->token->filename, node->token->line, node->token->column, args);
+    va_end(args);
 }
 

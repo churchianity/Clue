@@ -1,6 +1,6 @@
 
 #include <execinfo.h> // backtrace, backtrace_symbols
-#include <stdarg.h> // va_list, va_start, va_end
+#include <stdarg.h> // va_list, va_start, va_end, ...
 #include <stdio.h> // FILE, stderr, stdout, stdin? | vfprintf
 #include <stdlib.h> // exit
 
@@ -29,7 +29,8 @@ void print(const char* format, ...) {
 }
 
 /**
- * Prints a stack trace. Default args in the header is |out = stderr|, |maxFrames = 63|.
+ * Prints a stack trace.
+ * maxFrames = 63 is arbitrary
  */
 void trace() {
     #define MAX_FRAMES__ 63
@@ -41,7 +42,7 @@ void trace() {
     char** traces = backtrace_symbols(stack, stackSize);
 
     if (stackSize < 2) {
-        fprintf(stderr, "stack has a weird number (%d) of frames! and we segfaulted anyway...\n", stackSize);
+        fprintf(stderr, "stack has a weird number (%d) of frames!\n", stackSize);
         exit(1);
     }
 
