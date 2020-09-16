@@ -115,33 +115,8 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         } else if (isDigit(*buffer)) {
             tt = TT_NUMERIC;
 
-            if (*buffer == '0') {
+            if (*buffer == '0' && (*buffer + 1) != '.') {
                 switch (*(buffer + 1)) {
-                    case '.': // fractional decimal, we don't need to do anything special
-                    default: { // normal decimal numeric constant
-                        bool hasRadixPoint = false;
-                        do {
-                            buffer++;
-
-                            if (*buffer == '.') {
-                                if (hasRadixPoint) {
-                                    flags |= TF_BAD;
-
-                                    Reporter::add(E_MULTIPLE_DOTS_IN_NUMBER, null, filename, line, column + length);
-                                    break;
-                                }
-
-                                hasRadixPoint = true;
-
-                            } else if (!isDigit(*buffer)) {
-                                break;
-                            }
-
-                            length++;
-
-                        } while (*buffer != '\0'); break;
-                    }
-
                     // octal constant. you can choose whether or not to be explicit about octal with 'o' or 'O'
                     // a leading zero that isn't one of the other cases has octal semantics by default
                     case 'o': case 'O':
@@ -160,8 +135,8 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
                             length++;
 
-                        } while (*buffer != '\0'); break;
-                    }
+                        } while (*buffer != '\0');
+                    } break;
 
                     // hexadecimal constant
                     case 'x': case 'X': {
@@ -179,8 +154,8 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
                             length++;
 
-                        } while (*buffer != '\0'); break;
-                    }
+                        } while (*buffer != '\0');
+                    } break;
 
                     // binary constant
                     case 'b': case 'B': {
@@ -198,9 +173,32 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
                             length++;
 
-                        } while (*buffer != '\0'); break;
-                    }
+                        } while (*buffer != '\0');
+                    } break;
                 }
+            } else { // normal/fractional decimal
+                bool hasRadixPoint = false;
+
+                do {
+                    buffer++;
+
+                    if (*buffer == '.') {
+                        if (hasRadixPoint) {
+                            flags |= TF_BAD;
+
+                            Reporter::add(E_MULTIPLE_DOTS_IN_NUMBER, null, filename, line, column + length);
+                            break;
+                        }
+
+                        hasRadixPoint = true;
+
+                    } else if (!isDigit(*buffer)) {
+                        break;
+                    }
+
+                    length++;
+
+                } while (*buffer != '\0');
             }
 
             #define CLUE_MAX_NUMERIC_LENGTH 24
