@@ -361,7 +361,7 @@ void interactive() {
                 continue;
 
             case '#':
-                Lexer::print();
+                Lexer::tokens->forEach(print);
                 continue;
 
             case '?':

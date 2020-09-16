@@ -62,6 +62,30 @@ char* intToString(u64 integer) {
     return buffer;
 }
 
+// @NOTE breaks if you don't verify the string is a valid hex string.
+u64 hexStringToInt(const char* str) {
+    u64 out = 0;
+
+    while (*str != '\0') {
+        u8 byte = *str++;
+
+        if ((byte >= '0') && (byte <= '9')) {
+            byte = byte - '0';
+
+        } else if ((byte >= 'a') && (byte <= 'f')) {
+            byte = byte - 'a' + 10;
+
+        } else if ((byte >= 'A') && (byte <= 'F')) {
+            byte = byte - 'A' + 10;
+        }
+
+        // only use the last four bits - precision of a single hex digit
+        out = (out << 4) | (byte & 0xF);
+    }
+
+    return out;
+}
+
 u32 strln(const char* string) {
     u32 length = 0;
 

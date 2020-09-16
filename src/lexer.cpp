@@ -18,16 +18,6 @@ void Lexer :: clear() {
     Lexer::tokens = new Array<Token>();
 }
 
-// @STATEFUL
-void Lexer :: print() {
-    ::print("Lexer: count: %u | capacity: %u\nfiles: ", Lexer::tokens->length, Lexer::tokens->capacity);
-    ::print("\n");
-
-    Lexer::tokens->forEach(::print);
-
-    ::print("\n");
-}
-
 struct Keyword {
     TokenTypeEnum tt;
 };
@@ -52,6 +42,10 @@ static Table<const char, Keyword>* initKeywordTable() {
 
     return t;
 }
+
+static void preprocessor() {
+
+};
 
 /**
  * Given a string |buffer|, append to the lexer's |tokens| array.
@@ -280,7 +274,11 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 case '\\': // @TODO?
                     break;
 
-                case '#': // @TODO
+                case '#':
+                    // case #import?
+                    // case #define?
+                    // case #ifdef/ifndef?
+                    // case ..???
                     break;
 
                 case '`':
@@ -378,20 +376,12 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         token->tk       = read(buffer - length, length);
         token->flags    = flags;
 
-        if (((token->flags & TF_IGNORE) != 0) || token->tt == '`') { // we are inside of a comment
-            token->flags |= TF_IGNORE;
-        }
-
         // check if we used a symbol that is a reserved operator/word
         if (token->tt == TT_SYMBOL) {
             const auto entry = keywords->lookup(token->tk, token->length);
 
             if (entry) {
-                // retroactively fix its type
                 token->tt = entry->value->tt;
-
-            } else if (false) { // @TODO global symbol table/constant lookup?
-
             }
         }
 

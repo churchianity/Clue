@@ -10,6 +10,7 @@ extern bool isOctalDigit(char c);
 extern bool isBinaryDigit(char c);
 
 extern char* intToString(u64 integer); // @TODO move me
+extern u64 hexStringToInt(const char* str);
 
 extern u32 strln(const char* string);
 extern bool streq(const char* s1, const char* s2);
