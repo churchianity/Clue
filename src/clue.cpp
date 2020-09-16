@@ -26,6 +26,8 @@
 
 #include <stdlib.h> // exit
 #include <signal.h> // for signal() - needed on my chromebook for some reason?
+#include <execinfo.h> // backtrace, backtrace_symbols
+#include <stdlib.h> // exit
 
 #include "clue.h"
 #include "file.h"
@@ -34,6 +36,31 @@
 #include "string.h"
 #include "types.h"
 
+
+/**
+ * Prints a stack trace.
+ */
+void trace() {
+    #define MAX_FRAMES 63
+    void** stack = (void**) pMalloc(sizeof (void*) * MAX_FRAMES);
+    u32 stackSize = backtrace(stack, MAX_FRAMES);
+
+    // resolve addresses into strings containing "filename(function+address)"
+    // this array must be free()-ed
+    char** traces = backtrace_symbols(stack, stackSize);
+
+    if (stackSize < 2) {
+        die("stack has a weird number (%d) of frames! and we segfaulted anyway...\n", stackSize);
+    }
+
+    // iterate over the returned symbol lines. skip the first, it is the address of this function
+    for (u32 i = 1; i < stackSize; i++) {
+        print("  %s\n", traces[i]);
+    }
+
+    free(traces);
+    free(stack);
+}
 
 /**
  * Handler for SIGSEG, SIGABRT

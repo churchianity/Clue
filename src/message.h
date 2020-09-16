@@ -53,6 +53,7 @@ const MessageId messageIds[] = {
      { MS_ERROR, "leftover operand" },
      { MS_ERROR, "expecting a binary operator here. what's the previous token doing?" },
      { MS_ERROR, "couldn't open the file - is the path correct?" },
+     { MS_ERROR, "non-associative sub-expression - don't do this on one line" }
 };
 
 /**
@@ -79,7 +80,8 @@ enum MessageEnum {
     E_LONG_STRING,
     E_LEFTOVER_OPERAND,
     E_EXPECTING_BINARY_OPERATOR,
-    E_COULDNT_GET_FILE_HANDLE
+    E_COULDNT_GET_FILE_HANDLE,
+    E_NON_ASSOCIATIVE_SUBEXPRESSION
 };
 
 #endif

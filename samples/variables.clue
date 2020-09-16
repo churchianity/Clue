@@ -1,7 +1,7 @@
 
-x: Int = 3;
-y: Int = 4;
-z: Int = x + y * 5;
+x = 3;
+y = 4;
+z = x + y * 5;
 
 x + y + z;
 

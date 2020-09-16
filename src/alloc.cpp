@@ -15,6 +15,7 @@ void* pMalloc(u32 size) {
     return p;
 }
 
+// @NOTE argument order swap.
 void* pCalloc(u32 elementSize, u32 maxNumOfElements) {
     void* p = calloc(maxNumOfElements, elementSize);
 
