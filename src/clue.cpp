@@ -24,6 +24,7 @@
     #define ARCH_ "unknown architecture"
 #endif
 
+#include <stdlib.h> // exit
 #include <signal.h> // for signal() - needed on my chromebook for some reason?
 
 #include "clue.h"
@@ -31,7 +32,6 @@
 #include "print.h"
 #include "runtime.h"
 #include "string.h"
-#include "trace.h"
 #include "types.h"
 
 

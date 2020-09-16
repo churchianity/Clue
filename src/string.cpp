@@ -57,7 +57,7 @@ char* intToString(u64 integer) {
 
     buffer[count] = '\0';
 
-    free(remainders);
+    pFree(remainders);
 
     return buffer;
 }

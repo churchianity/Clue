@@ -7,7 +7,6 @@
 #include "reporter.h"
 #include "table.hpp"
 #include "token.h"
-#include "trace.h"
 
 
 /**
@@ -178,33 +177,6 @@ void addChild(ASTNode* self, ASTNode* child) {
 
     self->children->push(child);
 }
-
-/* @TODO this
-static ASTNode* findBottomLeft(ASTNode* node) {
-    while (node->children) {
-        node = node->children->data[0];
-    }
-
-    return node;
-}
-
-
- * Flattens a tree into an array, free()'ing the whole thing.
-void freeTree(ASTNode* root) {
-    if (!root) return;
-
-    ASTNode* bottomLeft = findBottomLeft(root);
-
-    while (root) {
-        bottomLeft->children->data[0] = root->children->data[1];
-        bottomLeft = findBottomLeft(bottomLeft);
-
-        ASTNode* old = root;
-        root = root->children->data[0];
-        free(old);
-    }
-}
-*/
 
 /**
  * Resolve a token into a node.

@@ -66,7 +66,6 @@ static Table<const char, Keyword>* initKeywordTable() {
 Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     static auto keywords = initKeywordTable();
     static bool prevTokenImport = false;
-    bool ignore = false;
 
     Token* token = null;
 
@@ -75,13 +74,12 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     u32 length = 0;
 
     TokenTypeEnum tt;
-    bool bad;
+    u8 flags = 0;
 
     while (*buffer != '\0') {
+        flags &= TF_IGNORE; // reset everything except the ignore flag
 
-        // if it's not the null character, we (probably) have a valid token of atleast 1 in length
         length = 1;
-        bad = false;
 
         if (isAlpha(*buffer)) {
             tt = TT_SYMBOL;
@@ -117,52 +115,93 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         } else if (isDigit(*buffer)) {
             tt = TT_NUMERIC;
 
-            bool hasRadixPoint = false;
-
-            // handle 0-prefix special numerics...
             if (*buffer == '0') {
                 switch (*(buffer + 1)) {
-                    case '\0':
-                    default:
                     case '.': // fractional decimal, we don't need to do anything special
-                        break;
+                    default: { // normal decimal numeric constant
+                        bool hasRadixPoint = false;
+                        do {
+                            buffer++;
+
+                            if (*buffer == '.') {
+                                if (hasRadixPoint) {
+                                    flags |= TF_BAD;
+
+                                    Reporter::add(E_MULTIPLE_DOTS_IN_NUMBER, null, filename, line, column + length);
+                                    break;
+                                }
+
+                                hasRadixPoint = true;
+
+                            } else if (!isDigit(*buffer)) {
+                                break;
+                            }
+
+                            length++;
+
+                        } while (*buffer != '\0'); break;
+                    }
 
                     // octal constant. you can choose whether or not to be explicit about octal with 'o' or 'O'
                     // a leading zero that isn't one of the other cases has octal semantics by default
-                    case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
                     case 'o': case 'O':
-                        break;
+                        length = 2;
+                        buffer++;
 
-                    // hexadecimal constant
-                    case 'x': case 'X':
-                        break;
+                    case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': {
+                        flags |= TF_OCTAL;
 
-                    // binary constant
-                    case 'b': case 'B':
-                        break;
-                }
-            }
+                        do {
+                            buffer++;
 
-            do {
-                buffer++;
+                            if (!isOctalDigit(*buffer)) {
+                                break;
+                            }
 
-                if (*buffer == '.') {
-                    if (hasRadixPoint) {
-                        bad = true;
+                            length++;
 
-                        Reporter::add(E_MULTIPLE_DOTS_IN_NUMBER, null, filename, line, column + length + 1);
-                        break;
+                        } while (*buffer != '\0'); break;
                     }
 
-                    hasRadixPoint = true;
+                    // hexadecimal constant
+                    case 'x': case 'X': {
+                        flags |= TF_HEXADECIMAL;
 
-                } else if (!isDigit(*buffer)) {
-                    break;
+                        length = 2;
+                        buffer++;
+
+                        do {
+                            buffer++;
+
+                            if (!isHexDigit(*buffer)) {
+                                break;
+                            }
+
+                            length++;
+
+                        } while (*buffer != '\0'); break;
+                    }
+
+                    // binary constant
+                    case 'b': case 'B': {
+                        flags |= TF_BINARY;
+
+                        length = 2;
+                        buffer++;
+
+                        do {
+                            buffer++;
+
+                            if (!isBinaryDigit(*buffer)) {
+                                break;
+                            }
+
+                            length++;
+
+                        } while (*buffer != '\0'); break;
+                    }
                 }
-
-                length++;
-
-            } while (*buffer != '\0');
+            }
 
             #define CLUE_MAX_NUMERIC_LENGTH 24
             if (length >= CLUE_MAX_NUMERIC_LENGTH) {
@@ -173,14 +212,14 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             tt = TT_STRING;
 
             char quotemark = *buffer;
-            bad = true;
+            flags |= TF_BAD;
             do {
                 buffer++;
 
                 // @TODO - we can lex otherwise invalid characters if they're inside a string! like invalid codepoints...
                 if (*buffer == quotemark) {
                     length++; buffer++;
-                    bad = false; // if we found a closing quotemark, the string is probably valid
+                    flags &= ~TF_BAD; // if we found a closing quotemark, the string is probably valid
                     break;
                 }
 
@@ -197,7 +236,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
             } while (*buffer != '\0');
 
-            if (bad) {
+            if ((flags & TF_BAD) != 0) {
                 Reporter::add(E_NO_CLOSING_QUOTEMARK, null, filename, line, column + length + 1);
             }
 
@@ -205,12 +244,12 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             tt = (TokenTypeEnum) *buffer;
 
             switch (*buffer) {
-                default: // invalid or unimplemented single-chars
+                default: // invalid single-chars, probably weird whitespace, or other non-acsii
                     Reporter::add(E_INVALID_CHARACTER, null, filename, line, column);
                     break;
 
                 case '\n':
-                    ignore = false;
+                    flags &= ~TF_IGNORE; // get us out of a single-line comment
                     column = 1;
                     line++;
                     buffer++;
@@ -247,7 +286,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     break;
 
                 case '`':
-                    ignore = true;
+                    flags |= TF_IGNORE;
                     break;
 
                 case '>':
@@ -339,12 +378,9 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         token->length   = length;
         token->tt       = tt;
         token->tk       = read(buffer - length, length);
+        token->flags    = flags;
 
-        if (bad) {
-            token->flags |= TF_BAD;
-        }
-
-        if (ignore || token->tt == '`') { // we are inside of a comment
+        if (((token->flags & TF_IGNORE) != 0) || token->tt == '`') { // we are inside of a comment
             token->flags |= TF_IGNORE;
         }
 
@@ -365,7 +401,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         // for exceptional circumstances
         Lexer::tokens->push(token);
 
-        // HMMMMMMMMMMMMMMMMMMMMmmm
         // @TODO make a preprocessor... import statements should (MAYBE) be handled as part of some pre-processor stage...
         if (prevTokenImport) {
             if ((token->tt == TT_STRING) && ((token->flags & TF_BAD) == 0)) {
@@ -374,7 +409,9 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                 // check if we've already imported the file - you shouldn't ever need to import something multiple times
                 auto entry = files->lookup(importFilePath, token->length - 2);
 
-                if (entry) { // @TODO would be cool if we could detect a recursive import vs. a duplicate import
+                if (entry) {
+                    // @TODO would be cool if we could detect a recursive import vs. a duplicate import
+                    // but that's like a graph theory problem
                     Reporter::add(W_DUPLICATE_IMPORT, null, filename, line, column);
 
                 } else {
@@ -387,6 +424,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     }
 
                     Lexer::tokenize(codebuffer, importFilePath);
+                    pFree(codebuffer);
                 }
 
                 token->flags |= TF_IGNORE; // we don't want to use this string later in the main program

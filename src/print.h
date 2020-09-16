@@ -2,6 +2,8 @@
 #ifndef PRINT_H
 #define PRINT_H
 
+#include <stdio.h> // FILE, stderr
+
 #include "node.h"
 #include "token.h"
 #include "value.h"
@@ -47,6 +49,11 @@
 extern void print(const char* format, ...);
 
 /**
+ * Prints a stack trace.
+ */
+extern void trace(FILE* out = stderr, u32 maxFrames = 63);
+
+/**
  * This should end the program, use for fatal **internal only** errors.
  */
 extern void die(const char* format, ...);
@@ -64,16 +71,6 @@ extern void print(Token* token);
 extern void print(ASTNode* node);
 extern void print(Program* program);
 
-/* @TODO, and one for table too probably
-template <class T>
-inline void print(Array<T>* array) {
-    print("[");
-    for (u32 i = 0; i < array->length; i++) {
-        print(array->data[i]);
-    }
-    print("]\n");
-}
-*/
 
 #endif
 

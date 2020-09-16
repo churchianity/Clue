@@ -1,13 +1,15 @@
 
+#include <stdio.h>
+
 #include "lexer.h"
 #include "print.h"
 #include "string.h"
 #include "reporter.h"
 #include "token.h"
-#include "trace.h"
 
 
-// @TODO move me.
+static Array<Message>* messages = new Array<Message>();
+
 static inline const char* messageSeverityToColor(MessageSeverityEnum severity) {
     switch (severity) {
         case MS_LINT: return ANSI_BLUE;
@@ -17,7 +19,6 @@ static inline const char* messageSeverityToColor(MessageSeverityEnum severity) {
     }
 }
 
-// @TODO move me.
 static inline const char* messageSeverityToString(MessageSeverityEnum severity) {
     switch (severity) {
         case MS_LINT: return "lint";
@@ -26,10 +27,6 @@ static inline const char* messageSeverityToString(MessageSeverityEnum severity) 
         default: die("bad message sevevity\n"); return null;
     }
 }
-
-
-static Array<Message>* messages = new Array<Message>();
-
 
 static inline char* fillWithSpaces(u32 length) {
     char* buffer = (char*) pMalloc(sizeof (char) * length + 1);
@@ -82,7 +79,7 @@ static inline const char* reconstruct(const char* filename, u32 line) {
             char* leadingWhitespace = fillWithSpaces(amountOfLeadingWhitespace);
 
             out = concat(3, out, leadingWhitespace, token->tk);
-            free(leadingWhitespace);
+            pFree(leadingWhitespace);
         }
     }
 
@@ -108,22 +105,22 @@ static void print(const Message* message) {
 
     // i'm so sorry.
     print("\n    %s%s%s: %s\n    %s%s%s%s:%u:%u\n    %s\n    %s%s%s\n"
-           , messageSeverityToColor(message->severity), messageSeverityToString(message->severity), ANSI_RESET
-           , message->content
-           , fn ? "in function '" : "", fn ? fn : "", fn ? "': " : ""
-           , message->filename, message->line, message->column
-           , reconstruct(message->filename, message->line)
-           , ANSI_RED, pointyThing, ANSI_RESET
+          , messageSeverityToColor(message->severity), messageSeverityToString(message->severity), ANSI_RESET
+          , message->content
+          , fn ? "in function '" : "", fn ? fn : "", fn ? "': " : ""
+          , message->filename, message->line, message->column
+          , reconstruct(message->filename, message->line)
+          , ANSI_RED, pointyThing, ANSI_RESET
     );
 
-    free(pointyThing);
+    pFree(pointyThing);
 }
 
 void Reporter :: flush() {
     messages->forEach(
         [] (Message* message) {
             print(message);
-            free(message);
+            pFree(message);
         }
     );
 
@@ -131,11 +128,14 @@ void Reporter :: flush() {
     messages = new Array<Message>();
 }
 
-void Reporter :: add(u32 id, const char* functionName, const char* filename, u32 line, u32 column) {
+// @TODO support variadic arguments
+void Reporter :: add(u32 id, const char* functionName, const char* filename, u32 line, u32 column, ...) {
+    va_list args;
+    va_start(args, column);
+
     Message* message = (Message*) pMalloc(sizeof (Message));
 
     MessageId messageId = messageIds[id];
-
     message->severity     = messageId.severity;
     message->content      = messageId.content;
 
@@ -147,17 +147,26 @@ void Reporter :: add(u32 id, const char* functionName, const char* filename, u32
     messages->push(message);
 }
 
-void Reporter :: add(u32 id, ASTNode* node) {
-    add(id, null, node->token->filename, node->token->line, node->token->column);
+void Reporter :: add(u32 id, ASTNode* node, ...) {
+    va_list args;
+    va_start(args, node);
+
+    add(id, null, node->token->filename, node->token->line, node->token->column, args);
 }
 
-void Reporter :: report(u32 id, const char* functionName, const char* filename, u32 line, u32 column) {
-    add(id, null, filename, line, column);
+void Reporter :: report(u32 id, const char* functionName, const char* filename, u32 line, u32 column, ...) {
+    va_list args;
+    va_start(args, column);
+
+    add(id, null, filename, line, column, args);
     Reporter::flush();
     exit(1);
 }
 
-void Reporter :: report(u32 id, ASTNode* node) {
-    report(id, null, node->token->filename, node->token->line, node->token->column);
+void Reporter :: report(u32 id, ASTNode* node, ...) {
+    va_list args;
+    va_start(args, node);
+
+    report(id, null, node->token->filename, node->token->line, node->token->column, args);
 }
 

@@ -55,7 +55,7 @@ struct Table {
             return 0;
 
         } else {
-            free(entry->value);
+            pFree(entry->value);
 
             entry->value = value;
             return 1;
@@ -95,7 +95,7 @@ struct Table {
 
             while (entry) {
                 prev = entry;
-                free(prev);
+                pFree(prev);
                 entry = entry->next;
             }
         }

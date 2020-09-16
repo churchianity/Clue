@@ -2,6 +2,9 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include "types.h"
+
+
 enum TokenTypeEnum {
     TT_ANY                      = -1,
 
@@ -82,8 +85,11 @@ enum TokenTypeEnum {
 };
 
 enum TokenFlagsEnum {
-    TF_BAD      = 1,
-    TF_IGNORE   = 2
+    TF_BAD          = 1,
+    TF_IGNORE       = 2,
+    TF_BINARY       = 4,
+    TF_OCTAL        = 8,
+    TF_HEXADECIMAL  = 16
 };
 
 struct Token {

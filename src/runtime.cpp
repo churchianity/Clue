@@ -1,4 +1,5 @@
 
+#include <stdlib.h> // free
 #include <math.h> // pow(), remainder(), floor()
                   // strtod
 
@@ -11,6 +12,7 @@
 #include "table.hpp"
 #include "types.h"
 #include "value.h"
+
 
 static inline s32 fToInt(double f) {
     return (s32) floor(f + 0.5);
@@ -311,7 +313,7 @@ void deleteEverything(Program* program) {
     for (u32 i = program->statements->length; i >= 0; i--) {
         traverse(program->statements->data[i],
             [] (ASTNode* node) {
-                free(node);
+                pFree(node);
             }
         );
 
@@ -325,8 +327,8 @@ void doIt(char* codeBuffer, const char* filename) {
 
     eval(program);
 
-    free(codeBuffer);
-    free(program);
+    pFree(codeBuffer);
+    pFree(program);
 }
 
 /**

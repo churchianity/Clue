@@ -1,8 +1,14 @@
 
+#include <execinfo.h> // backtrace, backtrace_symbols
 #include <stdarg.h> // va_list, va_start, va_end
-#include <stdio.h> // stderr, stdout, stdin? | vfprintf
+#include <stdio.h> // FILE, stderr, stdout, stdin? | vfprintf
+#include <stdlib.h> // exit
 
-#include "trace.h"
+#include "alloc.h"
+#include "print.h"
+#include "token.h"
+#include "types.h"
+#include "value.h"
 
 
 /**
@@ -20,6 +26,31 @@ void print(const char* format, ...) {
     vfprintf(stdout, format, args);
 
     va_end(args);
+}
+
+/**
+ * Prints a stack trace. Default args in the header is |out = stderr|, |maxFrames = 63|.
+ */
+void trace(FILE* out, u32 maxFrames) {
+    void** stack = (void**) pMalloc(sizeof (void*) * maxFrames);
+    u32 stackSize = backtrace(stack, maxFrames);
+
+    // resolve addresses into strings containing "filename(function+address)"
+    // this array must be free()-ed
+    char** traces = backtrace_symbols(stack, stackSize);
+
+    if (stackSize < 2) {
+        fprintf(stderr, "stack has a weird number (%d) of frames! and we segfaulted anyway...\n", stackSize);
+        exit(1);
+    }
+
+    // iterate over the returned symbol lines. skip the first, it is the address of this function
+    for (u32 i = 1; i < stackSize; i++) {
+        fprintf(out, "  %s\n", traces[i]);
+    }
+
+    pFree(traces);
+    pFree(stack);
 }
 
 /**
