@@ -271,15 +271,19 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     break;
 
                 case '#':
-                    // case #import?
-                    // case #define?
-                    // case #ifdef/ifndef?
-                    // case ..???
+                    // #import? #define? #ifdef/ifndef?
                     break;
 
-                case '`':
-                    flags |= TF_IGNORE;
-                    break;
+                case '`': { // single-line comment.
+                    do {
+                        buffer++;
+
+                        if (*buffer == '\n') {
+                            break;
+                        }
+
+                    } while (*buffer != '\0');
+                } continue;
 
                 case '>':
                 case '<':
