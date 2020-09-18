@@ -1,8 +1,7 @@
 
-x := 4;
 
 ` if statement demo.
-if x < 3 {
+if 2 < 3 {
     "yay!";
 }
 

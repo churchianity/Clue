@@ -150,17 +150,14 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
     return expression;
 }
 
+static ASTNode* parseIfStatement(u32 i, Array<Token>* tokens) {
+    return null;
+}
+
 /**
  * Given a list of |tokens| return the root node of an abstract syntax tree.
  */
-Program* parse(Array<Token>* _tokens) {
-
-    // ignored tokens include comments, and preprocessor stuff.. the parser doesn't (shouldn't) care (maybe) about them.
-    const auto tokens = _tokens->filter(
-        [] (Token* token) {
-            return (token->flags & TF_IGNORE) == 0;
-        }
-    );
+Program* parse(Array<Token>* tokens) {
 
     Program* program = (Program*) pMalloc(sizeof (Program));
     program->statements = new Array<ASTNode>();
@@ -180,6 +177,9 @@ Program* parse(Array<Token>* _tokens) {
                 lastExpressionIndex = ++i; // increment past the semicolon
                 break;
 
+            case TT_IF:
+                program->statements->push(parseIfStatement(i, tokens));
+                break;
             case '{':
             case '[':
             case '}':

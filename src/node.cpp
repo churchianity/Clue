@@ -43,6 +43,7 @@ OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_RIGHT_SHIFT_EQUALS:
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
+        case TT_IMPORT:
             return OA_NONE;
 
         case ':':
@@ -159,6 +160,7 @@ u8 precedence(ASTNode* node) {
         case '$':
         case '.':
         case ':':
+        case TT_IMPORT:
             return 8;
 
         default:

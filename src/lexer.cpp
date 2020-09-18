@@ -67,8 +67,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     u8 flags = 0;
 
     while (*buffer != '\0') {
-        flags &= TF_IGNORE; // reset everything except the ignore flag
-
         length = 1;
 
         if (isAlpha(*buffer)) {
@@ -105,7 +103,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         } else if (isDigit(*buffer)) {
             tt = TT_NUMERIC;
 
-            if (*buffer == '0' && (*buffer + 1) != '.') {
+            if (*buffer == '0') {
                 switch (*(buffer + 1)) {
                     // octal constant. you can choose whether or not to be explicit about octal with 'o' or 'O'
                     // a leading zero that isn't one of the other cases has octal semantics by default
@@ -165,8 +163,11 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
                         } while (*buffer != '\0');
                     } break;
+
+                    default: goto normal_decimal;
                 }
             } else { // normal/fractional decimal
+normal_decimal:
                 bool hasRadixPoint = false;
 
                 do {
@@ -190,6 +191,8 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
                 } while (*buffer != '\0');
             }
+
+            ::print("hi\n");
 
             #define CLUE_MAX_NUMERIC_LENGTH 24
             if (length >= CLUE_MAX_NUMERIC_LENGTH) {
@@ -237,7 +240,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     break;
 
                 case '\n':
-                    flags &= ~TF_IGNORE; // get us out of a single-line comment
                     column = 1;
                     line++;
                     buffer++;
@@ -414,18 +416,12 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                     Lexer::tokenize(codebuffer, importFilePath);
                     pFree(codebuffer);
                 }
-
-                token->flags |= TF_IGNORE; // we don't want to use this string later in the main program
             } else {
                 Reporter::report(E_BAD_IMPORT, null, filename, line, column);
             }
         }
 
         prevTokenImport = token->tt == TT_IMPORT;
-
-        if (prevTokenImport) {
-            token->flags |= TF_IGNORE;
-        }
         // #endpreprocessorregion
 
         // do this only after handling EVERYTHING having to do with the token we just lexed
