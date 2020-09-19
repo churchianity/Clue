@@ -170,7 +170,6 @@ Program* parse(Array<Token>* _tokens) {
     u32 lastSemicolonIndex = -1;
 
     while (i < tokens->length) {
-        print("i %d, li %d\n", i, lastSemicolonIndex);
         switch ((int) tokens->data[i]->tt) {
             case ';':
                 if (lastSemicolonIndex == (i - 1)) {
