@@ -192,8 +192,6 @@ normal_decimal:
                 } while (*buffer != '\0');
             }
 
-            ::print("hi\n");
-
             #define CLUE_MAX_NUMERIC_LENGTH 24
             if (length >= CLUE_MAX_NUMERIC_LENGTH) {
                 Reporter::add(W_OVERPRECISE_NUMBER, null, filename, line, column);
@@ -208,6 +206,7 @@ normal_decimal:
                 buffer++;
 
                 // @TODO - we can lex otherwise invalid characters if they're inside a string! like invalid codepoints...
+                // maybe this is a good thing, you might want to be able process strings with non-ascii characters in them.
                 if (*buffer == quotemark) {
                     length++; buffer++;
                     flags &= ~TF_BAD; // if we found a closing quotemark, the string is probably valid
