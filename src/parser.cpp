@@ -23,6 +23,8 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
         return precedence(node) < precedence(top);
     }
 
+    // this happens when you have multiple operators between two semicolons (or the beginning of the file and one semicolon) that shouldn't be part of one expression
+    // you can't have multiple assignments in one expression ie: x := y := 4;
     Reporter::add(E_NON_ASSOCIATIVE_SUBEXPRESSION, node);
     return false;
 }
@@ -67,7 +69,7 @@ static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
  * Parses an Array of |tokens| into an AST expression node..
  *
  * You shouldn't call this unless you have a good reason to believe that there is an expression between
- * the tokens array @ |startIndex| and |endIndex|, inclusive of start but not end.
+ * the tokens array @ |startIndex| and |endIndex|, inclusive of neither start nor end (both are indices of either a semicolon or some other expression terminator).
  *
  * this is basically shunting-yard with some bells & whistles to allow function calls, unary operators, postfix/prefix etc.
  */
@@ -75,7 +77,7 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
     auto es = new Array<ASTNode>();
     auto os = new Array<ASTNode>();
 
-    u32 i = startIndex;
+    u32 i = startIndex + 1;
 
     while (i < endIndex) {
         switch ((int) tokens->data[i]->tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
@@ -157,29 +159,33 @@ static ASTNode* parseIfStatement(u32 i, Array<Token>* tokens) {
 /**
  * Given a list of |tokens| return the root node of an abstract syntax tree.
  */
-Program* parse(Array<Token>* tokens) {
+Program* parse(Array<Token>* _tokens) {
+    // some tokens are set to be 'ignored' by a
+    const auto tokens = _tokens->filter([] (Token* token) { return (token->flags & TF_IGNORE) == 0; });
 
     Program* program = (Program*) pMalloc(sizeof (Program));
     program->statements = new Array<ASTNode>();
 
     u32 i = 0;
-    u32 lastExpressionIndex = 0;
+    u32 lastSemicolonIndex = -1;
 
     while (i < tokens->length) {
+        print("i %d, li %d\n", i, lastSemicolonIndex);
         switch ((int) tokens->data[i]->tt) {
             case ';':
-                if (lastExpressionIndex == (i - 1)) {
+                if (lastSemicolonIndex == (i - 1)) {
                     const auto token = tokens->data[i];
                     Reporter::add(W_USELESS_SEMICOLON, null, token->filename, token->line, token->column);
                 }
 
-                program->statements->push(parseExpression(lastExpressionIndex, i, tokens));
-                lastExpressionIndex = ++i; // increment past the semicolon
+                program->statements->push(parseExpression(lastSemicolonIndex, i, tokens));
+                lastSemicolonIndex = i;
                 break;
 
             case TT_IF:
                 program->statements->push(parseIfStatement(i, tokens));
                 break;
+
             case '{':
             case '[':
             case '}':

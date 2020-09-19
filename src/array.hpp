@@ -68,12 +68,6 @@ struct Array {
 
         return out;
     }
-
-    void print() {
-        for (u32 i = 0; i < length; i++) {
-            print(data[i]);
-        }
-    }
 };
 
 #endif

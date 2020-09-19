@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 
+#include "clue.h"
 #include "lexer.h"
 #include "print.h"
 #include "string.h"
@@ -163,7 +164,13 @@ void Reporter :: report(u32 id, const char* functionName, const char* filename, 
     add(id, null, filename, line, column, args);
     Reporter::flush();
     va_end(args);
+
+    // when we 'report' normally, this should exit the program.
+    // However, when debugging we might want to see more.
+    // this will frequently case segfaults and ungraceful bad things to happen, but it's better to see them than hide them.
+    #if CLUE_DEBUG_LEVEL <= 0
     exit(1);
+    #endif
 }
 
 void Reporter :: report(u32 id, ASTNode* node, ...) {
