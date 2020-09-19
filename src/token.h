@@ -87,7 +87,7 @@ enum TokenTypeEnum {
 enum TokenFlagsEnum {
     TF_BAD          = 1,
     TF_BINARY       = 2,
-    // TF_IGNORE       = 4, // not used.
+    TF_IGNORE       = 4,
     TF_OCTAL        = 8,
     TF_HEXADECIMAL  = 16
 };

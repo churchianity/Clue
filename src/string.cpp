@@ -28,6 +28,12 @@ bool isBinaryDigit(char c) {
     return (c == '0') || (c == '1');
 }
 
+// different programs consider different codepoints to be 'whitespace'.
+// we only care about these.
+bool isClueWhitespace(char c) {
+    return (c == ' ') || (c == '\n') || (c == '\t') || (c == '\r');
+}
+
 char* intToString(u64 integer) {
     u32 capacity = 10;
     u32* remainders = (u32*) pMalloc(sizeof (u32) * capacity);

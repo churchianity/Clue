@@ -9,6 +9,9 @@ extern bool isHexDigit(char c);
 extern bool isOctalDigit(char c);
 extern bool isBinaryDigit(char c);
 
+// different programs consider different codepoints to be 'whitespace'.
+extern bool isClueWhitespace(char c);
+
 extern char* intToString(u64 integer); // @TODO move me
 extern u64 hexStringToInt(const char* str);
 

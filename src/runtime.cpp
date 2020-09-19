@@ -337,7 +337,7 @@ void doIt(char* codeBuffer, const char* filename) {
 void interactive() {
     Program* program = null;
 
-    #define CLUE_SANDBOX_MODE_MAX_LINE_LENGTH 160
+    const u32 CLUE_SANDBOX_MODE_MAX_LINE_LENGTH = 160;
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
 
     u32 line = 1;

@@ -5,6 +5,8 @@
 #define CLUE_VERSION_NUMBER "0.1.0"
 #define CLUE_FILE_SUFFIX ".clue"
 
+#define CLUE_DEBUG_LEVEL 1
+
 
 /**
  * Dependencies:

@@ -33,9 +33,9 @@ void print(const char* format, ...) {
  * maxFrames = 63 is arbitrary
  */
 void trace() {
-    #define MAX_FRAMES__ 63
-    void** stack = (void**) pMalloc(sizeof (void*) * MAX_FRAMES__);
-    u32 stackSize = backtrace(stack, MAX_FRAMES__);
+    const u32 MAX_FRAMES = 63;
+    void** stack = (void**) pMalloc(sizeof (void*) * MAX_FRAMES);
+    u32 stackSize = backtrace(stack, MAX_FRAMES);
 
     // resolve addresses into strings containing "filename(function+address)"
     // this array must be free()-ed

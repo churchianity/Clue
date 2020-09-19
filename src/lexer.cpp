@@ -63,7 +63,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     u32 column = 1;
     u32 length = 0;
 
-    TokenTypeEnum tt;
+    TokenTypeEnum tt = TT_ANY;
     u8 flags = 0;
 
     while (*buffer != '\0') {
@@ -95,7 +95,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
             } while (*buffer != '\0');
 
-            #define CLUE_MAX_SYMBOL_LENGTH 24
+            const u32 CLUE_MAX_SYMBOL_LENGTH = 36;
             if (length >= CLUE_MAX_SYMBOL_LENGTH) {
                 Reporter::add(L_LONG_SYMBOL, null, filename, line, column + CLUE_MAX_SYMBOL_LENGTH);
             }
@@ -117,9 +117,8 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                         do {
                             buffer++;
 
-                            if (!isOctalDigit(*buffer)) {
-                                break;
-                            }
+                            if (!isOctalDigit(*buffer)) break;
+
 
                             length++;
 
@@ -136,9 +135,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                         do {
                             buffer++;
 
-                            if (!isHexDigit(*buffer)) {
-                                break;
-                            }
+                            if (!isHexDigit(*buffer)) break;
 
                             length++;
 
@@ -155,9 +152,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                         do {
                             buffer++;
 
-                            if (!isBinaryDigit(*buffer)) {
-                                break;
-                            }
+                            if (!isBinaryDigit(*buffer)) break;
 
                             length++;
 
@@ -166,8 +161,8 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
                     default: goto normal_decimal;
                 }
-            } else { // normal/fractional decimal
-normal_decimal:
+            } else {
+normal_decimal: // normal/fractional decimal
                 bool hasRadixPoint = false;
 
                 do {
@@ -192,7 +187,7 @@ normal_decimal:
                 } while (*buffer != '\0');
             }
 
-            #define CLUE_MAX_NUMERIC_LENGTH 24
+            const u32 CLUE_MAX_NUMERIC_LENGTH = 24;
             if (length >= CLUE_MAX_NUMERIC_LENGTH) {
                 Reporter::add(W_OVERPRECISE_NUMBER, null, filename, line, column);
             }
@@ -271,11 +266,11 @@ normal_decimal:
                 case '\\': // @TODO?
                     break;
 
-                case '#':
-                    // #import? #define? #ifdef/ifndef?
-                    break;
+                // pre-processor stuff
+                case '#': {} break;
 
-                case '`': { // single-line comment.
+                // single-line comment
+                case '`': {
                     do {
                         buffer++;
 
@@ -381,16 +376,12 @@ normal_decimal:
         if (token->tt == TT_SYMBOL) {
             const auto entry = keywords->lookup(token->tk, token->length);
 
-            if (entry) {
-                token->tt = entry->value->tt;
-            }
+            if (entry) token->tt = entry->value->tt;
         }
 
-        // being here means we have a fully-formed token, and it should probably not be modified past this point save
-        // for exceptional circumstances
         Lexer::tokens->push(token);
 
-        // @TODO make a preprocessor... import statements should (MAYBE) be handled as part of some pre-processor stage...
+        // #region pre-processor
         if (prevTokenImport) {
             if ((token->tt == TT_STRING) && ((token->flags & TF_BAD) == 0)) {
                 const char* importFilePath = trimQuotes(token->tk, token->length); // @TODO handle failure here
@@ -400,11 +391,10 @@ normal_decimal:
 
                 if (entry) {
                     // @TODO would be cool if we could detect a recursive import vs. a duplicate import
-                    // but that's like a graph theory problem
                     Reporter::add(W_DUPLICATE_IMPORT, null, filename, line, column);
 
-                } else {
-                    prevTokenImport = false; // this is necessary to stop the subsequent recursive calls from trying to import the first token
+                } else { // we are actually going to import the file
+                    prevTokenImport = false; // necessary; stops the subsequent recursive calls from trying to import the first token
 
                     char* codebuffer = clueFileRead(importFilePath);
 
@@ -414,6 +404,8 @@ normal_decimal:
 
                     Lexer::tokenize(codebuffer, importFilePath);
                     pFree(codebuffer);
+
+                    token->flags |= TF_IGNORE;
                 }
             } else {
                 Reporter::report(E_BAD_IMPORT, null, filename, line, column);
@@ -421,6 +413,7 @@ normal_decimal:
         }
 
         prevTokenImport = token->tt == TT_IMPORT;
+        if (prevTokenImport) token->flags |= TF_IGNORE;
         // #endpreprocessorregion
 
         // do this only after handling EVERYTHING having to do with the token we just lexed
