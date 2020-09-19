@@ -168,18 +168,19 @@ Program* parse(Array<Token>* tokens) {
     while (i < tokens->length) {
         switch ((int) tokens->data[i]->tt) {
             case ';':
-                if (lastExpressionIndex == (i - 1)) {
+                if (lastExpressionIndex == i) {
                     const auto token = tokens->data[i];
                     Reporter::add(W_USELESS_SEMICOLON, null, token->filename, token->line, token->column);
                 }
 
                 program->statements->push(parseExpression(lastExpressionIndex, i, tokens));
-                lastExpressionIndex = ++i; // increment past the semicolon
+                lastExpressionIndex = i++; // increment past the semicolon
                 break;
 
             case TT_IF:
                 program->statements->push(parseIfStatement(i, tokens));
                 break;
+
             case '{':
             case '[':
             case '}':
