@@ -92,6 +92,9 @@ OperatorAssociativityEnum associativity(ASTNode* node) {
 
 u8 precedence(ASTNode* node) {
     switch ((int) node->token->tt) {
+        case ',':
+            return 0;
+
         case '=':
         case TT_COLON_EQUALS:
         case TT_PLUS_EQUALS:
@@ -105,7 +108,6 @@ u8 precedence(ASTNode* node) {
         case TT_RIGHT_SHIFT_EQUALS:
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
-        case ',':
             return 1;
 
         case TT_LOGICAL_AND:

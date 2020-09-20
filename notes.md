@@ -45,7 +45,7 @@
 |                |                              |
 |                |                              |
 |                |                              |
-`<--<--<--<--<--<|- < if in interactive mode <--'
+`<-----<-----<---|--< if in interactive mode <--'
                  |
                  |
                  |
