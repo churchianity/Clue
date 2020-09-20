@@ -9,6 +9,7 @@
 
 
 namespace Reporter {
+    extern void rebuild(const char* filename);
     /**
      * This set of functions lets you interact with the reporter by adding messages.
      *

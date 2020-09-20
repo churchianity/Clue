@@ -364,6 +364,10 @@ void interactive() {
                 Lexer::tokens->forEach(print);
                 continue;
 
+            case '&': // @TODO strangeness
+                Reporter :: rebuild("samples/variables.clue");
+                continue;
+
             case '?':
                 print(program);
                 continue;

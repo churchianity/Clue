@@ -6,7 +6,7 @@
 #include "node.h"
 
 
-extern Program* parse(Array<Token>* _tokens);
+extern Program* parse(Array<Token>* tokens);
 
 #endif
 

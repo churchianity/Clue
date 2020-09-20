@@ -35,7 +35,7 @@ static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
     }
 
     if (!tokenTypeIsOperator(node->token->tt)) {
-        es->push(node); // operands are an operation that return themselves
+        es->push(node); // operands are (sometimes) an operation that return themselves
         return;
     }
 
@@ -43,19 +43,19 @@ static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
         ASTNode* child = es->pop();
 
         if (!child) {
-            Reporter::report(E_MISSING_OPERAND_FOR_UNARY_OPERATOR, node);
+            Reporter::report(E_MISSING_OPERAND_FOR_UNARY_OPERATOR, node); // @TODO make this more specific?
         }
 
         addChild(node, child);
 
     } else { // is binary
 
-        // rhs was pushed most recently, and this matters at runtime (2 - 4 vs. 4 - 2).
+        // rhs was pushed most recently, and this matters (2 - 4 vs. 4 - 2).
         ASTNode* rhs = es->pop();
         ASTNode* lhs = es->pop();
 
         if (!(rhs && lhs)) {
-            Reporter::report(E_MISSING_OPERAND_FOR_BINARY_OPERATOR, node);
+            Reporter::report(E_MISSING_OPERAND_FOR_BINARY_OPERATOR, node); // @TODO make this more specific?
         }
 
         addChild(node, lhs);
@@ -69,7 +69,7 @@ static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
  * Parses an Array of |tokens| into an AST expression node..
  *
  * You shouldn't call this unless you have a good reason to believe that there is an expression between
- * the tokens array @ |startIndex| and |endIndex|, inclusive of neither start nor end (both are indices of either a semicolon or some other expression terminator).
+ * the tokens array @ |startIndex| and |endIndex|, inclusive of start but not end.
  *
  * this is basically shunting-yard with some bells & whistles to allow function calls, unary operators, postfix/prefix etc.
  */
@@ -77,15 +77,14 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
     auto es = new Array<ASTNode>();
     auto os = new Array<ASTNode>();
 
-    u32 i = startIndex + 1;
+    u32 i = startIndex;
 
     while (i < endIndex) {
         switch ((int) tokens->data[i]->tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
-            case ')':
+
+            case ')': {
                 while (os->peek()) {
-                    if (os->peek()->token->tt == '(') {
-                        break;
-                    }
+                    if (os->peek()->token->tt == '(') break;
 
                     parseOperation(es, os->pop());
                 }
@@ -97,10 +96,8 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
 
                 if ((os->peek()->flags & NF_CALL) == 0) {
                     os->pop(); // discard opening parens
-                    // @TODO not sure i understand the function call interaction here yet
                 }
-
-                break;
+            } break;
 
             // these types only ever act as operands
             case TT_SYMBOL:
@@ -109,12 +106,9 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
                 es->push(nodify(tokens, i));
                 break;
 
-            // all 'standard' operators
-            case '(':
-            default:
+            // operators
+            default: {
                 const auto node = nodify(tokens, i);
-
-                if (!node) break;
 
                 // handle precedence & associativity before pushing the operator onto the stack
                 while (canPopAndApply(os, node)) {
@@ -122,7 +116,7 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
                 }
 
                 os->push(node);
-                break;
+            } break;
         }
 
         i++;
@@ -143,6 +137,7 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
 
     if (!es->isEmpty()) { // if we still have expressions on the stack, they are leftovers
         const auto node = es->peek();
+
         Reporter::report(E_LEFTOVER_OPERAND, node);
     }
 
@@ -152,17 +147,10 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
     return expression;
 }
 
-static ASTNode* parseIfStatement(u32 i, Array<Token>* tokens) {
-    return null;
-}
-
 /**
  * Given a list of |tokens| return the root node of an abstract syntax tree.
  */
-Program* parse(Array<Token>* _tokens) {
-    // some tokens are set to be 'ignored' by a
-    const auto tokens = _tokens->filter([] (Token* token) { return (token->flags & TF_IGNORE) == 0; });
-
+Program* parse(Array<Token>* tokens) {
     Program* program = (Program*) pMalloc(sizeof (Program));
     program->statements = new Array<ASTNode>();
 
@@ -177,12 +165,8 @@ Program* parse(Array<Token>* _tokens) {
                     Reporter::add(W_USELESS_SEMICOLON, null, token->filename, token->line, token->column);
                 }
 
-                program->statements->push(parseExpression(lastSemicolonIndex, i, tokens));
+                program->statements->push(parseExpression(lastSemicolonIndex + 1, i, tokens));
                 lastSemicolonIndex = i;
-                break;
-
-            case TT_IF:
-                program->statements->push(parseIfStatement(i, tokens));
                 break;
 
             case '{':

@@ -87,6 +87,32 @@ static inline const char* reconstruct(const char* filename, u32 line) {
     return out;
 }
 
+// @STATEFUL
+void Reporter :: rebuild(const char* filename) {
+    u32 i = 0;
+    u32 line = 1;
+
+    while (i < Lexer::tokens->length) {
+        if (streq(Lexer::tokens->data[i]->filename, filename)) {
+            line = Lexer::tokens->data[i]->line;
+
+            do {
+                i++;
+
+                if ((i < Lexer::tokens->length) || !((Lexer::tokens->data[i]->line == line) || streq(Lexer::tokens->data[i]->filename, filename))) {
+                    break;
+                }
+
+            } while ((i < Lexer::tokens->length) || streq(Lexer::tokens->data[i]->filename, filename));
+
+            ::print(reconstruct(filename, Lexer::tokens->data[i]->line));
+            ::print("\n");
+        }
+
+        i++;
+    }
+}
+
 /**
  *  Example printed messages:
  *

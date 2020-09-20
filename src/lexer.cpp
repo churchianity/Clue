@@ -202,6 +202,9 @@ normal_decimal: // normal/fractional decimal
 
                 // @TODO - we can lex otherwise invalid characters if they're inside a string! like invalid codepoints...
                 // maybe this is a good thing, you might want to be able process strings with non-ascii characters in them.
+                //
+                // also of note - strings are the only single tokens that can span multiple lines.
+                // this isn't handled well.
                 if (*buffer == quotemark) {
                     length++; buffer++;
                     flags &= ~TF_BAD; // if we found a closing quotemark, the string is probably valid
@@ -266,7 +269,7 @@ normal_decimal: // normal/fractional decimal
                 case '\\': // @TODO?
                     break;
 
-                // pre-processor stuff
+                // pre-processor stuff maybe @TODO
                 case '#': {} break;
 
                 // single-line comment
@@ -362,7 +365,7 @@ normal_decimal: // normal/fractional decimal
         }
 
         // if we're here, we should be able to make a token
-        token = (Token*) pCalloc(sizeof (Token), 1);
+        token = (Token*) pMalloc(sizeof (Token));
 
         token->filename = filename;
         token->line     = line;
@@ -404,8 +407,6 @@ normal_decimal: // normal/fractional decimal
 
                     Lexer::tokenize(codebuffer, importFilePath);
                     pFree(codebuffer);
-
-                    token->flags |= TF_IGNORE;
                 }
             } else {
                 Reporter::report(E_BAD_IMPORT, null, filename, line, column);
@@ -413,7 +414,6 @@ normal_decimal: // normal/fractional decimal
         }
 
         prevTokenImport = token->tt == TT_IMPORT;
-        if (prevTokenImport) token->flags |= TF_IGNORE;
         // #endpreprocessorregion
 
         // do this only after handling EVERYTHING having to do with the token we just lexed

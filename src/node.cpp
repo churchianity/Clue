@@ -105,6 +105,7 @@ u8 precedence(ASTNode* node) {
         case TT_RIGHT_SHIFT_EQUALS:
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
+        case ',':
             return 1;
 
         case TT_LOGICAL_AND:
@@ -219,10 +220,6 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
             case '{':
                 node->flags |= NF_PUNCTUATOR;
                 break;
-
-            case ';':
-                Reporter::add(W_USELESS_SEMICOLON, node);
-                return null;
 
             default:
                 Reporter::report(E_INVALID_OPERATOR, node);
