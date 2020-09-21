@@ -40,6 +40,9 @@ static Table<const char, Keyword>* initKeywordTable() {
     t->insert("while",      5, keyword(TT_WHILE));
     t->insert("return",     6, keyword(TT_RETURN));
 
+    t->insert("Number",     6, keyword(TT_TYPE_INFO_TAG_NUMBER));
+    t->insert("String",     6, keyword(TT_TYPE_INFO_TAG_STRING));
+
     return t;
 }
 

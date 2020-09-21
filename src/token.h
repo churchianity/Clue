@@ -79,7 +79,10 @@ enum TokenTypeEnum {
     TT_IF                       = 401,  // if
     TT_ELSE                     = 402,  // else
     TT_WHILE                    = 403,  // while
-    TT_RETURN                   = 404   // return
+    TT_RETURN                   = 404,  // return
+
+    TT_TYPE_INFO_TAG_NUMBER     = 500,  // Number
+    TT_TYPE_INFO_TAG_STRING     = 501,  // String
 
     // TT_MAKE_IT_BIG              = 0xFFFFFFFFFFFFFFFF
 };
@@ -147,9 +150,25 @@ inline bool tokenTypeIsBitwise(TokenTypeEnum tt) {
     }
 }
 
-// this is fuzzy because some operators ('+' and '-') are only sometimes (usually) binary
+// these are fuzzy because some operators ('+' and '-') are only sometimes (usually) binary
 // and it might be nice to be able to distinguish them, from the ones that can *only* be binary
-inline u8 tokenTypeBinaryness(TokenTypeEnum tt) {
+inline s8 tokenTypeUnaryness(TokenTypeEnum tt) {
+    switch ((int) tt) {
+        case '+':
+        case '-':
+            return 2;
+
+        case '~':
+        case '!':
+        case '@':
+        case '$':
+            return 1;
+
+        default: return 0;
+    }
+}
+
+inline s8 tokenTypeBinaryness(TokenTypeEnum tt) {
     switch ((int) tt) {
         case '+':
         case '-':
@@ -167,10 +186,10 @@ inline u8 tokenTypeBinaryness(TokenTypeEnum tt) {
         case TT_LEFT_SHIFT:
 
         case ':':
+        case ',':
             return 1;
 
-        default:
-            return tokenTypeIsAssignment(tt);
+        default: return tokenTypeIsAssignment(tt);
     }
 }
 

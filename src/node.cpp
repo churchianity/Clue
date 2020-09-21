@@ -190,14 +190,22 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
     node->token = tokens->data[i];
 
     switch (node->token->tt) {
-        default:
-            break;
+        default: break;
 
-        case TT_SYMBOL:
-        case TT_NUMERIC:
-        case TT_STRING:
+        case TT_SYMBOL: {
             node->children = null;
-            return node;
+            // @NOTE type info is added later.
+        } return node;
+
+        case TT_NUMERIC: {
+            node->children = null;
+            node->type = NT_NUMBER;
+        } return node;
+
+        case TT_STRING: {
+            node->children = null;
+            node->type = NT_STRING;
+        } return node;
     }
 
     // if it's not an operand itself, it should have some number of operands (children)

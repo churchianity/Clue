@@ -121,14 +121,14 @@ void print(ASTNode* node) {
     }
 }
 
-void print(Program* program) {
+void print(Array<ASTNode>* program) {
     if (!program) {
         print("program is null\n"); return;
     }
 
-    print("&Program %p | &statements: %p, #statements: %u\n", (void*) program, (void*) program->statements, program->statements->length);
+    print("&Program %p | &statements: %p, #statements: %u\n", (void*) program, program->length);
 
-    program->statements->forEach(
+    program->forEach(
         [] (ASTNode* root) {
             traverse(root,
                 [] (ASTNode* node) {

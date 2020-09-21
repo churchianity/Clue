@@ -77,11 +77,11 @@
 
     obj := { bar: 0, baz: 2 };
     obj := {};
-    obj.bar = 0; 
+    obj.bar = 0;
     obj.baz = 0;
 
 
-    
+
 
 
 
@@ -101,7 +101,7 @@
 
 
 
-    
+
 
 G
     foo(obj.bar, obj.baz);
@@ -179,6 +179,40 @@ G
 
         {
        }   -   a comma separated list of tuples (dict literal), a group of statements or expressions (closure)
+
+
+
+
+
+
+
+       code (string) ---> | ................ | ---> code again (compiler)
+
+
+
+
+
+
+
+
+
+
+
+    while (the task isn't done) {
+        - figure out how to do it
+
+        while (it's too complicated) {
+            - subdivide the task into smaller tasks
+        }
+    }
+
+
+
+
+
+
+
+
 
 
 

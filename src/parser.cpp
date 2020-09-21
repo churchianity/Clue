@@ -9,6 +9,68 @@
 #include "token.h"
 
 
+// @NOTE |node| is the operator ':', not the node to which we append the type info really.
+static void appendTypeInformation(ASTNode* node) {
+    node->children[0]->type = node->children[1]->type;
+}
+
+static void appendInferredTypeInformation(ASTNode* node) {
+    // @TODO
+}
+
+static inline void reportSpecificUnaryOperatorMissingOperand(ASTNode* node) {
+    switch ((int) node->token->tt) {
+        case '+':
+        case '-':
+        case '~':
+        case '!':
+        case '@':
+        case '$':
+
+        default:
+            Reporter::report(E_MISSING_OPERAND_FOR_UNARY_OPERATOR, node);
+            break;
+    }
+}
+
+static inline void reportSpecificBinaryOperatorMissingOperand(ASTNode* node) {
+    switch ((int) node->token->tt) {
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '%':
+
+        case '=':
+        case TT_COLON_EQUALS:
+
+        case TT_PLUS_EQUALS:
+        case TT_MINUS_EQUALS:
+        case TT_TIMES_EQUALS:
+        case TT_DIVIDE_EQUALS:
+        case TT_MODULO_EQUALS:
+        case TT_EXPONENTIATION_EQUALS:
+        case TT_RIGHT_SHIFT_EQUALS:
+        case TT_LEFT_SHIFT_EQUALS:
+        case TT_BITWISE_AND_EQUALS:
+        case TT_BITWISE_OR_EQUALS:
+        case TT_BITWISE_XOR_EQUALS:
+
+        case '&':
+        case '|':
+        case '^':
+        case TT_RIGHT_SHIFT:
+        case TT_LEFT_SHIFT:
+
+        case ':':
+        case ',':
+
+        default:
+            Reporter::report(E_MISSING_OPERAND_FOR_BINARY_OPERATOR, node);
+            break;
+    }
+}
+
 static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
     if (os->isEmpty() || ((node->flags & NF_PUNCTUATOR) != 0)) {
         return false;
@@ -30,9 +92,7 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
 }
 
 static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
-    if ((node->flags & NF_PUNCTUATOR) != 0) {
-        return;
-    }
+    if ((node->flags & NF_PUNCTUATOR) != 0) return;
 
     if (!tokenTypeIsOperator(node->token->tt)) {
         es->push(node); // operands are (sometimes) an operation that return themselves
@@ -42,9 +102,7 @@ static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
     if ((node->flags & NF_UNARY) != 0) {
         ASTNode* child = es->pop();
 
-        if (!child) {
-            Reporter::report(E_MISSING_OPERAND_FOR_UNARY_OPERATOR, node); // @TODO make this more specific?
-        }
+        if (!child) reportSpecificUnaryOperatorMissingOperand(node);
 
         addChild(node, child);
 
@@ -54,12 +112,16 @@ static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
         ASTNode* rhs = es->pop();
         ASTNode* lhs = es->pop();
 
-        if (!(rhs && lhs)) {
-            Reporter::report(E_MISSING_OPERAND_FOR_BINARY_OPERATOR, node); // @TODO make this more specific?
-        }
+        if (!(rhs && lhs)) reportSpecificBinaryOperatorMissingOperand(node);
 
         addChild(node, lhs);
         addChild(node, rhs);
+
+        // check if this operation is appending type information, in which case we should do so now
+        switch ((int) node->token->tt) {
+            case ':': appendTypeInformation(node); break;
+            case TT_COLON_EQUALS: appendInferredTypeInformation(node); break;
+        }
     }
 
     es->push(node);
@@ -150,9 +212,8 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
 /**
  * Given a list of |tokens| return the root node of an abstract syntax tree.
  */
-Program* parse(Array<Token>* tokens) {
-    Program* program = (Program*) pMalloc(sizeof (Program));
-    program->statements = new Array<ASTNode>();
+Array<ASTNode>* parse(Array<Token>* tokens) {
+    Array<ASTNode>* program = new Array<ASTNode>();
 
     u32 i = 0;
     u32 lastSemicolonIndex = -1;
@@ -165,7 +226,7 @@ Program* parse(Array<Token>* tokens) {
                     Reporter::add(W_USELESS_SEMICOLON, null, token->filename, token->line, token->column);
                 }
 
-                program->statements->push(parseExpression(lastSemicolonIndex + 1, i, tokens));
+                program->push(parseExpression(lastSemicolonIndex + 1, i, tokens));
                 lastSemicolonIndex = i;
                 break;
 

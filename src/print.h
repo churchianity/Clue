@@ -67,7 +67,6 @@ extern void print(void* p);
 extern void print(Value v);
 extern void print(Token* token);
 extern void print(ASTNode* node);
-extern void print(Program* program);
 
 
 #endif

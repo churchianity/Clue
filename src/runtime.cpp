@@ -299,31 +299,31 @@ Value eval(ASTNode* node) {
 }
 
 
-void eval(Program* program) {
-    program->statements->forEach(
+void eval(Array<ASTNode>* program) {
+    program->forEach(
         [] (ASTNode* statement) {
             print(eval(statement));
         }
     );
 }
 
-void deleteEverything(Program* program) {
+void deleteEverything(Array<ASTNode>* program) {
     if (!program) return;
 
-    for (u32 i = program->statements->length; i >= 0; i--) {
-        traverse(program->statements->data[i],
+    for (u32 i = program->length; i >= 0; i--) {
+        traverse(program->data[i],
             [] (ASTNode* node) {
                 pFree(node);
             }
         );
 
-        program->statements->pop();
+        program->pop();
     }
 }
 
 void doIt(char* codeBuffer, const char* filename) {
     Lexer::tokenize(codeBuffer, filename);
-    Program* program = parse(Lexer::tokens);
+    Array<ASTNode>* program = parse(Lexer::tokens);
 
     eval(program);
 
@@ -335,7 +335,7 @@ void doIt(char* codeBuffer, const char* filename) {
  * Enters the 'interactive' mode of the language which allows you to run/analyze code as you type it.
  */
 void interactive() {
-    Program* program = null;
+    Array<ASTNode>* program = null;
 
     const u32 CLUE_SANDBOX_MODE_MAX_LINE_LENGTH = 160;
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
