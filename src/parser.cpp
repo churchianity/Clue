@@ -11,7 +11,7 @@
 
 // @NOTE |node| is the operator ':', not the node to which we append the type info really.
 static void appendTypeInformation(ASTNode* node) {
-    node->children[0]->type = node->children[1]->type;
+    node->children->data[0]->type = node->children->data[1]->type;
 }
 
 static void appendInferredTypeInformation(ASTNode* node) {
