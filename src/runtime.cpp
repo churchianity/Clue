@@ -369,7 +369,11 @@ void interactive() {
                 continue;
 
             case '?':
-                print(program);
+                program->forEach([] (ASTNode* statement) {
+                    traverse(statement, [] (ASTNode* node) {
+                        if (node->children != null) print(node);
+                    });
+                });
                 continue;
 
             case '*':
