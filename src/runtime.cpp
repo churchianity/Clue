@@ -321,9 +321,13 @@ void deleteEverything(Array<ASTNode>* program) {
     }
 }
 
+
+Array<ASTNode>* program = null;
+
+
 void doIt(char* codeBuffer, const char* filename) {
     Lexer::tokenize(codeBuffer, filename);
-    Array<ASTNode>* program = parse(Lexer::tokens);
+    program = parse(Lexer::tokens);
 
     eval(program);
 
@@ -335,8 +339,6 @@ void doIt(char* codeBuffer, const char* filename) {
  * Enters the 'interactive' mode of the language which allows you to run/analyze code as you type it.
  */
 void interactive() {
-    Array<ASTNode>* program = null;
-
     const u32 CLUE_SANDBOX_MODE_MAX_LINE_LENGTH = 160;
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
 
@@ -365,12 +367,16 @@ void interactive() {
                 continue;
 
             case '&': // @TODO strangeness
-                Reporter :: rebuild("samples/variables.clue");
+                Reporter::rebuild("samples/variables.clue");
                 continue;
 
-            case '?':
-                print(program);
-                continue;
+            case '?': {
+                program->forEach([] (ASTNode* statement) {
+                    traverse(statement, [] (ASTNode* node) {
+                        if (node->children != null) print(node);
+                    });
+                });
+            } continue;
 
             case '*':
                 global->traverse(

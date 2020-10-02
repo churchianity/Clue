@@ -11,12 +11,10 @@
 
 // @NOTE |node| is the operator ':', not the node to which we append the type info really.
 static void appendTypeInformation(ASTNode* node) {
-    node->children[0]->type = node->children[1]->type;
+    node->children->data[0]->type = node->children->data[1]->type;
 }
 
-static void appendInferredTypeInformation(ASTNode* node) {
-    // @TODO
-}
+static void appendInferredTypeInformation(ASTNode* node) {}
 
 static inline void reportSpecificUnaryOperatorMissingOperand(ASTNode* node) {
     switch ((int) node->token->tt) {
@@ -107,7 +105,6 @@ static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
         addChild(node, child);
 
     } else { // is binary
-
         // rhs was pushed most recently, and this matters (2 - 4 vs. 4 - 2).
         ASTNode* rhs = es->pop();
         ASTNode* lhs = es->pop();
@@ -203,8 +200,7 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
         Reporter::report(E_LEFTOVER_OPERAND, node);
     }
 
-    delete es;
-    delete os;
+    delete es; delete os;
 
     return expression;
 }
@@ -220,7 +216,7 @@ Array<ASTNode>* parse(Array<Token>* tokens) {
 
     while (i < tokens->length) {
         switch ((int) tokens->data[i]->tt) {
-            case ';':
+            case ';': {
                 if (lastSemicolonIndex == (i - 1)) {
                     const auto token = tokens->data[i];
                     Reporter::add(W_USELESS_SEMICOLON, null, token->filename, token->line, token->column);
@@ -228,13 +224,7 @@ Array<ASTNode>* parse(Array<Token>* tokens) {
 
                 program->push(parseExpression(lastSemicolonIndex + 1, i, tokens));
                 lastSemicolonIndex = i;
-                break;
-
-            case '{':
-            case '[':
-            case '}':
-            case ']':
-                break;
+            } break;
         }
 
         i++;
