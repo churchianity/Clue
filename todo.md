@@ -14,13 +14,14 @@
 - typing stage - pass of ast
 
 #LEXER/PREPROC
-- pre-processor stuff (#define, conditional compiles)
-- binary, hexadecimal, octal numeric types TEST WITH RUNTIME
+- import file search
+- flesh out string case of lexer more
+- multi-line strings
 - multi-line comments
 - comment nesting
-- multi-line strings
-- flesh out string case of lexer more
-- import file search
+
+- pre-processor stuff (#define, conditional compiles)
+- binary, hexadecimal, octal numeric types TEST WITH RUNTIME
 
 #IDK
 - machine code generation
