@@ -69,6 +69,149 @@ static inline void reportSpecificBinaryOperatorMissingOperand(ASTNode* node) {
     }
 }
 
+static OperatorAssociativityEnum associativity(ASTNode* node) {
+    switch ((int) node->token->tt) {
+        case '=':
+        case TT_COLON_EQUALS:
+        case TT_PLUS_EQUALS:
+        case TT_MINUS_EQUALS:
+        case TT_TIMES_EQUALS:
+        case TT_DIVIDE_EQUALS:
+        case TT_MODULO_EQUALS:
+        case TT_BITWISE_AND_EQUALS:
+        case TT_BITWISE_OR_EQUALS:
+        case TT_BITWISE_XOR_EQUALS:
+        case TT_RIGHT_SHIFT_EQUALS:
+        case TT_LEFT_SHIFT_EQUALS:
+        case TT_EXPONENTIATION_EQUALS:
+        case TT_IMPORT:
+            return OA_NONE;
+
+        case ':':
+        case ',':
+        case TT_LOGICAL_AND:
+        case TT_LOGICAL_OR:
+        case TT_EQUALITY:
+        case TT_NOT_EQUALS:
+        case '>':
+        case '<':
+        case TT_GREATER_THAN_OR_EQUAL:
+        case TT_LESS_THAN_OR_EQUAL:
+        case '*':
+        case '/':
+        case '%':
+        case '&':
+        case '|':
+        case '^':
+        case TT_LEFT_SHIFT:
+        case TT_RIGHT_SHIFT:
+        case '+':
+        case '-':
+            if ((node->flags & NF_UNARY) != 0) {
+                return OA_RIGHT_TO_LEFT;
+            }
+
+            return OA_LEFT_TO_RIGHT;
+
+        case TT_INCREMENT:
+        case TT_DECREMENT:
+            if ((node->flags & NF_POSTFIX) != 0) {
+                return OA_LEFT_TO_RIGHT;
+            }
+        case '~':
+        case '!':
+        case TT_EXPONENTIATION:
+        case '@':
+        case '$':
+        case '(':
+            return OA_RIGHT_TO_LEFT;
+
+        default:
+            die("unknown operator type: %u\n", node->token->tt); return OA_NONE;
+    }
+}
+
+static u8 precedence(ASTNode* node) {
+    switch ((int) node->token->tt) {
+        case ',':
+            return 0;
+
+        case '=':
+        case TT_COLON_EQUALS:
+        case TT_PLUS_EQUALS:
+        case TT_MINUS_EQUALS:
+        case TT_TIMES_EQUALS:
+        case TT_DIVIDE_EQUALS:
+        case TT_MODULO_EQUALS:
+        case TT_BITWISE_AND_EQUALS:
+        case TT_BITWISE_OR_EQUALS:
+        case TT_BITWISE_XOR_EQUALS:
+        case TT_RIGHT_SHIFT_EQUALS:
+        case TT_LEFT_SHIFT_EQUALS:
+        case TT_EXPONENTIATION_EQUALS:
+            return 1;
+
+        case TT_LOGICAL_AND:
+        case TT_LOGICAL_OR:
+            return 2;
+
+        case TT_EQUALITY:
+        case TT_NOT_EQUALS:
+        case '>':
+        case '<':
+        case TT_GREATER_THAN_OR_EQUAL:
+        case TT_LESS_THAN_OR_EQUAL:
+            return 3;
+
+        case '+':
+        case '-':
+            if ((node->flags & NF_UNARY) != 0) {
+                return 6;
+            }
+
+            return 4;
+
+        case '*':
+        case '/':
+        case '%':
+        case '&':
+        case '|':
+        case '^':
+        case TT_LEFT_SHIFT:
+        case TT_RIGHT_SHIFT:
+            return 5;
+
+        case '~':
+        case '!':
+            return 6;
+
+        case TT_EXPONENTIATION:
+            return 7;
+
+        case TT_INCREMENT:
+        case TT_DECREMENT:
+            if ((node->flags & NF_POSTFIX) != 0) {
+                return 6;
+            }
+
+        case '(': // @NOTE this may or may not be correct for '{' and '['
+        case '{':
+        case '[':
+            if ((node->flags & NF_PUNCTUATOR) != 0) {
+                return 0;
+            }
+        case '@':
+        case '$':
+        case '.':
+        case ':':
+        case TT_IMPORT:
+            return 8;
+
+        default:
+            die("unknown operator type: %u\n", node->token->tt); return 0;
+    }
+}
+
 static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
     if (os->isEmpty() || ((node->flags & NF_PUNCTUATOR) != 0)) {
         return false;

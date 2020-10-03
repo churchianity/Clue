@@ -199,7 +199,7 @@ inline const char* tokenTypeToString(TokenTypeEnum tt) {
         case TT_NUMERIC: return "NUMERIC";
         case TT_STRING: return "STRING";
 
-        default: // these should all be operators
+        default: // these should all be operators @TODO add the value of the enum
             return "OPERATOR";
     }
 }

@@ -6,3 +6,6 @@ z := x + y * 5;
 
 x + y + z;
 
+` HI THIS IS A SINGLE LINE COMMENT
+
+

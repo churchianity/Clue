@@ -41,9 +41,6 @@ struct ASTNode {
 
 extern void traverse(ASTNode* self, void (*callback) (ASTNode*));
 
-extern OperatorAssociativityEnum associativity(ASTNode* node);
-extern u8 precedence(ASTNode* node);
-
 extern ASTNode* nodify(Array<Token>* tokens, u32 i);
 extern void freeTree(ASTNode* root);
 extern void addChild(ASTNode* self, ASTNode* child);

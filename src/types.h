@@ -35,7 +35,7 @@ typedef int8_t s8;
 
 // typedef float float;
 // typedef double double;
-typedef long double extended;
+// typedef long double extended;
 
 #endif
 

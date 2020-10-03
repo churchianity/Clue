@@ -4,6 +4,10 @@
 #include "print.h"
 #include "types.h"
 
+#define malloc malloc
+#define calloc calloc
+#define realloc realloc
+#define free free
 
 void* pMalloc(u32 size) {
     void* p = malloc(size);
@@ -39,4 +43,9 @@ void* pRealloc(void* buffer, u32 newSize) {
 void pFree(void* ptr) {
     free(ptr);
 }
+
+#undef malloc
+#undef calloc
+#undef realloc
+#undef free
 

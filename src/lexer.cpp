@@ -122,7 +122,6 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
                             if (!isOctalDigit(*buffer)) break;
 
-
                             length++;
 
                         } while (*buffer != '\0');
