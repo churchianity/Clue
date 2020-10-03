@@ -113,6 +113,13 @@ void Reporter :: rebuild(const char* filename) {
     }
 }
 
+static void printById(u32 messageId) {
+    MessageId mId = messageIds[messageId];
+
+    print("\n    %s%s%s: %s\n\n"
+          , messageSeverityToColor(mId.severity), messageSeverityToString(mId.severity), ANSI_RESET, mId.content);
+}
+
 /**
  *  Example printed messages:
  *
@@ -196,6 +203,8 @@ void Reporter :: report(u32 id, const char* functionName, const char* filename, 
     // this will frequently case segfaults and ungraceful bad things to happen, but it's better to see them than hide them.
     #if CLUE_DEBUG_LEVEL <= 0
     exit(1);
+    #else
+    printById(W_PROGRAM_UNSAFE_STATE);
     #endif
 }
 

@@ -355,18 +355,23 @@ Array<ASTNode>* parse(Array<Token>* tokens) {
     Array<ASTNode>* program = new Array<ASTNode>();
 
     u32 i = 0;
-    u32 lastSemicolonIndex = -1;
+    u32 endOfLastExpressionIndex = -1;
 
     while (i < tokens->length) {
         switch ((int) tokens->data[i]->tt) {
+            case TT_IMPORT: {
+                program->push(parseExpression(i, i + 2, tokens));
+                endOfLastExpressionIndex = i + 1;
+            } break;
+
             case ';': {
-                if (lastSemicolonIndex == (i - 1)) {
+                if (endOfLastExpressionIndex == (i - 1)) {
                     const auto token = tokens->data[i];
                     Reporter::add(W_USELESS_SEMICOLON, null, token->filename, token->line, token->column);
                 }
 
-                program->push(parseExpression(lastSemicolonIndex + 1, i, tokens));
-                lastSemicolonIndex = i;
+                program->push(parseExpression(endOfLastExpressionIndex + 1, i, tokens));
+                endOfLastExpressionIndex = i;
             } break;
         }
 

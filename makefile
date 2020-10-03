@@ -10,7 +10,7 @@ TESTFILES=$(TEST_SRC)table.cpp
 TESTFLAGS=$(FLAGS)
 
 compile:
-		clear; $(CC) $(FILES) $(FLAGS) -o ./bin/clue 2>&1 | head -n 40
+		clear; time $(CC) $(FILES) $(FLAGS) -o ./bin/clue 2>&1 | head -n 40
 
 n:
 		$(CC) $(FILES) $(FLAGS) -o ./bin/clue

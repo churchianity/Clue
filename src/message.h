@@ -32,6 +32,7 @@ struct Message {
  * @TODO replace messages with localization keys (which should probably be the same name as the enum
  */
 const MessageId messageIds[] = {
+     { MS_WARN, "program may be in unsafe state" },
      { MS_LINT, "only digits can come after a digit in an identifier name" },
      { MS_ERROR, "leading zeroes can only be in the form '0x' (hexadecimal), '0b' (binary), '0o' (octal), '0.' (fractional decimal), or just '0'" },
      { MS_ERROR, "dot appearing immediately after a number is always invalid" }, //@TODO this is a case of we know something is wrong & we don't know why
@@ -60,6 +61,7 @@ const MessageId messageIds[] = {
  * do NOT add anything to this list unless you also add an appropriate entry above as well, and vice-versa
  */
 enum MessageEnum {
+    W_PROGRAM_UNSAFE_STATE,
     L_FOLLOWING_DIGIT_IN_IDENTIFIER,
     E_BAD_LEADING_ZERO,
     E_MULTIPLE_DOTS_IN_NUMBER,
