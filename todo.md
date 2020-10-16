@@ -1,5 +1,4 @@
 
-
 #REPORTER
 - passing variables to message output, varargs
 
