@@ -172,6 +172,7 @@ inline s8 tokenTypeBinaryness(TokenTypeEnum tt) {
     switch ((int) tt) {
         case '+':
         case '-':
+        case '[': // could be an array literal (unary) or indexer (binary)
             return 2;
 
         case '*':

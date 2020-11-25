@@ -51,9 +51,7 @@
     obj.bar = 0;
     obj.baz = 0;
 
-
     foo(bar: Int, baz: Int): Int, Int { ... }
-
 
     array: Int[] = foo(...);
     x, y: Int = foo(...);
@@ -66,16 +64,6 @@
 
     foo(obj);
 
-
-
-
-
-
-
-
-
-
-
         foo(): String, Double
 
         x, y = foo();
@@ -83,8 +71,6 @@
         x = foo()[0];
         y = foo()[1];
 
-        {
-       }   -   a comma separated list of tuples (dict literal), a group of statements or expressions (closure)
 
 
        code (string) ---> | ................ | ---> code again (compiler)

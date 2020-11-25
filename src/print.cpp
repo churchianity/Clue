@@ -109,7 +109,7 @@ void print(ASTNode* node) {
         print(" | childrenCount: %u", node->children->length);
     }
 
-    print(" | tk: %s%s%s\n", ANSI_YELLOW, node->token->tk, ANSI_RESET);
+    print(" | tk: %s%s%s | flags: %u | type: %d\n", ANSI_YELLOW, node->token->tk, ANSI_RESET, node->flags, node->type);
 
     if (node->children) {
         for (u32 i = 0; i < node->children->length; i++) {

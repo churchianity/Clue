@@ -1,4 +1,9 @@
 
+#PARSER +
+- flow control (if, else, loops)
+- function calls
+- closures
+- typing stage - pass of ast
 
 #REPORTER
 - passing variables to message output, varargs
@@ -6,12 +11,6 @@
 #RUNTIME
 - string concatenation overload of +
 - string formatting overload of %
-
-#PARSER +
-- flow control (if, else, loops)
-- function calls
-- closures
-- typing stage - pass of ast
 
 #LEXER/PREPROC
 - import file search

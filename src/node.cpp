@@ -70,7 +70,14 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
 
     if (i < 1 || tokenTypeIsOperator(tokens->data[i - 1]->tt)) { // is unary prefix, or a opening punctuator
         switch ((int) node->token->tt) {
-            case TT_IMPORT: // special case, shouldn't actually do much here
+            case '(': // function call (or delimiter)
+                node->flags |= NF_PUNCTUATOR;
+                break;
+
+            case '[': // array literal
+            case '{': // dict literal
+                node->flags |= NF_PUNCTUATOR;
+
             case '~':
             case '!':
             case '@':
@@ -79,13 +86,8 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
             case '-':
             case TT_INCREMENT:
             case TT_DECREMENT:
+            case TT_IMPORT: // special case, shouldn't actually do much here
                 node->flags |= NF_UNARY;
-                break;
-
-            case '(':
-            case '[':
-            case '{':
-                node->flags |= NF_PUNCTUATOR;
                 break;
 
             default:

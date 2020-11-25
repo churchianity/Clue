@@ -214,6 +214,7 @@ static u8 precedence(ASTNode* node) {
 
 static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
     if (os->isEmpty() || ((node->flags & NF_PUNCTUATOR) != 0)) {
+        print(node);
         return false;
     }
 
@@ -275,15 +276,74 @@ static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
  *
  * this is basically shunting-yard with some bells & whistles to allow function calls, unary operators, postfix/prefix etc.
  */
-static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* tokens) {
-    auto es = new Array<ASTNode>();
-    auto os = new Array<ASTNode>();
+static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* tokens) {
+    static auto statements = new Array<ASTNode>();
+    static auto es = new Array<ASTNode>();
+    static auto os = new Array<ASTNode>();
 
     u32 i = startIndex;
 
     while (i < endIndex) {
         switch ((int) tokens->data[i]->tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
 
+            // skip over import and its operand
+            case TT_IMPORT: i += 2; continue;
+
+            // these types only ever act as operands
+            case TT_SYMBOL:
+            case TT_STRING:
+            case TT_NUMERIC:
+                es->push(nodify(tokens, i));
+                break;
+
+            // operators
+            default: {
+                const auto node = nodify(tokens, i);
+
+                // handle precedence & associativity before pushing the operator onto the stack
+                while (canPopAndApply(os, node)) parseOperation(es, os->pop());
+
+                os->push(node);
+            } break;
+
+            // this is the end of some statement or expression
+            case ';': {
+                while (!os->isEmpty()) {
+                    // we shouldn't have any open punctuators at this stage - if we do, there's a mismatch
+                    const auto token = os->peek()->token;
+
+                    switch ((int) token->tt) {
+                        case '(':
+                            Reporter::report(E_MISSING_CLOSE_PAREN, null, token->filename, token->line, token->column);
+                            break;
+
+                        case '[':
+                            Reporter::report(E_MISSING_CLOSE_BRACKET, null, token->filename, token->line, token->column);
+                            break;
+
+                        case '{':
+                            Reporter::report(E_MISSING_CLOSE_BRACE, null, token->filename, token->line, token->column);
+                            break;
+                    }
+
+                    parseOperation(es, os->pop());
+                }
+
+                auto expression = es->pop();
+
+                if (!es->isEmpty()) { // if we still have expressions on the stack, they are leftovers
+                    Reporter::report(E_LEFTOVER_OPERAND, es->peek());
+                }
+
+                statements->push(expression);
+
+                delete es;
+                delete os;
+                es = new Array<ASTNode>();
+                os = new Array<ASTNode>();
+            } break;
+
+            // the end of some group of expressions/statements, a function call, or a function definition argument list
             case ')': {
                 while (os->peek()) {
                     if (os->peek()->token->tt == '(') break;
@@ -301,64 +361,36 @@ static ASTNode* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* toke
                 }
             } break;
 
-            // these types only ever act as operands
-            case TT_SYMBOL:
-            case TT_STRING:
-            case TT_NUMERIC:
-                es->push(nodify(tokens, i));
-                break;
+            // the end of either an array indexer expression or array literal
+            case ']': {
+                while (os->peek()) {
+                    if (os->peek()->token->tt == '[') break;
 
-            // operators
-            default: {
-                const auto node = nodify(tokens, i);
-
-                // handle precedence & associativity before pushing the operator onto the stack
-                while (canPopAndApply(os, node)) {
                     parseOperation(es, os->pop());
                 }
 
-                os->push(node);
+                if (os->isEmpty()) {
+                    Reporter::report(E_MISSING_OPEN_BRACKET, null, tokens->data[i]->filename, tokens->data[i]->line, tokens->data[i]->column);
+                }
+
+                parseOperation(es, os->pop());
+
             } break;
         }
 
         i++;
     }
 
-    while (!os->isEmpty()) {
-        // we shouldn't have any 'open' punctuators at this stage - if we do, there's a mismatch
-        if (os->peek()->token->tt == '(') {
-            const auto token = os->peek()->token;
-
-            Reporter::report(E_MISSING_CLOSE_PAREN, null, token->filename, token->line, token->column);
-        }
-
-        parseOperation(es, os->pop());
-    }
-
-    ASTNode* expression = (ASTNode*) es->pop();
-
-    if (!es->isEmpty()) { // if we still have expressions on the stack, they are leftovers
-        const auto node = es->peek();
-
-        Reporter::report(E_LEFTOVER_OPERAND, node);
-    }
-
-    delete es; delete os;
-
-    return expression;
+    return statements;
 }
 
 /**
  * Given a list of |tokens| return the root node of an abstract syntax tree.
  */
 Array<ASTNode>* parse(Array<Token>* tokens) {
-    Array<ASTNode>* program = new Array<ASTNode>();
+    return parseExpression(0, tokens->length, tokens);
 
-    u32 i = 0;
-    u32 endOfLastExpressionIndex = -1;
-
-    while (i < tokens->length) {
-        switch ((int) tokens->data[i]->tt) {
+    /*
             case TT_IMPORT: {
                 program->push(parseExpression(i, i + 2, tokens));
                 endOfLastExpressionIndex = i + 1;
@@ -379,5 +411,6 @@ Array<ASTNode>* parse(Array<Token>* tokens) {
     }
 
     return program;
+    */
 }
 

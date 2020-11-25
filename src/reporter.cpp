@@ -200,7 +200,8 @@ void Reporter :: report(u32 id, const char* functionName, const char* filename, 
 
     // when we 'report' normally, this should exit the program.
     // However, when debugging we might want to see more.
-    // this will frequently case segfaults and ungraceful bad things to happen, but it's better to see them than hide them.
+    // this will frequently case segfaults and ungraceful bad things to happen, but it's better to see them than hide them,
+    // and even more important than that - to see when supposedly 'fatal' errors can actually not be fatal
     #if CLUE_DEBUG_LEVEL <= 0
     exit(1);
     #else
