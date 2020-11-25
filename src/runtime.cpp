@@ -298,7 +298,6 @@ Value eval(ASTNode* node) {
     return v;
 }
 
-
 void eval(Array<ASTNode>* program) {
     program->forEach(
         [] (ASTNode* statement) {
@@ -332,7 +331,6 @@ void doIt(char* codeBuffer, const char* filename) {
     eval(program);
 
     pFree(codeBuffer);
-    pFree(program);
 }
 
 /**
