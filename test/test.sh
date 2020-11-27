@@ -3,6 +3,9 @@ search_dir="."
 
 for entry in "$search_dir"/*.clue
 do
-    clue -i "$entry"
+    clue "$entry"
+    code=$?
+
+    [ $code -eq 0 ] && echo "success | $entry" || echo "failure | $entry, exit code: $code"
 done
 
