@@ -37,10 +37,6 @@ void addChild(ASTNode* self, ASTNode* child) {
     self->children->push(child);
 }
 
-/**
- * Resolve a token into a node.
- * This requires some amount of peeking, so the whole Lexer::tokens array should be passed w/ the index of the operator.
- */
 ASTNode* nodify(Array<Token>* tokens, u32 i) {
     ASTNode* node = (ASTNode*) pCalloc(sizeof (ASTNode), 1);
 

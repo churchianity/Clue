@@ -108,8 +108,9 @@ struct Token {
     u8 flags = 0;
 };
 
+// closing punctuators like ), ] and } don't count
 inline bool tokenTypeIsOperator(TokenTypeEnum tt) {
-    return !((tt == TT_SYMBOL) || (tt == TT_NUMERIC) || (tt == TT_STRING));
+    return !((tt == ')') || (tt == ']') || (tt == '}') || (tt == TT_SYMBOL) || (tt == TT_NUMERIC) || (tt == TT_STRING));
 }
 
 inline bool tokenTypeIsAssignment(TokenTypeEnum tt) {

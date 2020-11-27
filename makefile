@@ -7,11 +7,11 @@ COMPILER_FLAGS=-ansi -pedantic -g -Wall -std=c++11 -fshort-enums -rdynamic
 
 
 compile:
-		clear; $(CC) $(SRC_FILES) $(COMPILER_FLAGS) -o ./bin/clue 2>&1 | head -n 40
+	clear; $(CC) $(SRC_FILES) $(COMPILER_FLAGS) -o ./bin/clue 2>&1 | head -n 40
 
 time:
-		time $(CC) $(FILES) $(FLAGS) -o ./bin/clue
+	time $(CC) $(FILES) $(FLAGS) -o ./bin/clue
 
 clean:
-		rm ./bin/clue
+	rm ./bin/clue
 

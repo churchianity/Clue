@@ -327,9 +327,7 @@ Array<ASTNode>* program = null;
 void doIt(char* codeBuffer, const char* filename) {
     Lexer::tokenize(codeBuffer, filename);
     program = parse(Lexer::tokens);
-
     eval(program);
-
     pFree(codeBuffer);
 }
 
@@ -393,6 +391,7 @@ void interactive() {
 
         Lexer::tokenize(s, "stdin", line);
         program = parse(Lexer::tokens);
+        // eval(program);
         Reporter::flush();
 
         line++; // do this last

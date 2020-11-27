@@ -133,8 +133,10 @@ static OperatorAssociativityEnum associativity(ASTNode* node) {
 
 static u8 precedence(ASTNode* node) {
     switch ((int) node->token->tt) {
+        // case '[': return 0; // 'array literal' open bracket has lowest precedence for now!
         case ',':
-            return 0;
+        case '{':
+            return 1;
 
         case '=':
         case TT_COLON_EQUALS:
@@ -195,7 +197,6 @@ static u8 precedence(ASTNode* node) {
             }
 
         case '(': // @NOTE this may or may not be correct for '{' and '['
-        case '{':
         case '[':
             if ((node->flags & NF_PUNCTUATOR) != 0) {
                 return 0;
@@ -214,7 +215,6 @@ static u8 precedence(ASTNode* node) {
 
 static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
     if (os->isEmpty() || ((node->flags & NF_PUNCTUATOR) != 0)) {
-        print(node);
         return false;
     }
 
@@ -234,7 +234,7 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
 }
 
 static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
-    if ((node->flags & NF_PUNCTUATOR) != 0) return;
+    if (node->token->tt == '(') return; // @NOTE be careful with this when doing open_paren and open_brace stuff
 
     if (!tokenTypeIsOperator(node->token->tt)) {
         es->push(node); // operands are (sometimes) an operation that return themselves
@@ -270,10 +270,6 @@ static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
 
 /**
  * Parses an Array of |tokens| into an AST expression node..
- *
- * You shouldn't call this unless you have a good reason to believe that there is an expression between
- * the tokens array @ |startIndex| and |endIndex|, inclusive of start but not end.
- *
  * this is basically shunting-yard with some bells & whistles to allow function calls, unary operators, postfix/prefix etc.
  */
 static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token>* tokens) {
