@@ -2,10 +2,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include <stdlib.h> // NULL
-
-// there isn't a really good reason for this, i just like it
-#define null NULL
+#define null 0
 
 // bool is included by default for C++11
 #ifndef __cplusplus

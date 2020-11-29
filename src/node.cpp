@@ -87,7 +87,15 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
                 break;
 
             default:
-                Reporter::report(E_INVALID_OPERATOR, node);
+                // @TODO, if the user accidentally puts a space between the last two characters of a multi-character operator, like
+                // '+ +'
+                // or
+                // ': ='
+                // or
+                // '>> ='
+                //
+                // then the error message here is not that helpful! we can check what the previous token is and guess what they meant.
+                Reporter::report(E_UNEXPECTED_NON_UNARY_OPERATOR, node);
                 break;
         }
     } else if ((tokens->data[i]->tt == '(') && (tokens->data[i - 1]->tt == TT_SYMBOL)) { // is a function call
