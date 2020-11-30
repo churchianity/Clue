@@ -9,7 +9,7 @@
 
 enum ASTNodeTypeEnum {
     NT_NUMBER,
-    NT_STRING,
+    NT_STRING
 };
 
 enum OperatorAssociativityEnum {

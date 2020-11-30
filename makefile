@@ -1,9 +1,10 @@
 
-CC=g++
+CC=clang
 
 SRC=./src/
 SRC_FILES=$(SRC)alloc.cpp $(SRC)clue.cpp $(SRC)runtime.cpp $(SRC)lexer.cpp $(SRC)parser.cpp $(SRC)node.cpp $(SRC)reporter.cpp $(SRC)string.cpp $(SRC)print.cpp
-COMPILER_FLAGS=-ansi -pedantic -g -Wall -std=c++11 -fshort-enums -rdynamic
+#COMPILER_FLAGS=-Wc++11-extensions
+COMPILER_FLAGS=-ansi -pedantic -g -Wall -std=c++11 -lstdc++ -fshort-enums -rdynamic
 
 
 compile:

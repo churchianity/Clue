@@ -82,7 +82,7 @@ enum TokenTypeEnum {
     TT_RETURN                   = 404,  // return
 
     TT_TYPE_INFO_TAG_NUMBER     = 500,  // Number
-    TT_TYPE_INFO_TAG_STRING     = 501,  // String
+    TT_TYPE_INFO_TAG_STRING     = 501   // String
 
     // TT_MAKE_IT_BIG              = 0xFFFFFFFFFFFFFFFF
 };
@@ -96,16 +96,16 @@ enum TokenFlagsEnum {
 };
 
 struct Token {
-    const char* filename = null;
-    const char* tk       = null;
+    const char* filename;
+    const char* tk;
 
-    u32 line             = -1;
-    u32 column           = -1;
-    u32 length           = -1;
+    u32 line;
+    u32 column;
+    u32 length;
 
-    TokenTypeEnum tt     = TT_ANY;
+    TokenTypeEnum tt;
 
-    u8 flags = 0;
+    u8 flags;
 };
 
 // closing punctuators like ), ] and } don't count

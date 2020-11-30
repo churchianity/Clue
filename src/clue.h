@@ -32,17 +32,17 @@
  *  signal.h
  *      SIGSEGV, SIGABRT, signal()
  */
-static struct {
+struct {
     // whether or not to drop the user into interactive mode after reading source files (if present)
-    bool interactive = false;
+    bool interactive;
 
     // the name of the directory that is the root of the source tree of whatever project you are in
     // note that this is an assumption some percentage of the time, because the only way to be 100%
     // positive is to ask the user (and even then there's user error), which we don't want to make mandatory
-    const char* src = 0;
+    const char* src;
 
-    char** files = 0;
-    int filec = 0;
+    char** files;
+    int filec;
 } CLAs;
 
 #endif

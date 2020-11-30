@@ -11,10 +11,10 @@ enum ValueTypeEnum {
 };
 
 struct Value {
-    ValueTypeEnum type = VT_NUMBER;
+    ValueTypeEnum type;
 
     union {
-        double number = 0xDEADBEEF;
+        double number;
         const char* string;
     };
 };
