@@ -2,6 +2,8 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include "llvm/ADT/APFloat.h"
+#include "llvm/IR/Type.h"
 #include "array.hpp"
 #include "token.h"
 #include "types.h"

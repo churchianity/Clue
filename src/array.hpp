@@ -219,9 +219,30 @@ struct Array {
         return false;
     }
 
+    /* @TODO, gets spicy with algorithms and choice there, prolly quicksort
     Array<T>* sort(int (*comparator) (T*)) {
 
     }
+
+    // @TODO
+    Array<T>* splice(int start, int deleteCount, Array<T>* stuff) {
+        return null;
+    }
+
+    // @TODO toLocaleString()
+    // @TODO toSource()
+    // @TODO toString()
+
+    // @TODO
+    T* unshift(Array<T>* stuff) {
+        return null;
+    }
+
+    // @TODO probably shouldn't use this
+    T* values() {
+        return this->data;
+    }
+    */
 
     // non-standard
     T* peek() const {

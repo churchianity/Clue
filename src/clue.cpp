@@ -1,27 +1,27 @@
 
 #if defined(_WIN32)
-    #define OS "Windows 32bit"
+    #define __CLUE_OS__"Windows 32bit"
 #elif defined(_WIN64)
-    #define OS "Windows 64bit"
+    #define __CLUE_OS__ "Windows 64bit"
 #elif defined(__linux__)
-    #define OS "Linux"
+    #define __CLUE_OS__ "Linux"
 #elif defined(__APPLE__)
-    #define OS "MacOSX"
+    #define __CLUE_OS__ "MacOSX"
 #elif defined(__FreeBSD__)
-    #define OS "FreeBSD"
+    #define __CLUE__OS__ "FreeBSD"
 #elif defined(__ANDROID__)
-    #define OS "Android"
+    #define __CLUE_OS__ "Android"
 #else
-    #define OS "Unknown os"
+    #define __CLUE_OS__ "Unknown os"
 #endif
 
 // gcc specific
 #if defined(__i386__)
-    #define ARCH_ "i386"
+    #define __CLUE_ARCH__ "i386"
 #elif defined(__x86_64__)
-    #define ARCH_ "x86_64"
+    #define __CLUE_ARCH__ "x86_64"
 #else
-    #define ARCH_ "unknown architecture"
+    #define __CLUE_ARCH__ "unknown architecture"
 #endif
 
 #include <stdlib.h> // exit
@@ -82,7 +82,7 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
             help(null); exit(0);
 
         } else if (streq(arg, "-v") || streq(arg, "--version")) {
-            print("clue programming language v%s, for %s, %s\n", CLUE_VERSION_NUMBER, OS, ARCH_); exit(0);
+            print("clue programming language v%s, for %s, %s\n", __CLUE_VERSION_NUMBER__, __CLUE_OS__, __CLUE_ARCH__); exit(0);
 
         } else if (streq(arg, "-i") || streq(arg, "--interactive")) {
             CLAs.interactive = true;
