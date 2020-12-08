@@ -4,7 +4,7 @@ LLVM=`llvm-config --cxxflags --ldflags --system-libs --libs core`
 
 SRC=./src/
 SRC_FILES=$(SRC)alloc.cpp $(SRC)clue.cpp $(SRC)runtime.cpp $(SRC)lexer.cpp $(SRC)parser.cpp $(SRC)node.cpp $(SRC)reporter.cpp $(SRC)string.cpp $(SRC)print.cpp
-COMPILER_FLAGS=$(LLVM) -ansi -pedantic -g -Wall -std=c++14 -lstdc++ -fshort-enums -rdynamic
+COMPILER_FLAGS=-ansi -pedantic -g -Wall -std=c++14 -lstdc++ -fshort-enums -rdynamic -lm
 
 
 compile:
