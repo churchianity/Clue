@@ -1,6 +1,6 @@
 
 CC=clang
-COMPILER_FLAGS=-ansi -pedantic -g -Wall -std=c++14 -lstdc++ -fshort-enums -rdynamic
+COMPILER_FLAGS=-ansi -pedantic -g -Wall -std=c++14 -lstdc++ -fshort-enums -rdynamic -lm
 LLVM=`llvm-config --cxxflags --ldflags --system-libs --libs core`
 
 SRC=./src/
