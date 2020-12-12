@@ -10,7 +10,7 @@
 
 /**
  * Dependencies:
- *  C++11
+ *  C++14
  *
  *  stdlib.h
  *      malloc, calloc, realloc, free, exit, NULL
@@ -31,6 +31,8 @@
  *
  *  signal.h
  *      SIGSEGV, SIGABRT, signal()
+ *
+ *  llvm MAYBE
  */
 struct {
     // whether or not to drop the user into interactive mode after reading source files (if present)
