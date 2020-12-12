@@ -271,19 +271,42 @@ normal_decimal: // normal/fractional decimal
                 case '\\': // @TODO?
                     break;
 
-                // pre-processor stuff maybe @TODO
+                // meta-programming stuff. @TODO
                 case '#': {} break;
 
-                // single-line comment
+                // single or multi-line comment
                 case '`': {
-                    do {
-                        buffer++;
+                    buffer++;
+                    column++;
 
-                        if (*buffer == '\n') {
-                            break;
+                    if (*buffer == '`') {
+                        do {
+                            buffer++;
+
+                            if (*buffer == '\n') {
+                                column = 1;
+                                line++;
+
+                            } else if (*buffer == '`' && *(buffer + 1) == '`') {
+                                column += 2;
+                                buffer += 2;
+                                break;
+
+                            } else {
+                                column++;
+                            }
+                        } while (*buffer != '\0');
+                    } else {
+                        while (*buffer != '\0') {
+                            if (*buffer == '\n') {
+                                // @NOTE the terminating newline character is not considered to be part of the comment
+                                break;
+                            }
+
+                            buffer++;
+                            column++;
                         }
-
-                    } while (*buffer != '\0');
+                    }
                 } continue;
 
                 case '>':
