@@ -21,7 +21,7 @@ enum TokenTypeEnum {
 
     // TT_OPERATOR              = 259,  // unused (operators have one of the types below);
     // TT_DOUBLE_TILDE          = 260,  // ~~
-    // TT_DOUBLE_BACKTICK       = 261,  // ``
+    // TT_DOUBLE_BACKTICK       = 261,  // `` // this a multi-line comment, never gets parsed
     // TT_BOOL_CAST             = 262,  // !!
     // TT_DOUBLE_AT             = 263,  // @@
     // TT_DOUBLE_HASH           = 264,  // ##
@@ -109,6 +109,8 @@ struct Token {
 };
 
 // closing punctuators like ), ] and } don't count
+// otherwise, because the primary way to identify a unary operator is that it is preceded by another operator,
+// examples like ') * 2' fail, because it believes that '*' is unary here
 inline bool tokenTypeIsOperator(TokenTypeEnum tt) {
     return !((tt == ')') || (tt == ']') || (tt == '}') || (tt == TT_SYMBOL) || (tt == TT_NUMERIC) || (tt == TT_STRING));
 }

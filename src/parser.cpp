@@ -71,6 +71,11 @@ static inline void reportSpecificBinaryOperatorMissingOperand(ASTNode* node) {
 
 static OperatorAssociativityEnum associativity(ASTNode* node) {
     switch ((int) node->token->tt) {
+        case TT_IF:
+        case TT_ELSE:
+        case TT_WHILE:
+            return OA_RIGHT_TO_LEFT;
+
         case '=':
         case TT_COLON_EQUALS:
         case TT_PLUS_EQUALS:
@@ -133,6 +138,10 @@ static OperatorAssociativityEnum associativity(ASTNode* node) {
 
 static u8 precedence(ASTNode* node) {
     switch ((int) node->token->tt) {
+        case TT_IF:
+        case TT_ELSE:
+        case TT_WHILE:
+            return 1;
         // case '[': return 0; // 'array literal' open bracket has lowest precedence for now!
         case ',':
         case '{':
@@ -371,6 +380,18 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
 
                 parseOperation(es, os->pop());
 
+            } break;
+
+            case '}': {
+                while (os->peek()) {
+                    if (os->peek()->token->tt == '{') break;
+
+                    parseOperation(es, os->pop());
+                }
+
+                if (os->isEmpty()) {
+                    Reporter::report(E_MISSING_OPEN_BRACE, null, tokens->data[i]->filename, tokens->data[i]->line, tokens->data[i]->column);
+                }
             } break;
         }
 

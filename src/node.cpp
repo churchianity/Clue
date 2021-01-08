@@ -86,6 +86,23 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
                 node->flags |= NF_UNARY;
                 break;
 
+            case '}':
+                if (tokens->data[i - 1]->tt == '{') {
+                    // empty dict literal or code block
+                }
+                break;
+
+            case ']':
+                if (tokens->data[i - 1]->tt == '[') {
+                    // empty array literal or indexer
+                }
+                break;
+
+            case TT_IF:
+            case TT_ELSE:
+            case TT_WHILE:
+                break;
+
             default:
                 // @TODO, if the user accidentally puts a space between the last two characters of a multi-character operator, like
                 // '+ +'

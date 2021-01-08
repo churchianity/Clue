@@ -57,7 +57,8 @@ const MessageId messageIds[] = {
      { MS_ERROR, "non-associative sub-expression - don't do this on one line" },
      { MS_ERROR, "missing open bracket" },
      { MS_ERROR, "missing close bracket" },
-     { MS_ERROR, "missing close brace" }
+     { MS_ERROR, "missing close brace" },
+     { MS_ERROR, "missing open brace" }
 };
 
 /**
@@ -89,7 +90,8 @@ enum MessageEnum {
     E_NON_ASSOCIATIVE_SUBEXPRESSION,
     E_MISSING_OPEN_BRACKET,
     E_MISSING_CLOSE_BRACKET,
-    E_MISSING_CLOSE_BRACE
+    E_MISSING_CLOSE_BRACE,
+    E_MISSING_OPEN_BRACE
 };
 
 #endif
