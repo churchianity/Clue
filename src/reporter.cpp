@@ -6,6 +6,7 @@
 #include "print.h"
 #include "string.h"
 #include "reporter.h"
+#include "runtime.h"
 #include "token.h"
 
 
@@ -137,12 +138,13 @@ static void printById(u32 messageId) {
 static void print(const Message* message) {
     const char* fn = message->functionName;
     char* pointyThing = makePointyThing(message->column);
+    const char* functionLabel = fn ? "in function '" : "";
 
     // i'm so sorry.
     print("\n    %s%s%s: %s\n    %s%s%s%s:%u:%u\n    %s\n    %s%s%s\n"
           , messageSeverityToColor(message->severity), messageSeverityToString(message->severity), ANSI_RESET
           , message->content
-          , fn ? "in function '" : "", fn ? fn : "", fn ? "': " : ""
+          , functionLabel, fn ? fn : "", fn ? "': " : ""
           , message->filename, message->line, message->column
           , reconstruct(message->filename, message->line)
           , ANSI_RED, pointyThing, ANSI_RESET
@@ -170,7 +172,7 @@ void Reporter :: add(u32 id, const char* functionName, const char* filename, u32
 
     Message* message = (Message*) pMalloc(sizeof (Message));
 
-    MessageId messageId = messageIds[id];
+    MessageId messageId   = messageIds[id];
     message->severity     = messageId.severity;
     message->content      = messageId.content;
 
@@ -207,6 +209,7 @@ void Reporter :: report(u32 id, const char* functionName, const char* filename, 
     exit(1);
     #else
     printById(W_PROGRAM_UNSAFE_STATE);
+    printProgramTree();
     #endif
 }
 

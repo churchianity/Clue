@@ -320,9 +320,17 @@ void deleteEverything(Array<ASTNode>* program) {
     }
 }
 
-
 Array<ASTNode>* program = null;
-
+void printProgramTree() {
+    if (program != null) {
+        print("printing the AST...\n");
+        program->forEach([] (ASTNode* statement) {
+            traverse(statement, [] (ASTNode* node) {
+                if (node->children != null) print(node);
+            });
+        });
+    }
+}
 
 void doIt(char* codeBuffer, const char* filename) {
     Lexer::tokenize(codeBuffer, filename);
@@ -371,14 +379,7 @@ void interactive() {
                 continue;
 
             case '?': {
-                if (program != null) {
-                    print("printing the AST...\n");
-                    program->forEach([] (ASTNode* statement) {
-                        traverse(statement, [] (ASTNode* node) {
-                            if (node->children != null) print(node);
-                        });
-                    });
-                }
+                printProgramTree();
             } continue;
 
             case '*': {

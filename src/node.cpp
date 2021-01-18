@@ -40,10 +40,17 @@ void addChild(ASTNode* self, ASTNode* child) {
 ASTNode* nodify(Array<Token>* tokens, u32 i) {
     ASTNode* node = (ASTNode*) pCalloc(sizeof (ASTNode), 1);
 
+    // node->type = NT_NONE;
     node->token = tokens->data[i];
+    // node->flags = 0;
 
     switch (node->token->tt) {
         default: break;
+
+        case TT_THEN: {
+            node->children = new Array<ASTNode>();
+            node->flags |= NF_UNARY;
+        } return node;
 
         case TT_SYMBOL: {
             node->children = null;
@@ -66,13 +73,18 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
 
     if (i < 1 || tokenTypeIsOperator(tokens->data[i - 1]->tt)) { // is unary prefix, or a opening punctuator
         switch ((int) node->token->tt) {
-            case '(': // function call (or delimiter)
+            // @TODO review
+            case '[': // array literal
+                node->flags |= NF_UNARY;
                 node->flags |= NF_PUNCTUATOR;
                 break;
 
-            case '[': // array literal
+            case '(': // function call (or delimiter)
             case '{': // dict literal
+                // in both cases, we don't know what it is yet.
+                // let it be known that this delimits something important and deal with it later.
                 node->flags |= NF_PUNCTUATOR;
+                break;
 
             case '~':
             case '!':
@@ -83,6 +95,8 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
             case TT_INCREMENT:
             case TT_DECREMENT:
             case TT_IMPORT: // special case, shouldn't actually do much here
+            case TT_IF:
+            case TT_THEN:
                 node->flags |= NF_UNARY;
                 break;
 
@@ -96,11 +110,6 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
                 if (tokens->data[i - 1]->tt == '[') {
                     // empty array literal or indexer
                 }
-                break;
-
-            case TT_IF:
-            case TT_ELSE:
-            case TT_WHILE:
                 break;
 
             default:

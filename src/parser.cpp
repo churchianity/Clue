@@ -89,6 +89,7 @@ static OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
         case TT_IMPORT:
+
             return OA_NONE;
 
         case '=':
@@ -129,6 +130,7 @@ static OperatorAssociativityEnum associativity(ASTNode* node) {
         case '@':
         case '$':
         case '(':
+        case TT_THEN:
             return OA_RIGHT_TO_LEFT;
 
         default:
@@ -141,6 +143,7 @@ static u8 precedence(ASTNode* node) {
         case TT_IF:
         case TT_ELSE:
         case TT_WHILE:
+        case TT_THEN:
             return 1;
         // case '[': return 0; // 'array literal' open bracket has lowest precedence for now!
         case ',':
@@ -242,8 +245,10 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
     return false;
 }
 
-static void parseOperation(Array<ASTNode>* es, ASTNode* node) {
-    if (node->token->tt == '(') return; // @NOTE be careful with this when doing open_paren and open_brace stuff
+static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os) {
+    // if (os->peek()->token->tt == '(') return; // @NOTE be careful with this when doing open_paren and open_brace stuff
+
+    const auto node = os->pop();
 
     if (!tokenTypeIsOperator(node->token->tt)) {
         es->push(node); // operands are (sometimes) an operation that return themselves
@@ -306,7 +311,7 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
                 const auto node = nodify(tokens, i);
 
                 // handle precedence & associativity before pushing the operator onto the stack
-                while (canPopAndApply(os, node)) parseOperation(es, os->pop());
+                while (canPopAndApply(os, node)) parseOperation(es, os);
 
                 os->push(node);
             } break;
@@ -331,7 +336,7 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
                             break;
                     }
 
-                    parseOperation(es, os->pop());
+                    parseOperation(es, os);
                 }
 
                 auto expression = es->pop();
@@ -353,7 +358,7 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
                 while (os->peek()) {
                     if (os->peek()->token->tt == '(') break;
 
-                    parseOperation(es, os->pop());
+                    parseOperation(es, os);
                 }
 
                 if (os->isEmpty()) { // we never found a matching open paren...
@@ -371,14 +376,14 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
                 while (os->peek()) {
                     if (os->peek()->token->tt == '[') break;
 
-                    parseOperation(es, os->pop());
+                    parseOperation(es, os);
                 }
 
                 if (os->isEmpty()) {
                     Reporter::report(E_MISSING_OPEN_BRACKET, null, tokens->data[i]->filename, tokens->data[i]->line, tokens->data[i]->column);
                 }
 
-                parseOperation(es, os->pop());
+                parseOperation(es, os);
 
             } break;
 
@@ -386,7 +391,7 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
                 while (os->peek()) {
                     if (os->peek()->token->tt == '{') break;
 
-                    parseOperation(es, os->pop());
+                    parseOperation(es, os);
                 }
 
                 if (os->isEmpty()) {
@@ -406,28 +411,5 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
  */
 Array<ASTNode>* parse(Array<Token>* tokens) {
     return parseExpression(0, tokens->length, tokens);
-
-    /*
-            case TT_IMPORT: {
-                program->push(parseExpression(i, i + 2, tokens));
-                endOfLastExpressionIndex = i + 1;
-            } break;
-
-            case ';': {
-                if (endOfLastExpressionIndex == (i - 1)) {
-                    const auto token = tokens->data[i];
-                    Reporter::add(W_USELESS_SEMICOLON, null, token->filename, token->line, token->column);
-                }
-
-                program->push(parseExpression(endOfLastExpressionIndex + 1, i, tokens));
-                endOfLastExpressionIndex = i;
-            } break;
-        }
-
-        i++;
-    }
-
-    return program;
-    */
 }
 

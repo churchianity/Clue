@@ -8,6 +8,7 @@
 
 
 enum ASTNodeTypeEnum {
+    NT_NONE,
     NT_NUMBER,
     NT_STRING
 };

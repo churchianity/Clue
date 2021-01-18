@@ -20,7 +20,7 @@ enum TokenTypeEnum {
     TT_STRING                   = 258,
 
     // TT_OPERATOR              = 259,  // unused (operators have one of the types below);
-    // TT_DOUBLE_TILDE          = 260,  // ~~
+    // TT_DOUBLE_TILDE          = 260,  // ~~ // bitwise not-not - makes no sense
     // TT_DOUBLE_BACKTICK       = 261,  // `` // this a multi-line comment, never gets parsed
     // TT_BOOL_CAST             = 262,  // !!
     // TT_DOUBLE_AT             = 263,  // @@
@@ -33,7 +33,7 @@ enum TokenTypeEnum {
     // TT_IMPOSSIBLE_1          = 270,  // ((
     // TT_IMPOSSIBLE_2          = 271,  // ))
     // TT_IMPOSSIBLE_3          = 272,  // __
-    TT_DECREMENT                = 273,  // --
+    TT_DECREMENT                = 273,  // -- // probably remove these two.
     TT_INCREMENT                = 274,  // ++
     TT_EQUALITY                 = 275,  // ==
     // TT_DOUBLE_OPEN_BRACE     = 276,  // {{
@@ -49,7 +49,7 @@ enum TokenTypeEnum {
     TT_LEFT_SHIFT               = 286,  // <<
     // TT_IMPOSSIBLE_7          = 287,  // ,,
     TT_RIGHT_SHIFT              = 288,  // >>
-    // TT_DOUBLE_DOT            = 289,  // ..
+    // TT_DOUBLE_DOT            = 289,  // .. // loop range thing?
     // TT_DOUBLE_QMARK          = 290,  // ??
     TT_SINGLE_LINE_COMMENT      = 291,  // //
 
@@ -80,6 +80,8 @@ enum TokenTypeEnum {
     TT_ELSE                     = 402,  // else
     TT_WHILE                    = 403,  // while
     TT_RETURN                   = 404,  // return
+    TT_THEN                     = 405,  // then
+    TT_DO                       = 406,  // do
 
     TT_TYPE_INFO_TAG_NUMBER     = 500,  // Number
     TT_TYPE_INFO_TAG_STRING     = 501   // String
@@ -165,6 +167,9 @@ inline s8 tokenTypeUnaryness(TokenTypeEnum tt) {
         case '!':
         case '@':
         case '$':
+        case TT_IF:
+        case TT_THEN:
+        case TT_WHILE:
             return 1;
 
         default: return 0;
@@ -175,7 +180,7 @@ inline s8 tokenTypeBinaryness(TokenTypeEnum tt) {
     switch ((int) tt) {
         case '+':
         case '-':
-        case '[': // could be an array literal (unary) or indexer (binary)
+        case '[': // could be an array literal (unary/operand) or indexer (binary)
             return 2;
 
         case '*':
@@ -189,11 +194,33 @@ inline s8 tokenTypeBinaryness(TokenTypeEnum tt) {
         case TT_RIGHT_SHIFT:
         case TT_LEFT_SHIFT:
 
+        case '<':
+        case TT_LESS_THAN_OR_EQUAL:
+        case '>':
+        case TT_GREATER_THAN_OR_EQUAL:
+
         case ':':
         case ',':
             return 1;
 
         default: return tokenTypeIsAssignment(tt);
+    }
+}
+
+inline s8 tokenTypeIsPunctuator(TokenTypeEnum tt) {
+    switch ((int) tt) {
+        case ')':
+        case ']':
+        case '}':
+            return 2; // definitely is.
+
+        case '(':
+        case '[':
+        case '{':
+            return 1; // could be.
+
+        default:
+            return -1; // isn't.
     }
 }
 
