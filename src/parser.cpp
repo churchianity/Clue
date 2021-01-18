@@ -76,7 +76,6 @@ static OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_WHILE:
             return OA_RIGHT_TO_LEFT;
 
-        case '=':
         case TT_COLON_EQUALS:
         case TT_PLUS_EQUALS:
         case TT_MINUS_EQUALS:
@@ -92,6 +91,7 @@ static OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_IMPORT:
             return OA_NONE;
 
+        case '=':
         case ':':
         case ',':
         case TT_LOGICAL_AND:

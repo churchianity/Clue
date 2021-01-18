@@ -309,7 +309,7 @@ void eval(Array<ASTNode>* program) {
 void deleteEverything(Array<ASTNode>* program) {
     if (!program) return;
 
-    for (u32 i = program->length; i >= 0; i--) {
+    for (s32 i = 0; i < program->length; i++) {
         traverse(program->data[i],
             [] (ASTNode* node) {
                 pFree(node);
@@ -354,27 +354,35 @@ void interactive() {
                 return;
 
             case '/':
+                print("deleting everything...\n");
                 Lexer::clear();
-                // deleteEverything(program);
+                deleteEverything(program);
+                program = null;
                 continue;
 
             case '#':
+                print("printing the state of the lexer...\n");
                 Lexer::tokens->forEach(print);
                 continue;
 
             case '&': // @TODO strangeness
+                print("printing the whole program text...\n");
                 Reporter::rebuild("samples/variables.clue");
                 continue;
 
             case '?': {
-                program->forEach([] (ASTNode* statement) {
-                    traverse(statement, [] (ASTNode* node) {
-                        if (node->children != null) print(node);
+                if (program != null) {
+                    print("printing the AST...\n");
+                    program->forEach([] (ASTNode* statement) {
+                        traverse(statement, [] (ASTNode* node) {
+                            if (node->children != null) print(node);
+                        });
                     });
-                });
+                }
             } continue;
 
-            case '*':
+            case '*': {
+                print("printing the global namespace...\n");
                 global->traverse(
                     [] (const char* key) {
                         print("%s : ", key);
@@ -382,16 +390,17 @@ void interactive() {
                     [] (Value* v) {
                         print(*v);
                     });
-                continue;
+            } continue;
 
             case '$':
+                print("re-running the program...\n");
                 eval(program);
                 continue;
         }
 
         Lexer::tokenize(s, "stdin", line);
         program = parse(Lexer::tokens);
-        // eval(program);
+        eval(program);
         Reporter::flush();
 
         line++; // do this last
