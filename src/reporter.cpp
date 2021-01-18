@@ -185,11 +185,20 @@ void Reporter :: add(u32 id, const char* functionName, const char* filename, u32
     va_end(args);
 }
 
+void Reporter :: add(u32 id, const char* functionName, Token* token, ...) {
+    va_list args;
+    va_start(args, token);
+
+    add(id, functionName, token->filename, token->line, token->column, args);
+    va_end(args);
+}
+
 void Reporter :: add(u32 id, ASTNode* node, ...) {
     va_list args;
     va_start(args, node);
 
-    add(id, null, node->token->filename, node->token->line, node->token->column, args);
+    // @TODO replace null with node->closure->name if it exists
+    add(id, null, node->token, args);
     va_end(args);
 }
 
@@ -197,7 +206,7 @@ void Reporter :: report(u32 id, const char* functionName, const char* filename, 
     va_list args;
     va_start(args, column);
 
-    add(id, null, filename, line, column, args);
+    add(id, functionName, filename, line, column, args);
     Reporter::flush();
     va_end(args);
 
@@ -213,11 +222,20 @@ void Reporter :: report(u32 id, const char* functionName, const char* filename, 
     #endif
 }
 
+void Reporter :: report(u32 id, const char* functionName, Token* token, ...) {
+    va_list args;
+    va_start(args, token);
+
+    report(id, functionName, token->filename, token->line, token->column);
+    va_end(args);
+}
+
 void Reporter :: report(u32 id, ASTNode* node, ...) {
     va_list args;
     va_start(args, node);
 
-    report(id, null, node->token->filename, node->token->line, node->token->column, args);
+    // @TODO replace null with node->closure->name if it exists
+    report(id, null, node->token, args);
     va_end(args);
 }
 

@@ -271,15 +271,21 @@ static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os) {
 
         addChild(node, lhs);
         addChild(node, rhs);
-
-        // check if this operation is appending type information, in which case we should do so now
-        switch ((int) node->token->tt) {
-            case ':': appendTypeInformation(node); break;
-            case TT_COLON_EQUALS: appendInferredTypeInformation(node); break;
-        }
     }
 
     es->push(node);
+
+    // check if the operator on top is a statement keyword like 'while' or 'then' or 'if'.
+    // if that's the case, the thing we just parsed is the sole child of that keyword.
+    const auto top = os->peek();
+    if (top != null) {
+        print(top);
+        switch ((int) top->token->tt) {
+            case TT_IF:
+                parseOperation(es, os);
+                break;
+        }
+    }
 }
 
 /**
@@ -309,6 +315,7 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
             // operators
             default: {
                 const auto node = nodify(tokens, i);
+                print(node);
 
                 // handle precedence & associativity before pushing the operator onto the stack
                 while (canPopAndApply(os, node)) parseOperation(es, os);
@@ -324,22 +331,22 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
 
                     switch ((int) token->tt) {
                         case '(':
-                            Reporter::report(E_MISSING_CLOSE_PAREN, null, token->filename, token->line, token->column);
+                            Reporter::report(E_MISSING_CLOSE_PAREN, null, token);
                             break;
 
                         case '[':
-                            Reporter::report(E_MISSING_CLOSE_BRACKET, null, token->filename, token->line, token->column);
+                            Reporter::report(E_MISSING_CLOSE_BRACKET, null, token);
                             break;
 
                         case '{':
-                            Reporter::report(E_MISSING_CLOSE_BRACE, null, token->filename, token->line, token->column);
+                            Reporter::report(E_MISSING_CLOSE_BRACE, null, token);
                             break;
                     }
 
                     parseOperation(es, os);
                 }
 
-                auto expression = es->pop();
+                const auto expression = es->pop();
 
                 if (!es->isEmpty()) { // if we still have expressions on the stack, they are leftovers
                     Reporter::report(E_LEFTOVER_OPERAND, es->peek());
@@ -362,7 +369,7 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
                 }
 
                 if (os->isEmpty()) { // we never found a matching open paren...
-                    Reporter::report(E_MISSING_OPEN_PAREN, null, tokens->data[i]->filename, tokens->data[i]->line, tokens->data[i]->column);
+                    Reporter::report(E_MISSING_OPEN_PAREN, null, tokens->data[i]);
                     break;
                 }
 
@@ -380,7 +387,7 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
                 }
 
                 if (os->isEmpty()) {
-                    Reporter::report(E_MISSING_OPEN_BRACKET, null, tokens->data[i]->filename, tokens->data[i]->line, tokens->data[i]->column);
+                    Reporter::report(E_MISSING_OPEN_BRACKET, null, tokens->data[i]);
                 }
 
                 parseOperation(es, os);
@@ -395,7 +402,7 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
                 }
 
                 if (os->isEmpty()) {
-                    Reporter::report(E_MISSING_OPEN_BRACE, null, tokens->data[i]->filename, tokens->data[i]->line, tokens->data[i]->column);
+                    Reporter::report(E_MISSING_OPEN_BRACE, null, tokens->data[i]);
                 }
             } break;
         }

@@ -5,6 +5,7 @@
 #include <stdarg.h> // va_list
 
 #include "array.hpp"
+#include "token.h"
 #include "message.h"
 
 
@@ -19,11 +20,13 @@ namespace Reporter {
      */
     extern void flush();
 
-    extern void add(u32 id, const char* functionName, const char* filename, u32 line, u32 column, ...);
     extern void add(u32 id, ASTNode* node, ...);
+    extern void add(u32 id, const char* functionName, Token* token, ...);
+    extern void add(u32 id, const char* functionName, const char* filename, u32 line, u32 column, ...);
 
-    extern void report(u32 id, const char* functionName, const char* filename, u32 line, u32 column, ...);
     extern void report(u32 id, ASTNode* node, ...);
+    extern void report(u32 id, const char* functionName, Token* token, ...);
+    extern void report(u32 id, const char* functionName, const char* filename, u32 line, u32 column, ...);
 }
 
 #endif
