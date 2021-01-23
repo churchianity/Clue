@@ -2,10 +2,8 @@
 #ifndef PRINT_H
 #define PRINT_H
 
-#include "node.h"
 #include "token.h"
-#include "value.h"
-
+#include "node.h"
 
 // could use extern variables with c++17... meh
 // Text Colors
@@ -64,9 +62,8 @@ extern void print(float f);
 extern void print(double d);
 extern void print(void* p);
 
-extern void print(Value v);
-extern void print(Token* token);
-extern void print(ASTNode* node);
+//extern void print(Token* token);
+//extern void print(ASTNode* node);
 
 #endif
 

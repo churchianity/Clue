@@ -9,9 +9,6 @@ extern bool isHexDigit(char c);
 extern bool isOctalDigit(char c);
 extern bool isBinaryDigit(char c);
 
-// different programs consider different codepoints to be 'whitespace'.
-extern bool isClueWhitespace(char c);
-
 extern char* intToString(u64 integer); // @TODO move me
 extern u64 hexStringToInt(const char* str);
 
@@ -29,13 +26,10 @@ extern u32 countLines(const char* buffer);
 
 extern bool isAscii(const char* buffer, u32 length);
 
-/*
- * @TODO ALL OF THESE
- */
+// @TODO ALL OF THESE TRIMS
 extern char* trimStart(const char* str, u32 count);
 extern char* trimEnd(const char* str, u32 count);
 extern char* trim(const char* str, u32 count);
-extern char* trimQuotes(const char* str, u32 length); // trim with count = 2
 
 extern char* toLower(const char* str);
 extern char* toUpper(const char* str);

@@ -218,7 +218,7 @@ void Reporter :: report(u32 id, const char* functionName, const char* filename, 
     exit(1);
     #else
     printById(W_PROGRAM_UNSAFE_STATE);
-    printProgramTree();
+    // printProgramTree();
     #endif
 }
 

@@ -8,7 +8,6 @@
 #include "print.h"
 #include "token.h"
 #include "types.h"
-#include "value.h"
 
 
 /**
@@ -78,67 +77,6 @@ void print(float f)        { print("%.14g\n", f); }
 void print(double d)       { print("%.14g\n", d); }
 void print(void* p)        { print("%p\n", p); }
 
-void print(Value v) {
-    if (v.type == VT_NUMBER) {
-        print(v.number);
-
-    } else {
-        print(v.string);
-    }
-}
-
-void print(Token* token) {
-    if (!token) {
-        print("token is null\n"); return;
-    }
-
-    const char* tt = tokenTypeToString(token->tt);
-
-    print("&Token %p | file: %s, line: %u, col: %u, len: %u | tt: %s, flags: %u | tk: %s%s%s\n"
-          , (void*) token, token->filename, token->line, token->column, token->length, tt, token->flags, ANSI_YELLOW, token->tk, ANSI_RESET);
-}
-
-void print(ASTNode* node) {
-    if (!node) {
-        print("node is null\n"); return;
-    }
-
-    print("&ASTNode %p", (void*) node);
-
-    if (node->children) {
-        print(" | childrenCount: %u", node->children->length);
-    }
-
-    print(" | tk: %s%s%s | flags: %u | type: %d\n", ANSI_YELLOW, node->token->tk, ANSI_RESET, node->flags, node->type);
-
-    if (node->children) {
-        for (u32 i = 0; i < node->children->length; i++) {
-            print("    Child #%u : &ASTNode %p | tk: %s%s%s\n"
-                  , i, (void*) node->children->data[i], ANSI_YELLOW, node->children->data[i]->token->tk, ANSI_RESET);
-        }
-
-        print("\n");
-    }
-}
-
-void print(Array<ASTNode>* program) {
-    if (!program) {
-        print("program is null\n"); return;
-    }
-
-    print("&Program %p | &statements: %p, #statements: %u\n", (void*) program, program->length);
-
-    program->forEach(
-        [] (ASTNode* root) {
-            traverse(root,
-                [] (ASTNode* node) {
-                    // only print nodes with children (the node will print some info about its children)
-                    if (node->children) {
-                        print(node);
-                    }
-                }
-            );
-        }
-    );
-}
+void print(Token* token) {}
+void print(ASTNode* node) {}
 

@@ -219,15 +219,13 @@ char* trimEnd(const char* str, u32 count) {
     return null;
 }
 
+// @TODO test with weird counts
 char* trim(const char* str, u32 count) {
-    return null;
-}
-
-char* trimQuotes(const char* str, u32 length) {
+    u32 length = strln(str);
     char* buffer = (char*) pMalloc(sizeof (char) * (length - 1));
 
-    u32 i = 0;
-    for (; i < (length - 2); i++) {
+    s32 i = 0;
+    for (; i < (length - count); i++) {
         buffer[i] = str[i + 1];
     }
 

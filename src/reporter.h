@@ -5,8 +5,10 @@
 #include <stdarg.h> // va_list
 
 #include "array.hpp"
-#include "token.h"
 #include "message.h"
+#include "node.h"
+#include "token.h"
+
 
 
 namespace Reporter {
