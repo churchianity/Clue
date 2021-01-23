@@ -6,7 +6,7 @@
 
 
 void* pMalloc(u32 size);
-void* pCalloc(u32 elementSize, u32 maxNumOfElements);
+void* pCalloc(u32 elementSize, u32 maxNumOfElements = 1);
 void* pRealloc(void* buffer, u32 newSize);
 void pFree(void* ptr);
 

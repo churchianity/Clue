@@ -5,7 +5,7 @@ if exists("b:current_syntax")
     finish
 endif
 
-syn keyword keywords return if else while do for
+syn keyword keywords return if else while do for then
 syn match comment "`.*$"
 syn keyword preprocessors #import
 

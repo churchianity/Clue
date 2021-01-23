@@ -6,6 +6,9 @@
 #include "types.h" // type definitions
 
 
+/**
+ * This is a growing Array, and a bunch of associated common/useful functions as methods.
+ */
 template <class T>
 struct Array {
     u32 capacity;

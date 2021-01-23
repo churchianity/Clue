@@ -38,19 +38,13 @@ void addChild(ASTNode* self, ASTNode* child) {
 }
 
 ASTNode* nodify(Array<Token>* tokens, u32 i) {
-    ASTNode* node = (ASTNode*) pCalloc(sizeof (ASTNode), 1);
+    ASTNode* node = (ASTNode*) pCalloc(sizeof (ASTNode));
 
-    // node->type = NT_NONE;
     node->token = tokens->data[i];
-    // node->flags = 0;
+    node->flags = 0;
 
     switch (node->token->tt) {
         default: break;
-
-        case TT_THEN: {
-            node->children = new Array<ASTNode>();
-            node->flags |= NF_UNARY;
-        } return node;
 
         case TT_SYMBOL: {
             node->children = null;
@@ -71,7 +65,8 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
     // if it's not an operand itself, it should have some number of operands (children)
     node->children = new Array<ASTNode>();
 
-    if (i < 1 || tokenTypeIsOperator(tokens->data[i - 1]->tt)) { // is unary prefix, or a opening punctuator
+    if (i < 1 || tokenTypeIsOperator(tokens->data[i - 1]->tt)) {
+        // is unary prefix, or a opening punctuator - or a program error.
         switch ((int) node->token->tt) {
             // @TODO review
             case '[': // array literal
@@ -95,8 +90,6 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
             case TT_INCREMENT:
             case TT_DECREMENT:
             case TT_IMPORT: // special case, shouldn't actually do much here
-            case TT_IF:
-            case TT_THEN:
                 node->flags |= NF_UNARY;
                 break;
 
@@ -125,6 +118,7 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
                 break;
         }
     } else if ((tokens->data[i]->tt == '(') && (tokens->data[i - 1]->tt == TT_SYMBOL)) { // is a function call
+        print("should be a call");
         node->flags |= NF_CALL;
 
     } else if ((tokens->data[i]->tt == TT_INCREMENT) || (tokens->data[i]->tt == TT_DECREMENT)) { // is postfix unary
@@ -133,6 +127,7 @@ ASTNode* nodify(Array<Token>* tokens, u32 i) {
 
     } else {
         // should be a binary operator... if it isn't, report it.
+        // if it's a *maybe* binary operator, that's ok, because we checked for unaryness earlier.
         if (tokenTypeBinaryness(tokens->data[i]->tt) < 1) {
             Reporter::report(E_EXPECTING_BINARY_OPERATOR, node);
         }

@@ -37,7 +37,7 @@ const MessageId messageIds[] = {
      { MS_ERROR, "leading zeroes can only be in the form '0x' (hexadecimal), '0b' (binary), '0o' (octal), '0.' (fractional decimal), or just '0'" },
      { MS_ERROR, "dot appearing immediately after a number is always invalid" }, //@TODO this is a case of we know something is wrong & we don't know why
      { MS_ERROR, "invalid character - did you paste some weird whitespace characters in?" },
-     { MS_WARN, "numerics have a maximum precision of 24 characters - extra length is discarded" },
+     { MS_WARN, "numerics have a maximum precision of 24 digits - extra length is discarded" },
      { MS_WARN, "trying to import file that has already been imported" },
      { MS_ERROR, "trying to import something that isn't a valid string" },
      { MS_ERROR, "missing operand for unary operator" },

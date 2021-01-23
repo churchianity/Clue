@@ -10,7 +10,7 @@
 
 /**
  * Dependencies:
- *  C++14
+ *  C++14 if llvm, C++11 otherwise
  *
  *  stdlib.h
  *      malloc, calloc, realloc, free, exit, NULL
@@ -24,6 +24,7 @@
  *
  *  stdarg.h
  *      concatenate function in (our) string.h
+ *      varargs are present in reporter code
  *      printf wrapper(s) in print.h
  *
  *  execinfo.h

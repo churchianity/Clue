@@ -9,13 +9,6 @@
 #include "token.h"
 
 
-// @NOTE |node| is the operator ':', not the node to which we append the type info really.
-static void appendTypeInformation(ASTNode* node) {
-    node->children->data[0]->type = node->children->data[1]->type;
-}
-
-static void appendInferredTypeInformation(ASTNode* node) {}
-
 static inline void reportSpecificUnaryOperatorMissingOperand(ASTNode* node) {
     switch ((int) node->token->tt) {
         case '+':
@@ -138,6 +131,18 @@ static OperatorAssociativityEnum associativity(ASTNode* node) {
     }
 }
 
+static void unrollCommas(ASTNode* parent) {
+    ASTNode* node = pMalloc(sizeof (ASTNode));
+    node->flags = 0;
+    // node->children = pMalloc(sizeof (
+
+    ASTNode* cursor = parent;
+    while (cursor->children != null) {
+
+        cursor = cursor->children->data[0];
+    }
+}
+
 static u8 precedence(ASTNode* node) {
     switch ((int) node->token->tt) {
         case TT_IF:
@@ -246,14 +251,9 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
 }
 
 static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os) {
-    // if (os->peek()->token->tt == '(') return; // @NOTE be careful with this when doing open_paren and open_brace stuff
+    //if (os->peek()->token->tt == '(') return; // @NOTE be careful with this when doing open_paren and open_brace stuff
 
     const auto node = os->pop();
-
-    if (!tokenTypeIsOperator(node->token->tt)) {
-        es->push(node); // operands are (sometimes) an operation that return themselves
-        return;
-    }
 
     if ((node->flags & NF_UNARY) != 0) {
         ASTNode* child = es->pop();
@@ -261,6 +261,9 @@ static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os) {
         if (!child) reportSpecificUnaryOperatorMissingOperand(node);
 
         addChild(node, child);
+
+    } else if ((node->flags & NF_CALL) != 0) {
+        print("function call!");
 
     } else { // is binary
         // rhs was pushed most recently, and this matters (2 - 4 vs. 4 - 2).
@@ -274,18 +277,23 @@ static void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os) {
     }
 
     es->push(node);
+}
 
-    // check if the operator on top is a statement keyword like 'while' or 'then' or 'if'.
-    // if that's the case, the thing we just parsed is the sole child of that keyword.
-    const auto top = os->peek();
-    if (top != null) {
-        print(top);
-        switch ((int) top->token->tt) {
-            case TT_IF:
-                parseOperation(es, os);
-                break;
-        }
+static ASTNode* produceExpression(Array<ASTNode>** es, Array<ASTNode>** os) {
+    const auto expression = (*es)->pop();
+
+    if (!(*es)->isEmpty()) { // if we still have expressions on the stack, they are leftovers
+        Reporter::report(E_LEFTOVER_OPERAND, (*es)->peek());
     }
+
+    delete *es;
+    delete *os;
+    const auto _es = new Array<ASTNode>();
+    const auto _os = new Array<ASTNode>();
+    *es = _es;
+    *os = _os;
+
+    return expression;
 }
 
 /**
@@ -298,7 +306,6 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
     static auto os = new Array<ASTNode>();
 
     u32 i = startIndex;
-
     while (i < endIndex) {
         switch ((int) tokens->data[i]->tt) { // casting because ascii chars are their own token type not defined in TokenTypeEnum
 
@@ -315,7 +322,6 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
             // operators
             default: {
                 const auto node = nodify(tokens, i);
-                print(node);
 
                 // handle precedence & associativity before pushing the operator onto the stack
                 while (canPopAndApply(os, node)) parseOperation(es, os);
@@ -344,20 +350,19 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
                     }
 
                     parseOperation(es, os);
+
+                    // @TODO check for statement keywords like while, if, do, etc.
+                    //const auto top = os->peek();
+                    //if (top != null) {
+                    //    switch ((int) top->token->tt) {
+                    //        case TT_IF:
+                    //            parseOperation(es, os);
+                    //            break;
+                    //    }
+                    //}
                 }
 
-                const auto expression = es->pop();
-
-                if (!es->isEmpty()) { // if we still have expressions on the stack, they are leftovers
-                    Reporter::report(E_LEFTOVER_OPERAND, es->peek());
-                }
-
-                statements->push(expression);
-
-                delete es;
-                delete os;
-                es = new Array<ASTNode>();
-                os = new Array<ASTNode>();
+                statements->push(produceExpression(&es, &os));
             } break;
 
             // the end of some group of expressions/statements, a function call, or a function definition argument list
@@ -374,7 +379,11 @@ static Array<ASTNode>* parseExpression(u32 startIndex, u32 endIndex, Array<Token
                 }
 
                 if ((os->peek()->flags & NF_CALL) == 0) {
+                    print("wtf\n");
                     os->pop(); // discard opening parens
+
+                } else {
+                    print("hi!!!\n");
                 }
             } break;
 
