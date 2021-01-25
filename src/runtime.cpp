@@ -11,8 +11,10 @@
 Array<ASTNode>* program = new Array<ASTNode>();
 
 void Runtime :: printProgramTree(Array<ASTNode>* program) {
-    if (program != null && program->data[0]) {
-        prettyPrintTree(program->data[0], "", true);
+    if (program != null) {
+        for (u32 i = 0; i < program->length; i++) {
+            prettyPrintTree(program->data[i], "", true);
+        }
     }
 }
 
@@ -51,8 +53,8 @@ void Runtime :: interactive() {
                 continue;
         }
 
-        // @TODO
-
+        Lexer :: tokenize(s, "stdin", line);
+        program = Parser :: parse(Lexer::tokens);
 
         line++;
 

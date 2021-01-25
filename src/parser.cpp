@@ -10,13 +10,14 @@
 
 static inline void reportSpecificUnaryOperatorMissingOperand(ASTNode* node) {
     switch ((int) node->token->tt) {
-        case '+':
-        case '-':
         case '~':
         case '!':
         case '@':
         case '#':
         case '$':
+
+        case '+':
+        case '-':
 
         default:
             die("missing operand for unary operator: %d\n", node->token->tt);
@@ -26,11 +27,24 @@ static inline void reportSpecificUnaryOperatorMissingOperand(ASTNode* node) {
 
 static inline void reportSpecificBinaryOperatorMissingOperand(ASTNode* node) {
     switch ((int) node->token->tt) {
+        case '[': // indexer without a indexee
+        case '(': // ???
+
         case '+':
         case '-':
         case '*':
         case '/':
         case '%':
+
+        case '&':
+        case '|':
+        case '^':
+        case TT_RIGHT_SHIFT:
+        case TT_LEFT_SHIFT:
+
+        case TT_LOGICAL_AND:
+        case TT_LOGICAL_OR:
+        case TT_LOGICAL_XOR:
 
         case '=':
         case TT_COLON_EQUALS:
@@ -46,16 +60,6 @@ static inline void reportSpecificBinaryOperatorMissingOperand(ASTNode* node) {
         case TT_BITWISE_AND_EQUALS:
         case TT_BITWISE_OR_EQUALS:
         case TT_BITWISE_XOR_EQUALS:
-
-        case '&':
-        case '|':
-        case '^':
-        case TT_RIGHT_SHIFT:
-        case TT_LEFT_SHIFT:
-
-        case TT_LOGICAL_AND:
-        case TT_LOGICAL_OR:
-        case TT_LOGICAL_XOR:
 
         case ':':
         case ',':
@@ -83,35 +87,38 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
         case TT_LOGICAL_XOR_EQUALS:
-            return OA_NONE;
+            return OA_RIGHT_TO_LEFT;
 
         case '+':
         case '-':
-            if ((node->flags & NF_UNARY) != 0) {
+            if ((node->flags & NF_UNARY) == NF_UNARY) {
                 return OA_RIGHT_TO_LEFT;
             }
-        case TT_LOGICAL_AND:
-        case TT_LOGICAL_OR:
-        case TT_LOGICAL_XOR:
-        case TT_EQUALITY:
-        case TT_NOT_EQUALS:
-        case '>':
-        case '<':
-        case TT_GREATER_THAN_OR_EQUAL:
-        case TT_LESS_THAN_OR_EQUAL:
         case '*':
         case '/':
         case '%':
+
         case '&':
         case '|':
         case '^':
         case TT_LEFT_SHIFT:
         case TT_RIGHT_SHIFT:
+
+        case '>':
+        case '<':
+        case TT_GREATER_THAN_OR_EQUAL:
+        case TT_LESS_THAN_OR_EQUAL:
+
+        case TT_LOGICAL_AND:
+        case TT_LOGICAL_OR:
+        case TT_LOGICAL_XOR:
+        case TT_EQUALITY:
+        case TT_NOT_EQUALS:
             return OA_LEFT_TO_RIGHT;
 
         case TT_INCREMENT:
         case TT_DECREMENT:
-            if ((node->flags & NF_POSTFIX) != 0) {
+            if ((node->flags & NF_POSTFIX) == NF_POSTFIX) {
                 return OA_LEFT_TO_RIGHT;
             }
         case '~':
@@ -120,17 +127,18 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case '@':
         case '$':
         case '(': // function invocation
+        case '[': // indexer
         case ',':
             return OA_RIGHT_TO_LEFT;
 
         default:
-            die("trying to get associativity of unknown operator type: %u\n", node->token->tt); return OA_NONE;
+            die("trying to get associativity of unknown operator type: %u\n", node->token->tt);
+            return OA_NONE;
     }
 }
 
 static inline u8 precedence(ASTNode* node) {
     if (associativity(node) == OA_NONE) {
-        print(node);
         return 0;
         // operators with no associativity implicitly have no precedence because they should never be in a situation where precedence is relevant
     }
@@ -190,17 +198,19 @@ static inline u8 precedence(ASTNode* node) {
             return 6;
 
         case TT_EXPONENTIATION:
-            return 7;
+            // I have no clue why, but changing this to 4 from 7 fixes a precedence bug with exponentiation
+            // @TODO figure this out
+            return 4;
 
         case TT_INCREMENT:
         case TT_DECREMENT:
-            if ((node->flags & NF_POSTFIX) != 0) {
+            if ((node->flags & NF_POSTFIX) == NF_POSTFIX) {
                 return 6;
             }
 
         case '(':
         case '[':
-            if ((node->flags & NF_PUNCTUATOR) != 0) {
+            if ((node->flags & NF_PUNCTUATOR) == NF_PUNCTUATOR) {
                 return 0;
             }
         case '@':
@@ -212,7 +222,8 @@ static inline u8 precedence(ASTNode* node) {
             return 8;
 
         default:
-            die("trying to get precedence of unknown operator type: %u\n", node->token->tt); return 0;
+            die("trying to get precedence of unknown operator type: %u\n", node->token->tt);
+            return 0;
     }
 }
 
@@ -223,12 +234,6 @@ static inline ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
 
     if (i < 1 || tokenTypeIsOperator(tokens->data[i - 1]->tt)) {
         switch ((int) node->token->tt) {
-            case '[':
-                // I guess it's possible for in an operator overloaded case, something like
-                // [ 0, 2 ] - [ 1, 3 ] to be valid, but otherwise?
-                // this is a special kind of error if it's at the beginning of the file, like
-                // you just have a file with line 1:
-                // [ 1, 2, 3 ];
             default:
                 die("unexpected operator that we thought would be unary or a punctuator: %d\n", tokens->data[i]->tt);
                 break;
@@ -246,6 +251,16 @@ static inline ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
             case '(':
                 // being here means there's an operator before us, which means this can't be a function call
                 node->flags |= NF_PUNCTUATOR;
+                break;
+            case '[':
+                // I guess it's possible for in an operator overloaded case, something like
+                // [ 0, 2 ] - [ 1, 3 ] to be valid, but otherwise?
+                // this is a special kind of error if it's at the beginning of the file, like
+                // you just have a file with line 1:
+                // [ 1, 2, 3 ];
+                // most of the time this will be assignment of an array literal into some variable, ie:
+                // x := [ y, z ];
+                node->flags |= NF_UNARY;
                 break;
 
             case '{':
@@ -311,7 +326,8 @@ static inline ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
 }
 
 static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
-    if (os->isEmpty()) return false;
+    // @TODO, is it possible to not have to check for punctuators here?
+    if (os->isEmpty() || ((node->flags & NF_PUNCTUATOR) != 0)) return false;
 
     const auto top = os->peek();
 
@@ -326,7 +342,8 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
     // that shouldn't be part of one statement or expression
     // you can't have multiple assignments in one statement ie: x := y := 4;
     // (unless you do x, y := 4, 4;)
-    die("non associative sub-expression\n");
+    // @NOTE maybe not, this is a bad comment
+    // die("non associative sub-expression\n");
     return false;
 }
 
@@ -365,6 +382,7 @@ static ASTNode* produceExpressionOrStatement(Array<ASTNode>** es, Array<ASTNode>
 
     if (!(*es)->isEmpty()) {
         die("leftover operands");
+        return null;
     }
 
     delete *es;

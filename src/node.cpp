@@ -4,17 +4,18 @@
 #include "print.h"
 
 
-// stolen https://stackoverflow.com/questions/1649027/how-do-i-print-out-a-tree-structure
+// stolen from https://stackoverflow.com/questions/1649027/how-do-i-print-out-a-tree-structure
 void prettyPrintTree(ASTNode* node, const char* indent, bool last) {
     print(indent);
     if (last) {
         print("\\-");
         indent = concat(indent, "  ");
+
     } else {
         print("|-");
         indent = concat(indent, "| ");
     }
-    print("&%p | flags: %d | tk: %s%s%s\n", (void*) node, node->flags, ANSI_YELLOW, node->token->tk, ANSI_RESET);
+    print("&ASTNode: %p, f: %d, tk: %s%s%s\n", (void*) node, node->flags, ANSI_YELLOW, node->token->tk, ANSI_RESET);
 
     if (node->children != null) {
         for (u32 i = 0; i < node->children->length; i++) {

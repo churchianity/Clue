@@ -136,7 +136,7 @@ normal_decimal:
 
                     if (*buffer == '.') {
                         if (hasRadixPoint) {
-                            // @TODO report
+                            die("number with two decimal points?\n");
                         }
 
                         hasRadixPoint = true;
@@ -183,7 +183,7 @@ normal_decimal:
             switch (*buffer) {
                 case '\r':
                 default: // invalid single-chars, probably weird whitespace/non-ascii
-                    // die("invalid char %c", *buffer);
+                    die("invalid char %c", *buffer);
                     break;
 
                 case '\n':
@@ -255,30 +255,31 @@ normal_decimal:
                 case '<':
                 case '^':
                 case '*':
+                case '&':
+                case '|':
                     if (*(buffer + 1) == *buffer) {
-                        switch (*buffer) {
-                            case '>':
-                            case '<':
-                            case '*':
-                                length = 2;
+                        length = 2;
 
-                                if (*(buffer + 2) == '=') {
-                                    length = 3;
+                        if (*(buffer + 2) == '=') {
+                            length = 3;
 
-                                    switch (*buffer) {
-                                        case '>': tt = TT_RIGHT_SHIFT_EQUALS; break;
-                                        case '<': tt = TT_LEFT_SHIFT_EQUALS; break;
-                                        case '^': tt = TT_LOGICAL_XOR_EQUALS; break;
-                                        case '*': tt = TT_EXPONENTIATION_EQUALS; break;
-                                    }
-                                } else {
-                                    switch (*buffer) {
-                                        case '>': tt = TT_RIGHT_SHIFT; break;
-                                        case '<': tt = TT_LEFT_SHIFT; break;
-                                        case '^': tt = TT_LOGICAL_XOR; break;
-                                        case '*': tt = TT_EXPONENTIATION; break;
-                                    }
-                                }
+                            switch (*buffer) {
+                                case '*': tt = TT_EXPONENTIATION_EQUALS; break;
+                                case '>': tt = TT_RIGHT_SHIFT_EQUALS; break;
+                                case '<': tt = TT_LEFT_SHIFT_EQUALS; break;
+                                case '^': tt = TT_LOGICAL_XOR_EQUALS; break;
+                                case '&': tt = TT_LOGICAL_AND_EQUALS; break;
+                                case '|': tt = TT_LOGICAL_OR_EQUALS; break;
+                            }
+                        } else {
+                            switch (*buffer) {
+                                case '*': tt = TT_EXPONENTIATION; break;
+                                case '>': tt = TT_RIGHT_SHIFT; break;
+                                case '<': tt = TT_LEFT_SHIFT; break;
+                                case '^': tt = TT_LOGICAL_XOR; break;
+                                case '&': tt = TT_LOGICAL_AND; break;
+                                case '|': tt = TT_LOGICAL_OR; break;
+                            }
                         }
                     }
 
@@ -288,17 +289,12 @@ normal_decimal:
                 case '-':
                 case '/':
                 case '=':
-                case '&':
-                case '|':
                     if (*(buffer + 1) == *buffer) {
                         switch (*buffer) {
                             case '+': tt = TT_INCREMENT;      break;
                             case '-': tt = TT_DECREMENT;      break;
                             case '*': tt = TT_EXPONENTIATION; break;
                             case '=': tt = TT_EQUALITY;       break;
-                            case '&': tt = TT_LOGICAL_AND;    break;
-                            case '|': tt = TT_LOGICAL_OR;     break;
-                            case '^': tt = TT_LOGICAL_XOR;    break;
                         }
 
                         length = 2;
@@ -310,18 +306,18 @@ normal_decimal:
                 case ':':
                     if (*(buffer + 1) == '=') {
                         switch (*buffer) {
-                            case '>': tt = TT_GREATER_THAN_OR_EQUAL; break;
-                            case '<': tt = TT_LESS_THAN_OR_EQUAL;    break;
+                            case '!': tt = TT_NOT_EQUALS;            break;
+                            case '%': tt = TT_MODULO_EQUALS;         break;
+                            case '^': tt = TT_BITWISE_XOR_EQUALS;    break;
+                            case '&': tt = TT_BITWISE_AND_EQUALS;    break;
+                            case '|': tt = TT_BITWISE_OR_EQUALS;     break;
                             case '*': tt = TT_TIMES_EQUALS;          break;
                             case '+': tt = TT_PLUS_EQUALS;           break;
                             case '-': tt = TT_MINUS_EQUALS;          break;
-                            case '/': tt = TT_DIVIDE_EQUALS;         break;
-                            case '&': tt = TT_BITWISE_AND_EQUALS;    break;
-                            case '|': tt = TT_BITWISE_OR_EQUALS;     break;
-                            case '!': tt = TT_NOT_EQUALS;            break;
-                            case '%': tt = TT_MODULO_EQUALS;         break;
                             case ':': tt = TT_COLON_EQUALS;          break;
-                            case '^': tt = TT_BITWISE_XOR_EQUALS;    break;
+                            case '>': tt = TT_GREATER_THAN_OR_EQUAL; break;
+                            case '<': tt = TT_LESS_THAN_OR_EQUAL;    break;
+                            case '/': tt = TT_DIVIDE_EQUALS;         break;
                         }
 
                         length = 2;

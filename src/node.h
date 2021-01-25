@@ -19,7 +19,7 @@ enum ASTNodeFlagsEnum {
     NF_POSTFIX      = 2,
     NF_PUNCTUATOR   = 4,
     NF_CALL         = 8,
-    NF_INDEXER      = 16
+    NF_INDEXER      = 16,
 };
 
 struct ASTNode {
