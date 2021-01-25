@@ -25,6 +25,9 @@ bool tokenTypeIsAssignment(TokenTypeEnum tt) {
         case TT_BITWISE_AND_EQUALS:
         case TT_BITWISE_OR_EQUALS:
         case TT_BITWISE_XOR_EQUALS:
+        case TT_LOGICAL_AND_EQUALS:
+        case TT_LOGICAL_OR_EQUALS:
+        case TT_LOGICAL_XOR_EQUALS:
 
         case TT_INCREMENT: // @NOTE
         case TT_DECREMENT:

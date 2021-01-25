@@ -58,14 +58,16 @@ void trace() {
  * This should end the program, use for fatal **internal only** errors.
  */
 void die(const char* format, ...) {
-    trace();
-
     va_list args;
     va_start(args, format);
 
     vfprintf(stderr, format, args);
 
     va_end(args);
+
+    // print the stack
+    trace();
+
     exit(1);
 }
 

@@ -378,6 +378,11 @@ void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os) {
 }
 
 static ASTNode* produceExpressionOrStatement(Array<ASTNode>** es, Array<ASTNode>** os) {
+    if ((*es)->isEmpty()) {
+        die("empty expression, extra semicolon\n");
+        return null;
+    }
+
     const auto expressionStatement = (*es)->pop();
 
     if (!(*es)->isEmpty()) {
@@ -426,7 +431,10 @@ Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
                     parseOperation(es, os);
                 }
 
-                program->push(produceExpressionOrStatement(&es, &os));
+                const auto node = produceExpressionOrStatement(&es, &os);
+                if (node != null) {
+                    program->push(node);
+                }
             } break;
 
             case ')': {
