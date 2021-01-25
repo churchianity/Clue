@@ -1,4 +1,5 @@
 
+
 #include <stdio.h>
 
 #include "clue.h"
@@ -115,6 +116,7 @@ void Reporter::rebuild(const char* filename) {
     }
 }
 
+// rarely, but sometimes you might want to print a message without any language entity context.
 static void printById(u32 messageId) {
     MessageId mId = messageIds[messageId];
 
@@ -218,7 +220,7 @@ void Reporter :: report(u32 id, const char* functionName, const char* filename, 
     exit(1);
     #else
     printById(W_PROGRAM_UNSAFE_STATE);
-    // printProgramTree();
+    printProgramTree();
     #endif
 }
 

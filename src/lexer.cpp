@@ -53,76 +53,78 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     TokenTypeEnum tt = TT_ANY;
     u8 flags = 0;
 
-    while (*buffer != '\0') {
+    char* cursor = buffer;
+    while (*cursor != '\0') {
         length = 1;
         flags = 0;
 
-        if (isAlpha(*buffer)) {
+        if (isAlpha(*cursor)) {
             tt = TT_SYMBOL;
 
             do {
-                buffer++;
+                cursor++;
 
-                if (!(isAlpha(*buffer) || isDigit(*buffer) || (*buffer == '_'))) {
+                if (!(isAlpha(*cursor) || isDigit(*cursor) || (*cursor == '_'))) {
                     break;
                 }
 
                 length++;
-            } while (*buffer != '\0');
 
-        } else if (isDigit(*buffer)) {
+            } while (*cursor != '\0');
+
+        } else if (isDigit(*cursor)) {
             tt = TT_NUMERIC;
 
-            if (*buffer == '0') {
-                switch (*(buffer + 1)) {
+            if (*cursor == '0') {
+                switch (*(cursor + 1)) {
                     // octal constant.
                     case 'o': case 'O':
                         length++;
-                        buffer++;
+                        cursor++;
 
                     case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': {
                         flags |= TF_OCTAL;
 
                         do {
-                            buffer++;
+                            cursor++;
 
-                            if (!isOctalDigit(*buffer)) break;
+                            if (!isOctalDigit(*cursor)) break;
 
                             length++;
 
-                        } while (*buffer != '\0');
+                        } while (*cursor != '\0');
                     } break;
 
                     case 'x': case 'X': {
                         flags |= TF_HEXADECIMAL;
 
                         length++;
-                        buffer++;
+                        cursor++;
 
                         do {
-                            buffer++;
+                            cursor++;
 
-                            if (!isHexDigit(*buffer)) break;
+                            if (!isHexDigit(*cursor)) break;
 
                             length++;
 
-                        } while (*buffer != '\0');
+                        } while (*cursor != '\0');
                     } break;
 
                     case 'b': case 'B': {
                         flags |= TF_BINARY;
 
                         length++;
-                        buffer++;
+                        cursor++;
 
                         do {
-                            buffer++;
+                            cursor++;
 
-                            if (!isBinaryDigit(*buffer)) break;
+                            if (!isBinaryDigit(*cursor)) break;
 
                             length++;
 
-                        } while (*buffer != '\0');
+                        } while (*cursor != '\0');
                     } break;
 
                     default: goto normal_decimal;
@@ -130,76 +132,80 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
             } else {
 normal_decimal:
                 bool hasRadixPoint = false;
-
                 do {
-                    buffer++;
+                    cursor++;
 
-                    if (*buffer == '.') {
+                    if (*cursor == '.') {
                         if (hasRadixPoint) {
-                            die("number with two decimal points?\n");
+                            // @NOTE there's a complication here if we want to use a '..' operator.
+                            // maybe 2..3 is a typo, meaning the float 2.3, but maybe also it's meant to express the range from 2 -> 3,
+                            // or a concatenation of the string-casted numbers 2 and 3.
+                            // if we want to add this operator, which I think we probably do, we need to rewind the cursor one step, and call it a day.
+                            cursor--;
+                            break;
                         }
 
                         hasRadixPoint = true;
 
-                    } else if (!isDigit(*buffer)) {
+                    } else if (!isDigit(*cursor)) {
                         break;
                     }
 
                     length++;
 
-                } while (*buffer != '\0');
+                } while (*cursor != '\0');
             }
-        } else if (*buffer == '\'' || *buffer == '"') {
+        } else if (*cursor == '\'' || *cursor == '"') {
             tt = TT_STRING;
 
-            char quotemark = *buffer;
+            char quotemark = *cursor;
             do {
-                buffer++;
+                cursor++;
 
-                if (*buffer == quotemark) {
-                    buffer++;
+                if (*cursor == quotemark) {
+                    cursor++;
                     length++;
                     break;
                 }
 
-                if (*buffer == '\\') {
+                if (*cursor == '\\') {
 
-                } else if (*buffer == '\n') {
+                } else if (*cursor == '\n') {
                     column = 1;
                     line++;
                     continue;
 
-                } else if (*buffer == '\t') {
+                } else if (*cursor == '\t') {
                     column += 4;
                     continue;
                 }
 
                 length++;
-            } while (*buffer != '\0');
+            } while (*cursor != '\0');
 
         } else {
-            tt = (TokenTypeEnum) *buffer;
+            tt = (TokenTypeEnum) *cursor;
 
-            switch (*buffer) {
+            switch (*cursor) {
                 case '\r':
                 default: // invalid single-chars, probably weird whitespace/non-ascii
-                    die("invalid char %c", *buffer);
+                    die("invalid char %c", *cursor);
                     break;
 
                 case '\n':
                     column = 1;
                     line++;
-                    buffer++;
+                    cursor++;
                     continue;
 
                 case '\t':
                     column += 4;
-                    buffer++;
+                    cursor++;
                     continue;
 
                 case ' ':
                     column++;
-                    buffer++;
+                    cursor++;
                     continue;
 
                 case '@':
@@ -220,32 +226,32 @@ normal_decimal:
                     break;
 
                 case '`': {
-                    buffer++;
+                    cursor++;
                     column++;
 
-                    if (*buffer == '`') {
+                    if (*cursor == '`') {
                         do {
-                            buffer++;
+                            cursor++;
 
-                            if (*buffer == '\n') {
+                            if (*cursor == '\n') {
                                 column = 1;
                                 line++;
 
-                            } else if (*buffer == '`' && *(buffer + 1) == '`') {
+                            } else if (*cursor == '`' && *(cursor + 1) == '`') {
                                 column += 2;
-                                buffer += 2;
+                                cursor += 2;
                                 break;
                             } else {
                                 column++;
                             }
-                        } while (*buffer != '\0');
+                        } while (*cursor != '\0');
                     } else {
-                        while (*buffer != '\0') {
-                            if (*buffer == '\n') {
+                        while (*cursor != '\0') {
+                            if (*cursor == '\n') {
                                 break;
                             }
 
-                            buffer++;
+                            cursor++;
                             column++;
                         }
                     }
@@ -257,13 +263,13 @@ normal_decimal:
                 case '*':
                 case '&':
                 case '|':
-                    if (*(buffer + 1) == *buffer) {
+                    if (*(cursor + 1) == *cursor) {
                         length = 2;
 
-                        if (*(buffer + 2) == '=') {
+                        if (*(cursor + 2) == '=') {
                             length = 3;
 
-                            switch (*buffer) {
+                            switch (*cursor) {
                                 case '*': tt = TT_EXPONENTIATION_EQUALS; break;
                                 case '>': tt = TT_RIGHT_SHIFT_EQUALS; break;
                                 case '<': tt = TT_LEFT_SHIFT_EQUALS; break;
@@ -272,7 +278,7 @@ normal_decimal:
                                 case '|': tt = TT_LOGICAL_OR_EQUALS; break;
                             }
                         } else {
-                            switch (*buffer) {
+                            switch (*cursor) {
                                 case '*': tt = TT_EXPONENTIATION; break;
                                 case '>': tt = TT_RIGHT_SHIFT; break;
                                 case '<': tt = TT_LEFT_SHIFT; break;
@@ -289,8 +295,8 @@ normal_decimal:
                 case '-':
                 case '/':
                 case '=':
-                    if (*(buffer + 1) == *buffer) {
-                        switch (*buffer) {
+                    if (*(cursor + 1) == *cursor) {
+                        switch (*cursor) {
                             case '+': tt = TT_INCREMENT;      break;
                             case '-': tt = TT_DECREMENT;      break;
                             case '*': tt = TT_EXPONENTIATION; break;
@@ -304,8 +310,8 @@ normal_decimal:
                 case '%':
                 case '~':
                 case ':':
-                    if (*(buffer + 1) == '=') {
-                        switch (*buffer) {
+                    if (*(cursor + 1) == '=') {
+                        switch (*cursor) {
                             case '!': tt = TT_NOT_EQUALS;            break;
                             case '%': tt = TT_MODULO_EQUALS;         break;
                             case '^': tt = TT_BITWISE_XOR_EQUALS;    break;
@@ -326,7 +332,7 @@ normal_decimal:
                     break;
             }
 
-            buffer += length;
+            cursor += length;
         }
 
         token = (Token*) pMalloc(sizeof (Token));
@@ -336,7 +342,7 @@ normal_decimal:
         token->column   = column;
         token->length   = length;
         token->tt       = tt;
-        token->tk       = read(buffer - length, length);
+        token->tk       = read(cursor - length, length);
         token->flags    = flags;
 
         if (token->tt == TT_SYMBOL) {

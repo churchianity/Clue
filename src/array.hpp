@@ -198,7 +198,7 @@ struct Array {
         }
     }
 
-    Array<T>* slice(unsigned int start, unsigned int end) {
+    Array<T>* slice(unsigned int start, unsigned int end = 0) {
         Array<T>* array = new Array();
 
         unsigned int length = end > this->length ? this->length : end;

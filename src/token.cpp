@@ -1,4 +1,5 @@
 
+
 #include "print.h"
 #include "token.h"
 
@@ -29,7 +30,7 @@ bool tokenTypeIsAssignment(TokenTypeEnum tt) {
         case TT_LOGICAL_OR_EQUALS:
         case TT_LOGICAL_XOR_EQUALS:
 
-        case TT_INCREMENT: // @NOTE
+        case TT_INCREMENT: // @NOTE, weird, but technically true, one more reason to remove them
         case TT_DECREMENT:
             return true;
 
@@ -107,6 +108,7 @@ s8 tokenTypeBinaryness(TokenTypeEnum tt) {
 
         case ':':
         case ',':
+        case '.':
             return 1;
 
         default: return tokenTypeIsAssignment(tt);

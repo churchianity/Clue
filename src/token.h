@@ -1,4 +1,5 @@
 
+
 #ifndef TOKEN_H
 #define TOKEN_H
 
@@ -23,36 +24,36 @@ enum TokenTypeEnum {
     // TT_OPERATOR              = 259,  // unused (operators have one of the types below);
     // TT_DOUBLE_TILDE          = 260,  // ~~ // bitwise not-not - makes no sense
     // TT_DOUBLE_BACKTICK       = 261,  // `` // this a multi-line comment, never gets parsed
-    // TT_BOOL_CAST             = 262,  // !!
-    // TT_DOUBLE_AT             = 263,  // @@
-    // TT_DOUBLE_HASH           = 264,  // ##
-    // TT_DOUBLE_DOLLAR_SIGN    = 265,  // $$
-    // TT_DOUBLE_PERCENT        = 266,  // %%
-    TT_LOGICAL_XOR              = 267,  // ^^
+    // TT_BOOL_CAST             = 262,  // !! // no.
+    // TT_DOUBLE_AT             = 263,  // @@ // impossible, just getting the address of the variable containing the address of something? can you even do this in C?
+    // TT_DOUBLE_HASH           = 264,  // ## // @NOTE doesn't mean anything... probably
+    // TT_DOUBLE_DOLLAR_SIGN    = 265,  // $$ // double dereference, never gets parsed, just two '$'
+    // TT_DOUBLE_PERCENT        = 266,  // %% // @NOTE maybe string format operator if we don't want to overload '%'
+    TT_LOGICAL_XOR              = 267,  // ^^ // stupid and pointless, but that's not going to stop me
     TT_LOGICAL_AND              = 268,  // &&
     TT_EXPONENTIATION           = 269,  // **
     // TT_IMPOSSIBLE_1          = 270,  // ((
     // TT_IMPOSSIBLE_2          = 271,  // ))
     // TT_IMPOSSIBLE_3          = 272,  // __
-    TT_DECREMENT                = 273,  // -- // probably remove these two.
-    TT_INCREMENT                = 274,  // ++
+    TT_DECREMENT                = 273,  // -- // @NOTE probably remove these two.
+    TT_INCREMENT                = 274,  // ++ // or make it configurable.
     TT_EQUALITY                 = 275,  // ==
-    // TT_DOUBLE_OPEN_BRACE     = 276,  // {{
+    // TT_DOUBLE_OPEN_BRACE     = 276,  // {{ // @NOTE probably don't touch these 4, could make parsing more complicated
     // TT_DOUBLE_CLOSE_BRACE    = 277,  // }}
     // TT_DOUBLE_OPEN_BRACKET   = 278,  // [[
     // TT_DOUBLE_CLOSE_BRACKET  = 279,  // ]]
     TT_LOGICAL_OR               = 280,  // ||
     // TT_DOUBLE_BACKSLASH      = 281,  // @NOTE can't write backslashes, makes comment multi-line
-    // TT_DOUBLE_COLON          = 282,  // ::
+    // TT_DOUBLE_COLON          = 282,  // :: // no.
     // TT_IMPOSSIBLE_4          = 283,  // ;;
     // TT_IMPOSSIBLE_5          = 284,  // ""
     // TT_IMPOSSIBLE_6          = 285,  // ''
     TT_LEFT_SHIFT               = 286,  // <<
-    // TT_IMPOSSIBLE_7          = 287,  // ,,
+    // TT_IMPOSSIBLE_7          = 287,  // ,, // no.
     TT_RIGHT_SHIFT              = 288,  // >>
-    // TT_DOUBLE_DOT            = 289,  // .. // loop range thing?
-    // TT_DOUBLE_QMARK          = 290,  // ??
-    TT_SINGLE_LINE_COMMENT      = 291,  // //
+    // TT_DOUBLE_DOT            = 289,  // .. // loop range thing? concatenate if we don't want to overload '+'?
+    // TT_DOUBLE_QMARK          = 290,  // ?? // probably not. this one is funny though.
+    // TT_DOUBLE_FORWARD_SLASH     = 291,  // // // floor/integer division?
 
     // comparison/logical
     TT_NOT_EQUALS               = 292,  // !=
@@ -75,9 +76,9 @@ enum TokenTypeEnum {
     TT_RIGHT_SHIFT_EQUALS       = 309,  // >>=
     TT_LEFT_SHIFT_EQUALS        = 310,  // <<=
     TT_EXPONENTIATION_EQUALS    = 311,  // **=
-    TT_LOGICAL_XOR_EQUALS       = 312,  // ^^= // @TODO we don't lex this
-    TT_LOGICAL_AND_EQUALS       = 313,  // &&= // @TODO ^
-    TT_LOGICAL_OR_EQUALS        = 314,  // ||= // @TODO ^
+    TT_LOGICAL_XOR_EQUALS       = 312,  // ^^=
+    TT_LOGICAL_AND_EQUALS       = 313,  // &&=
+    TT_LOGICAL_OR_EQUALS        = 314,  // ||=
 
     TT_IMPORT                   = 400,  // import
     TT_IF                       = 401,  // if

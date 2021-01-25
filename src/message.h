@@ -1,4 +1,5 @@
 
+
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
@@ -24,11 +25,11 @@ struct Message {
 };
 
 const MessageId messageIds[] = {
-    { MS_WARN, "program may be in unsafe state" }
+    { MS_WARN, "program may be in unsafe state" },
 };
 
 enum MessageEnum {
-    W_PROGRAM_UNSAFE_STATE
+    W_PROGRAM_UNSAFE_STATE,
 };
 
 #endif

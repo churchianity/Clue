@@ -1,5 +1,4 @@
 
-#include <stdio.h> // remove me
 
 #include "array.hpp"
 #include "node.h"
