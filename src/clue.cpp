@@ -123,11 +123,11 @@ int main(int argc, const char* argv[]) {
     handleCommandLineArguments(argc, argv);
 
     for (s32 i = 0; i < CLAs.filec; i++) {
-        // doIt(clueFileRead(CLAs.files[i]), CLAs.files[i]);
+        Runtime :: doIt(clueFileRead(CLAs.files[i]), CLAs.files[i]);
     }
 
     if (CLAs.interactive) {
-        Runtime::interactive();
+        Runtime :: interactive();
     }
 
     return 0;

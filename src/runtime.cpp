@@ -1,10 +1,26 @@
 
 #include <stdio.h> // stdin
 
-#include "runtime.h"
-#include "print.h"
+#include "token.h"
+#include "lexer.h"
+#include "parser.h"
 #include "types.h"
+#include "runtime.h"
 
+
+Array<ASTNode>* program = new Array<ASTNode>();
+
+void Runtime :: printProgramTree(Array<ASTNode>* program) {
+    if (program != null && program->data[0]) {
+        prettyPrintTree(program->data[0], "", true);
+    }
+}
+
+void Runtime :: doIt(char* buffer, const char* filename) {
+    Array<Token>* tokens = Lexer :: tokenize(buffer, filename);
+    Array<ASTNode>* program = Parser :: parse(tokens);
+    printProgramTree(program);
+}
 
 void Runtime :: interactive() {
     const u32 CLUE_SANDBOX_MODE_MAX_LINE_LENGTH = 160;
@@ -23,6 +39,16 @@ void Runtime :: interactive() {
             case '.':
                 print("Take it easy!\n");
                 return;
+
+            case '#':
+                print("` printing the state of the lexer...\n");
+                Lexer::print();
+                continue;
+
+            case '?':
+                print("` printing program tree...\n");
+                printProgramTree(program);
+                continue;
         }
 
         // @TODO

@@ -3,6 +3,7 @@
 #define TOKEN_H
 
 #include "types.h"
+#include "print.h"
 
 
 enum TokenTypeEnum {
@@ -27,7 +28,7 @@ enum TokenTypeEnum {
     // TT_DOUBLE_HASH           = 264,  // ##
     // TT_DOUBLE_DOLLAR_SIGN    = 265,  // $$
     // TT_DOUBLE_PERCENT        = 266,  // %%
-    // TT_DOUBLE_HAT            = 267,  // ^^
+    TT_LOGICAL_XOR              = 267,  // ^^
     TT_LOGICAL_AND              = 268,  // &&
     TT_EXPONENTIATION           = 269,  // **
     // TT_IMPOSSIBLE_1          = 270,  // ((
@@ -74,6 +75,7 @@ enum TokenTypeEnum {
     TT_RIGHT_SHIFT_EQUALS       = 309,  // >>=
     TT_LEFT_SHIFT_EQUALS        = 310,  // <<=
     TT_EXPONENTIATION_EQUALS    = 311,  // **=
+    TT_LOGICAL_XOR_EQUALS       = 312,  // ^^=
 
     TT_IMPORT                   = 400,  // import
     TT_IF                       = 401,  // if
@@ -166,10 +168,10 @@ inline s8 tokenTypeUnaryness(TokenTypeEnum tt) {
         case '~':
         case '!':
         case '@':
+        case '#':
         case '$':
-        case TT_IF:
-        case TT_THEN:
-        case TT_WHILE:
+        case TT_INCREMENT:
+        case TT_DECREMENT:
             return 1;
 
         default: return 0;
@@ -234,6 +236,8 @@ inline const char* tokenTypeToString(TokenTypeEnum tt) {
             return "OPERATOR";
     }
 }
+
+void print(Token* token);
 
 #endif
 

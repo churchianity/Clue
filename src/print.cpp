@@ -15,7 +15,7 @@
  * +we intend to replace printf at some point with this
  */
 void print(const char* format, ...) {
-    if (!format) {
+    if (format == null) {
         print("null\n"); return;
     }
 
@@ -76,7 +76,4 @@ void print(unsigned int i) { print("%u\n", i); }
 void print(float f)        { print("%.14g\n", f); }
 void print(double d)       { print("%.14g\n", d); }
 void print(void* p)        { print("%p\n", p); }
-
-void print(Token* token) {}
-void print(ASTNode* node) {}
 

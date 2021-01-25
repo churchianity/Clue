@@ -40,6 +40,7 @@ extern char* concat(u32 argc, ...);
 /**
  * Reads |length| characters from |buffer| into a newly allocated buffer and returns it.
  * Appends the null character, so the returned string is |length| + 1 in size.
+ * Probably shouldn't be here.
  */
 extern char* read(const char* buffer, u32 length);
 
