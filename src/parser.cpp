@@ -19,6 +19,7 @@ static inline void reportSpecificUnaryOperatorMissingOperand(ASTNode* node) {
         case '$':
 
         default:
+            die("missing operand for unary operator: %d\n", node->token->tt);
             break;
     }
 }
@@ -60,6 +61,7 @@ static inline void reportSpecificBinaryOperatorMissingOperand(ASTNode* node) {
         case ',':
 
         default:
+            die("missing operand for binary operator: %d\n", node->token->tt);
             break;
     }
 }
@@ -128,6 +130,7 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
 
 static inline u8 precedence(ASTNode* node) {
     if (associativity(node) == OA_NONE) {
+        print(node);
         return 0;
         // operators with no associativity implicitly have no precedence because they should never be in a situation where precedence is relevant
     }
@@ -197,6 +200,9 @@ static inline u8 precedence(ASTNode* node) {
 
         case '(':
         case '[':
+            if ((node->flags & NF_PUNCTUATOR) != 0) {
+                return 0;
+            }
         case '@':
         case '#':
         case '$':
@@ -289,6 +295,16 @@ static inline ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
         if (tokenTypeBinaryness(tokens->data[i]->tt) < 1) {
             die("expecting binary operator, but got op: %d", tokens->data[i]->tt);
         }
+
+        // certain punctuators can trick the parser into thinking that they are binary if the
+        // prev token is not an operator or a symbol, check for that here
+        if (tokens->data[i]->tt == '(' || tokens->data[i]->tt == '[') {
+            const auto prev = tokens->data[i - 1];
+
+            if (prev->tt == TT_NUMERIC || prev->tt == TT_STRING) {
+                die("you probably meant to put an operator before this boi\n");
+            }
+        }
     }
 
     return node;
@@ -298,7 +314,6 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
     if (os->isEmpty()) return false;
 
     const auto top = os->peek();
-    print(top);
 
     if (associativity(node) == OA_LEFT_TO_RIGHT) {
         return precedence(node) <= precedence(top);
@@ -318,7 +333,11 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
 void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os) {
     const auto node = os->pop();
 
-    if ((node->flags & NF_UNARY) != 0) {
+    if ((node->flags & NF_CALL) != 0) {
+        print("should be parsing a function call operation LOOOOOL\n");
+        return;
+
+    } else if ((node->flags & NF_UNARY) != 0) {
         ASTNode* child = es->pop();
 
         if (!child) reportSpecificUnaryOperatorMissingOperand(node);
@@ -327,6 +346,7 @@ void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os) {
         node->children->push(child);
 
     } else {
+        // assumed to be a binary operation.
         ASTNode* rhs = es->pop();
         ASTNode* lhs = es->pop();
 
@@ -386,23 +406,16 @@ Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
                     }
 
                     parseOperation(es, os);
-
                 }
 
                 program->push(produceExpressionOrStatement(&es, &os));
             } break;
 
-            case '(':
-            case '[':
-            case '{': {
-                const auto node = (ASTNode*) pCalloc(sizeof (ASTNode));
-                node->token = tokens->data[i];
-                os->push(node);
-            } break;
-
             case ')': {
                 while (!os->isEmpty()) {
-                    if (os->peek()->token->tt == '(') break;
+                    if (os->peek()->token->tt == '(') {
+                        break;
+                    }
 
                     parseOperation(es, os);
                 }
@@ -412,7 +425,7 @@ Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
                     break;
                 }
 
-                if ((os->peek()->flags & NF_PUNCTUATOR) == 0) {
+                if ((os->peek()->flags & NF_PUNCTUATOR) != 0) {
                     os->pop(); // discard open parens if it's just used to group
 
                 } else {
@@ -457,6 +470,9 @@ Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
                 es->push(node);
             } break;
 
+            case '(':
+            case '[':
+            case '{':
             default: {
                 const auto node = resolveOperatorNode(tokens, i);
 

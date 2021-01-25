@@ -75,7 +75,9 @@ enum TokenTypeEnum {
     TT_RIGHT_SHIFT_EQUALS       = 309,  // >>=
     TT_LEFT_SHIFT_EQUALS        = 310,  // <<=
     TT_EXPONENTIATION_EQUALS    = 311,  // **=
-    TT_LOGICAL_XOR_EQUALS       = 312,  // ^^=
+    TT_LOGICAL_XOR_EQUALS       = 312,  // ^^= // @TODO we don't lex this
+    TT_LOGICAL_AND_EQUALS       = 313,  // &&= // @TODO ^
+    TT_LOGICAL_OR_EQUALS        = 314,  // ||= // @TODO ^
 
     TT_IMPORT                   = 400,  // import
     TT_IF                       = 401,  // if
@@ -180,9 +182,14 @@ inline s8 tokenTypeUnaryness(TokenTypeEnum tt) {
 
 inline s8 tokenTypeBinaryness(TokenTypeEnum tt) {
     switch ((int) tt) {
+        case '(':
+            // by far the worst case
+            return 0;
+
+        // all of these are sometimes binary, sometimes not
         case '+':
         case '-':
-        case '[': // could be an array literal (unary/operand) or indexer (binary)
+        case '[': //  could be an array literal (unary/operand) or indexer (binary)
             return 2;
 
         case '*':
@@ -196,6 +203,11 @@ inline s8 tokenTypeBinaryness(TokenTypeEnum tt) {
         case TT_RIGHT_SHIFT:
         case TT_LEFT_SHIFT:
 
+        case TT_LOGICAL_AND:
+        case TT_LOGICAL_OR:
+        case TT_LOGICAL_XOR:
+
+        case TT_NOT_EQUALS:
         case '<':
         case TT_LESS_THAN_OR_EQUAL:
         case '>':
