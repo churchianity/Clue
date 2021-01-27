@@ -1,6 +1,6 @@
 
 
-#include <stdio.h>
+#include <stdio.h> // @TODO snprintf -- needs replacing
 
 #include "clue.h"
 #include "lexer.h"
@@ -159,6 +159,7 @@ void Reporter :: flush() {
     messages->forEach(
         [] (Message* message) {
             print(message);
+            pFree(message->content);
             pFree(message);
         }
     );
@@ -167,7 +168,6 @@ void Reporter :: flush() {
     messages = new Array<Message>();
 }
 
-// @TODO support variadic arguments
 void Reporter :: add(u32 id, const char* functionName, const char* filename, u32 line, u32 column, ...) {
     va_list args;
     va_start(args, column);
@@ -175,8 +175,16 @@ void Reporter :: add(u32 id, const char* functionName, const char* filename, u32
     Message* message = (Message*) pMalloc(sizeof (Message));
 
     MessageId messageId   = messageIds[id];
+    message->id           = id;
     message->severity     = messageId.severity;
-    message->content      = messageId.content;
+
+    // make the content string with the formatted varargs.
+    const u32 padding = 256; // @NOTE fix
+    u32 contentLength = strln(messageId.content) + padding;
+    char* content = (char*) pMalloc(sizeof (char) * contentLength);
+    snprintf(content, contentLength, messageId.content, args); // @TODO replace snprintf.
+
+    message->content      = content;
 
     message->functionName = functionName;
     message->filename     = filename;
@@ -204,6 +212,7 @@ void Reporter :: add(u32 id, ASTNode* node, ...) {
     va_end(args);
 }
 
+bool safe = true;
 void Reporter :: report(u32 id, const char* functionName, const char* filename, u32 line, u32 column, ...) {
     va_list args;
     va_start(args, column);
@@ -214,13 +223,17 @@ void Reporter :: report(u32 id, const char* functionName, const char* filename, 
 
     // when we 'report' normally, this should exit the program.
     // However, when debugging we might want to see more.
-    // this will frequently case segfaults and ungraceful bad things to happen, but it's better to see them than hide them,
-    // and even more important than that - to see when supposedly 'fatal' errors can actually not be fatal
+    // this will frequently case segfaults and other ungraceful bad things to happen, but it's better to see them than hide them,
+    // and more important than that - to see when supposedly 'fatal' errors can actually not be fatal
     #if CLUE_DEBUG_LEVEL <= 0
     exit(1);
     #else
-    printById(W_PROGRAM_UNSAFE_STATE);
-    printProgramTree();
+    // only print it if we haven't done so yet.
+    if (safe) {
+        printById(W_PROGRAM_UNSAFE_STATE);
+        safe = false;
+    }
+    // Runtime :: printProgramTree();
     #endif
 }
 

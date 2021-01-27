@@ -38,20 +38,20 @@ enum TokenTypeEnum {
     TT_DECREMENT                = 273,  // -- // @NOTE probably remove these two.
     TT_INCREMENT                = 274,  // ++ // or make it configurable.
     TT_EQUALITY                 = 275,  // ==
-    // TT_DOUBLE_OPEN_BRACE     = 276,  // {{ // @NOTE probably don't touch these 4, could make parsing more complicated
+    // TT_DOUBLE_OPEN_BRACE     = 276,  // {{ // @NOTE probably don't touch these 4
     // TT_DOUBLE_CLOSE_BRACE    = 277,  // }}
     // TT_DOUBLE_OPEN_BRACKET   = 278,  // [[
     // TT_DOUBLE_CLOSE_BRACKET  = 279,  // ]]
     TT_LOGICAL_OR               = 280,  // ||
-    // TT_DOUBLE_BACKSLASH      = 281,  // @NOTE can't write backslashes, makes comment multi-line
-    // TT_DOUBLE_COLON          = 282,  // :: // no.
+    // TT_DOUBLE_BACKSLASH      = 281,  // can't write backslashes, makes comment multi-line
+    // TT_DOUBLE_COLON          = 282,  // :: // no... unless
     // TT_IMPOSSIBLE_4          = 283,  // ;;
     // TT_IMPOSSIBLE_5          = 284,  // ""
     // TT_IMPOSSIBLE_6          = 285,  // ''
     TT_LEFT_SHIFT               = 286,  // <<
     // TT_IMPOSSIBLE_7          = 287,  // ,, // no.
     TT_RIGHT_SHIFT              = 288,  // >>
-    // TT_DOUBLE_DOT            = 289,  // .. // loop range thing? concatenate if we don't want to overload '+'?
+    // TT_DOUBLE_DOT            = 289,  // .. // loop range thing? concatenate if we don't want to overload '+'? see complication in numeric case of lexer.
     // TT_DOUBLE_QMARK          = 290,  // ?? // probably not. this one is funny though.
     // TT_DOUBLE_FORWARD_SLASH     = 291,  // // // floor/integer division?
 
@@ -76,10 +76,13 @@ enum TokenTypeEnum {
     TT_RIGHT_SHIFT_EQUALS       = 309,  // >>=
     TT_LEFT_SHIFT_EQUALS        = 310,  // <<=
     TT_EXPONENTIATION_EQUALS    = 311,  // **=
-    TT_LOGICAL_XOR_EQUALS       = 312,  // ^^=
+    TT_LOGICAL_XOR_EQUALS       = 312,  // ^^= // i'm fully aware that these 3 are stupid.
     TT_LOGICAL_AND_EQUALS       = 313,  // &&=
     TT_LOGICAL_OR_EQUALS        = 314,  // ||=
 
+    // begin operators that look like symbols.
+    // each token should have an entry in the lexer's keywords table.
+    // everything below here is a reserved word, and can't be used as a variable name.
     TT_IMPORT                   = 400,  // import
     TT_IF                       = 401,  // if
     TT_ELSE                     = 402,  // else
@@ -88,6 +91,7 @@ enum TokenTypeEnum {
     TT_THEN                     = 405,  // then
     TT_DO                       = 406,  // do
 
+    // begin builtin type names. @TODO
     TT_TYPE_INFO_TAG_NUMBER     = 500,  // Number
     TT_TYPE_INFO_TAG_STRING     = 501   // String
 

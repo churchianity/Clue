@@ -55,7 +55,7 @@ struct Array {
     }
 
     Array<T>* fill(T* e) {
-        for (int i = 0; i < this->length; i++) {
+        for (u32 i = 0; i < this->length; i++) {
             // @NOTE/@TODO free existing stuff
             this->data[i] = e;
         }
@@ -76,19 +76,17 @@ struct Array {
     }
 
     T* find(bool (*predicate) (T*)) const {
-        this->forEach(
-            [predicate] (T* e) {
-                if (predicate(e)) {
-                    return e;
-                }
+        for (u32 i = 0; i < this->length; i++) {
+            if (predicate(this->data[i])) {
+                return this->data[i];
             }
-        );
+        }
 
         return null;
     }
 
-    int findIndex(bool (*predicate) (T*)) const {
-        for (int i = 0; i < this->length; i++) {
+    s32 findIndex(bool (*predicate) (T*)) const {
+        for (u32 i = 0; i < this->length; i++) {
             if (predicate(this->data[i])) {
                 return i;
             }
@@ -118,8 +116,8 @@ struct Array {
         return false;
     }
 
-    int indexOf(T* value) const {
-        for (int i = 0; i < this->length; i++) {
+    s32 indexOf(T* value) const {
+        for (u32 i = 0; i < this->length; i++) {
             if (value == this->data[i]) {
                 return i;
             }
@@ -130,18 +128,18 @@ struct Array {
 
     // @TODO join() - makes no sense in arrays not of strings or if we don't have a concept of a 'toString()'
 
-    unsigned int* keys() {
-        unsigned int* array = pMalloc(sizeof(unsigned int) * this->length);
+    u32* keys() {
+        u32* array = pMalloc(sizeof(u32) * this->length);
 
-        for (int i = 0; i < this->length; i++) {
+        for (u32 i = 0; i < this->length; i++) {
             array[i] = i;
         }
 
         return array;
     }
 
-    int lastIndexOf(T* value) const {
-        for (int i = this->length - 1; i >= 0; i--) {
+    s32 lastIndexOf(T* value) const {
+        for (u32 i = this->length - 1; i >= 0; i--) {
             if (value == this->data[i]) {
                 return i;
             }
@@ -182,7 +180,7 @@ struct Array {
     // @TODO reduce(), reduceRight() - polymorphism and/or heavy overloading required on the return type
 
     Array<T>* reverse() {
-        for (int i = 0; i < this->length; i++) {
+        for (u32 i = 0; i < this->length; i++) {
             T* temp = this->data[i];
             this->data[i] = this->data[this->length - 1 - i];
             this->data[this->length - 1 - i] = temp;
@@ -198,12 +196,12 @@ struct Array {
         }
     }
 
-    Array<T>* slice(unsigned int start, unsigned int end = 0) {
+    Array<T>* slice(u32 start, u32 end = 0) {
         Array<T>* array = new Array();
 
-        unsigned int length = end > this->length ? this->length : end;
+        u32 length = end > this->length ? this->length : end;
 
-        for (int i = start; i < length; i++) {
+        for (u32 i = start; i < length; i++) {
             array->push(this->data[i]);
         }
 

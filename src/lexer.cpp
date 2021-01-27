@@ -3,6 +3,8 @@
 #include "array.hpp"
 #include "lexer.h"
 #include "table.hpp"
+#include "reporter.h"
+#include "message.h"
 #include "token.h"
 #include "types.h"
 
@@ -147,7 +149,9 @@ normal_decimal:
                             // @NOTE there's a complication here if we want to use a '..' operator.
                             // maybe 2..3 is a typo, meaning the float 2.3, but maybe also it's meant to express the range from 2 -> 3,
                             // or a concatenation of the string-casted numbers 2 and 3.
-                            // if we want to add this operator, which I think we probably do, we need to rewind the cursor one step, and call it a day.
+                            // if we want to add this operator, which I think we probably do, we need to rewind the cursor one step here
+                            // this is maybe the best example of why a 'maybeBad' flag might be worthwhile, so if the parser finds out later that some expression
+                            // '2..3' makes no sense, it can guess why - a typo of '2.3'
                             cursor--;
                             break;
                         }
@@ -176,6 +180,7 @@ normal_decimal:
                 }
 
                 if (*cursor == '\\') {
+                    // @TODO escape characters.
 
                 } else if (*cursor == '\n') {
                     column = 1;
@@ -191,6 +196,8 @@ normal_decimal:
             } while (*cursor != '\0');
 
         } else {
+            // operators.
+            // assume the operator type is just the single char we have at the cursor, and exhaustively check if we are wrong until we can't be.
             tt = (TokenTypeEnum) *cursor;
 
             switch (*cursor) {
@@ -199,7 +206,7 @@ normal_decimal:
                     continue;
 
                 case '_':
-                    // leading underscores aren't supported by the language for user-defined symbols,
+                    // leading underscores aren't supported by the language
                     // after the first character in a symbol is fine though.
                     // @TODO check if there's a symbol after it so the reported message is accurate
                     // .. it could just be a typo
@@ -207,7 +214,9 @@ normal_decimal:
                     continue;
 
                 default: // invalid single-chars, probably weird whitespace/non-ascii
-                    die("invalid char %c", *cursor);
+                    // @TODO do some work to find out what exactly caused the problem. this will probably most of the time be a paste-error
+                    // - we can check if it's a Unicode space separator or other common case and report better.
+                    Reporter :: report(E_WEIRD_CODEPOINT, null, filename, line, column, *cursor);
                     break;
 
                 case '\n':

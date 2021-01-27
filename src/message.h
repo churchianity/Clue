@@ -16,7 +16,8 @@ struct MessageId {
 };
 
 struct Message {
-    const char* content;
+    u32 id;
+    char* content;
     const char* functionName;
     const char* filename;
     u32 line;
@@ -25,11 +26,14 @@ struct Message {
 };
 
 const MessageId messageIds[] = {
-    { MS_WARN, "program may be in unsafe state" },
+    { MS_WARN, "program may be in unsafe state." },
+    { MS_ERROR, "weird character with codepoint %d" },
 };
 
 enum MessageEnum {
     W_PROGRAM_UNSAFE_STATE,
+    E_WEIRD_CODEPOINT,
+    E_WEIRD_WHITESPACE,
 };
 
 #endif

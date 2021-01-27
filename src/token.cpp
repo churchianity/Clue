@@ -100,7 +100,9 @@ s8 tokenTypeBinaryness(TokenTypeEnum tt) {
         case TT_LOGICAL_OR:
         case TT_LOGICAL_XOR:
 
+        case TT_EQUALITY:
         case TT_NOT_EQUALS:
+
         case '<':
         case TT_LESS_THAN_OR_EQUAL:
         case '>':

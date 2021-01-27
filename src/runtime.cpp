@@ -15,6 +15,7 @@
 Table<const char, Value>* global = new Table<const char, Value>();
 Array<ASTNode>* program = new Array<ASTNode>();
 
+/*
 static inline s32 fToInt(double f) {
     return (s32) floor(f + 0.5);
 }
@@ -152,6 +153,7 @@ static inline Value evalOperator(ASTNode* node) {
 
     return v;
 }
+*/
 
 Value Runtime :: eval(ASTNode* node) {
     Value v;
@@ -175,7 +177,7 @@ Value Runtime :: eval(ASTNode* node) {
             break;
 
         default:
-            v = evalOperator(node);
+            // v = evalOperator(node);
             break;
     }
 

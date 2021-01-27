@@ -86,6 +86,8 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
         case TT_LOGICAL_XOR_EQUALS:
+
+        case '{':
             return OA_RIGHT_TO_LEFT;
 
         case '+':
@@ -209,6 +211,7 @@ static inline u8 precedence(ASTNode* node) {
 
         case '(':
         case '[':
+        case '{':
             if ((node->flags & NF_PUNCTUATOR) == NF_PUNCTUATOR) {
                 return 0;
             }
@@ -251,6 +254,7 @@ static inline ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
                 // being here means there's an operator before us, which means this can't be a function call
                 node->flags |= NF_PUNCTUATOR;
                 break;
+
             case '[':
                 // I guess it's possible for in an operator overloaded case, something like
                 // [ 0, 2 ] - [ 1, 3 ] to be valid, but otherwise?
@@ -262,7 +266,7 @@ static inline ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
                 node->flags |= NF_UNARY;
                 break;
 
-            case '{':
+            case '{': // @NOTE not sure if we have to specialize this yet.
                 // if ( ... ) { ... }
                 //          ^
                 //
@@ -278,6 +282,7 @@ static inline ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
                 //
                 // in all cases I don't think we care or need to do anything special?
                 // not until we hit '}' anyway
+                node->flags |= NF_UNARY;
                 node->flags |= NF_PUNCTUATOR;
                 break;
 
@@ -286,9 +291,14 @@ static inline ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
             case '@':
             case '#':
             case '$':
-            case TT_INCREMENT:
+            case TT_INCREMENT: // @TODO remove or check for compiler flags if we allow increment/decrement.
             case TT_DECREMENT:
+
             case TT_IMPORT:
+            case TT_IF:
+            case TT_ELSE:
+            case TT_DO:
+            case TT_WHILE:
 
             case '+':
             case '-':
@@ -348,6 +358,7 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
 
 void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os) {
     const auto node = os->pop();
+    print(node);
 
     if ((node->flags & NF_CALL) != 0) {
         print("should be parsing a function call operation LOOOOOL\n");
@@ -415,6 +426,7 @@ Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
                 while (!os->isEmpty()) {
                     const auto token = os->peek()->token;
 
+                    /*
                     switch ((int) token->tt) {
                         case '(':
                             die("missing closing paren\n");
@@ -426,6 +438,7 @@ Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
                             die("missing closing brace\n");
                             break;
                     }
+                    */
 
                     parseOperation(es, os);
                 }
@@ -438,9 +451,7 @@ Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
 
             case ')': {
                 while (!os->isEmpty()) {
-                    if (os->peek()->token->tt == '(') {
-                        break;
-                    }
+                    if (os->peek()->token->tt == '(') break;
 
                     parseOperation(es, os);
                 }
