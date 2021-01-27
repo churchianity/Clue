@@ -41,6 +41,13 @@ void Lexer :: print() {
     }
 }
 
+/**
+ * Given a null-terminated string |buffer|, append to the lexer's tokens array.
+ *
+ * |_line| is sometimes necessary to provide, because you can optionally lex tokens in line-buffered batches.
+ * The typical case of this happening is typing code in line-by-line in sandbox mode.
+ * In most cases you won't provide it though, and it defaults to 1.
+ */
 Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     static auto keywords = initKeywordTable();
 
@@ -188,6 +195,17 @@ normal_decimal:
 
             switch (*cursor) {
                 case '\r':
+                    // @TODO depending on compiler flag, report.
+                    continue;
+
+                case '_':
+                    // leading underscores aren't supported by the language for user-defined symbols,
+                    // after the first character in a symbol is fine though.
+                    // @TODO check if there's a symbol after it so the reported message is accurate
+                    // .. it could just be a typo
+                    die("leading underscores aren't allowed in user-defined symbols, like variable or function names.\n");
+                    continue;
+
                 default: // invalid single-chars, probably weird whitespace/non-ascii
                     die("invalid char %c", *cursor);
                     break;

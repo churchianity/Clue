@@ -15,6 +15,12 @@ enum OperatorAssociativityEnum {
     OA_RIGHT_TO_LEFT = 1
 };
 
+/*
+enum ASTNodeOperatorTypeEnum {
+
+};
+*/
+
 enum ASTNodeFlagsEnum {
     NF_UNARY        = 1,
     NF_POSTFIX      = 2,
