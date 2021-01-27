@@ -3,7 +3,6 @@
 
 #include "alloc.h"
 #include "types.h"
-#include "print.h" // remove
 
 
 bool isDigit(char c) {
@@ -29,10 +28,19 @@ bool isBinaryDigit(char c) {
     return (c == '0') || (c == '1');
 }
 
-// different programs consider different codepoints to be 'whitespace'.
-// we only care about these.
-bool isClueWhitespace(char c) {
-    return (c == ' ') || (c == '\n') || (c == '\t') || (c == '\r');
+bool isAsciiWhitespace(char c) {
+    switch (c) {
+        case '\b':
+        case '\v':
+        case '\f':
+        case '\r':
+        case '\t':
+        case '\n':
+        case ' ':
+            return true;
+        default:
+            return false;
+    }
 }
 
 char* intToString(u64 integer) {
@@ -210,8 +218,8 @@ bool isAscii(const char* buffer, u32 length) {
 }
 
 // https://www.fileformat.info/info/unicode/category/Zs/list.htm
+/* @TODO
 bool isUnicodeSpaceSeparator(char c) {
-    print("%d", c);
     switch (c) {
         case 0x20:
         case 0xA0:
@@ -236,6 +244,7 @@ bool isUnicodeSpaceSeparator(char c) {
             return false;
     }
 }
+*/
 
 /*
  * @TODO ALL OF THESE

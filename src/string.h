@@ -25,7 +25,7 @@ extern bool hasSuffix(const char* string, const char* suffix);
 extern u32 countLines(const char* buffer);
 
 extern bool isAscii(const char* buffer, u32 length);
-extern bool isUnicodeSpaceSeparator(char c);
+// extern bool isUnicodeSpaceSeparator(wide character);
 
 // @TODO ALL OF THESE TRIMS
 extern char* trimStart(const char* str, u32 count);

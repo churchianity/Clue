@@ -212,8 +212,9 @@ void Reporter :: add(u32 id, ASTNode* node, ...) {
     va_end(args);
 }
 
-bool safe = true;
 void Reporter :: report(u32 id, const char* functionName, const char* filename, u32 line, u32 column, ...) {
+    static bool safe = true;
+
     va_list args;
     va_start(args, column);
 
@@ -228,12 +229,11 @@ void Reporter :: report(u32 id, const char* functionName, const char* filename, 
     #if CLUE_DEBUG_LEVEL <= 0
     exit(1);
     #else
-    // only print it if we haven't done so yet.
+    // only print warning if we haven't done so yet.
     if (safe) {
         printById(W_PROGRAM_UNSAFE_STATE);
         safe = false;
     }
-    // Runtime :: printProgramTree();
     #endif
 }
 
