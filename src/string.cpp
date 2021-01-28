@@ -2,33 +2,34 @@
 #include <stdarg.h> // concat function has varags
 
 #include "alloc.h"
+#include "string.h"
 #include "types.h"
 
 
-bool isDigit(char c) {
+bool Str :: isDigit(char c) {
     return (c >= '0') && (c <= '9');
 }
 
-bool isAlpha(char c) {
+bool Str :: isAlpha(char c) {
     return (c >= 'A' && c <= 'Z')
         || (c >= 'a' && c <= 'z');
 }
 
-bool isHexDigit(char c) {
+bool Str :: isHexDigit(char c) {
     return ((c >= '0') && (c <= '9'))
         || ((c >= 'A') && (c <= 'F'))
         || ((c >= 'a') && (c <= 'f'));
 }
 
-bool isOctalDigit(char c) {
+bool Str :: isOctalDigit(char c) {
     return (c >= '0') && (c <= '7');
 }
 
-bool isBinaryDigit(char c) {
+bool Str :: isBinaryDigit(char c) {
     return (c == '0') || (c == '1');
 }
 
-bool isAsciiWhitespace(char c) {
+bool Str :: isAsciiWhitespace(char c) {
     switch (c) {
         case '\b':
         case '\v':
@@ -43,7 +44,7 @@ bool isAsciiWhitespace(char c) {
     }
 }
 
-char* intToString(u64 integer) {
+char* Str :: intToString(u64 integer) {
     u32 capacity = 10;
     u32* remainders = (u32*) pMalloc(sizeof (u32) * capacity);
 
@@ -78,7 +79,7 @@ char* intToString(u64 integer) {
 }
 
 // @NOTE breaks if you don't verify the string is a valid hex string.
-u64 hexStringToInt(const char* str) {
+u64 Str :: hexStringToInt(const char* str) {
     u64 out = 0;
 
     while (*str != '\0') {
@@ -101,7 +102,7 @@ u64 hexStringToInt(const char* str) {
     return out;
 }
 
-u32 strln(const char* string) {
+u32 Str :: len(const char* string) {
     u32 length = 0;
 
     while (*string != '\0') {
@@ -112,9 +113,9 @@ u32 strln(const char* string) {
     return length;
 }
 
-bool streq(const char* s1, const char* s2) {
-    u32 l1 = strln(s1);
-    u32 l2 = strln(s2);
+bool Str :: eq(const char* s1, const char* s2) {
+    u32 l1 = Str :: len(s1);
+    u32 l2 = Str :: len(s2);
 
     if (l1 != l2) {
         return false;
@@ -129,7 +130,7 @@ bool streq(const char* s1, const char* s2) {
     return true;
 }
 
-char* strcp(const char* string, u32 length) {
+char* Str :: cp(const char* string, u32 length) {
     char* buffer = (char*) pMalloc(sizeof (char) * (length + 1));
 
     u32 i = 0;
@@ -142,7 +143,7 @@ char* strcp(const char* string, u32 length) {
     return buffer;
 }
 
-bool memeq(const char* m1, u32 l1, const char* m2, u32 l2) {
+bool Str :: memeq(const char* m1, u32 l1, const char* m2, u32 l2) {
     if (l1 != l2) {
         return false;
     }
@@ -156,7 +157,7 @@ bool memeq(const char* m1, u32 l1, const char* m2, u32 l2) {
     return true;
 }
 
-void* memset(void* p, char c, u32 length) {
+void* Str :: memset(void* p, char c, u32 length) {
     char* a = (char*) p;
 
     for (u32 i = 0; i < length; i++) {
@@ -166,7 +167,7 @@ void* memset(void* p, char c, u32 length) {
     return a;
 }
 
-const char* lastCharOccurence(const char* string, u32 length, char c) {
+const char* Str :: lastCharOccurence(const char* string, u32 length, char c) {
     for (s32 i = length - 1; i >= 0; i--) { // @NOTE 'i' needs to be a signed int here...
         if (*(string + i) == c) {
             return string + i;
@@ -176,17 +177,17 @@ const char* lastCharOccurence(const char* string, u32 length, char c) {
     return null;
 }
 
-bool hasSuffix(const char* string, const char* suffix) {
-    const char* p = lastCharOccurence(string, strln(string), suffix[0]);
+bool Str :: hasSuffix(const char* string, const char* suffix) {
+    const char* p = lastCharOccurence(string, Str :: len(string), suffix[0]);
 
     if (p) {
-        return streq(p, suffix);
+        return Str :: eq(p, suffix);
     }
 
     return false;
 }
 
-u32 countLines(const char* buffer) {
+u32 Str :: countLines(const char* buffer) {
     u32 lines = 0;
     char c;
 
@@ -205,7 +206,7 @@ u32 countLines(const char* buffer) {
  * Ascii encoded text won't ever set the 8th (big) bit of any of its bytes.
  * @TODO is |length| necessary here?
  */
-bool isAscii(const char* buffer, u32 length) {
+bool Str :: isAscii(const char* buffer, u32 length) {
     const unsigned char* ubuffer = (const unsigned char*) buffer;
 
     for (u32 i = 0; i < length; i++) {
@@ -219,7 +220,7 @@ bool isAscii(const char* buffer, u32 length) {
 
 // https://www.fileformat.info/info/unicode/category/Zs/list.htm
 /* @TODO
-bool isUnicodeSpaceSeparator(char c) {
+bool Str :: isUnicodeSpaceSeparator(char c) {
     switch (c) {
         case 0x20:
         case 0xA0:
@@ -249,17 +250,17 @@ bool isUnicodeSpaceSeparator(char c) {
 /*
  * @TODO ALL OF THESE
  */
-char* trimStart(const char* str, u32 count) {
+char* Str :: trimStart(const char* str, u32 count) {
     return null;
 }
 
-char* trimEnd(const char* str, u32 count) {
+char* Str :: trimEnd(const char* str, u32 count) {
     return null;
 }
 
 // @TODO test with weird counts
-char* trim(const char* str, u32 count) {
-    u32 length = strln(str);
+char* Str :: trim(const char* str, u32 count) {
+    u32 length = Str :: len(str);
 
     if (length <= count) {
         return (char*) "";
@@ -277,8 +278,8 @@ char* trim(const char* str, u32 count) {
     return buffer;
 }
 
-char* toLower(const char* str) {
-    u32 length = strln(str);
+char* Str :: toLower(const char* str) {
+    u32 length = Str :: len(str);
     char* buffer = (char*) pMalloc(sizeof (char) * length + 1);
 
     u32 i = 0;
@@ -296,8 +297,8 @@ char* toLower(const char* str) {
     return buffer;
 }
 
-char* toUpper(const char* str) {
-    u32 length = strln(str);
+char* Str :: toUpper(const char* str) {
+    u32 length = Str :: len(str);
     char* buffer = (char*) pMalloc(sizeof (char) * length + 1);
 
     u32 i = 0;
@@ -315,9 +316,9 @@ char* toUpper(const char* str) {
     return buffer;
 }
 
-char* concat(const char* str1, const char* str2) {
-    u32 l1 = strln(str1);
-    u32 l2 = strln(str2);
+char* Str :: concat(const char* str1, const char* str2) {
+    u32 l1 = Str :: len(str1);
+    u32 l2 = Str :: len(str2);
 
     u32 newLength = l1 + l2;
 
@@ -338,7 +339,7 @@ char* concat(const char* str1, const char* str2) {
     return newBuffer;
 }
 
-char* concat(u32 argc, ...) {
+char* Str :: concat(u32 argc, ...) {
     va_list args;
     va_start(args, argc);
 
@@ -357,7 +358,7 @@ char* concat(u32 argc, ...) {
  * Reads |length| characters from |buffer| into a newly allocated buffer and returns it.
  * Appends the null character, so the returned string is |length| + 1 in size.
  */
-char* read(const char* buffer, u32 length) {
+char* Str :: read(const char* buffer, u32 length) {
     char* tk = (char*) pMalloc(sizeof (char) * length + 1);
 
     u32 i = 0;

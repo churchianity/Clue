@@ -10,11 +10,11 @@ void prettyPrintTree(ASTNode* node, const char* indent, bool last) {
     print(indent);
     if (last) {
         print("\\-");
-        indent = concat(indent, "  ");
+        indent = Str :: concat(indent, "  ");
 
     } else {
         print("|-");
-        indent = concat(indent, "| ");
+        indent = Str :: concat(indent, "| ");
     }
     print("&ASTNode: %p, f: %d, tk: %s%s%s\n", (void*) node, node->flags, ANSI_YELLOW, node->token->tk, ANSI_RESET);
 
