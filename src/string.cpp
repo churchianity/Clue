@@ -260,9 +260,14 @@ char* trimEnd(const char* str, u32 count) {
 // @TODO test with weird counts
 char* trim(const char* str, u32 count) {
     u32 length = strln(str);
+
+    if (length <= count) {
+        return (char*) "";
+    }
+
     char* buffer = (char*) pMalloc(sizeof (char) * (length - 1));
 
-    s32 i = 0;
+    u32 i = 0;
     for (; i < (length - count); i++) {
         buffer[i] = str[i + 1];
     }

@@ -9,8 +9,8 @@
 #include "types.h"
 
 
-auto Lexer::tokens = new Array<Token>();
-auto Lexer::files = new Table<const char, void>();
+Array<Token>* Lexer::tokens = new Array<Token>();
+Table<const char, void>* Lexer::files = new Table<const char, void>();
 
 struct Keyword {
     TokenTypeEnum tt;
