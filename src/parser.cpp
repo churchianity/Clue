@@ -229,12 +229,22 @@ static inline u8 precedence(ASTNode* node) {
     }
 }
 
+static inline bool unaryHeuristic(tokens, i) {
+    if (i < 1) {
+        return true;
+
+    } else if (true) {
+
+    }
+}
+
 static inline ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
     ASTNode* node = (ASTNode*) pCalloc(sizeof (ASTNode));
 
     node->token = tokens->data[i];
 
     if (i < 1 || tokenTypeIsOperator(tokens->data[i - 1]->tt)) {
+        // we think it's a unary operator, but we could be wrong. check.
         switch ((int) node->token->tt) {
             default:
                 die("unexpected operator that we thought would be unary or a punctuator: %d\n", tokens->data[i]->tt);

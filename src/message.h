@@ -33,7 +33,6 @@ const MessageId messageIds[] = {
 enum MessageEnum {
     W_PROGRAM_UNSAFE_STATE,
     E_WEIRD_CODEPOINT,
-    E_WEIRD_WHITESPACE,
 };
 
 #endif

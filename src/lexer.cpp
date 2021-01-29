@@ -257,6 +257,7 @@ normal_decimal:
                     column++;
 
                     if (*cursor == '`') {
+                        // multi-line comment
                         do {
                             cursor++;
 
