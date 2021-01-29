@@ -25,13 +25,13 @@ struct Array {
         Array* array = new Array();
 
         this->forEach(
-            [] (T e) {
+            [array] (T e) {
                 array->push(e);
             }
         );
 
         other->forEach(
-            [] (T e) {
+            [array] (T e) {
                 array->push(e);
             }
         );
@@ -152,7 +152,7 @@ struct Array {
         Array array = new Array();
 
         this->forEach(
-            [callback] (T* e) {
+            [array, callback] (T* e) {
                 array->push(callback(e));
             }
         );

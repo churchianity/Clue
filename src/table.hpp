@@ -80,7 +80,7 @@ struct Table {
         TableEntry<K, V>* entry = entries[hash(key, keyLength, lanes)];
 
         for (; entry != null; entry = entry->next) {
-            if (memeq(key, keyLength, entry->key, entry->keyLength)) {
+            if (Str :: memeq(key, keyLength, entry->key, entry->keyLength)) {
                 return entry;
             }
         }

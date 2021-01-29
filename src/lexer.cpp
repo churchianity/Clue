@@ -9,8 +9,8 @@
 #include "types.h"
 
 
-auto Lexer::tokens = new Array<Token>();
-auto Lexer::files = new Table<const char, void>();
+Array<Token>* Lexer::tokens = new Array<Token>();
+Table<const char, void>* Lexer::files = new Table<const char, void>();
 
 struct Keyword {
     TokenTypeEnum tt;
@@ -67,13 +67,13 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         length = 1;
         flags = 0;
 
-        if (isAlpha(*cursor)) {
+        if (Str :: isAlpha(*cursor)) {
             tt = TT_SYMBOL;
 
             do {
                 cursor++;
 
-                if (!(isAlpha(*cursor) || isDigit(*cursor) || (*cursor == '_'))) {
+                if (!(Str :: isAlpha(*cursor) || Str :: isDigit(*cursor) || (*cursor == '_'))) {
                     break;
                 }
 
@@ -81,7 +81,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
             } while (*cursor != '\0');
 
-        } else if (isDigit(*cursor)) {
+        } else if (Str :: isDigit(*cursor)) {
             tt = TT_NUMERIC;
 
             if (*cursor == '0') {
@@ -97,7 +97,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                         do {
                             cursor++;
 
-                            if (!isOctalDigit(*cursor)) break;
+                            if (!Str :: isOctalDigit(*cursor)) break;
 
                             length++;
 
@@ -113,7 +113,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                         do {
                             cursor++;
 
-                            if (!isHexDigit(*cursor)) break;
+                            if (!Str :: isHexDigit(*cursor)) break;
 
                             length++;
 
@@ -129,7 +129,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                         do {
                             cursor++;
 
-                            if (!isBinaryDigit(*cursor)) break;
+                            if (!Str :: isBinaryDigit(*cursor)) break;
 
                             length++;
 
@@ -158,7 +158,7 @@ normal_decimal:
 
                         hasRadixPoint = true;
 
-                    } else if (!isDigit(*cursor)) {
+                    } else if (!Str :: isDigit(*cursor)) {
                         break;
                     }
 
@@ -370,7 +370,7 @@ normal_decimal:
         token->column   = column;
         token->length   = length;
         token->tt       = tt;
-        token->tk       = read(cursor - length, length);
+        token->tk       = Str :: read(cursor - length, length);
         token->flags    = flags;
 
         if (token->tt == TT_SYMBOL) {

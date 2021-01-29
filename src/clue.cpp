@@ -76,32 +76,32 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
     char** files = (char**) pMalloc(sizeof (char*) * capacity);
 
     for (int i = 1; i < argc; ++i) {
-        char* arg = toLower(argv[i]);
+        char* arg = Str :: toLower(argv[i]);
 
-        if (streq(arg, "-h") || streq(arg, "--help")) {
+        if (Str :: eq(arg, "-h") || Str :: eq(arg, "--help")) {
             help(null); exit(0);
 
-        } else if (streq(arg, "-v") || streq(arg, "--version")) {
+        } else if (Str :: eq(arg, "-v") || Str :: eq(arg, "--version")) {
             print("clue programming language v%s, for %s, %s\n", __CLUE_VERSION_NUMBER__, __CLUE_OS__, __CLUE_ARCH__); exit(0);
 
-        } else if (streq(arg, "-i") || streq(arg, "--interactive")) {
+        } else if (Str :: eq(arg, "-i") || Str :: eq(arg, "--interactive")) {
             CLAs.interactive = true;
 
-        } else if (streq(arg, "-s") || streq(arg, "--sandbox")) {
+        } else if (Str :: eq(arg, "-s") || Str :: eq(arg, "--sandbox")) {
             CLAs.interactive = true;
 
-        } else if (streq(arg, "-r") || streq(arg, "--root")) {
+        } else if (Str :: eq(arg, "-r") || Str :: eq(arg, "--root")) {
             CLAs.src = arg;
 
-        } else if (hasSuffix(arg, CLUE_FILE_SUFFIX)) {
-            u32 size = strln(arg);
+        } else if (Str :: hasSuffix(arg, CLUE_FILE_SUFFIX)) {
+            u32 size = Str :: len(arg);
 
             if (filec == capacity) {
                 capacity *= 2;
                 files = (char**) pRealloc(files, sizeof (char*) * capacity);
             }
 
-            files[filec++] = read(arg, size);
+            files[filec++] = Str :: read(arg, size);
 
         } else {
             help(arg); exit(0);

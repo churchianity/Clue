@@ -72,7 +72,7 @@ static inline const char* reconstruct(const char* filename, u32 line) {
 
     u32 i = 0;
     for (; i < Lexer::tokens->length; i++) {
-        if (streq(Lexer::tokens->data[i]->filename, filename) && (Lexer::tokens->data[i]->line == line)) {
+        if (Str :: eq(Lexer::tokens->data[i]->filename, filename) && (Lexer::tokens->data[i]->line == line)) {
             token = Lexer::tokens->data[i];
 
             // the -1 is because column counts are 1-indexed
@@ -81,7 +81,7 @@ static inline const char* reconstruct(const char* filename, u32 line) {
 
             char* leadingWhitespace = fillWithSpaces(amountOfLeadingWhitespace);
 
-            out = concat(3, out, leadingWhitespace, token->tk);
+            out = Str :: concat(3, out, leadingWhitespace, token->tk);
             pFree(leadingWhitespace);
         }
     }
@@ -95,18 +95,18 @@ void Reporter::rebuild(const char* filename) {
     u32 line = 1;
 
     while (i < Lexer::tokens->length) {
-        if (streq(Lexer::tokens->data[i]->filename, filename)) {
+        if (Str :: eq(Lexer::tokens->data[i]->filename, filename)) {
             line = Lexer::tokens->data[i]->line;
 
             do {
                 i++;
 
-                if ((i < Lexer::tokens->length) || ((Lexer::tokens->data[i]->line != line) || streq(Lexer::tokens->data[i]->filename, filename))) {
+                if ((i < Lexer::tokens->length) || ((Lexer::tokens->data[i]->line != line) || Str :: eq(Lexer::tokens->data[i]->filename, filename))) {
                     i++;
                     break;
                 }
 
-            } while ((i < Lexer::tokens->length) || streq(Lexer::tokens->data[i]->filename, filename));
+            } while ((i < Lexer::tokens->length) || Str :: eq(Lexer::tokens->data[i]->filename, filename));
 
             ::print(reconstruct(filename, line));
             ::print("%d\n", i);
@@ -180,7 +180,7 @@ void Reporter :: add(u32 id, const char* functionName, const char* filename, u32
 
     // make the content string with the formatted varargs.
     const u32 padding = 256; // @NOTE fix
-    u32 contentLength = strln(messageId.content) + padding;
+    u32 contentLength = Str :: len(messageId.content) + padding;
     char* content = (char*) pMalloc(sizeof (char) * contentLength);
     snprintf(content, contentLength, messageId.content, args); // @TODO replace snprintf.
 
