@@ -229,7 +229,7 @@ static inline u8 precedence(ASTNode* node) {
     }
 }
 
-static inline bool unaryHeuristic(tokens, i) {
+static inline bool unaryHeuristic(Array<Token>* tokens, u32 i) {
     if (i < 1) {
         return true;
 
@@ -368,7 +368,6 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
 
 void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os) {
     const auto node = os->pop();
-    print(node);
 
     if ((node->flags & NF_CALL) != 0) {
         print("should be parsing a function call operation LOOOOOL\n");
@@ -397,68 +396,19 @@ void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os) {
     es->push(node);
 }
 
-static ASTNode* produceExpressionOrStatement(Array<ASTNode>** es, Array<ASTNode>** os) {
-    if ((*es)->isEmpty()) {
-        die("empty expression, extra semicolon\n");
-        return null;
-    }
+/**
+ * Called when you encounter a semicolon.
+ * This should parse anything that can be normally parsed by shunting yard - ie. expressions or some statements.
+ */
+static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex) {
+    auto es = new Array<ASTNode>();
+    auto os = new Array<ASTNode>();
 
-    const auto expressionStatement = (*es)->pop();
-
-    if (!(*es)->isEmpty()) {
-        die("leftover operands");
-        return null;
-    }
-
-    delete *es;
-    delete *os;
-    const auto _es = new Array<ASTNode>();
-    const auto _os = new Array<ASTNode>();
-    *es = _es;
-    *os = _os;
-
-    return expressionStatement;
-}
-
-Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
-    static auto program = new Array<ASTNode>();
-
-    static auto es = new Array<ASTNode>();
-    static auto os = new Array<ASTNode>();
-
-    u32 i = 0;
-    while (i < tokens->length) {
+    u32 i = startIndex;
+    while (i < endIndex) {
         switch ((int) tokens->data[i]->tt) {
-            case TT_IMPORT: // @TODO
-                continue;
 
-            case ';': {
-                while (!os->isEmpty()) {
-                    const auto token = os->peek()->token;
-
-                    /*
-                    switch ((int) token->tt) {
-                        case '(':
-                            die("missing closing paren\n");
-                            break;
-                        case '[':
-                            die("missing closing bracket\n");
-                            break;
-                        case '{':
-                            die("missing closing brace\n");
-                            break;
-                    }
-                    */
-
-                    parseOperation(es, os);
-                }
-
-                const auto node = produceExpressionOrStatement(&es, &os);
-                if (node != null) {
-                    program->push(node);
-                }
-            } break;
-
+            // parse function call or grouping of stuff
             case ')': {
                 while (!os->isEmpty()) {
                     if (os->peek()->token->tt == '(') break;
@@ -479,6 +429,7 @@ Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
                 }
             } break;
 
+            // reduce-parse array indexer or array literal
             case ']': {
                 while (!os->isEmpty()) {
                     if (os->peek()->token->tt == '[') break;
@@ -495,6 +446,7 @@ Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
 
             } break;
 
+            // reduce-parse a dictionary/object/struct literal
             case '}': {
                 while (!os->isEmpty()) {
                     if (os->peek()->token->tt == '{') break;
@@ -526,6 +478,40 @@ Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
 
                 os->push(node);
             } break;
+        }
+
+        i++;
+    }
+
+    while (!os->isEmpty()) {
+        parseOperation(es, os);
+    }
+
+    ASTNode* expression = es->pop();
+
+    if (!es->isEmpty()) {
+        die("leftover operands");
+        return null;
+    }
+
+    delete es;
+    delete os;
+
+    return expression;
+}
+
+Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
+    static auto program = new Array<ASTNode>();
+
+    u32 lastExpressionBoundaryIndex = 0;
+    u32 i = 0;
+    while (i < tokens->length) {
+        switch ((int) tokens->data[i]->tt) {
+            case ';':
+                program->push(shuntingYard(tokens, lastExpressionBoundaryIndex, i));
+                lastExpressionBoundaryIndex = i + 1;
+                i++;
+                break;
         }
 
         i++;

@@ -1,5 +1,6 @@
 
-CC=clang
+#CC=clang
+CC=gcc
 COMPILER_FLAGS=-ansi -pedantic -g -Wall -std=c++11 -lstdc++ -fshort-enums -rdynamic -lm
 LLVM=`llvm-config --cxxflags --ldflags --system-libs --libs core`
 
