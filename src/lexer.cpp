@@ -33,6 +33,9 @@ static Table<const char, Keyword>* initKeywordTable() {
     t->insert("do",             2, keyword(TT_DO));
     t->insert("while",          5, keyword(TT_WHILE));
     t->insert("return",         6, keyword(TT_RETURN));
+    t->insert("and",            3, keyword(TT_AND));
+    t->insert("or",             2, keyword(TT_OR));
+    t->insert("not",            3, keyword(TT_NOT));
 
     return t;
 }
@@ -246,6 +249,7 @@ normal_decimal:
                 case '}':
                 case ';':
                 case '.':
+                case ',':
                 case '?':
                     break;
 

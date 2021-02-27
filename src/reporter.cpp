@@ -182,7 +182,7 @@ void Reporter :: add(u32 id, const char* functionName, const char* filename, u32
     const u32 padding = 256; // @NOTE fix
     u32 contentLength = Str :: len(messageId.content) + padding;
     char* content = (char*) pMalloc(sizeof (char) * contentLength);
-    snprintf(content, contentLength, messageId.content, args); // @TODO replace snprintf.
+    vsnprintf(content, contentLength, messageId.content, args); // @TODO replace vsnprintf.
 
     message->content      = content;
 
@@ -241,7 +241,7 @@ void Reporter :: report(u32 id, const char* functionName, Token* token, ...) {
     va_list args;
     va_start(args, token);
 
-    report(id, functionName, token->filename, token->line, token->column);
+    report(id, functionName, token->filename, token->line, token->column, args);
     va_end(args);
 }
 

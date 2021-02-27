@@ -446,7 +446,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex)
 
             } break;
 
-            // reduce-parse a dictionary/object/struct literal
+            // reduce-parse a struct literal
             case '}': {
                 while (!os->isEmpty()) {
                     if (os->peek()->token->tt == '{') break;
