@@ -396,10 +396,6 @@ void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os) {
     es->push(node);
 }
 
-/**
- * Called when you encounter a semicolon.
- * This should parse anything that can be normally parsed by shunting yard - ie. expressions or some statements.
- */
 static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex) {
     auto es = new Array<ASTNode>();
     auto os = new Array<ASTNode>();
@@ -487,15 +483,23 @@ static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex)
         parseOperation(es, os);
     }
 
+    if (es->isEmpty()) {
+        // @REPORT warn empty expression ex: ()
+        return null;
+    }
+
     ASTNode* expression = es->pop();
 
     if (!es->isEmpty()) {
+        // @REPORT error leftover operands ex: (4 + 4 4)
         die("leftover operands");
         return null;
     }
 
     delete es;
     delete os;
+
+    print(expression);
 
     return expression;
 }
@@ -504,15 +508,17 @@ Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
     static auto program = new Array<ASTNode>();
 
     u32 lastExpressionBoundaryIndex = 0;
-    u32 lastOpenBrace = 0;
     u32 i = 0;
     while (i < tokens->length) {
         switch ((int) tokens->data[i]->tt) {
-            case ';':
-                program->push(shuntingYard(tokens, lastExpressionBoundaryIndex, i));
+            case ';': {
+                const auto node = shuntingYard(tokens, lastExpressionBoundaryIndex, i);
+
+                if (node != null) program->push(node);
+
                 lastExpressionBoundaryIndex = i + 1;
                 i++;
-                break;
+            } break;
         }
 
         i++;

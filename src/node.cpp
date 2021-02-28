@@ -40,6 +40,10 @@ void traverse(ASTNode* node, void (*callback) (ASTNode*)) {
 }
 
 void print(ASTNode* node) {
+    if (node == null) {
+        print("null\n");
+    }
+
     print("&ASTNode %p | flags: %d | tk: %s\n", (void*) node, node->flags, node->token->tk);
 }
 
