@@ -31,11 +31,16 @@ enum ASTNodeFlagsEnum {
     NF_INDEXER      = 16,
 };
 
+struct Closure {
+    const char* name;
+    Table<const char, Value>* table;
+    Closure* parent;
+};
+
 struct ASTNode {
     Token* token;
 
-    Table<const char, Value>* table;
-    ASTNode* parent;
+    Closure* closure;
 
     Array<ASTNode>* children;
 

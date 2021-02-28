@@ -267,22 +267,9 @@ static inline ASTNode* resolveOperatorOrPunctuatorNode(Array<Token>* tokens, u32
                 node->flags |= NF_UNARY;
                 break;
 
-            case '{': // @NOTE not sure if we have to specialize this yet.
-                // if ( ... ) { ... }
-                //          ^
-                //
-                // if the thing before us is an operator, it basically has to be...
-                // TT_DO, like:
-                //
-                // do { ...
-                //
-                // or, it could be the end of the last expression and the start of a new anonymous namespace, like:
-                // thing;
-                //      ` last token is a semicolon
-                // { ... }
-                //
-                // in all cases I don't think we care or need to do anything special?
-                // not until we hit '}' anyway
+            case '{':
+                // whether this is a dictionary literal or a code block, it can have a variable number of children.
+                node->children = new Array<ASTNode>();
                 node->flags |= NF_PUNCTUATOR;
                 break;
 
@@ -390,11 +377,16 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
     auto es = new Array<ASTNode>();
     auto os = new Array<ASTNode>();
 
-    ASTNode* closure = (ASTNode*) pCalloc(sizeof (ASTNode));
-    closure->children = new Array<ASTNode>();
+    Closure* closure = (Closure*) pMalloc(sizeof (Closure));
+    closure->name = "global";
+    closure->parent = null;
     closure->table = new Table<const char, Value>();
 
-    ASTNode* program = closure;
+    ASTNode* currentParent = (ASTNode*) pCalloc(sizeof (ASTNode));
+    currentParent->closure = closure;
+    currentParent->children = new Array<ASTNode>();
+
+    ASTNode* program = currentParent;
 
     u32 i = 0;
     while (i < tokens->length) {
@@ -439,7 +431,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     return null;
                 }
 
-                closure->children->push(es->pop());
+                currentParent->children->push(es->pop());
 
             } break;
 
@@ -483,22 +475,6 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
 
             // reduce-parse a struct literal or code block
             case '}': {
-                // @TODO does this loop matter/do anything?
-                // in the case of a struct literal, yes
-                /*
-                while (!os->isEmpty()) {
-                    if (os->peek()->token->tt == '{') break;
-
-                    parseOperationIntoExpression(es, os);
-                }
-
-                if (os->isEmpty()) {
-                    die("missing open brace\n");
-                    break;
-                }
-                */
-
-                program->children->push(closure);
                 // this is the end of a closure, so set the current one to the old's parent
                 closure = closure->parent;
 
@@ -522,11 +498,12 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 // this is the beginning of a new closure.
                 if (tt == '{' && (node->flags & NF_PUNCTUATOR) != 0) {
                     const auto parent = closure;
-                    closure = (ASTNode*) pCalloc(sizeof (ASTNode));
-                    closure->children = new Array<ASTNode>();
-                    closure->token = node->token;
+                    closure = (Closure*) pCalloc(sizeof (Closure));
                     closure->parent = parent;
                     closure->table = new Table<const char, Value>();
+
+                    currentParent->children->push(node);
+                    currentParent = node;
 
                 } else {
                     while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os);
@@ -537,6 +514,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
         }
 
         i++;
+        print(i);
     }
 
     return program;
