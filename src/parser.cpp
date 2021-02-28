@@ -386,23 +386,6 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     es->push(node);
 }
 
-static void produceExpressionOrStatement(Array<ASTNode>* program, Array<ASTNode>** es) {
-    if ((*es)->isEmpty()) {
-        // @REPORT warn empty expression ex: ()
-        return;
-    }
-
-    const auto node = (*es)->pop();
-
-    if (!(*es)->isEmpty()) {
-        // @REPORT error leftover operands ex: (4 + 4 4)
-        die("leftover operands");
-        return;
-    }
-
-    program->push(node);
-}
-
 static Array<ASTNode>* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex) {
     auto program = new Array<ASTNode>();
     auto es = new Array<ASTNode>();
@@ -427,6 +410,7 @@ static Array<ASTNode>* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 en
                         break;
 
                     } else if (tt == '{') {
+                        // if it's the opener of a code block, then that's fine.
                         if ((os->peek()->flags & NF_PUNCTUATOR) != 0) {
                             break;
 
@@ -438,7 +422,16 @@ static Array<ASTNode>* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 en
                     parseOperationIntoExpression(es, os);
                 }
 
-                produceExpressionOrStatement(program, &es);
+                if (es->isEmpty()) {
+                    // @REPORT warn empty expression ex: ()
+                    die("empty expression\n");
+                    return null;
+
+                } else if (es->length != 1) {
+                    // @REPORT error leftover operands ex: (4 + 4 4)
+                    die("leftover operands");
+                    return null;
+                }
 
             } break;
 
@@ -492,6 +485,16 @@ static Array<ASTNode>* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 en
                     die("missing open brace\n");
                     break;
                 }
+
+                const auto block = os->pop();
+                unsigned int childrenCount = es->length;
+                block->children = new Array<ASTNode>(childrenCount);
+
+                for (u32 j = 0; j < childrenCount; j++) {
+                    block->children->push(es->shift());
+                }
+
+                program->push(block);
 
             } break;
 

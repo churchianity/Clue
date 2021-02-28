@@ -194,6 +194,14 @@ struct Array {
         if (this->length == 0) {
             return null;
         }
+
+        const auto out = this->data[0];
+
+        for (u32 i = 0; i != sizeof (this) - 1; i++) {
+            *(this->data + i) = *(this->data + i + 1);
+        }
+
+        return out;
     }
 
     Array<T>* slice(u32 start, u32 end = 0) {
