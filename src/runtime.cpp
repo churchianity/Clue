@@ -194,7 +194,7 @@ void Runtime :: printProgramTree(Array<ASTNode>* program) {
 
 void Runtime :: doIt(char* buffer, const char* filename) {
     Array<Token>* tokens = Lexer :: tokenize(buffer, filename);
-    Array<ASTNode>* program = Parser :: parse(tokens);
+    program = Parser :: parse(tokens);
     printProgramTree(program);
 }
 

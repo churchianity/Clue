@@ -229,16 +229,7 @@ static inline u8 precedence(ASTNode* node) {
     }
 }
 
-static inline bool unaryHeuristic(Array<Token>* tokens, u32 i) {
-    if (i < 1) {
-        return true;
-
-    } else if (true) {
-
-    }
-}
-
-static inline ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
+static inline ASTNode* resolveOperatorOrPunctuatorNode(Array<Token>* tokens, u32 i) {
     ASTNode* node = (ASTNode*) pCalloc(sizeof (ASTNode));
 
     node->token = tokens->data[i];
@@ -292,7 +283,6 @@ static inline ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
                 //
                 // in all cases I don't think we care or need to do anything special?
                 // not until we hit '}' anyway
-                node->flags |= NF_UNARY;
                 node->flags |= NF_PUNCTUATOR;
                 break;
 
@@ -366,7 +356,7 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
     return false;
 }
 
-void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os) {
+void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     const auto node = os->pop();
 
     if ((node->flags & NF_CALL) != 0) {
@@ -396,20 +386,68 @@ void parseOperation(Array<ASTNode>* es, Array<ASTNode>* os) {
     es->push(node);
 }
 
-static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex) {
+static void produceExpressionOrStatement(Array<ASTNode>* program, Array<ASTNode>** es) {
+    if ((*es)->isEmpty()) {
+        // @REPORT warn empty expression ex: ()
+        return;
+    }
+
+    const auto node = (*es)->pop();
+
+    if (!(*es)->isEmpty()) {
+        // @REPORT error leftover operands ex: (4 + 4 4)
+        die("leftover operands");
+        return;
+    }
+
+    program->push(node);
+}
+
+static Array<ASTNode>* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex) {
+    auto program = new Array<ASTNode>();
     auto es = new Array<ASTNode>();
     auto os = new Array<ASTNode>();
 
     u32 i = startIndex;
     while (i < endIndex) {
         switch ((int) tokens->data[i]->tt) {
+            case ';': {
+                while (!os->isEmpty()) {
+                    int tt = (int) os->peek()->token->tt;
+
+                    if (tt == '(') {
+                        // @REPORT missing close paren
+                        die("missing close paren");
+                        break;
+
+
+                    } else if (tt == '[') {
+                        // @REPORT missing close bracket
+                        die("missing close bracket");
+                        break;
+
+                    } else if (tt == '{') {
+                        if ((os->peek()->flags & NF_PUNCTUATOR) != 0) {
+                            break;
+
+                        } else {
+                            die("missing close brace");
+                        }
+                    }
+
+                    parseOperationIntoExpression(es, os);
+                }
+
+                produceExpressionOrStatement(program, &es);
+
+            } break;
 
             // parse function call or grouping of stuff
             case ')': {
                 while (!os->isEmpty()) {
                     if (os->peek()->token->tt == '(') break;
 
-                    parseOperation(es, os);
+                    parseOperationIntoExpression(es, os);
                 }
 
                 if (os->isEmpty()) {
@@ -421,7 +459,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex)
                     os->pop(); // discard open parens if it's just used to group
 
                 } else {
-                    parseOperation(es, os);
+                    parseOperationIntoExpression(es, os);
                 }
             } break;
 
@@ -430,7 +468,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex)
                 while (!os->isEmpty()) {
                     if (os->peek()->token->tt == '[') break;
 
-                    parseOperation(es, os);
+                    parseOperationIntoExpression(es, os);
                 }
 
                 if (os->isEmpty()) {
@@ -438,22 +476,23 @@ static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex)
                     break;
                 }
 
-                parseOperation(es, os);
+                parseOperationIntoExpression(es, os);
 
             } break;
 
-            // reduce-parse a struct literal
+            // reduce-parse a struct literal or code block
             case '}': {
                 while (!os->isEmpty()) {
                     if (os->peek()->token->tt == '{') break;
 
-                    parseOperation(es, os);
+                    parseOperationIntoExpression(es, os);
                 }
 
                 if (os->isEmpty()) {
                     die("missing open brace\n");
                     break;
                 }
+
             } break;
 
             case TT_SYMBOL:
@@ -468,62 +507,23 @@ static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex)
             case '[':
             case '{':
             default: {
-                const auto node = resolveOperatorNode(tokens, i);
+                const auto node = resolveOperatorOrPunctuatorNode(tokens, i);
 
-                while (canPopAndApply(os, node)) parseOperation(es, os);
+                while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os);
 
                 os->push(node);
+
             } break;
         }
 
         i++;
     }
 
-    while (!os->isEmpty()) {
-        parseOperation(es, os);
-    }
-
-    if (es->isEmpty()) {
-        // @REPORT warn empty expression ex: ()
-        return null;
-    }
-
-    ASTNode* expression = es->pop();
-
-    if (!es->isEmpty()) {
-        // @REPORT error leftover operands ex: (4 + 4 4)
-        die("leftover operands");
-        return null;
-    }
-
-    delete es;
-    delete os;
-
-    print(expression);
-
-    return expression;
+    return program;
 }
 
 Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
-    static auto program = new Array<ASTNode>();
-
-    u32 lastExpressionBoundaryIndex = 0;
-    u32 i = 0;
-    while (i < tokens->length) {
-        switch ((int) tokens->data[i]->tt) {
-            case ';': {
-                const auto node = shuntingYard(tokens, lastExpressionBoundaryIndex, i);
-
-                if (node != null) program->push(node);
-
-                lastExpressionBoundaryIndex = i + 1;
-                i++;
-            } break;
-        }
-
-        i++;
-    }
-
+    static auto program = shuntingYard(tokens, 0, tokens->length);
     return program;
 }
 
