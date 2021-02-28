@@ -27,6 +27,7 @@
 #include <stdlib.h> // exit
 #include <signal.h> // for signal() - needed on my chromebook for some reason?
 #include <execinfo.h> // backtrace, backtrace_symbols
+#include <limits.h> // CHAR_BIT // need to investigate this more for robustness
 
 #include "clue.h"
 #include "file.h"
@@ -35,6 +36,14 @@
 #include "string.h"
 #include "types.h"
 
+
+static void assert(bool condition, const char* message = "assertion failed") {
+    if (!condition) {
+        print(message);
+        trace();
+        exit(1);
+    }
+}
 
 static void handler(int signal) {
     print("%serror%s: %d\n", ANSI_RED, ANSI_RESET, signal);
@@ -119,6 +128,8 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
 int main(int argc, const char* argv[]) {
     signal(SIGSEGV, handler);
     signal(SIGABRT, handler);
+
+    assert(CHAR_BIT == 8);
 
     handleCommandLineArguments(argc, argv);
 

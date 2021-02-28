@@ -504,6 +504,7 @@ Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
     static auto program = new Array<ASTNode>();
 
     u32 lastExpressionBoundaryIndex = 0;
+    u32 lastOpenBrace = 0;
     u32 i = 0;
     while (i < tokens->length) {
         switch ((int) tokens->data[i]->tt) {

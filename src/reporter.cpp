@@ -179,6 +179,7 @@ void Reporter :: add(u32 id, const char* functionName, const char* filename, u32
     message->severity     = messageId.severity;
 
     // make the content string with the formatted varargs.
+    // @TODO fix this is all completely fucked
     const u32 padding = 256; // @NOTE fix
     u32 contentLength = Str :: len(messageId.content) + padding;
     char* content = (char*) pMalloc(sizeof (char) * contentLength);

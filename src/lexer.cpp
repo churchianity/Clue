@@ -201,6 +201,13 @@ normal_decimal:
         } else {
             // operators.
             // assume the operator type is just the single char we have at the cursor, and exhaustively check if we are wrong until we can't be.
+            //
+            // because of the nature of the lexer, and the early stage the language is in, we are greedily parsing many, many tokens, despite
+            // many of the tokens we lex not having yet a defined purpose or grammar.
+            //
+            // there are some cases where we are pretty sure we don't want to use an operator at all, but lex it anyway for better reporting
+            // the best example of this is '&&' vs 'and'. We use 'and'. But it's probably a common enough case someone forgets, since we otherwise
+            // have C-like syntax, and they type '&&'. So we have a lot more options and power of what to do in case of a typo here.
             tt = (TokenTypeEnum) *cursor;
 
             switch (*cursor) {
@@ -219,7 +226,7 @@ normal_decimal:
                 default: // invalid single-chars, probably weird whitespace/non-ascii
                     // @TODO do some work to find out what exactly caused the problem. this will probably most of the time be a paste-error
                     // - we can check if it's a Unicode space separator or other common case and report better.
-                    Reporter :: report(E_WEIRD_CODEPOINT, null, filename, line, column, *cursor);
+                    Reporter :: report(E_WEIRD_CODEPOINT, null, filename, line, column, (u32) *cursor);
                     break;
 
                 case '\n':

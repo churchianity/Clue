@@ -27,7 +27,7 @@ struct Message {
 
 const MessageId messageIds[] = {
     { MS_WARN, "program may be in unsafe state." },
-    { MS_ERROR, "weird character with codepoint %hhx" },
+    { MS_ERROR, "weird character with codepoint %u" },
 };
 
 enum MessageEnum {
