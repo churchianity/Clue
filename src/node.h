@@ -39,11 +39,8 @@ struct Closure {
 
 struct ASTNode {
     Token* token;
-
     Closure* closure;
-
     Array<ASTNode>* children;
-
     u8 flags;
 };
 

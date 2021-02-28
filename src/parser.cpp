@@ -87,6 +87,10 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_EXPONENTIATION_EQUALS:
         case TT_LOGICAL_XOR_EQUALS:
 
+        // idk section
+        case TT_DO:
+        case TT_IF:
+
         case '{':
             return OA_RIGHT_TO_LEFT;
 
@@ -166,6 +170,8 @@ static inline u8 precedence(ASTNode* node) {
         case TT_LOGICAL_AND:
         case TT_LOGICAL_OR:
         case TT_LOGICAL_XOR:
+        case TT_AND:
+        case TT_OR:
             return 2;
 
         case TT_EQUALITY:
@@ -196,6 +202,7 @@ static inline u8 precedence(ASTNode* node) {
 
         case '~':
         case '!':
+        case TT_NOT:
             return 6;
 
         case TT_EXPONENTIATION:
@@ -221,6 +228,8 @@ static inline u8 precedence(ASTNode* node) {
         case '.':
         case ':':
         case TT_IMPORT:
+        case TT_DO:
+        case TT_IF:
             return 8;
 
         default:
@@ -303,18 +312,37 @@ static inline ASTNode* resolveOperatorOrPunctuatorNode(Array<Token>* tokens, u32
         node->flags |= NF_POSTFIX;
 
     } else {
-        if (tokenTypeBinaryness(tokens->data[i]->tt) < 1) {
-            die("expecting binary operator, but got op: %d", tokens->data[i]->tt);
-        }
-
         // certain punctuators can trick the parser into thinking that they are binary if the
         // prev token is not an operator or a symbol, check for that here
-        if (tokens->data[i]->tt == '(' || tokens->data[i]->tt == '[') {
-            const auto prev = tokens->data[i - 1];
+        // ie:
+        //
+        //      "string"[0];
+        //      4(foo);
+        //
+        const auto prev = tokens->data[i - 1];
+        switch ((int) tokens->data[i]->tt) {
+            default:
+                // check if it's actually a binary operator, or a mistake.
+                // exceptions can be put above.
+                if (tokenTypeBinaryness(tokens->data[i]->tt) < 1) {
+                    die("expecting binary operator, but got op: %d", tokens->data[i]->tt);
+                }
+                break;
 
-            if (prev->tt == TT_NUMERIC || prev->tt == TT_STRING) {
-                die("you probably meant to put an operator before this boi\n");
-            }
+            case '(':
+            case '[':
+                if (prev->tt == TT_NUMERIC || prev->tt == TT_STRING) {
+                    die("you probably meant to put an operator before this boi\n");
+                }
+                break;
+
+            case '{':
+                // code block with a expression prior, which means this is either a:
+                // if/else if/else/while/for block
+                // or a function block
+                node->flags |= NF_PUNCTUATOR;
+                node->children = new Array<ASTNode>();
+                break;
         }
     }
 
@@ -425,7 +453,6 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     return null;
 
                 } else if (es->length != 1) {
-                    print(es->length);
                     // @REPORT error leftover operands ex: (4 + 4 4)
                     die("leftover operands");
                     return null;
@@ -498,7 +525,8 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 // this is the beginning of a new closure.
                 if (tt == '{' && (node->flags & NF_PUNCTUATOR) != 0) {
                     const auto parent = closure;
-                    closure = (Closure*) pCalloc(sizeof (Closure));
+                    closure = (Closure*) pMalloc(sizeof (Closure));
+                    closure->name = ""; // @TODO
                     closure->parent = parent;
                     closure->table = new Table<const char, Value>();
 
@@ -514,14 +542,12 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
         }
 
         i++;
-        print(i);
     }
 
     return program;
 }
 
 ASTNode* Parser :: parse(Array<Token>* tokens) {
-    static auto program = shuntingYard(tokens);
-    return program;
+    return shuntingYard(tokens);
 }
 
