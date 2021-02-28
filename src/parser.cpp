@@ -386,14 +386,20 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     es->push(node);
 }
 
-static Array<ASTNode>* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex) {
-    auto program = new Array<ASTNode>();
+static ASTNode* shuntingYard(Array<Token>* tokens) {
     auto es = new Array<ASTNode>();
     auto os = new Array<ASTNode>();
 
-    u32 i = startIndex;
-    while (i < endIndex) {
-        switch ((int) tokens->data[i]->tt) {
+    ASTNode* closure = (ASTNode*) pCalloc(sizeof (ASTNode));
+    closure->children = new Array<ASTNode>();
+    closure->table = new Table<const char, Value>();
+
+    ASTNode* program = closure;
+
+    u32 i = 0;
+    while (i < tokens->length) {
+        u32 tt = (int) tokens->data[i]->tt;
+        switch (tt) {
             case ';': {
                 while (!os->isEmpty()) {
                     int tt = (int) os->peek()->token->tt;
@@ -402,7 +408,6 @@ static Array<ASTNode>* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 en
                         // @REPORT missing close paren
                         die("missing close paren");
                         break;
-
 
                     } else if (tt == '[') {
                         // @REPORT missing close bracket
@@ -428,10 +433,13 @@ static Array<ASTNode>* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 en
                     return null;
 
                 } else if (es->length != 1) {
+                    print(es->length);
                     // @REPORT error leftover operands ex: (4 + 4 4)
                     die("leftover operands");
                     return null;
                 }
+
+                closure->children->push(es->pop());
 
             } break;
 
@@ -475,6 +483,9 @@ static Array<ASTNode>* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 en
 
             // reduce-parse a struct literal or code block
             case '}': {
+                // @TODO does this loop matter/do anything?
+                // in the case of a struct literal, yes
+                /*
                 while (!os->isEmpty()) {
                     if (os->peek()->token->tt == '{') break;
 
@@ -485,16 +496,11 @@ static Array<ASTNode>* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 en
                     die("missing open brace\n");
                     break;
                 }
+                */
 
-                const auto block = os->pop();
-                unsigned int childrenCount = es->length;
-                block->children = new Array<ASTNode>(childrenCount);
-
-                for (u32 j = 0; j < childrenCount; j++) {
-                    block->children->push(es->shift());
-                }
-
-                program->push(block);
+                program->children->push(closure);
+                // this is the end of a closure, so set the current one to the old's parent
+                closure = closure->parent;
 
             } break;
 
@@ -504,6 +510,7 @@ static Array<ASTNode>* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 en
                 const auto node = (ASTNode*) pCalloc(sizeof (ASTNode));
                 node->token = tokens->data[i];
                 es->push(node);
+
             } break;
 
             case '(':
@@ -512,10 +519,20 @@ static Array<ASTNode>* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 en
             default: {
                 const auto node = resolveOperatorOrPunctuatorNode(tokens, i);
 
-                while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os);
+                // this is the beginning of a new closure.
+                if (tt == '{' && (node->flags & NF_PUNCTUATOR) != 0) {
+                    const auto parent = closure;
+                    closure = (ASTNode*) pCalloc(sizeof (ASTNode));
+                    closure->children = new Array<ASTNode>();
+                    closure->token = node->token;
+                    closure->parent = parent;
+                    closure->table = new Table<const char, Value>();
 
-                os->push(node);
+                } else {
+                    while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os);
 
+                    os->push(node);
+                }
             } break;
         }
 
@@ -525,8 +542,8 @@ static Array<ASTNode>* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 en
     return program;
 }
 
-Array<ASTNode>* Parser :: parse(Array<Token>* tokens) {
-    static auto program = shuntingYard(tokens, 0, tokens->length);
+ASTNode* Parser :: parse(Array<Token>* tokens) {
+    static auto program = shuntingYard(tokens);
     return program;
 }
 

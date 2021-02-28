@@ -10,7 +10,7 @@
 namespace Runtime {
     extern void interactive();
     extern void doIt(char* buffer, const char* filename);
-    extern void printProgramTree(Array<ASTNode>* program);
+    extern void printProgramTree(ASTNode* program);
     extern Value eval(ASTNode* node);
 }
 

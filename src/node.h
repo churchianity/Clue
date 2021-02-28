@@ -5,8 +5,10 @@
 
 #include "array.hpp"
 #include "print.h"
+#include "table.hpp"
 #include "token.h"
 #include "types.h"
+#include "value.h"
 
 
 enum OperatorAssociativityEnum {
@@ -31,7 +33,9 @@ enum ASTNodeFlagsEnum {
 
 struct ASTNode {
     Token* token;
-    // Closure* closure;
+
+    Table<const char, Value>* table;
+    ASTNode* parent;
 
     Array<ASTNode>* children;
 

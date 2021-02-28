@@ -13,7 +13,7 @@
 
 
 Table<const char, Value>* global = new Table<const char, Value>();
-Array<ASTNode>* program = new Array<ASTNode>();
+ASTNode* program = null;
 
 /*
 static inline s32 fToInt(double f) {
@@ -184,10 +184,10 @@ Value Runtime :: eval(ASTNode* node) {
     return v;
 }
 
-void Runtime :: printProgramTree(Array<ASTNode>* program) {
+void Runtime :: printProgramTree(ASTNode* program) {
     if (program != null) {
-        for (u32 i = 0; i < program->length; i++) {
-            prettyPrintTree(program->data[i], "", true);
+        for (u32 i = 0; i < program->children->length; i++) {
+            prettyPrintTree(program->children->data[i], "", true);
         }
     }
 }

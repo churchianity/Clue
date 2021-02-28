@@ -7,7 +7,7 @@
 #include "token.h"
 
 namespace Parser {
-    extern Array<ASTNode>* parse(Array<Token>* tokens);
+    extern ASTNode* parse(Array<Token>* tokens);
 }
 
 #endif
