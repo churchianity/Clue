@@ -8,7 +8,7 @@
 
 
 static inline void reportSpecificUnaryOperatorMissingOperand(ASTNode* node) {
-    switch ((int) node->token->tt) {
+    switch ((s32) node->token->tt) {
         case '~':
         case '!':
         case '@':
@@ -25,7 +25,7 @@ static inline void reportSpecificUnaryOperatorMissingOperand(ASTNode* node) {
 }
 
 static inline void reportSpecificBinaryOperatorMissingOperand(ASTNode* node) {
-    switch ((int) node->token->tt) {
+    switch ((s32) node->token->tt) {
         case '[': // indexer without a indexee
         case '(': // ???
 
@@ -70,7 +70,7 @@ static inline void reportSpecificBinaryOperatorMissingOperand(ASTNode* node) {
 }
 
 static inline OperatorAssociativityEnum associativity(ASTNode* node) {
-    switch ((int) node->token->tt) {
+    switch ((s32) node->token->tt) {
         case ':':
         case '=':
         case TT_COLON_EQUALS:
@@ -148,7 +148,7 @@ static inline u8 precedence(ASTNode* node) {
         // operators with no associativity implicitly have no precedence because they should never be in a situation where precedence is relevant
     }
 
-    switch ((int) node->token->tt) {
+    switch ((s32) node->token->tt) {
         case ',':
 
         case '=':
@@ -245,7 +245,7 @@ static inline ASTNode* resolveOperatorOrPunctuatorNode(Array<Token>* tokens, u32
 
     if (i < 1 || tokenTypeIsOperator(tokens->data[i - 1]->tt)) {
         // we think it's a unary operator, but we could be wrong. check.
-        switch ((int) node->token->tt) {
+        switch ((s32) node->token->tt) {
             default:
                 die("unexpected operator that we thought would be unary or a punctuator: %d\n", tokens->data[i]->tt);
                 break;
@@ -320,7 +320,7 @@ static inline ASTNode* resolveOperatorOrPunctuatorNode(Array<Token>* tokens, u32
         //      4(foo);
         //
         const auto prev = tokens->data[i - 1];
-        switch ((int) tokens->data[i]->tt) {
+        switch ((s32) tokens->data[i]->tt) {
             default:
                 // check if it's actually a binary operator, or a mistake.
                 // exceptions can be put above.
@@ -420,11 +420,11 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
 
     u32 i = 0;
     while (i < tokens->length) {
-        u32 tt = (int) tokens->data[i]->tt;
+        s32 tt = (s32) tokens->data[i]->tt;
         switch (tt) {
             case ';': {
                 while (!os->isEmpty()) {
-                    int tt = (int) os->peek()->token->tt;
+                    s32 tt = (s32) os->peek()->token->tt;
 
                     if (tt == '(') {
                         // @REPORT missing close paren
@@ -506,6 +506,8 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
             case '}': {
                 // this is the end of a closure, so set the current one to the old's parent
                 closure = closure->parent;
+
+                // also do this for the parent nodes we are keep track of.
                 currentParent = oldParent;
 
             } break;
@@ -539,6 +541,8 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     currentParent = node;
 
                 } else {
+                    // it's a normal operator, for which precedence and associativity is relevant.
+                    // resolve that stuff before adding the operator to the stack.
                     while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os);
 
                     os->push(node);

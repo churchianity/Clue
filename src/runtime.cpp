@@ -140,7 +140,7 @@ static inline Value evalOperator(ASTNode* node) {
     v.type = VT_STRING;
     v.string = "";
 
-    switch ((int) node->token->tt) {
+    switch ((s32) node->token->tt) {
         // enumerate the tokens/nodes here that have no effect at runtime.
         case TT_IMPORT:
         case ':':

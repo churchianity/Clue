@@ -12,7 +12,7 @@ bool tokenTypeIsOperator(TokenTypeEnum tt) {
 }
 
 bool tokenTypeIsAssignment(TokenTypeEnum tt) {
-    switch ((int) tt) {
+    switch ((s32) tt) {
         case '=':
         case TT_COLON_EQUALS:
         case TT_PLUS_EQUALS:
@@ -39,7 +39,7 @@ bool tokenTypeIsAssignment(TokenTypeEnum tt) {
 }
 
 bool tokenTypeIsBitwise(TokenTypeEnum tt) {
-    switch ((int) tt) {
+    switch ((s32) tt) {
         case '&':
         case '|':
         case '^':
@@ -55,7 +55,7 @@ bool tokenTypeIsBitwise(TokenTypeEnum tt) {
 // these are fuzzy because some operators ('+' and '-') are only sometimes (usually) binary
 // and it might be nice to be able to distinguish them, from the ones that can *only* be binary
 s8 tokenTypeUnaryness(TokenTypeEnum tt) {
-    switch ((int) tt) {
+    switch ((s32) tt) {
         case '+':
         case '-':
             return 2;
@@ -74,7 +74,7 @@ s8 tokenTypeUnaryness(TokenTypeEnum tt) {
 }
 
 s8 tokenTypeBinaryness(TokenTypeEnum tt) {
-    switch ((int) tt) {
+    switch ((s32) tt) {
         case '(':
             // by far the worst case
             return 0;
@@ -118,7 +118,7 @@ s8 tokenTypeBinaryness(TokenTypeEnum tt) {
 }
 
 s8 tokenTypeIsPunctuator(TokenTypeEnum tt) {
-    switch ((int) tt) {
+    switch ((s32) tt) {
         case ')':
         case ']':
         case '}':
