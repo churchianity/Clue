@@ -410,6 +410,8 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
     closure->parent = null;
     closure->table = new Table<const char, Value>();
 
+    ASTNode* oldParent = null;
+
     ASTNode* currentParent = (ASTNode*) pCalloc(sizeof (ASTNode));
     currentParent->closure = closure;
     currentParent->children = new Array<ASTNode>();
@@ -504,6 +506,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
             case '}': {
                 // this is the end of a closure, so set the current one to the old's parent
                 closure = closure->parent;
+                currentParent = oldParent;
 
             } break;
 
@@ -529,6 +532,8 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     closure->name = ""; // @TODO
                     closure->parent = parent;
                     closure->table = new Table<const char, Value>();
+
+                    oldParent = currentParent;
 
                     currentParent->children->push(node);
                     currentParent = node;
