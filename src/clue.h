@@ -7,6 +7,8 @@
 
 #define CLUE_DEBUG_LEVEL 1
 
+#include "types.h"
+
 
 /**
  * Dependencies:
@@ -45,7 +47,7 @@ struct {
     const char* src;
 
     char** files;
-    int filec;
+    u32 filec;
 } CLAs;
 
 #endif

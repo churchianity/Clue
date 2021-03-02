@@ -7,6 +7,7 @@
 #include "alloc.h"
 #include "types.h"
 
+
 inline char* clueFileRead(const char* filePath) {
     FILE* fp = fopen(filePath, "rb");
 

@@ -6,6 +6,9 @@
 
 
 // these are the allocators used internally by clue. replace them with your own, if you want.
+// 'new' and 'delete' are used in a few cases, because we regrettably have two template classes.
+// array.hpp, and table.hpp. You will have to replace those with your own arrays and hashtables
+// if you want to use custom allocators.
 
 
 void* pMalloc(u32 size) {

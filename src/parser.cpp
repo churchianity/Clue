@@ -278,7 +278,7 @@ static inline ASTNode* resolveOperatorOrPunctuatorNode(Array<Token>* tokens, u32
 
             case '{':
                 // whether this is a dictionary literal or a code block, it can have a variable number of children.
-                node->children = new Array<ASTNode>();
+                node->children = (Array<ASTNode>*) pCalloc(sizeof (Array<ASTNode>));
                 node->flags |= NF_PUNCTUATOR;
                 break;
 
@@ -340,8 +340,8 @@ static inline ASTNode* resolveOperatorOrPunctuatorNode(Array<Token>* tokens, u32
                 // code block with a expression prior, which means this is either a:
                 // if/else if/else/while/for block
                 // or a function block
+                node->children = (Array<ASTNode>*) pCalloc(sizeof (Array<ASTNode>));
                 node->flags |= NF_PUNCTUATOR;
-                node->children = new Array<ASTNode>();
                 break;
         }
     }

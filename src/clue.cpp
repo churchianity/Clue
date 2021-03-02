@@ -45,7 +45,7 @@ static void assert(bool condition, const char* message = "assertion failed") {
     }
 }
 
-static void handler(int signal) {
+static void handler(s32 signal) {
     print("%serror%s: %d\n", ANSI_RED, ANSI_RESET, signal);
     trace();
     exit(1);
@@ -74,7 +74,7 @@ static inline void help(const char* arg) {
     print("'%s' isn't a valid argument and i should probably help you figure that out but i can't yet.\n", arg);
 }
 
-static inline void handleCommandLineArguments(int argc, const char* argv[]) {
+static inline void handleCommandLineArguments(s32 argc, const char* argv[]) {
     if (argc == 1) {
         help(null); exit(0);
     }
@@ -84,7 +84,8 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
 
     char** files = (char**) pMalloc(sizeof (char*) * capacity);
 
-    for (int i = 1; i < argc; ++i) {
+    // skip the first arg, it's the name of the program itself.
+    for (s32 i = 1; i < argc; ++i) {
         char* arg = Str :: toLower(argv[i]);
 
         if (Str :: eq(arg, "-h") || Str :: eq(arg, "--help")) {
@@ -125,7 +126,7 @@ static inline void handleCommandLineArguments(int argc, const char* argv[]) {
     }
 }
 
-int main(int argc, const char* argv[]) {
+s32 main(s32 argc, const char* argv[]) {
     signal(SIGSEGV, handler);
     signal(SIGABRT, handler);
 
@@ -133,7 +134,7 @@ int main(int argc, const char* argv[]) {
 
     handleCommandLineArguments(argc, argv);
 
-    for (s32 i = 0; i < CLAs.filec; i++) {
+    for (u32 i = 0; i < CLAs.filec; i++) {
         Runtime :: doIt(clueFileRead(CLAs.files[i]), CLAs.files[i]);
     }
 
