@@ -296,9 +296,20 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
         }
 
         if (currentParent != null) {
+            print("hi\n");
             node->children->push(currentParent);
         }
 
+        /*
+        if (oldParent != null) {
+            oldParent->children->push(node);
+            return;
+
+        } else {
+            program->children->push(node);
+            return;
+        }
+        */
     } else if ((node->flags & NF_CALL) == NF_CALL) {
         die("should be parsing a function call operation, but can't yet.\n");
         return;
@@ -330,7 +341,6 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
             currentParent->children->push(node);
             currentParent = node;
         }
-
     } else if ((node->flags & NF_UNARY) == NF_UNARY) {
         ASTNode* child = es->pop();
 
@@ -354,6 +364,8 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     es->push(node);
 }
 
+// given an array of tokens and a position in the array which points to an operator,
+// figure out what kind of operator it is, and put it on the operator stack.
 static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
     const auto node = (ASTNode*) pCalloc(sizeof (ASTNode));
 
@@ -368,22 +380,25 @@ static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
 
             // can only be an empty group or function call w/ no args
             case ')':
+                // @TODO it isn't obvious that this should be done. check.
                 if (tokens->data[i - 1]->tt != '(') {
                     // @TODO report hanging close parens.
                     die("hanging close parens\n");
                 }
                 break;
 
-            // can only be an empty array literal or indexer.
+            // can only be an empty array literal
             case ']':
+                // @TODO it isn't obvious that this should be done. check.
                 if (tokens->data[i - 1]->tt != '[') {
                     // @TODO report hanging close bracket.
                     die("hanging close bracket\n");
                 }
                 break;
 
-            // can only be an empty dict literal or code block
+            // can only be an empty dict literal
             case '}':
+                // @TODO it isn't obvious that this should be done. check.
                 if (tokens->data[i - 1]->tt != '{') {
                     // @TODO report hanging close brace.
                     die("hanging close brace\n");
@@ -399,16 +414,12 @@ static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
             // should be a dict literal.
             case '{': break;
 
-            case TT_INCREMENT: // @TODO remove or check for compiler flags if we allow increment/decrement.
-            case TT_DECREMENT:
-
             case TT_IF:
-                // if is a lie, it can have many children, but it takes the position of a unary operator
-                break;
-
             case TT_ELSE:
             case TT_DO:
             case TT_WHILE:
+                // lies. these can have many children, but take the position of a unary operator
+                break;
 
             case '~':
             case '!':
@@ -432,35 +443,53 @@ static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
         node->flags |= NF_POSTFIX;
 
     } else {
+        // it's probably a normal binary operator.
         // certain punctuators can trick the parser into thinking that they are binary if the
         // prev token is not an operator or a symbol, check for that here.
         // ie:
         //      "string"[0];
+        //              ^ parser thinks we are indexing a string literal
         //      4(foo);
-        const auto prev = tokens->data[i - 1];
+        //       ^ parser thinks we are calling a function named '4'
+        //
+        //       if 1 { ... }
+        //            ^ parser thinks the opener of a code block is a binary operator,
+        //              this is the only example where the code is actually valid
+        //
+        const auto prevToken = tokens->data[i - 1];
         switch ((s32) tokens->data[i]->tt) {
-            default:
-                // check if it's actually a binary operator, or a mistake.
-                // exceptions can be put below.
-                if (tokenTypeBinaryness(tokens->data[i]->tt) < 1) {
-                    die("expecting binary operator, but got op: %d", tokens->data[i]->tt);
+            case '(':
+                if (prevToken->tt == TT_NUMERIC || prevToken->tt == TT_STRING) {
+                    // @REPORT
+                    die("Weird looking function call. Did you miss an operator before the open paren?\n");
                 }
                 break;
-
-            case '(':
             case '[':
-                if (prev->tt == TT_NUMERIC || prev->tt == TT_STRING) {
-                    die("you probably meant to put an operator before this boi\n");
+                if (prevToken->tt == TT_NUMERIC) {
+                    // @REPORT
+                    die("Trying to index a numeric type.\n");
+
+                } else if (prevToken->tt == TT_STRING) {
+                    // @REPORT
+                    die("Trying to index a string literal.\n");
                 }
                 break;
 
             case '{':
                 node->children = new Array<ASTNode>();
                 break;
+
+            default:
+                // check if it's actually a binary operator, or a mistake.
+                // exceptions can be put above.
+                if (tokenTypeBinaryness(tokens->data[i]->tt) < 1) {
+                    die("expecting binary operator, but got op: %d", tokens->data[i]->tt);
+                }
+                break;
         }
     }
 
-    // resolve precedence and associativity by re-arranging the stack before pushing.
+    // resolve precedence and associativity by re-arranging the stacks before pushing.
     while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os);
 
     os->push(node);
@@ -526,9 +555,6 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     return null;
 
                 } else if (es->length != 1) {
-                    print(es->pop());
-                    print(es->pop());
-
                     // @REPORT error leftover operands ex: (4 + 4 4)
                     die("leftover operands");
                     return null;
@@ -538,7 +564,6 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
 
             } break;
 
-            // parse function call or grouping of stuff
             case ')': {
                 while (!os->isEmpty()) {
                     if (os->peek()->token->tt == '(') break;

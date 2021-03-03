@@ -1,6 +1,9 @@
 
+
 #ifndef ARRAY_H
 #define ARRAY_H
+
+#include <new> // operator new, operator delete
 
 #include "alloc.h" // allocators...
 #include "types.h" // type definitions
@@ -19,6 +22,14 @@ struct Array {
         capacity = _capacity;
         length   = 0;
         data     = (T**) pCalloc(sizeof (T*), capacity);
+    }
+
+    void* operator new(size_t size) {
+        return (Array<T>*) pMalloc(sizeof (Array<T>));
+    }
+
+    void operator delete(void* p) {
+        pFree(p);
     }
 
     Array<T>* concat(Array<T> other) const {
@@ -56,7 +67,10 @@ struct Array {
 
     Array<T>* fill(T* e) {
         for (u32 i = 0; i < this->length; i++) {
-            // @NOTE/@TODO free existing stuff
+            if (this->data[i] != null) {
+                pFree(this->data[i]);
+            }
+
             this->data[i] = e;
         }
 
@@ -189,7 +203,6 @@ struct Array {
         return this;
     }
 
-    // @TODO
     T* shift() {
         if (this->length == 0) {
             return null;
@@ -253,7 +266,6 @@ struct Array {
     }
     */
 
-    // non-standard
     T* peek() const {
         if (this->isEmpty()) {
             return null;

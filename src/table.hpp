@@ -1,6 +1,9 @@
 
+
 #ifndef TABLE_H
 #define TABLE_H
+
+#include <new>
 
 #include "alloc.h"
 #include "string.h"
@@ -25,6 +28,14 @@ struct Table {
     Table<K, V>(u32 _lanes = 10) { // the default number of 'lanes' of 10 is arbitrary
         lanes = _lanes;
         entries = (TableEntry<K, V>**) pCalloc(sizeof (TableEntry<K, V>*), lanes);
+    }
+
+    void* operator new(size_t size) {
+        return (Table<K,V>*) pMalloc(sizeof (Table<K,V>));
+    }
+
+    void operator delete(void* p) {
+        pFree(p);
     }
 
     static u32 hash(K* key, u32 keyLength, u32 capacity) {

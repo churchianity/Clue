@@ -1,2 +1,2 @@
 
-if (thing && otherThing) { 4 + 2; }
+symbol + 2; 1 - 1; $thing;
