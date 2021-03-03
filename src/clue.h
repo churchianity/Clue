@@ -37,6 +37,8 @@
  *
  *  llvm MAYBE
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 struct {
     // whether or not to drop the user into interactive mode after reading source files (if present)
     bool interactive;
@@ -49,6 +51,7 @@ struct {
     char** files;
     u32 filec;
 } CLAs;
+#pragma GCC diagnostic pop
 
 #endif
 

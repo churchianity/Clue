@@ -526,6 +526,9 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     return null;
 
                 } else if (es->length != 1) {
+                    print(es->pop());
+                    print(es->pop());
+
                     // @REPORT error leftover operands ex: (4 + 4 4)
                     die("leftover operands");
                     return null;
