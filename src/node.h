@@ -17,29 +17,18 @@ enum OperatorAssociativityEnum {
     OA_RIGHT_TO_LEFT = 1
 };
 
-/*
-enum ASTNodeOperatorTypeEnum {
-
-};
-*/
-
+// usually, the token type is enough to figure out what the operator is trying to do.
+// in the other cases, we can set a flag
 enum ASTNodeFlagsEnum {
-    NF_UNARY        = 1,
-    NF_POSTFIX      = 2,
-    NF_PUNCTUATOR   = 4,
-    NF_CALL         = 8,
-    NF_INDEXER      = 16,
-};
-
-struct Closure {
-    const char* name;
-    Table<const char, Value>* table;
-    Closure* parent;
+    NF_UNARY          = 1 << 0, //                      ie: -4 vs. 2-4
+    NF_POSTFIX        = 1 << 1, //                      ie: count++ vs. ++count
+    NF_CALL           = 1 << 2, // function call        ie: func(bar);
+    NF_INDEXER        = 1 << 3, // indexer expression   ie: arr[2];
+    NF_STRUCT_LITERAL = 1 << 4, // a struct literal     ie: { x := 4, y := 2 }
 };
 
 struct ASTNode {
     Token* token;
-    Closure* closure;
     Array<ASTNode>* children;
     u8 flags;
 };

@@ -7,6 +7,15 @@
 #include "token.h"
 
 
+// this is the file where we turn an array of tokens into an abstract syntax tree.
+static Array<ASTNode>* es = null;
+static Array<ASTNode>* os = null;
+static Closure* closure = null;
+static ASTNode* oldParent = null;
+static ASTNode* currentParent = null;
+static ASTNode* program = null;
+
+
 static inline void reportSpecificUnaryOperatorMissingOperand(ASTNode* node) {
     switch ((s32) node->token->tt) {
         case '~':
@@ -71,7 +80,6 @@ static inline void reportSpecificBinaryOperatorMissingOperand(ASTNode* node) {
 
 static inline OperatorAssociativityEnum associativity(ASTNode* node) {
     switch ((s32) node->token->tt) {
-        case ':':
         case '=':
         case TT_COLON_EQUALS:
         case TT_PLUS_EQUALS:
@@ -91,6 +99,7 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_DO:
         case TT_IF:
 
+        case ':':
         case '{':
             return OA_RIGHT_TO_LEFT;
 
@@ -128,12 +137,19 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
             }
         case '~':
         case '!':
-        case TT_EXPONENTIATION:
         case '@':
         case '$':
-        case '(': // function invocation
-        case '[': // indexer
         case ',':
+        case TT_EXPONENTIATION:
+
+        case '(':
+            if ((node->flags & NF_CALL) != NF_CALL) {
+                return OA_NONE;
+            }
+        case '[':
+            if ((node->flags & NF_INDEXER) != NF_INDEXER) {
+                return OA_NONE;
+            }
             return OA_RIGHT_TO_LEFT;
 
         default:
@@ -143,11 +159,6 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
 }
 
 static inline u8 precedence(ASTNode* node) {
-    if (associativity(node) == OA_NONE) {
-        return 0;
-        // operators with no associativity implicitly have no precedence because they should never be in a situation where precedence is relevant
-    }
-
     switch ((s32) node->token->tt) {
         case ',':
 
@@ -217,11 +228,13 @@ static inline u8 precedence(ASTNode* node) {
             }
 
         case '(':
-        case '[':
-        case '{':
-            if ((node->flags & NF_PUNCTUATOR) == NF_PUNCTUATOR) {
+            if ((node->flags & NF_CALL) != NF_CALL) {
                 return 0;
             }
+        case '[':
+        case '{':
+            return 8;
+
         case '@':
         case '#':
         case '$':
@@ -230,7 +243,7 @@ static inline u8 precedence(ASTNode* node) {
         case TT_IMPORT:
         case TT_DO:
         case TT_IF:
-            return 8;
+            return 9;
 
         default:
             die("trying to get precedence of unknown operator type: %u\n", node->token->tt);
@@ -238,120 +251,8 @@ static inline u8 precedence(ASTNode* node) {
     }
 }
 
-static inline ASTNode* resolveOperatorOrPunctuatorNode(Array<Token>* tokens, u32 i) {
-    ASTNode* node = (ASTNode*) pCalloc(sizeof (ASTNode));
-
-    node->token = tokens->data[i];
-
-    if (i < 1 || tokenTypeIsOperator(tokens->data[i - 1]->tt)) {
-        // we think it's a unary operator, but we could be wrong. check.
-        switch ((s32) node->token->tt) {
-            default:
-                die("unexpected operator that we thought would be unary or a punctuator: %d\n", tokens->data[i]->tt);
-                break;
-
-            case ')':
-                // empty group or function call w/ no args
-                if (tokens->data[i - 1]->tt == ')') break;
-            case ']':
-                // empty array literal or indexer
-                if (tokens->data[i - 1]->tt == '[') break;
-            case '}':
-                // empty dict literal or code block
-                if (tokens->data[i - 1]->tt == '{') break;
-
-            case '(':
-                // being here means there's an operator before us, which means this can't be a function call
-                node->flags |= NF_PUNCTUATOR;
-                break;
-
-            case '[':
-                // I guess it's possible for in an operator overloaded case, something like
-                // [ 0, 2 ] - [ 1, 3 ] to be valid, but otherwise?
-                // this is a special kind of error if it's at the beginning of the file, like
-                // you just have a file with line 1:
-                // [ 1, 2, 3 ];
-                // most of the time this will be assignment of an array literal into some variable, ie:
-                // x := [ y, z ];
-                node->flags |= NF_UNARY;
-                break;
-
-            case '{':
-                // whether this is a dictionary literal or a code block, it can have a variable number of children.
-                node->children = (Array<ASTNode>*) pCalloc(sizeof (Array<ASTNode>));
-                node->flags |= NF_PUNCTUATOR;
-                break;
-
-            case '~':
-            case '!':
-            case '@':
-            case '#':
-            case '$':
-            case TT_INCREMENT: // @TODO remove or check for compiler flags if we allow increment/decrement.
-            case TT_DECREMENT:
-
-            case TT_IMPORT:
-            case TT_IF:
-            case TT_ELSE:
-            case TT_DO:
-            case TT_WHILE:
-
-            case '+':
-            case '-':
-                node->flags |= NF_UNARY;
-                break;
-        }
-    } else if ((tokens->data[i]->tt == '(') && (tokens->data[i - 1]->tt == TT_SYMBOL)) {
-        node->flags |= NF_CALL;
-
-    } else if ((tokens->data[i]->tt == '[') && (tokens->data[i - 1]->tt == TT_SYMBOL)) {
-        node->flags |= NF_INDEXER;
-
-    } else if ((tokens->data[i]->tt == TT_INCREMENT) || (tokens->data[i]->tt == TT_DECREMENT)) {
-        node->flags |= NF_UNARY;
-        node->flags |= NF_POSTFIX;
-
-    } else {
-        // certain punctuators can trick the parser into thinking that they are binary if the
-        // prev token is not an operator or a symbol, check for that here
-        // ie:
-        //
-        //      "string"[0];
-        //      4(foo);
-        //
-        const auto prev = tokens->data[i - 1];
-        switch ((s32) tokens->data[i]->tt) {
-            default:
-                // check if it's actually a binary operator, or a mistake.
-                // exceptions can be put above.
-                if (tokenTypeBinaryness(tokens->data[i]->tt) < 1) {
-                    die("expecting binary operator, but got op: %d", tokens->data[i]->tt);
-                }
-                break;
-
-            case '(':
-            case '[':
-                if (prev->tt == TT_NUMERIC || prev->tt == TT_STRING) {
-                    die("you probably meant to put an operator before this boi\n");
-                }
-                break;
-
-            case '{':
-                // code block with a expression prior, which means this is either a:
-                // if/else if/else/while/for block
-                // or a function block
-                node->children = (Array<ASTNode>*) pCalloc(sizeof (Array<ASTNode>));
-                node->flags |= NF_PUNCTUATOR;
-                break;
-        }
-    }
-
-    return node;
-}
-
 static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
-    // @TODO, is it possible to not have to check for punctuators here?
-    if (os->isEmpty() || ((node->flags & NF_PUNCTUATOR) != 0)) return false;
+    if (os->isEmpty()) return false;
 
     const auto top = os->peek();
 
@@ -373,12 +274,43 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
 
 void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     const auto node = os->pop();
+    s32 tt = node->token->tt;
 
-    if ((node->flags & NF_CALL) != 0) {
-        print("should be parsing a function call operation LOOOOOL\n");
+    if ((node->flags & NF_CALL) == NF_CALL) {
+        die("should be parsing a function call operation, but can't yet.\n");
         return;
 
-    } else if ((node->flags & NF_UNARY) != 0) {
+    } else if (tt == '[') {
+        if ((node->flags & NF_INDEXER) == NF_INDEXER) {
+            die("should be parsing an indexer expression, but can't yet.\n");
+
+        } else {
+            die("should be parsing an array literal, but can't yet\n");
+        }
+        return;
+
+    } else if (tt == '{') {
+        if ((node->flags & NF_STRUCT_LITERAL) == NF_STRUCT_LITERAL) {
+            die("should be parsing a struct literal but can't yet.\n");
+
+        } else {
+            node->children = new Array<ASTNode>();
+
+            const auto parent = closure;
+            closure = (Closure*) pMalloc(sizeof (Closure));
+            closure->name = ""; // @TODO
+            closure->parent = parent;
+            closure->table = new Table<const char, Value>();
+
+            oldParent = currentParent;
+
+            currentParent->children->push(node);
+            currentParent = node;
+
+            return;
+        }
+
+    } else if ((node->flags & NF_UNARY) == NF_UNARY) {
         ASTNode* child = es->pop();
 
         if (!child) reportSpecificUnaryOperatorMissingOperand(node);
@@ -401,28 +333,141 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     es->push(node);
 }
 
-static ASTNode* shuntingYard(Array<Token>* tokens) {
-    auto es = new Array<ASTNode>();
-    auto os = new Array<ASTNode>();
+static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
+    const auto node = (ASTNode*) pCalloc(sizeof (ASTNode));
 
-    Closure* closure = (Closure*) pMalloc(sizeof (Closure));
+    node->token = tokens->data[i];
+
+    if (i < 1 || tokenTypeIsOperator(tokens->data[i - 1]->tt)) {
+        // we think it's a unary operator, but we could be wrong. check.
+        switch ((s32) node->token->tt) {
+            default:
+                die("unexpected operator that we thought would be unary or a punctuator: %d\n", tokens->data[i]->tt);
+                break;
+
+            // can only be an empty group or function call w/ no args
+            case ')':
+                if (tokens->data[i - 1]->tt != '(') {
+                    // @TODO report hanging close parens.
+                    die("hanging close parens\n");
+                }
+                break;
+
+            // can only be an empty array literal or indexer.
+            case ']':
+                if (tokens->data[i - 1]->tt != '[') {
+                    // @TODO report hanging close bracket.
+                    die("hanging close bracket\n");
+                }
+                break;
+
+            // can only be an empty dict literal or code block
+            case '}':
+                if (tokens->data[i - 1]->tt != '{') {
+                    // @TODO report hanging close brace.
+                    die("hanging close brace\n");
+                }
+                break;
+
+            // should be a 'grouping' operator.
+            case '(': break;
+
+            // should be an array literal.
+            case '[': break;
+
+            // should be a dict literal.
+            case '{': break;
+
+            case TT_INCREMENT: // @TODO remove or check for compiler flags if we allow increment/decrement.
+            case TT_DECREMENT:
+
+            case TT_IF:
+            case TT_ELSE:
+            case TT_DO:
+            case TT_WHILE:
+
+            case '~':
+            case '!':
+            case '@':
+            case '#':
+            case '$':
+
+            case '+':
+            case '-':
+                node->flags |= NF_UNARY;
+                break;
+        }
+    } else if ((tokens->data[i]->tt == '(') && (tokens->data[i - 1]->tt == TT_SYMBOL)) {
+        node->flags |= NF_CALL;
+
+    } else if ((tokens->data[i]->tt == '[') && (tokens->data[i - 1]->tt == TT_SYMBOL)) {
+        node->flags |= NF_INDEXER;
+
+    } else if ((tokens->data[i]->tt == TT_INCREMENT) || (tokens->data[i]->tt == TT_DECREMENT)) {
+        node->flags |= NF_UNARY;
+        node->flags |= NF_POSTFIX;
+
+    } else {
+        // certain punctuators can trick the parser into thinking that they are binary if the
+        // prev token is not an operator or a symbol, check for that here.
+        // ie:
+        //      "string"[0];
+        //      4(foo);
+        const auto prev = tokens->data[i - 1];
+        switch ((s32) tokens->data[i]->tt) {
+            default:
+                // check if it's actually a binary operator, or a mistake.
+                // exceptions can be put below.
+                if (tokenTypeBinaryness(tokens->data[i]->tt) < 1) {
+                    die("expecting binary operator, but got op: %d", tokens->data[i]->tt);
+                }
+                break;
+
+            case '(':
+            case '[':
+                if (prev->tt == TT_NUMERIC || prev->tt == TT_STRING) {
+                    die("you probably meant to put an operator before this boi\n");
+                }
+                break;
+
+            case '{':
+                node->children = new Array<ASTNode>();
+                break;
+        }
+    }
+
+    // resolve precedence and associativity by re-arranging the stack before pushing.
+    while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os);
+
+    os->push(node);
+}
+
+static ASTNode* shuntingYard(Array<Token>* tokens) {
+    es = new Array<ASTNode>();
+    os = new Array<ASTNode>();
+
+    closure = (Closure*) pMalloc(sizeof (Closure));
     closure->name = "global";
     closure->parent = null;
     closure->table = new Table<const char, Value>();
 
-    ASTNode* oldParent = null;
+    oldParent = null;
 
-    ASTNode* currentParent = (ASTNode*) pCalloc(sizeof (ASTNode));
-    currentParent->closure = closure;
+    currentParent = (ASTNode*) pCalloc(sizeof (ASTNode));
     currentParent->children = new Array<ASTNode>();
 
-    ASTNode* program = currentParent;
+    program = currentParent;
 
     u32 i = 0;
     while (i < tokens->length) {
-        s32 tt = (s32) tokens->data[i]->tt;
+        const auto token = tokens->data[i];
+        s32 tt = (s32) token->tt;
+
+        token->closure = closure;
+
         switch (tt) {
             case ';': {
+                // dump the stack - we should collect everything as a single expression.
                 while (!os->isEmpty()) {
                     s32 tt = (s32) os->peek()->token->tt;
 
@@ -437,8 +482,10 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                         break;
 
                     } else if (tt == '{') {
-                        // if it's the opener of a code block, then that's fine.
-                        if ((os->peek()->flags & NF_PUNCTUATOR) != 0) {
+                        if ((os->peek()->flags & NF_STRUCT_LITERAL) != NF_STRUCT_LITERAL) {
+                            // if it's a opening curly brace, and not a struct literal
+                            // then it's a code block, and we want to skip the rest of
+                            // the stack, since an expression can't cross a block boundary.
                             break;
 
                         } else {
@@ -477,11 +524,13 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     break;
                 }
 
-                if ((os->peek()->flags & NF_PUNCTUATOR) != 0) {
-                    os->pop(); // discard open parens if it's just used to group
+                if ((os->peek()->flags & NF_CALL) == NF_CALL) {
+                    // it's a function call.
+                    parseOperationIntoExpression(es, os);
 
                 } else {
-                    parseOperationIntoExpression(es, os);
+                    // discard open parens if it's just used to group
+                    os->pop();
                 }
             } break;
 
@@ -507,7 +556,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 // this is the end of a closure, so set the current one to the old's parent
                 closure = closure->parent;
 
-                // also do this for the parent nodes we are keep track of.
+                // do the same for the parent nodes we are tracking.
                 currentParent = oldParent;
 
             } break;
@@ -516,38 +565,14 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
             case TT_STRING:
             case TT_NUMERIC: {
                 const auto node = (ASTNode*) pCalloc(sizeof (ASTNode));
-                node->token = tokens->data[i];
+                node->token = token;
                 es->push(node);
 
             } break;
 
-            case '(':
-            case '[':
-            case '{':
-            default: {
-                const auto node = resolveOperatorOrPunctuatorNode(tokens, i);
-
-                // this is the beginning of a new closure.
-                if (tt == '{' && (node->flags & NF_PUNCTUATOR) != 0) {
-                    const auto parent = closure;
-                    closure = (Closure*) pMalloc(sizeof (Closure));
-                    closure->name = ""; // @TODO
-                    closure->parent = parent;
-                    closure->table = new Table<const char, Value>();
-
-                    oldParent = currentParent;
-
-                    currentParent->children->push(node);
-                    currentParent = node;
-
-                } else {
-                    // it's a normal operator, for which precedence and associativity is relevant.
-                    // resolve that stuff before adding the operator to the stack.
-                    while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os);
-
-                    os->push(node);
-                }
-            } break;
+            default:
+                resolveOperatorNode(tokens, i);
+                break;
         }
 
         i++;

@@ -3,6 +3,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include "closure.h"
 #include "types.h"
 #include "print.h"
 
@@ -112,6 +113,8 @@ enum TokenFlagsEnum {
 struct Token {
     const char* filename;
     const char* tk;
+
+    Closure* closure;
 
     u32 line;
     u32 column;
