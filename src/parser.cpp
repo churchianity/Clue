@@ -8,6 +8,7 @@
 
 
 // this is the file where we turn an array of tokens into an abstract syntax tree.
+
 static Array<ASTNode>* es = null;
 static Array<ASTNode>* os = null;
 static Closure* closure = null;
@@ -160,6 +161,7 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
 
 static inline u8 precedence(ASTNode* node) {
     switch ((s32) node->token->tt) {
+        case TT_IF:
         case ',':
 
         case '=':
@@ -233,6 +235,9 @@ static inline u8 precedence(ASTNode* node) {
             }
         case '[':
         case '{':
+            if ((node->flags & NF_STRUCT_LITERAL) != NF_STRUCT_LITERAL) {
+                return 0;
+            }
             return 8;
 
         case '@':
@@ -242,7 +247,7 @@ static inline u8 precedence(ASTNode* node) {
         case ':':
         case TT_IMPORT:
         case TT_DO:
-        case TT_IF:
+
             return 9;
 
         default:
@@ -276,7 +281,25 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     const auto node = os->pop();
     s32 tt = node->token->tt;
 
-    if ((node->flags & NF_CALL) == NF_CALL) {
+    if (tt == TT_IF) {
+        node->children = new Array<ASTNode>(2);
+
+        const auto predicate = es->pop();
+
+        if (predicate == null) {
+            // @TODO report if statement missing predicate
+            die("if statement missin predicate\n");
+            return;
+
+        } else {
+            node->children->push(predicate);
+        }
+
+        if (currentParent != null) {
+            node->children->push(currentParent);
+        }
+
+    } else if ((node->flags & NF_CALL) == NF_CALL) {
         die("should be parsing a function call operation, but can't yet.\n");
         return;
 
@@ -306,8 +329,6 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
 
             currentParent->children->push(node);
             currentParent = node;
-
-            return;
         }
 
     } else if ((node->flags & NF_UNARY) == NF_UNARY) {
@@ -382,6 +403,9 @@ static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
             case TT_DECREMENT:
 
             case TT_IF:
+                // if is a lie, it can have many children, but it takes the position of a unary operator
+                break;
+
             case TT_ELSE:
             case TT_DO:
             case TT_WHILE:
