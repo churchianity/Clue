@@ -14,6 +14,7 @@ static Array<ASTNode>* os = null;
 static Closure* closure = null;
 static ASTNode* oldParent = null;
 static ASTNode* currentParent = null;
+static ASTNode* outstandingStatement = null;
 static ASTNode* program = null;
 
 
@@ -288,6 +289,11 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
         } else {
             node->children->push(predicate);
         }
+
+        node->children->push(currentParent);
+        outstandingStatement = node;
+        return;
+
     } else if ((node->flags & NF_CALL) == NF_CALL) {
         die("should be parsing a function call operation, but can't yet.\n");
         return;
@@ -505,6 +511,8 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
     currentParent = (ASTNode*) pCalloc(sizeof (ASTNode));
     currentParent->children = new Array<ASTNode>();
 
+    outstandingStatement = null;
+
     program = currentParent;
 
     u32 i = 0;
@@ -552,6 +560,9 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
 
                 } else if (es->length != 1) {
                     // @REPORT error leftover operands ex: (4 + 4 4)
+                    print(es->pop());
+                    print(es->pop());
+                    print(es->pop());
                     die("leftover operands");
                     return null;
                 }
@@ -606,11 +617,20 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     die("hanging closing brace\n");
                 }
 
+                if (outstandingStatement) {
+                    // we might need to re-arrange some things.
+                    switch ((s32) outstandingStatement->token->tt) {
+                        case TT_IF:
+                            oldParent->children->data[oldParent->children->length - 1] = outstandingStatement;
+                            break;
+                    }
+
+                    outstandingStatement = null;
+                }
+
                 // this is the end of a closure, so set the current one to the old's parent
                 closure = closure->parent;
 
-                print(currentParent);
-                print(oldParent);
                 // do the same for the parent nodes we are tracking.
                 currentParent = oldParent;
 
