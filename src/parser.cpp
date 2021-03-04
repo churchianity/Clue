@@ -407,12 +407,14 @@ static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
             case '[': break;
 
             // should be a dict literal
-            // unless it's the first token, or the previous is a semicolon - then it's a code block.
+            // unless it's the first token, or the previous is a semicolon, or the previous is a closing brace - then it's a code block.
            case '{':
-                if (i == 0 || tokens->data[i - 1]->tt == ';') {
-                    setupNewCodeBlock(node);
-                    return;
-                }
+                if (i == 0
+                    || tokens->data[i - 1]->tt == ';'
+                    || tokens->data[i - 1]->tt == '}') {
+                        setupNewCodeBlock(node);
+                        return;
+                    }
                 break;
 
             case TT_IF:
@@ -446,7 +448,7 @@ static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
 
     } else {
         // it's probably a normal binary operator.
-        // certain punctuators can trick the parser into thinking that they are binary if the
+        // certain punctuators and statements can trick the parser into thinking that they are binary if the
         // prev token is not an operator or a symbol, check for that here.
         // ie:
         //      "string"[0];
@@ -456,38 +458,49 @@ static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
         //
         //       if 1 { ... }
         //            ^ parser thinks the opener of a code block is a binary operator,
-        //              this is the only example where the code is actually valid
+        //              the code is actually valid
+        //      ...
+        //      }
+        //      if true { ... }
+        //      ^ parser thinks 'if' is binary because the closing brace that precedes it
+        //        isn't technically considered an operator. the code is valid.
         //
         const auto prevToken = tokens->data[i - 1];
-        switch ((s32) tokens->data[i]->tt) {
-            case '(':
-                if (prevToken->tt == TT_NUMERIC || prevToken->tt == TT_STRING) {
-                    // @REPORT
-                    die("Weird looking function call. Did you miss an operator before the open paren?\n");
-                }
-                break;
-            case '[':
-                if (prevToken->tt == TT_NUMERIC) {
-                    // @REPORT
-                    die("Trying to index a numeric type.\n");
 
-                } else if (prevToken->tt == TT_STRING) {
-                    // @REPORT
-                    die("Trying to index a string literal.\n");
-                }
-                break;
+        if (tokenTypeIsStatement(tokens->data[i]->tt) && tokenTypeIsPunctuator(prevToken->tt)) {
+            node->flags |= NF_UNARY;
 
-            case '{':
-                setupNewCodeBlock(node);
-                return;
+        } else {
+            switch ((s32) tokens->data[i]->tt) {
+                case '(':
+                    if (prevToken->tt == TT_NUMERIC || prevToken->tt == TT_STRING) {
+                        // @REPORT
+                        die("Weird looking function call. Did you miss an operator before the open paren?\n");
+                    }
+                    break;
+                case '[':
+                    if (prevToken->tt == TT_NUMERIC) {
+                        // @REPORT
+                        die("Trying to index a numeric type.\n");
 
-            default:
-                // check if it's actually a binary operator, or a mistake.
-                // exceptions can be put above.
-                if (tokenTypeBinaryness(tokens->data[i]->tt) < 1) {
-                    die("expecting binary operator, but got op: %d", tokens->data[i]->tt);
-                }
-                break;
+                    } else if (prevToken->tt == TT_STRING) {
+                        // @REPORT
+                        die("Trying to index a string literal.\n");
+                    }
+                    break;
+
+                case '{':
+                    setupNewCodeBlock(node);
+                    return;
+
+                default:
+                    // check if it's actually a binary operator, or a mistake.
+                    // exceptions can be put above.
+                    if (tokenTypeBinaryness(tokens->data[i]->tt) < 1) {
+                        die("expecting binary operator, but got op: %d", tokens->data[i]->tt);
+                    }
+                    break;
+            }
         }
     }
 

@@ -4,11 +4,31 @@
 #include "token.h"
 
 
-// closing punctuators like ), ] and } don't count
+
+// closing punctuators like ;, ), ] and } don't count, they never get any operands.
 // otherwise, because the primary way to identify a unary operator is that it is preceded by another operator,
-// examples like ') * 2' fail, because it believes that '*' is unary here
+// examples like ') * 2' would fail, because it believes that '*' is unary here
 bool tokenTypeIsOperator(TokenTypeEnum tt) {
-    return !((tt == ')') || (tt == ']') || (tt == '}') || (tt == TT_SYMBOL) || (tt == TT_NUMERIC) || (tt == TT_STRING));
+    return !((tt == ';')
+          || (tt == ')')
+          || (tt == ']')
+          || (tt == '}')
+          || (tt == TT_SYMBOL)
+          || (tt == TT_NUMERIC)
+          || (tt == TT_STRING));
+}
+
+bool tokenTypeIsStatement(TokenTypeEnum tt) {
+    if (!tokenTypeIsOperator(tt)) return false;
+
+    switch ((s32) tt) {
+        case TT_IF:
+        case TT_ELSE:
+            return true;
+
+        default:
+            return false;
+    }
 }
 
 bool tokenTypeIsAssignment(TokenTypeEnum tt) {

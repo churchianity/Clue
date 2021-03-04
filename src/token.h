@@ -126,6 +126,7 @@ struct Token {
     u8 flags;
 };
 
+bool tokenTypeIsStatement(TokenTypeEnum tt);
 bool tokenTypeIsOperator(TokenTypeEnum tt);
 bool tokenTypeIsAssignment(TokenTypeEnum tt);
 bool tokenTypeIsBitwise(TokenTypeEnum tt);
