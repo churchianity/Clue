@@ -219,7 +219,7 @@ static inline u8 precedence(ASTNode* node) {
             return 6;
 
         case TT_EXPONENTIATION:
-            // I have no clue why, but changing this to 4 from 7 fixes a precedence bug with exponentiation
+            // I have no idea why, but changing this to 4 from 7 fixes a precedence bug with exponentiation
             // @TODO figure this out
             return 4;
 
@@ -238,7 +238,7 @@ static inline u8 precedence(ASTNode* node) {
             if ((node->flags & NF_STRUCT_LITERAL) != NF_STRUCT_LITERAL) {
                 return 0;
             }
-            return 8;
+            return 0;
 
         case '@':
         case '#':
@@ -268,12 +268,6 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
         return precedence(node) < precedence(top);
     }
 
-    // this happens when you have multiple operators between two semicolons
-    // that shouldn't be part of one statement or expression
-    // you can't have multiple assignments in one statement ie: x := y := 4;
-    // (unless you do x, y := 4, 4;)
-    // @NOTE maybe not, this is a bad comment
-    // die("non associative sub-expression\n");
     return false;
 }
 
@@ -282,7 +276,7 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     s32 tt = node->token->tt;
 
     if (tt == TT_IF) {
-        node->children = new Array<ASTNode>(2);
+        node->children = new Array<ASTNode>(3);
 
         const auto predicate = es->pop();
 
@@ -294,22 +288,6 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
         } else {
             node->children->push(predicate);
         }
-
-        if (currentParent != null) {
-            print("hi\n");
-            node->children->push(currentParent);
-        }
-
-        /*
-        if (oldParent != null) {
-            oldParent->children->push(node);
-            return;
-
-        } else {
-            program->children->push(node);
-            return;
-        }
-        */
     } else if ((node->flags & NF_CALL) == NF_CALL) {
         die("should be parsing a function call operation, but can't yet.\n");
         return;
@@ -328,18 +306,8 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
             die("should be parsing a struct literal but can't yet.\n");
 
         } else {
-            node->children = new Array<ASTNode>();
 
-            const auto parent = closure;
-            closure = (Closure*) pMalloc(sizeof (Closure));
-            closure->name = ""; // @TODO
-            closure->parent = parent;
-            closure->table = new Table<const char, Value>();
-
-            oldParent = currentParent;
-
-            currentParent->children->push(node);
-            currentParent = node;
+            return;
         }
     } else if ((node->flags & NF_UNARY) == NF_UNARY) {
         ASTNode* child = es->pop();
@@ -362,6 +330,27 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     }
 
     es->push(node);
+}
+
+static void setupNewCodeBlock(ASTNode* block) {
+    block->children = new Array<ASTNode>();
+
+    // add this code block as a child of the encompassing block
+    currentParent->children->push(block);
+
+    // switch-a-roo
+    oldParent = currentParent;
+    currentParent = block;
+
+    // create and configure a new closure, assign to the current closure.
+    const auto parent = closure;
+    closure = (Closure*) pMalloc(sizeof (Closure));
+    closure->name = ""; // @TODO
+    closure->parent = parent;
+    closure->table = new Table<const char, Value>();
+
+    // resolve precedence and associativity by re-arranging the stacks
+    while (canPopAndApply(os, block)) parseOperationIntoExpression(es, os);
 }
 
 // given an array of tokens and a position in the array which points to an operator,
@@ -411,16 +400,22 @@ static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
             // should be an array literal.
             case '[': break;
 
-            // should be a dict literal.
-            case '{': break;
-
-            case TT_IF:
-            case TT_ELSE:
-            case TT_DO:
-            case TT_WHILE:
-                // lies. these can have many children, but take the position of a unary operator
+            // should be a dict literal, unless it's the first character, then it's a code block.
+           case '{':
+                if (i == 0) {
+                    setupNewCodeBlock(node);
+                    return;
+                }
                 break;
 
+            case TT_IF:
+            case TT_WHILE:
+            case TT_FOR:
+                // lies. these can have many children, but take the position of a unary operator
+                // we pretend they are unary, but add more children later anyway.
+
+            case TT_DO:
+            case TT_ELSE:
             case '~':
             case '!':
             case '@':
@@ -476,8 +471,8 @@ static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
                 break;
 
             case '{':
-                node->children = new Array<ASTNode>();
-                break;
+                setupNewCodeBlock(node);
+                return;
 
             default:
                 // check if it's actually a binary operator, or a mistake.
@@ -605,6 +600,11 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
 
             // reduce-parse a struct literal or code block
             case '}': {
+                if (oldParent == null) {
+                    // @REPORT
+                    die("hanging closing brace");
+                }
+
                 // this is the end of a closure, so set the current one to the old's parent
                 closure = closure->parent;
 

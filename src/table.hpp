@@ -35,6 +35,7 @@ struct Table {
     }
 
     void operator delete(void* p) {
+        // @TODO free the entries first
         pFree(p);
     }
 

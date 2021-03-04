@@ -42,6 +42,11 @@ void print(ASTNode* node) {
         print("null\n");
     }
 
-    print("&ASTNode %p | flags: %d | tk: %s\n", (void*) node, node->flags, node->token->tk);
+    if (node->token) {
+        print("&ASTNode %p | flags: %d | tk: %s\n", (void*) node, node->flags, node->token->tk);
+
+    } else {
+        print("&ASTNode %p | program root\n", (void*) node);
+    }
 }
 

@@ -94,6 +94,7 @@ enum TokenTypeEnum {
     TT_AND                      = 407,  // and
     TT_OR                       = 408,  // or
     TT_NOT                      = 409,  // not
+    TT_FOR                      = 410,  // for
 
     // begin builtin type names. @TODO
     TT_TYPE_INFO_TAG_NUMBER     = 500,  // Number
