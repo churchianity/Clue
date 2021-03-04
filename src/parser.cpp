@@ -400,9 +400,10 @@ static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
             // should be an array literal.
             case '[': break;
 
-            // should be a dict literal, unless it's the first character, then it's a code block.
+            // should be a dict literal
+            // unless it's the first token, or the previous is a semicolon - then it's a code block.
            case '{':
-                if (i == 0) {
+                if (i == 0 || tokens->data[i - 1]->tt == ';') {
                     setupNewCodeBlock(node);
                     return;
                 }
@@ -602,12 +603,14 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
             case '}': {
                 if (oldParent == null) {
                     // @REPORT
-                    die("hanging closing brace");
+                    die("hanging closing brace\n");
                 }
 
                 // this is the end of a closure, so set the current one to the old's parent
                 closure = closure->parent;
 
+                print(currentParent);
+                print(oldParent);
                 // do the same for the parent nodes we are tracking.
                 currentParent = oldParent;
 
