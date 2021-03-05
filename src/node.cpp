@@ -7,6 +7,10 @@
 
 // stolen from https://stackoverflow.com/questions/1649027/how-do-i-print-out-a-tree-structure
 void prettyPrintTree(ASTNode* node, const char* indent, bool last) {
+    if (node == null) {
+        print("null\n");
+    }
+
     print(indent);
     if (last) {
         print("\\-");

@@ -36,6 +36,7 @@ static Table<const char, Keyword>* initKeywordTable() {
     t->insert("and",            3, keyword(TT_AND));
     t->insert("or",             2, keyword(TT_OR));
     t->insert("not",            3, keyword(TT_NOT));
+    t->insert("elseif",         6, keyword(TT_ELSEIF));
 
     return t;
 }

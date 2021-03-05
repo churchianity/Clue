@@ -7,17 +7,6 @@
 #include "token.h"
 
 
-// this is the file where we turn an array of tokens into an abstract syntax tree.
-
-static Array<ASTNode>* es = null;
-static Array<ASTNode>* os = null;
-static Closure* closure = null;
-static ASTNode* oldParent = null;
-static ASTNode* currentParent = null;
-static ASTNode* outstandingStatement = null;
-static ASTNode* program = null;
-
-
 static inline void reportSpecificUnaryOperatorMissingOperand(ASTNode* node) {
     switch ((s32) node->token->tt) {
         case '~':
@@ -163,6 +152,11 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
 static inline u8 precedence(ASTNode* node) {
     switch ((s32) node->token->tt) {
         case TT_IF:
+        case TT_ELSE:
+        case '(':
+        case '[':
+        case '{':
+
         case ',':
 
         case '=':
@@ -230,17 +224,6 @@ static inline u8 precedence(ASTNode* node) {
                 return 6;
             }
 
-        case '(':
-            if ((node->flags & NF_CALL) != NF_CALL) {
-                return 0;
-            }
-        case '[':
-        case '{':
-            if ((node->flags & NF_STRUCT_LITERAL) != NF_STRUCT_LITERAL) {
-                return 0;
-            }
-            return 0;
-
         case '@':
         case '#':
         case '$':
@@ -277,26 +260,24 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     s32 tt = node->token->tt;
 
     if (tt == TT_IF) {
-        node->children = new Array<ASTNode>(3);
-
+        const auto body = es->pop();
         const auto predicate = es->pop();
 
-        if (predicate == null) {
-            // @TODO report if statement missing predicate
-            die("if statement missin predicate\n");
-            return;
-
-        } else {
-            node->children->push(predicate);
+        if (!predicate) {
+            // @REPORT if statement missing predicate
+            die("if statement missing predicate\n");
+        }
+        if (!body) {
+            // @REPORT if statement missing body
+            die("if statement missing body\n");
         }
 
-        node->children->push(currentParent);
-        outstandingStatement = node;
-        return;
+        node->children = new Array<ASTNode>(2);
+        node->children->push(predicate);
+        node->children->push(body);
 
     } else if ((node->flags & NF_CALL) == NF_CALL) {
         die("should be parsing a function call operation, but can't yet.\n");
-        return;
 
     } else if (tt == '[') {
         if ((node->flags & NF_INDEXER) == NF_INDEXER) {
@@ -305,15 +286,25 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
         } else {
             die("should be parsing an array literal, but can't yet\n");
         }
-        return;
 
     } else if (tt == '{') {
         if ((node->flags & NF_STRUCT_LITERAL) == NF_STRUCT_LITERAL) {
             die("should be parsing a struct literal but can't yet.\n");
 
         } else {
+            const auto top = os->peek();
 
-            return;
+            // if there's an outstanding statement, we may want to reserve expression(s)
+            // for it instead of consuming it ourselves.
+            u32 reserve = 0;
+            if (top && top->token->tt == TT_IF) {
+                reserve = 1;
+            }
+
+            u32 count = es->length;
+            for (s32 i = 0; i < (count - reserve); i++) {
+                node->children->push(es->pop());
+            }
         }
     } else if ((node->flags & NF_UNARY) == NF_UNARY) {
         ASTNode* child = es->pop();
@@ -338,30 +329,20 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     es->push(node);
 }
 
-static void setupNewCodeBlock(ASTNode* block) {
+static void setupNewCodeBlock(ASTNode* block, Closure* oldClosure) {
     block->children = new Array<ASTNode>();
 
-    // add this code block as a child of the encompassing block
-    currentParent->children->push(block);
-
-    // switch-a-roo
-    oldParent = currentParent;
-    currentParent = block;
-
     // create and configure a new closure, assign to the current closure.
-    const auto parent = closure;
-    closure = (Closure*) pMalloc(sizeof (Closure));
+    const auto parent = oldClosure;
+    const auto closure = (Closure*) pMalloc(sizeof (Closure));
     closure->name = ""; // @TODO
     closure->parent = parent;
     closure->table = new Table<const char, Value>();
-
-    // resolve precedence and associativity by re-arranging the stacks
-    while (canPopAndApply(os, block)) parseOperationIntoExpression(es, os);
 }
 
 // given an array of tokens and a position in the array which points to an operator,
-// figure out what kind of operator it is, and put it on the operator stack.
-static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
+// figure out what kind of operator it is, and return it as an ASTNode*
+static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i, Closure* closure) {
     const auto node = (ASTNode*) pCalloc(sizeof (ASTNode));
 
     node->token = tokens->data[i];
@@ -412,8 +393,7 @@ static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
                 if (i == 0
                     || tokens->data[i - 1]->tt == ';'
                     || tokens->data[i - 1]->tt == '}') {
-                        setupNewCodeBlock(node);
-                        return;
+                        setupNewCodeBlock(node, closure);
                     }
                 break;
 
@@ -467,10 +447,7 @@ static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
         //
         const auto prevToken = tokens->data[i - 1];
 
-        if (tokenTypeIsStatement(tokens->data[i]->tt) && tokenTypeIsPunctuator(prevToken->tt)) {
-            node->flags |= NF_UNARY;
-
-        } else {
+        if (!(tokenTypeIsStatement(tokens->data[i]->tt) && tokenTypeIsPunctuator(prevToken->tt))) {
             switch ((s32) tokens->data[i]->tt) {
                 case '(':
                     if (prevToken->tt == TT_NUMERIC || prevToken->tt == TT_STRING) {
@@ -490,8 +467,8 @@ static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
                     break;
 
                 case '{':
-                    setupNewCodeBlock(node);
-                    return;
+                    setupNewCodeBlock(node, closure);
+                    break;
 
                 default:
                     // check if it's actually a binary operator, or a mistake.
@@ -504,29 +481,17 @@ static void resolveOperatorNode(Array<Token>* tokens, u32 i) {
         }
     }
 
-    // resolve precedence and associativity by re-arranging the stacks before pushing.
-    while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os);
-
-    os->push(node);
+    return node;
 }
 
 static ASTNode* shuntingYard(Array<Token>* tokens) {
-    es = new Array<ASTNode>();
-    os = new Array<ASTNode>();
+    const auto es = new Array<ASTNode>();
+    const auto os = new Array<ASTNode>();
 
-    closure = (Closure*) pMalloc(sizeof (Closure));
+    auto closure = (Closure*) pMalloc(sizeof (Closure));
     closure->name = "global";
     closure->parent = null;
     closure->table = new Table<const char, Value>();
-
-    oldParent = null;
-
-    currentParent = (ASTNode*) pCalloc(sizeof (ASTNode));
-    currentParent->children = new Array<ASTNode>();
-
-    outstandingStatement = null;
-
-    program = currentParent;
 
     u32 i = 0;
     while (i < tokens->length) {
@@ -544,12 +509,10 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     if (tt == '(') {
                         // @REPORT missing close paren
                         die("missing close paren");
-                        break;
 
                     } else if (tt == '[') {
                         // @REPORT missing close bracket
                         die("missing close bracket");
-                        break;
 
                     } else if (tt == '{') {
                         if ((os->peek()->flags & NF_STRUCT_LITERAL) != NF_STRUCT_LITERAL) {
@@ -569,19 +532,13 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 if (es->isEmpty()) {
                     // @REPORT warn empty expression ex: ()
                     die("empty expression\n");
-                    return null;
 
-                } else if (es->length != 1) {
-                    // @REPORT error leftover operands ex: (4 + 4 4)
-                    print(es->pop());
-                    print(es->pop());
-                    print(es->pop());
-                    die("leftover operands");
-                    return null;
+                } else {
+                    if (0) {
+                        // @REPORT error leftover operands ex: (4 + 4 4)
+                        die("leftover operands");
+                    }
                 }
-
-                currentParent->children->push(es->pop());
-
             } break;
 
             case ')': {
@@ -593,7 +550,6 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
 
                 if (os->isEmpty()) {
                     die("missing open parens\n");
-                    break;
                 }
 
                 if ((os->peek()->flags & NF_CALL) == NF_CALL) {
@@ -615,8 +571,8 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 }
 
                 if (os->isEmpty()) {
+                    // @REPORT
                     die("missing open bracket\n");
-                    break;
                 }
 
                 parseOperationIntoExpression(es, os);
@@ -625,27 +581,21 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
 
             // reduce-parse a struct literal or code block
             case '}': {
-                if (oldParent == null) {
-                    // @REPORT
-                    die("hanging closing brace\n");
-                }
-
-                if (outstandingStatement) {
-                    // we might need to re-arrange some things.
-                    switch ((s32) outstandingStatement->token->tt) {
-                        case TT_IF:
-                            oldParent->children->data[oldParent->children->length - 1] = outstandingStatement;
-                            break;
-                    }
-
-                    outstandingStatement = null;
-                }
-
                 // this is the end of a closure, so set the current one to the old's parent
                 closure = closure->parent;
 
-                // do the same for the parent nodes we are tracking.
-                currentParent = oldParent;
+                while (!os->isEmpty()) {
+                    if (os->peek()->token->tt == '{') break;
+
+                    parseOperationIntoExpression(es, os);
+                }
+
+                if (os->isEmpty()) {
+                    // @REPORT missing open brace
+                    die("missing open brace\n");
+                }
+
+                parseOperationIntoExpression(es, os);
 
             } break;
 
@@ -658,15 +608,47 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
 
             } break;
 
-            default:
-                resolveOperatorNode(tokens, i);
-                break;
+            default: {
+                const auto node = resolveOperatorNode(tokens, i, closure);
+
+                // resolve precedence and associativity by re-arranging the stacks before pushing.
+                while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os);
+
+                os->push(node);
+            } break;
         }
 
         i++;
     }
 
-    return program;
+    while (!os->isEmpty()) {
+        s32 tt = (s32) os->peek()->token->tt;
+
+        if (tt == '(') {
+            // @REPORT
+            die("missing close paren");
+
+        } else if (tt == '[') {
+            // @REPORT
+            die("missing close bracket");
+
+        } else if (tt == '{') {
+            // @REPORT
+            die("missing close brace");
+        }
+
+        parseOperationIntoExpression(es, os);
+    }
+
+    if (es->isEmpty()) {
+        // @REPORT
+        die("empty program\n");
+    }
+
+    print(es->length);
+    print(os->length);
+
+    return es->pop();
 }
 
 ASTNode* Parser :: parse(Array<Token>* tokens) {

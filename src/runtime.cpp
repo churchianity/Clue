@@ -185,11 +185,7 @@ Value Runtime :: eval(ASTNode* node) {
 }
 
 void Runtime :: printProgramTree(ASTNode* program) {
-    if (program != null) {
-        for (u32 i = 0; i < program->children->length; i++) {
-            prettyPrintTree(program->children->data[i], "", true);
-        }
-    }
+    prettyPrintTree(program);
 }
 
 void Runtime :: doIt(char* buffer, const char* filename) {

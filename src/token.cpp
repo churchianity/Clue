@@ -143,15 +143,10 @@ s8 tokenTypeIsPunctuator(TokenTypeEnum tt) {
         case ']':
         case '}':
         case ';':
-            return 2; // definitely is.
-
-        case '(':
-        case '[':
-        case '{':
-            return 1; // could be. check.
+            return 1;
 
         default:
-            return 0; // isn't.
+            return 0;
     }
 }
 
