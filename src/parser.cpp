@@ -252,19 +252,16 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
     return false;
 }
 
-void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
+void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Closure* closure) {
     const auto node = os->pop();
     const s32 tt = node->token->tt;
 
     if (tt == TT_IF || tt == TT_ELSEIF) {
-
         const auto top = es->peek();
 
         ASTNode* elseStatement = null;
         if (top->token->tt == TT_ELSEIF || top->token->tt == TT_ELSE) {
             elseStatement = es->pop();
-            print(node);
-            prettyPrintTree(elseStatement);
         }
 
         const auto body = es->pop();
@@ -313,22 +310,15 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
             die("should be parsing a struct literal but can't yet.\n");
 
         } else {
-            const auto top = os->peek();
-
-            // if there's an outstanding statement, we may want to reserve expression(s)
-            // for it instead of consuming it ourselves.
-            u32 reserve = 0;
-            if (top && top->token->tt == TT_IF) {
-                reserve = 1;
-            }
-
             node->children = new Array<ASTNode>();
-            u32 count = es->length - reserve;
 
+            u32 count = es->length;
             for (s32 i = 0; i < count; i++) {
                 const auto top = es->peek();
 
-                if (top->token->tt == '{') break;
+                if (top->token->closure != closure) {
+                    break;
+                }
 
                 node->children->push(es->pop());
             }
@@ -503,6 +493,9 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
     closure->parent = null;
     closure->table = new Table<const char, Value>();
 
+    ASTNode* programRoot = (ASTNode*) pCalloc(sizeof (ASTNode));
+    programRoot->children = new Array<ASTNode>();
+
     u32 i = 0;
     while (i < tokens->length) {
         const auto token = tokens->data[i];
@@ -514,29 +507,14 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
             case ';': {
                 // dump the stack - we should collect everything as a single expression.
                 while (!os->isEmpty()) {
-                    s32 tt = (s32) os->peek()->token->tt;
+                    const auto top = os->peek();
 
-                    if (tt == '(') {
-                        // @REPORT missing close paren
-                        die("missing close paren");
-
-                    } else if (tt == '[') {
-                        // @REPORT missing close bracket
-                        die("missing close bracket");
-
-                    } else if (tt == '{') {
-                        if ((os->peek()->flags & NF_STRUCT_LITERAL) != NF_STRUCT_LITERAL) {
-                            // if it's a opening curly brace, and not a struct literal
-                            // then it's a code block, and we want to skip the rest of
-                            // the stack, since an expression can't cross a block boundary.
-                            break;
-
-                        } else {
-                            die("missing close brace");
-                        }
+                    if (top->token->closure != closure) {
+                        // the operator is in a different closure than us, so we don't want to continue.
+                        break;
                     }
 
-                    parseOperationIntoExpression(es, os);
+                    parseOperationIntoExpression(es, os, closure);
                 }
 
                 if (es->isEmpty()) {
@@ -555,7 +533,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 while (!os->isEmpty()) {
                     if (os->peek()->token->tt == '(') break;
 
-                    parseOperationIntoExpression(es, os);
+                    parseOperationIntoExpression(es, os, closure);
                 }
 
                 if (os->isEmpty()) {
@@ -564,7 +542,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
 
                 if ((os->peek()->flags & NF_CALL) == NF_CALL) {
                     // it's a function call.
-                    parseOperationIntoExpression(es, os);
+                    parseOperationIntoExpression(es, os, closure);
 
                 } else {
                     // discard open parens if it's just used to group
@@ -577,7 +555,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 while (!os->isEmpty()) {
                     if (os->peek()->token->tt == '[') break;
 
-                    parseOperationIntoExpression(es, os);
+                    parseOperationIntoExpression(es, os, closure);
                 }
 
                 if (os->isEmpty()) {
@@ -585,27 +563,16 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     die("missing open bracket\n");
                 }
 
-                parseOperationIntoExpression(es, os);
+                parseOperationIntoExpression(es, os, closure);
 
             } break;
 
             // reduce-parse a struct literal or code block
             case '}': {
+                parseOperationIntoExpression(es, os, closure);
+
                 // this is the end of a closure, so set the current one to the old's parent
                 closure = closure->parent;
-
-                while (!os->isEmpty()) {
-                    if (os->peek()->token->tt == '{') break;
-
-                    parseOperationIntoExpression(es, os);
-                }
-
-                if (os->isEmpty()) {
-                    // @REPORT missing open brace
-                    die("missing open brace\n");
-                }
-
-                parseOperationIntoExpression(es, os);
 
             } break;
 
@@ -630,7 +597,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 const auto node = resolveOperatorNode(tokens, i);
 
                 // resolve precedence and associativity by re-arranging the stacks before pushing.
-                while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os);
+                while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os, closure);
 
                 os->push(node);
             } break;
@@ -655,7 +622,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
             die("missing close brace");
         }
 
-        parseOperationIntoExpression(es, os);
+        parseOperationIntoExpression(es, os, closure);
     }
 
     if (es->isEmpty()) {
@@ -663,14 +630,12 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
         die("empty program\n");
     }
 
-    const auto program = es->pop();
-
-    if (!es->isEmpty()) {
-        print("danglers:\n");
-        es->forEach([] (ASTNode* node) { print(node); } );
+    u32 count = es->length;
+    for (u32 i = 0; i < count; i++) {
+        programRoot->children->push(es->data[i]);
     }
 
-    return program;
+    return programRoot;
 }
 
 ASTNode* Parser :: parse(Array<Token>* tokens) {
