@@ -5,6 +5,8 @@
 #include "string.h"
 #include "types.h"
 
+#include "print.h"
+
 
 bool Str :: isDigit(char c) {
     return (c >= '0') && (c <= '9');
@@ -165,6 +167,15 @@ void* Str :: memset(void* p, char c, u32 length) {
     }
 
     return a;
+}
+
+void Str :: memcpy(void* dest, void* src, u32 size) {
+    char* dest_ = (char*) dest;
+    char* src_ = (char*) src;
+
+    for (u32 i = 0; i < size; i++) {
+        dest_[i] = src_[i];
+    }
 }
 
 const char* Str :: lastCharOccurence(const char* string, u32 length, char c) {

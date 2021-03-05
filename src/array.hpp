@@ -6,12 +6,10 @@
 #include <new> // operator new, operator delete
 
 #include "alloc.h" // allocators...
+#include "string.h" // memcpy
 #include "types.h" // type definitions
 
 
-/**
- * This is a growing Array, and a bunch of associated common/useful functions as methods.
- */
 template <class T>
 struct Array {
     u32 capacity;
@@ -29,7 +27,15 @@ struct Array {
     }
 
     void operator delete(void* p) {
-        pFree(p);
+        Array<T>* self = (Array<T>*) p;
+
+        /* @TODO do we want this? i dont really think so.
+        for (u32 i = 0; i < self->length; i++) {
+            pFree(self->data[i]);
+        }
+        */
+
+        pFree(self);
     }
 
     Array<T>* concat(Array<T> other) const {
@@ -217,13 +223,13 @@ struct Array {
         return out;
     }
 
-    Array<T>* slice(u32 start, u32 end = 0) {
+    Array<T>* slice(u32 start = 0, u32 end = -1) {
         Array<T>* array = new Array();
 
         u32 length = end > this->length ? this->length : end;
 
         for (u32 i = start; i < length; i++) {
-            array->push(this->data[i]);
+            Str :: memcpy(array->data[i], this->data[i], sizeof (T));
         }
 
         return array;
@@ -241,7 +247,7 @@ struct Array {
         return false;
     }
 
-    /* @TODO, gets spicy with algorithms and choice there, prolly quicksort
+    /* @TODO - refer to linux qsort
     Array<T>* sort(int (*comparator) (T*)) {
 
     }
@@ -259,12 +265,11 @@ struct Array {
     T* unshift(Array<T>* stuff) {
         return null;
     }
+    */
 
-    // @TODO probably shouldn't use this
     T* values() {
         return this->data;
     }
-    */
 
     T* peek() const {
         if (this->isEmpty()) {

@@ -18,6 +18,7 @@ namespace Str {
 
     extern bool memeq(const char* m1, u32 l1, const char* m2, u32 l2);
     extern void* memset(void* p, char c, u32 length);
+    extern void memcpy(void* dest, void* src, u32 size);
 
     extern const char* lastCharOccurence(const char* string, u32 length, char c);
     extern bool hasSuffix(const char* string, const char* suffix);

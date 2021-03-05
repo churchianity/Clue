@@ -2,6 +2,8 @@
 #ifndef PRINT_H
 #define PRINT_H
 
+#include <stddef.h> // size_t
+
 // could use extern variables with c++17... meh
 // Text Colors
 #define ANSI_BLACK  "\x001B[30m"
@@ -58,6 +60,8 @@ extern void print(unsigned int i);
 extern void print(float f);
 extern void print(double d);
 extern void print(void* p);
+
+extern void print(size_t i);
 
 #endif
 

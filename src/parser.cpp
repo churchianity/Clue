@@ -574,6 +574,23 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 // this is the end of a closure, so set the current one to the old's parent
                 closure = closure->parent;
 
+                if (i < (tokens->length - 1)) {
+                    const s32 tt = tokens->data[i + 1]->tt;
+
+                    // if the next token isn't one of these types, we should perform as many
+                    // stack reductions as we can, because we know there can't be any
+                    // outstanding operations that we cannot resolve.
+                    //
+                    // this is true because a closing brace, like a semicolon, is something that
+                    // many expressions/statements cannot cross. the exceptions are ifs and elses.
+                    if (tt == TT_ELSEIF || tt == TT_ELSE) {
+                        break;
+                    }
+
+                    while (!os->isEmpty()) {
+                        parseOperationIntoExpression(es, os, closure);
+                    }
+                }
             } break;
 
             case TT_SYMBOL:
@@ -589,7 +606,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 // we have a new namespace/closure, make it before doing anything else.
                 const auto parent = closure;
                 closure = (Closure*) pMalloc(sizeof (Closure));
-                closure->name = ""; // @TODO
+                // closure->name = ""; // @TODO should be assigned later.
                 closure->parent = parent;
                 closure->table = new Table<const char, Value>();
             }
@@ -630,10 +647,12 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
         die("empty program\n");
     }
 
-    u32 count = es->length;
-    for (u32 i = 0; i < count; i++) {
+    for (u32 i = 0; i < es->length; i++) {
         programRoot->children->push(es->data[i]);
     }
+
+    delete es;
+    delete os;
 
     return programRoot;
 }

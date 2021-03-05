@@ -4,6 +4,7 @@
 #include <stdarg.h> // va_list, va_start, va_end, ...
 #include <stdio.h> // FILE, stderr, stdout, stdin? | vfprintf
 #include <stdlib.h> // exit
+#include <stddef.h> // size_t
 
 #include "alloc.h"
 #include "print.h"
@@ -79,4 +80,6 @@ void print(unsigned int i) { print("%u\n", i); }
 void print(float f)        { print("%.14g\n", f); }
 void print(double d)       { print("%.14g\n", d); }
 void print(void* p)        { print("%p\n", p); }
+
+void print(size_t i)       { print("%u\n", i); }
 
