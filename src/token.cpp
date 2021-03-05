@@ -23,6 +23,7 @@ bool tokenTypeIsStatement(TokenTypeEnum tt) {
 
     switch ((s32) tt) {
         case TT_IF:
+        case TT_ELSEIF:
         case TT_ELSE:
             return true;
 

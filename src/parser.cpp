@@ -89,9 +89,11 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         // idk section
         case TT_DO:
         case TT_IF:
+        case TT_ELSEIF:
+        case TT_ELSE:
 
         case ':':
-        case '{':
+
             return OA_RIGHT_TO_LEFT;
 
         case '+':
@@ -126,21 +128,15 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
             if ((node->flags & NF_POSTFIX) == NF_POSTFIX) {
                 return OA_LEFT_TO_RIGHT;
             }
+        case TT_EXPONENTIATION:
+        case ',':
         case '~':
         case '!':
         case '@':
         case '$':
-        case ',':
-        case TT_EXPONENTIATION:
-
+        case '{':
         case '(':
-            if ((node->flags & NF_CALL) != NF_CALL) {
-                return OA_NONE;
-            }
         case '[':
-            if ((node->flags & NF_INDEXER) != NF_INDEXER) {
-                return OA_NONE;
-            }
             return OA_RIGHT_TO_LEFT;
 
         default:
@@ -152,6 +148,7 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
 static inline u8 precedence(ASTNode* node) {
     switch ((s32) node->token->tt) {
         case TT_IF:
+        case TT_ELSEIF:
         case TT_ELSE:
         case '(':
         case '[':
@@ -257,9 +254,19 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
 
 void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     const auto node = os->pop();
-    s32 tt = node->token->tt;
+    const s32 tt = node->token->tt;
 
-    if (tt == TT_IF) {
+    if (tt == TT_IF || tt == TT_ELSEIF) {
+
+        const auto top = es->peek();
+
+        ASTNode* elseStatement = null;
+        if (top->token->tt == TT_ELSEIF || top->token->tt == TT_ELSE) {
+            elseStatement = es->pop();
+            print(node);
+            prettyPrintTree(elseStatement);
+        }
+
         const auto body = es->pop();
         const auto predicate = es->pop();
 
@@ -274,6 +281,20 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
 
         node->children = new Array<ASTNode>(2);
         node->children->push(predicate);
+        node->children->push(body);
+
+        if (elseStatement != null) {
+            node->children->push(elseStatement);
+        }
+    } else if (tt == TT_ELSE) {
+        const auto body = es->pop();
+
+        if (!body) {
+            // @REPORT else statement missing body
+            die("else statement missing body\n");
+        }
+
+        node->children = new Array<ASTNode>(1);
         node->children->push(body);
 
     } else if ((node->flags & NF_CALL) == NF_CALL) {
@@ -301,8 +322,14 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
                 reserve = 1;
             }
 
-            u32 count = es->length;
-            for (s32 i = 0; i < (count - reserve); i++) {
+            node->children = new Array<ASTNode>();
+            u32 count = es->length - reserve;
+
+            for (s32 i = 0; i < count; i++) {
+                const auto top = es->peek();
+
+                if (top->token->tt == '{') break;
+
                 node->children->push(es->pop());
             }
         }
@@ -329,20 +356,9 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     es->push(node);
 }
 
-static void setupNewCodeBlock(ASTNode* block, Closure* oldClosure) {
-    block->children = new Array<ASTNode>();
-
-    // create and configure a new closure, assign to the current closure.
-    const auto parent = oldClosure;
-    const auto closure = (Closure*) pMalloc(sizeof (Closure));
-    closure->name = ""; // @TODO
-    closure->parent = parent;
-    closure->table = new Table<const char, Value>();
-}
-
 // given an array of tokens and a position in the array which points to an operator,
 // figure out what kind of operator it is, and return it as an ASTNode*
-static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i, Closure* closure) {
+static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
     const auto node = (ASTNode*) pCalloc(sizeof (ASTNode));
 
     node->token = tokens->data[i];
@@ -389,19 +405,14 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i, Closure* closur
 
             // should be a dict literal
             // unless it's the first token, or the previous is a semicolon, or the previous is a closing brace - then it's a code block.
-           case '{':
-                if (i == 0
-                    || tokens->data[i - 1]->tt == ';'
-                    || tokens->data[i - 1]->tt == '}') {
-                        setupNewCodeBlock(node, closure);
-                    }
-                break;
+           case '{': break;
 
             case TT_IF:
             case TT_WHILE:
             case TT_FOR:
                 // lies. these can have many children, but take the position of a unary operator
                 // we pretend they are unary, but add more children later anyway.
+                break;
 
             case TT_DO:
             case TT_ELSE:
@@ -467,7 +478,6 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i, Closure* closur
                     break;
 
                 case '{':
-                    setupNewCodeBlock(node, closure);
                     break;
 
                 default:
@@ -608,8 +618,16 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
 
             } break;
 
+            case '{': {
+                // we have a new namespace/closure, make it before doing anything else.
+                const auto parent = closure;
+                closure = (Closure*) pMalloc(sizeof (Closure));
+                closure->name = ""; // @TODO
+                closure->parent = parent;
+                closure->table = new Table<const char, Value>();
+            }
             default: {
-                const auto node = resolveOperatorNode(tokens, i, closure);
+                const auto node = resolveOperatorNode(tokens, i);
 
                 // resolve precedence and associativity by re-arranging the stacks before pushing.
                 while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os);
@@ -645,10 +663,14 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
         die("empty program\n");
     }
 
-    print(es->length);
-    print(os->length);
+    const auto program = es->pop();
 
-    return es->pop();
+    if (!es->isEmpty()) {
+        print("danglers:\n");
+        es->forEach([] (ASTNode* node) { print(node); } );
+    }
+
+    return program;
 }
 
 ASTNode* Parser :: parse(Array<Token>* tokens) {
