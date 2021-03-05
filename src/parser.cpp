@@ -313,7 +313,7 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Closur
             node->children = new Array<ASTNode>();
 
             u32 count = es->length;
-            for (s32 i = 0; i < count; i++) {
+            for (u32 i = 0; i < count; i++) {
                 const auto top = es->peek();
 
                 if (top->token->closure != closure) {
