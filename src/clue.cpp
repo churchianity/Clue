@@ -27,7 +27,7 @@
 #include <stdlib.h> // exit
 #include <signal.h> // for signal() - needed on my chromebook for some reason?
 #include <execinfo.h> // backtrace, backtrace_symbols
-#include <limits.h> // CHAR_BIT // need to investigate this more for robustness
+#include <limits.h> // CHAR_BIT // investigate?
 
 #include "clue.h"
 #include "file.h"
@@ -37,14 +37,6 @@
 #include "types.h"
 
 
-static void assert(bool condition, const char* message = "assertion failed") {
-    if (!condition) {
-        print(message);
-        trace();
-        exit(1);
-    }
-}
-
 static void handler(s32 signal) {
     print("%serror%s: %d\n", ANSI_RED, ANSI_RESET, signal);
     trace();
@@ -53,25 +45,27 @@ static void handler(s32 signal) {
 
 static inline void help(const char* arg) {
     if (!arg) { // generic help
-        print("\n");
-        print("Usage: clue <options*> main.clue\n");
-        print("  you usually will run clue with just a single file argument, which is the file containing the 'main' function for your program\n");
-        print("  files don't need to be named anything in particular, aside from having the .clue suffix\n");
-        print("  imports are pulled in and compiled automatically - there's no need to provide them in the argument list\n");
-        print("  if you do provide multiple files, they will be treated as separate programs, and multiple executables will be produced\n");
-        print("\n");
-        print("Options:\n");
-        print("  -h --help <option?>    - if an option listed below is provided, provide additional info on that option, otherwise show this message\n");
-        print("  -v --version           - show clue version information\n");
-        print("  -i --interactive       - after reading in provided source files (if present), enter an interactive mode\n");
-        print("  -s --sandbox           - alias for --interactive\n");
-        print("  -r --root <option?>    - specifiy a path which is the root directory of your project - this helps with finding files during imports\n");
-        print("\n");
+        print(
+            "\n"
+            "Usage: clue <options*> main.clue\n"
+            "  you usually will run clue with just a single file argument, which is the file containing the 'main' function for your program\n"
+            "  files don't need to be named anything in particular, aside from having the .clue suffix\n"
+            "  imports are pulled in and compiled automatically - there's no need to provide them in the argument list\n"
+            "  if you do provide multiple files, they will be treated as separate programs, and multiple executables will be produced\n"
+            "\n"
+            "Options:\n"
+            "  -h --help <option?>    - if an option listed below is provided, provide additional info on that option, otherwise show this message\n"
+            "  -v --version           - show clue version information\n"
+            "  -i --interactive       - after reading in provided source files (if present), enter an interactive mode\n"
+            "  -s --sandbox           - alias for --interactive\n"
+            "  -r --root <option?>    - specifiy a path which is the root directory of your project - this helps with finding files during imports\n"
+            "\n"
+        );
         return;
     }
 
     // specific help
-    print("'%s' isn't a valid argument and i should probably help you figure that out but i can't yet.\n", arg);
+    print("'%s' isn't a valid argument and I should probably help you figure that out but I can't yet.\n", arg);
 }
 
 static inline void handleCommandLineArguments(s32 argc, const char* argv[]) {
@@ -130,7 +124,7 @@ s32 main(s32 argc, const char* argv[]) {
     signal(SIGSEGV, handler);
     signal(SIGABRT, handler);
 
-    assert(CHAR_BIT == 8);
+    if (CHAR_BIT != 8) die("CHAR BIT is %d, not 8\n", CHAR_BIT);
 
     handleCommandLineArguments(argc, argv);
 
