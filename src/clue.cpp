@@ -25,7 +25,7 @@
 #endif
 
 #include <stdlib.h> // exit
-#include <signal.h> // for signal() - needed on my chromebook for some reason?
+#include <signal.h> // for signal() and the SIG macros
 #include <execinfo.h> // backtrace, backtrace_symbols
 #include <limits.h> // CHAR_BIT // investigate?
 
@@ -38,9 +38,24 @@
 
 
 static void handler(s32 signal) {
-    print("%serror%s: %d\n", ANSI_RED, ANSI_RESET, signal);
-    trace();
-    exit(1);
+    switch (signal) {
+        case SIGSEGV:
+        case SIGABRT:
+            print("%serror%s: %d\n", ANSI_RED, ANSI_RESET, signal);
+            trace();
+            exit(1);
+
+        case SIGINT:
+            print("\nBye!\n");
+            exit(0);
+
+        case SIGTERM:
+            print("\nWe were asked to stop (SIGTERM).\n");
+            exit(1);
+
+        default:
+            break;
+    }
 }
 
 static inline void help(const char* arg) {
@@ -123,6 +138,10 @@ static inline void handleCommandLineArguments(s32 argc, const char* argv[]) {
 s32 main(s32 argc, const char* argv[]) {
     signal(SIGSEGV, handler);
     signal(SIGABRT, handler);
+    // signal(SIGFPE, handler);
+    // signal(SIGILL, handler); // does this fire on using sprintf?
+    signal(SIGINT, handler);
+    signal(SIGTERM, handler);
 
     if (CHAR_BIT != 8) die("CHAR BIT is %d, not 8\n", CHAR_BIT);
 
