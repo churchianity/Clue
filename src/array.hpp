@@ -9,6 +9,8 @@
 #include "string.h" // memcpy
 #include "types.h" // type definitions
 
+#include "print.h"
+
 
 template <class T>
 struct Array {
@@ -200,23 +202,29 @@ struct Array {
     // @TODO reduce(), reduceRight() - polymorphism and/or heavy overloading required on the return type
 
     Array<T>* reverse() {
-        for (u32 i = 0; i < this->length; i++) {
+        u32 count = this->length / 2;
+
+        for (u32 i = 0; i < count; i++) {
+            u32 offset = this->length - 1 - i;
+
             T* temp = this->data[i];
-            this->data[i] = this->data[this->length - 1 - i];
-            this->data[this->length - 1 - i] = temp;
+            this->data[i] = this->data[offset];
+            this->data[offset] = temp;
         }
 
         return this;
     }
 
+    // @TODO fix
     T* shift() {
         if (this->length == 0) {
             return null;
         }
 
-        const auto out = this->data[0];
+        T* out = this->data[0];
+        this->length -= 1;
 
-        for (u32 i = 0; i != sizeof (this) - 1; i++) {
+        for (u32 i = 0; i < this->length; i++) {
             *(this->data + i) = *(this->data + i + 1);
         }
 

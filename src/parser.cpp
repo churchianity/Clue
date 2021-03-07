@@ -150,6 +150,7 @@ static inline u8 precedence(ASTNode* node) {
         case TT_IF:
         case TT_ELSEIF:
         case TT_ELSE:
+        case TT_DO:
         case '(':
         case '[':
         case '{':
@@ -227,7 +228,7 @@ static inline u8 precedence(ASTNode* node) {
         case '.':
         case ':':
         case TT_IMPORT:
-        case TT_DO:
+
 
             return 9;
 
@@ -283,17 +284,6 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Closur
         if (elseStatement != null) {
             node->children->push(elseStatement);
         }
-    } else if (tt == TT_ELSE) {
-        const auto body = es->pop();
-
-        if (!body) {
-            // @REPORT else statement missing body
-            die("else statement missing body\n");
-        }
-
-        node->children = new Array<ASTNode>(1);
-        node->children->push(body);
-
     } else if ((node->flags & NF_CALL) == NF_CALL) {
         die("should be parsing a function call operation, but can't yet.\n");
 
@@ -322,6 +312,8 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Closur
 
                 node->children->push(es->pop());
             }
+
+            node->children->reverse();
         }
     } else if ((node->flags & NF_UNARY) == NF_UNARY) {
         ASTNode* child = es->pop();
@@ -588,6 +580,8 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     }
 
                     while (!os->isEmpty()) {
+                        if (os->peek()->token->tt == '{') break;
+
                         parseOperationIntoExpression(es, os, closure);
                     }
                 }
