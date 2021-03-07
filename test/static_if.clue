@@ -1,4 +1,3 @@
 
-#if 4 < 2 {
+#if condition {}
 
-}

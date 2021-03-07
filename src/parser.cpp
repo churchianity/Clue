@@ -92,6 +92,8 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_ELSEIF:
         case TT_ELSE:
 
+
+
         case ':':
 
             return OA_RIGHT_TO_LEFT;
@@ -133,6 +135,7 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case '~':
         case '!':
         case '@':
+        case '#':
         case '$':
         case '{':
         case '(':
@@ -145,8 +148,11 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
     }
 }
 
-static inline u8 precedence(ASTNode* node) {
+static inline s8 precedence(ASTNode* node) {
     switch ((s32) node->token->tt) {
+        case '#':
+            return -1;
+
         case TT_IF:
         case TT_ELSEIF:
         case TT_ELSE:
@@ -223,13 +229,9 @@ static inline u8 precedence(ASTNode* node) {
             }
 
         case '@':
-        case '#':
         case '$':
         case '.':
         case ':':
-        case TT_IMPORT:
-
-
             return 9;
 
         default:
