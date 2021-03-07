@@ -3,7 +3,9 @@
 #include "array.hpp"
 #include "node.h"
 #include "parser.h"
+#include "reporter.h"
 #include "print.h"
+#include "message.h"
 #include "token.h"
 
 
@@ -85,17 +87,14 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
         case TT_LOGICAL_XOR_EQUALS:
+        case ':':
 
         // idk section
         case TT_DO:
         case TT_IF:
         case TT_ELSEIF:
         case TT_ELSE:
-
-
-
-        case ':':
-
+        case TT_WHILE:
             return OA_RIGHT_TO_LEFT;
 
         case '+':
@@ -156,7 +155,10 @@ static inline s8 precedence(ASTNode* node) {
         case TT_IF:
         case TT_ELSEIF:
         case TT_ELSE:
+
         case TT_DO:
+        case TT_WHILE:
+
         case '(':
         case '[':
         case '{':
@@ -286,6 +288,31 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Closur
         if (elseStatement != null) {
             node->children->push(elseStatement);
         }
+    } else if (tt == TT_DO) {
+        ASTNode* block = null;
+        ASTNode* predicate = null;
+
+        auto top = es->peek();
+        if (!top || top->token->tt != '{' || ((top->flags & NF_STRUCT_LITERAL) == NF_STRUCT_LITERAL)) {
+            // @REPORT fatal
+            die("thing following a 'do' isn't a code block\n");
+
+        } else {
+            block = es->pop();
+        }
+
+        top = es->peek();
+        if (!top || top->token->tt != TT_WHILE) {
+
+        }
+    } else if (tt == TT_WHILE) {
+        const auto body = es->pop();
+        const auto predicate = es->pop();
+
+        // prettyPrintTree(body);
+        // prettyPrintTree(predicate);
+
+
     } else if ((node->flags & NF_CALL) == NF_CALL) {
         die("should be parsing a function call operation, but can't yet.\n");
 

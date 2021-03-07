@@ -25,6 +25,8 @@ bool tokenTypeIsStatement(TokenTypeEnum tt) {
         case TT_IF:
         case TT_ELSEIF:
         case TT_ELSE:
+
+        case TT_WHILE:
         case TT_DO:
             return true;
 
