@@ -170,8 +170,8 @@ struct Array {
         return -1;
     }
 
-    Array<T>* map(T* (*callback) (T*)) const {
-        Array array = new Array();
+    Array<T>* map(void* (*callback) (T*)) const {
+        Array<void>* array = new Array<void>();
 
         this->forEach(
             [array, callback] (T* e) {
@@ -215,7 +215,6 @@ struct Array {
         return this;
     }
 
-    // @TODO fix
     T* shift() {
         if (this->length == 0) {
             return null;
@@ -231,6 +230,7 @@ struct Array {
         return out;
     }
 
+    // @TODO test
     Array<T>* slice(u32 start = 0, u32 end = -1) {
         Array<T>* array = new Array();
 

@@ -268,13 +268,13 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Closur
         const auto body = es->pop();
         const auto predicate = es->pop();
 
-        if (!predicate) {
-            // @REPORT if statement missing predicate
-            die("if statement missing predicate\n");
-        }
         if (!body) {
             // @REPORT if statement missing body
             die("if statement missing body\n");
+        }
+        if (!predicate) {
+            // @REPORT if statement missing predicate
+            die("if statement missing predicate\n");
         }
 
         node->children = new Array<ASTNode>(2);

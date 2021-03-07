@@ -1,7 +1,7 @@
 
 if thing {
     x := 4 + 2;
-} else if otherThing + "wee" {
+} elseif otherThing + "wee" {
     z:=1;
 }
 
