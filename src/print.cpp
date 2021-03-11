@@ -67,7 +67,6 @@ void die(const char* format, ...) {
 
     va_end(args);
 
-    // print the stack
     trace();
 
     exit(1);
