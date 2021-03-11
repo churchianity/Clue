@@ -18,6 +18,12 @@ struct Array {
     u32 length;
     T** data;
 
+    // if you know exactly how many elements will live in your array, you should always specify the capacity.
+    // when adding elements with |push| or |unshift|, new space is allocated as required,
+    // at a rate of 2x (because of amortized cost), leading to wasted space if you could have initially specified
+    // the exact capacity.
+    //
+    // the internal array does not automatically shrink, ever.
     Array<T>(u32 _capacity = 10) {
         capacity = _capacity;
         length   = 0;
@@ -29,15 +35,7 @@ struct Array {
     }
 
     void operator delete(void* p) {
-        Array<T>* self = (Array<T>*) p;
-
-        /* @TODO do we want this? i dont really think so.
-        for (u32 i = 0; i < self->length; i++) {
-            pFree(self->data[i]);
-        }
-        */
-
-        pFree(self);
+        pFree(p);
     }
 
     Array<T>* concat(Array<T> other) const {
@@ -190,13 +188,13 @@ struct Array {
         return this->data[--this->length];
     }
 
-    void push(T* dataItemAddr) {
+    void push(T* e) {
         if (this->isFull()) {
             this->capacity *= 2;
             this->data = (T**) pRealloc(data, sizeof (T*) * this->capacity);
         }
 
-        this->data[this->length++] = dataItemAddr;
+        this->data[this->length++] = e;
     }
 
     // @TODO reduce(), reduceRight() - polymorphism and/or heavy overloading required on the return type
@@ -268,12 +266,24 @@ struct Array {
     // @TODO toLocaleString()
     // @TODO toSource()
     // @TODO toString()
-
-    // @TODO
-    T* unshift(Array<T>* stuff) {
-        return null;
-    }
     */
+
+    // @TODO test
+    T* unshift(T* e) {
+        if (this->isFull()) {
+            this->capacity *= 2;
+            this->data = (T**) pRealloc(data, sizeof (T*) * this->capacity);
+        }
+
+        for (u32 i = 0; i < this->length; i++) {
+            *(this->data + i + 1) = *(this->data + i);
+        }
+
+        this->data[0] = e;
+        this->length += 1;
+
+        return this->length;
+    }
 
     T* values() {
         return this->data;

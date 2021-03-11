@@ -309,9 +309,12 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Closur
         const auto body = es->pop();
         const auto predicate = es->pop();
 
-        // prettyPrintTree(body);
+        prettyPrintTree(body);
         // prettyPrintTree(predicate);
-
+        //
+        node->children = new Array<ASTNode>(2);
+        node->children->push(predicate);
+        node->children->push(body);
 
     } else if ((node->flags & NF_CALL) == NF_CALL) {
         die("should be parsing a function call operation, but can't yet.\n");
