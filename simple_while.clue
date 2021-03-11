@@ -1,5 +1,5 @@
 
 
-while i < 10 {
-    i += 1;
-}
+do {
+    x:= lmao;
+} while i < 10;

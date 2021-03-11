@@ -290,11 +290,14 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Closur
         }
     } else if (tt == TT_DO) {
         ASTNode* block = null;
-        ASTNode* predicate = null;
+        ASTNode* whileStatement = null;
 
         auto top = es->peek();
         if (!top || top->token->tt != '{' || ((top->flags & NF_STRUCT_LITERAL) == NF_STRUCT_LITERAL)) {
+            prettyPrintTree(top);
             // @REPORT fatal
+            // @NOTE we fail to parse do-while statements at the moment, and they usually crash here.
+            // (the while statement greedily grabs the code block for itself, and ends up on top of the stack).
             die("thing following a 'do' isn't a code block\n");
 
         } else {
@@ -302,20 +305,29 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Closur
         }
 
         top = es->peek();
-        if (!top || top->token->tt != TT_WHILE) {
+        if (top && top->token->tt == TT_WHILE) {
+            node->children = new Array<ASTNode>(2);
+            node->children->push(block);
+            node->children->push(whileStatement);
 
+        } else {
+            node->children = new Array<ASTNode>(1);
+            node->children->push(block);
         }
     } else if (tt == TT_WHILE) {
         const auto body = es->pop();
         const auto predicate = es->pop();
 
-        prettyPrintTree(body);
-        // prettyPrintTree(predicate);
-        //
-        node->children = new Array<ASTNode>(2);
-        node->children->push(predicate);
-        node->children->push(body);
+        if (predicate == null) {
+            // body should be the predicate, and this while statement should be part of a do-while construct.
+            node->children = new Array<ASTNode>(1);
+            node->children->push(body);
 
+        } else {
+            node->children = new Array<ASTNode>(2);
+            node->children->push(predicate);
+            node->children->push(body);
+        }
     } else if ((node->flags & NF_CALL) == NF_CALL) {
         die("should be parsing a function call operation, but can't yet.\n");
 
@@ -422,13 +434,12 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
            case '{': break;
 
             case TT_IF:
-            case TT_WHILE:
             case TT_FOR:
-                // lies. these can have many children, but take the position of a unary operator
-                // we pretend they are unary, but add more children later anyway.
+            case TT_DO:
+                // these aren't unary operators, but they can assume the position of one.
+                // if we see one here, that's fine.
                 break;
 
-            case TT_DO:
             case TT_ELSE:
             case '~':
             case '!':
@@ -436,6 +447,7 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
             case '#':
             case '$':
 
+            case TT_WHILE:
             case '+':
             case '-':
                 node->flags |= NF_UNARY;
@@ -606,8 +618,8 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     // outstanding operations that we cannot resolve.
                     //
                     // this is true because a closing brace, like a semicolon, is something that
-                    // many expressions/statements cannot cross. the exceptions are ifs and elses.
-                    if (tt == TT_ELSEIF || tt == TT_ELSE) {
+                    // many expressions/statements cannot cross.
+                    if (tt == TT_ELSEIF || tt == TT_ELSE || tt == TT_WHILE) {
                         break;
                     }
 

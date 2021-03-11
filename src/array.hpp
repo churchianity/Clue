@@ -18,12 +18,9 @@ struct Array {
     u32 length;
     T** data;
 
-    // if you know exactly how many elements will live in your array, you should always specify the capacity.
-    // when adding elements with |push| or |unshift|, new space is allocated as required,
-    // at a rate of 2x (because of amortized cost), leading to wasted space if you could have initially specified
-    // the exact capacity.
-    //
-    // the internal array does not automatically shrink, ever.
+    // if you know exactly how many elements will live in your array, you
+    // should specify the capacity. when adding elements with |push| or |unshift|,
+    // new space is allocated as required, at a rate of 2x, leading to wasted space.
     Array<T>(u32 _capacity = 10) {
         capacity = _capacity;
         length   = 0;
@@ -38,7 +35,7 @@ struct Array {
         pFree(p);
     }
 
-    Array<T>* concat(Array<T> other) const {
+    Array<T>* concat(Array<T>* other) const {
         Array* array = new Array();
 
         this->forEach(
@@ -73,10 +70,6 @@ struct Array {
 
     Array<T>* fill(T* e) {
         for (u32 i = 0; i < this->length; i++) {
-            if (this->data[i] != null) {
-                pFree(this->data[i]);
-            }
-
             this->data[i] = e;
         }
 
@@ -197,7 +190,8 @@ struct Array {
         this->data[this->length++] = e;
     }
 
-    // @TODO reduce(), reduceRight() - polymorphism and/or heavy overloading required on the return type
+    // @TODO reduce(),
+    // reduceRight() - polymorphism and/or heavy overloading required on the return type
 
     Array<T>* reverse() {
         u32 count = this->length / 2;
