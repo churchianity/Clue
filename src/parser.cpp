@@ -8,6 +8,21 @@
 #include "message.h"
 #include "token.h"
 
+static void asd(ASTNode* node) {
+    if (node->token->tt != ',') {
+
+    }
+}
+
+
+static inline void unwrapCommas(ASTNode* parent) {
+    const auto children = parent->children;
+    const auto temp = parent->children->data[1];
+
+    traverse(parent->children->data[1], [children] (ASTNode* node) {
+
+    });
+}
 
 static inline void reportSpecificUnaryOperatorMissingOperand(ASTNode* node) {
     switch ((s32) node->token->tt) {
@@ -95,6 +110,7 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_ELSEIF:
         case TT_ELSE:
         case TT_WHILE:
+        case TT_RETURN:
             return OA_RIGHT_TO_LEFT;
 
         case '+':
@@ -158,6 +174,7 @@ static inline s8 precedence(ASTNode* node) {
 
         case TT_DO:
         case TT_WHILE:
+        case TT_RETURN:
 
         case '(':
         case '[':
@@ -288,13 +305,23 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Closur
         if (elseStatement != null) {
             node->children->push(elseStatement);
         }
+    } else if (tt == TT_ELSE) {
+        const auto top = es->peek();
+
+        if (!top || top->token->tt != '{' || ((top->flags & NF_STRUCT_LITERAL) == NF_STRUCT_LITERAL)) {
+            // @REPORT fatal
+            die("else statement missing body/body isn't a code block.\n");
+        }
+
+        node->children = new Array<ASTNode>(1);
+        node->children->push(es->pop());
+
     } else if (tt == TT_DO) {
         ASTNode* block = null;
         ASTNode* whileStatement = null;
 
         auto top = es->peek();
         if (!top || top->token->tt != '{' || ((top->flags & NF_STRUCT_LITERAL) == NF_STRUCT_LITERAL)) {
-            prettyPrintTree(top);
             // @REPORT fatal
             // @NOTE we fail to parse do-while statements at the moment, and they usually crash here.
             // (the while statement greedily grabs the code block for itself, and ends up on top of the stack).
@@ -328,9 +355,23 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Closur
             node->children->push(predicate);
             node->children->push(body);
         }
-    } else if ((node->flags & NF_CALL) == NF_CALL) {
-        die("should be parsing a function call operation, but can't yet.\n");
+    } else if (tt == '(') {
+        if ((node->flags & NF_CALL) == NF_CALL) {
+            const auto args = es->pop();
+            const auto name = es->pop();
 
+            if (name != null) {
+                node->children = new Array<ASTNode>(2);
+                node->children->push(name);
+                node->children->push(args);
+
+            } else {
+                node->children = new Array<ASTNode>(1);
+                node->children->push(args); // args is the function name.
+            }
+        } else {
+            die("should be parsing a function declaration operation but can't yet.\n");
+        }
     } else if (tt == '[') {
         if ((node->flags & NF_INDEXER) == NF_INDEXER) {
             die("should be parsing an indexer expression, but can't yet.\n");
@@ -436,18 +477,21 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
             case TT_IF:
             case TT_FOR:
             case TT_DO:
-                // these aren't unary operators, but they can assume the position of one.
+            case TT_WHILE:
+            case TT_ELSE:
+            case TT_RETURN:
+                // these aren't necessarily unary operators, but they can assume the position of one.
                 // if we see one here, that's fine.
+                // even the ones that are just 'normal' unary like 'else' or 'return' don't get the unary flag,
+                // because they are handled explicitly.
                 break;
 
-            case TT_ELSE:
             case '~':
             case '!':
             case '@':
             case '#':
             case '$':
 
-            case TT_WHILE:
             case '+':
             case '-':
                 node->flags |= NF_UNARY;
@@ -555,7 +599,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
 
                 if (es->isEmpty()) {
                     // @REPORT warn empty expression ex: ()
-                    die("empty expression\n");
+                    // die("empty expression\n");
 
                 } else {
                     if (0) {
@@ -578,6 +622,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
 
                 if ((os->peek()->flags & NF_CALL) == NF_CALL) {
                     // it's a function call.
+                    // print("HIIII\n");
                     parseOperationIntoExpression(es, os, closure);
 
                 } else {
@@ -681,8 +726,8 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
     }
 
     if (es->isEmpty()) {
-        // @REPORT
-        die("empty program\n");
+        // @REPORT warn
+        // die("empty program\n");
     }
 
     for (u32 i = 0; i < es->length; i++) {

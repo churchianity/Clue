@@ -9,6 +9,7 @@
 void prettyPrintTree(ASTNode* node, const char* indent, bool last) {
     if (node == null) {
         print("null\n");
+        return;
     }
 
     print(indent);

@@ -143,6 +143,7 @@ s32 main(s32 argc, const char* argv[]) {
     signal(SIGINT, handler);
     signal(SIGTERM, handler);
 
+    // pretty sure this is stupid and doesn't matter
     if (CHAR_BIT != 8) die("CHAR BIT is %d, not 8\n", CHAR_BIT);
 
     handleCommandLineArguments(argc, argv);
