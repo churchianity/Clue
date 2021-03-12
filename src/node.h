@@ -38,7 +38,7 @@ struct ASTNode {
 };
 
 void prettyPrintTree(ASTNode* node, const char* indent = "", bool last = true);
-void traverse(ASTNode* node, void (*callback) (ASTNode*));
+void traverse(ASTNode* node, void (*callback) (ASTNode*), ...);
 void print(ASTNode* node);
 
 #endif

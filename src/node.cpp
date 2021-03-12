@@ -30,7 +30,7 @@ void prettyPrintTree(ASTNode* node, const char* indent, bool last) {
     }
 }
 
-void traverse(ASTNode* node, void (*callback) (ASTNode*)) {
+void traverse(ASTNode* node, void (*callback) (ASTNode*), ...) {
     if (!node) return;
 
     if (node->children != null) {

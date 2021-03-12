@@ -1,3 +1,8 @@
+#!/bin/bash
+
+green="\033[0;32m"
+red="\033[0;31m"
+reset="\033[0m"
 
 search_dir="."
 for entry in "$search_dir"/*.clue
@@ -6,15 +11,9 @@ do
     code=$?
 
     if [ $code -eq 0 ]; then
-        echo -ne "\e[1;32m"
-        printf "success"
-        echo -ne "\e[0m"
-        printf " | %s\n" $entry
+        echo -e "${green}success${reset} | ${entry}"
     else
-        echo -ne "\e[1;31m"
-        printf "failure"
-        echo -ne "\e[0m"
-        printf " | %s\n" $entry
+        echo -e "${red}failure${reset} | ${entry}"
     fi
 done
 

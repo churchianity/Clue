@@ -8,20 +8,51 @@
 #include "message.h"
 #include "token.h"
 
-static void asd(ASTNode* node) {
-    if (node->token->tt != ',') {
 
+// lists of things (comma-separated) get parsed like:
+// ex: 4, 3, 2, 1
+// into:
+//      ,
+//      |- 4
+//      |- ,
+//         |- 3
+//         |- ,
+//            |- 2
+//            |- 1
+//
+// but it's usually more convienent to refer to a list as a single comma node with a variable number of children, like:
+//      ,
+//      |- 4
+//      |- 3
+//      |- 2
+//      |- 1
+//
+// this function converts the former into the latter
+static void unwrapCommas(ASTNode* parent) {
+    const auto children = new Array<ASTNode>();
+    const auto stack = new Array<ASTNode>();
+    auto cursor = parent;
+
+    while (true) {
+        children->push(cursor->children->data[0]);
+
+        if (cursor != null && cursor->children->data[1] && cursor->children->data[1]->token->tt == ',') {
+            stack->push(cursor->children->data[1]);
+
+            cursor = cursor->children->data[1];
+
+        } else {
+            children->push(cursor->children->data[1]);
+            break;
+        }
     }
-}
 
+    while (!stack->isEmpty()) {
+        delete stack->pop();
+    }
 
-static inline void unwrapCommas(ASTNode* parent) {
-    const auto children = parent->children;
-    const auto temp = parent->children->data[1];
-
-    traverse(parent->children->data[1], [children] (ASTNode* node) {
-
-    });
+    delete parent->children;
+    parent->children = children;
 }
 
 static inline void reportSpecificUnaryOperatorMissingOperand(ASTNode* node) {
@@ -180,8 +211,6 @@ static inline s8 precedence(ASTNode* node) {
         case '[':
         case '{':
 
-        case ',':
-
         case '=':
         case TT_COLON_EQUALS:
         case TT_PLUS_EQUALS:
@@ -196,6 +225,9 @@ static inline s8 precedence(ASTNode* node) {
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
         case TT_LOGICAL_XOR_EQUALS:
+            return 0;
+
+        case ',':
             return 1;
 
         case TT_LOGICAL_AND:
@@ -363,6 +395,7 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Closur
             if (name != null) {
                 node->children = new Array<ASTNode>(2);
                 node->children->push(name);
+                unwrapCommas(args);
                 node->children->push(args);
 
             } else {
