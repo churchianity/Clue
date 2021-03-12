@@ -22,10 +22,10 @@ enum OperatorAssociativityEnum {
 enum ASTNodeFlagsEnum {
     NF_UNARY          = 1 << 0, //                      ie: -4 vs. 2-4
     NF_POSTFIX        = 1 << 1, //                      ie: count++ vs. ++count - actually unused
-    NF_CALL           = 1 << 2, // function call        ie: func(bar);
-    NF_INDEXER        = 1 << 3, // indexer expression   ie: arr[2];
-    NF_STRUCT_LITERAL = 1 << 4, // a struct literal     ie: { x := 4, y := 2 }
-    //
+    NF_GROUP          = 1 << 2, // group                ie: 4 + (1 - 1);
+    NF_CALL           = 1 << 3, // function call        ie: func(bar);
+    NF_INDEXER        = 1 << 4, // indexer expression   ie: arr[2];
+    NF_STRUCT_LITERAL = 1 << 5, // a struct literal     ie: { x := 4, y := 2 }
     //
     //
 };

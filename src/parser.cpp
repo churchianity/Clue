@@ -498,7 +498,9 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
                 break;
 
             // should be a 'grouping' operator.
-            case '(': break;
+            case '(':
+                node->flags |= NF_GROUP;
+                break;
 
             // should be an array literal.
             case '[': break;
@@ -531,8 +533,18 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
                 break;
         }
     } else if ((tokens->data[i]->tt == '(') && (tokens->data[i - 1]->tt == TT_SYMBOL)) {
-        node->flags |= NF_CALL;
+        if (i < (tokens->length - 1)) {
+            const auto next = tokens->data[i + 1];
 
+            // if the next token is a colon or a brace, then it's a function declaration
+            // otherwise it's an invocation
+            if (!(next->tt == ':' || next->tt == '{')) {
+                node->flags |= NF_CALL;
+            }
+        } else {
+            // @REPORT fatal, unexpected end of input - possibly/probably a missing semicolon at the end of a function call which is the last line of the program.
+            die("unexpected end of input\n");
+        }
     } else if ((tokens->data[i]->tt == '[') && (tokens->data[i - 1]->tt == TT_SYMBOL)) {
         node->flags |= NF_INDEXER;
 
