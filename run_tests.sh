@@ -19,7 +19,7 @@ if [ $? -ne 0 ]; then
 fi
 
 clue_path="./bin/clue"
-search_dir="./test/"
+search_dir="./test"
 echo -e "\n${yellow}Running tests...${reset}"
 for entry in "$search_dir"/*.clue
 do
