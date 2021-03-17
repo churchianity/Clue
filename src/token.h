@@ -53,7 +53,7 @@ enum TokenTypeEnum {
     // TT_IMPOSSIBLE_7          = 287,  // ,, // no.
     TT_RIGHT_SHIFT              = 288,  // >>
     // TT_DOUBLE_DOT            = 289,  // .. // loop range thing? concatenate if we don't want to overload '+'? see complication in numeric case of lexer.
-    // TT_DOUBLE_QMARK          = 290,  // ?? // probably not. this one is funny though.
+    // TT_DOUBLE_QMARK          = 290,  // ?? // probably not. 
     // TT_DOUBLE_FORWARD_SLASH     = 291,  // // // floor/integer division?
 
     // comparison/logical
@@ -97,9 +97,25 @@ enum TokenTypeEnum {
     TT_FOR                      = 410,  // for
     TT_ELSEIF                   = 411,  // elseif
 
-    // begin builtin type names. @TODO
-    TT_TYPE_INFO_TAG_NUMBER     = 500,  // Number
-    TT_TYPE_INFO_TAG_STRING     = 501   // String
+    TT_TYPE_BYTE 		= 500, // byte
+    TT_TYPE_SHORT               = 501, // short
+    TT_TYPE_INT                 = 502, // int
+    TT_TYPE_LONG                = 503, // long
+
+    TT_TYPE_U8                  = 504, // u8
+    TT_TYPE_U16                 = 505, // u16
+    TT_TYPE_U32                 = 506, // u32
+    TT_TYPE_U64                 = 507, // u64
+    TT_TYPE_S8                  = 508, // s8
+    TT_TYPE_S16                 = 509, // s16
+    TT_TYPE_S32                 = 510, // s32
+    TT_TYPE_S64                 = 511, // s64
+
+    TT_TYPE_FLOAT               = 512, // float
+    TT_TYPE_DOUBLE              = 513, // double
+
+    TT_TYPE_F32                 = 514, // f32
+    TT_TYPE_F64                 = 515, // f64
 
     // TT_MAKE_IT_BIG              = 0xFFFFFFFFFFFFFFFF
 };
@@ -131,6 +147,7 @@ bool tokenTypeIsStatement(TokenTypeEnum tt);
 bool tokenTypeIsOperator(TokenTypeEnum tt);
 bool tokenTypeIsAssignment(TokenTypeEnum tt);
 bool tokenTypeIsBitwise(TokenTypeEnum tt);
+bool tokenTypeIsPrimitiveType(TokenTypeEnum tt);
 s8 tokenTypeUnaryness(TokenTypeEnum tt);
 s8 tokenTypeBinaryness(TokenTypeEnum tt);
 s8 tokenTypeIsPunctuator(TokenTypeEnum tt);

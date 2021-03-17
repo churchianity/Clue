@@ -1,13 +1,12 @@
 
-
 #include "print.h"
 #include "token.h"
-
 
 
 // closing punctuators like ;, ), ] and } don't count, they never get any operands.
 // otherwise, because the primary way to identify a unary operator is that it is preceded by another operator,
 // examples like ') * 2' would fail, because it believes that '*' is unary here
+// 'operators' include 'statements' (things that have operands, but don't technically return a value).
 bool tokenTypeIsOperator(TokenTypeEnum tt) {
     return !((tt == ';')
           || (tt == ')')
@@ -21,6 +20,8 @@ bool tokenTypeIsOperator(TokenTypeEnum tt) {
 bool tokenTypeIsStatement(TokenTypeEnum tt) {
     if (!tokenTypeIsOperator(tt)) return false;
 
+    // could do tt / 100 == 4 if we move the types that are expression-returning operators,
+    // like TT_AND and TT_OR to a different series of token type.
     switch ((s32) tt) {
         case TT_IF:
         case TT_ELSEIF:
@@ -74,6 +75,11 @@ bool tokenTypeIsBitwise(TokenTypeEnum tt) {
 
         default: return false;
     }
+}
+
+bool tokenTypeIsPrimitiveType(TokenTypeEnum tt) {
+    // 500-series token types are for primitive data types.
+    return tt / 100 == 5;
 }
 
 // these are fuzzy because some operators ('+' and '-') are only sometimes (usually) binary
