@@ -1,5 +1,4 @@
 
-
 #ifndef TOKEN_H
 #define TOKEN_H
 
@@ -53,7 +52,7 @@ enum TokenTypeEnum {
     // TT_IMPOSSIBLE_7          = 287,  // ,, // no.
     TT_RIGHT_SHIFT              = 288,  // >>
     // TT_DOUBLE_DOT            = 289,  // .. // loop range thing? concatenate if we don't want to overload '+'? see complication in numeric case of lexer.
-    // TT_DOUBLE_QMARK          = 290,  // ?? // probably not. 
+    // TT_DOUBLE_QMARK          = 290,  // ?? // probably not.
     // TT_DOUBLE_FORWARD_SLASH     = 291,  // // // floor/integer division?
 
     // comparison/logical
@@ -116,6 +115,8 @@ enum TokenTypeEnum {
 
     TT_TYPE_F32                 = 514, // f32
     TT_TYPE_F64                 = 515, // f64
+
+    TT_TYPE_BOOL                = 516, // bool
 
     // TT_MAKE_IT_BIG              = 0xFFFFFFFFFFFFFFFF
 };

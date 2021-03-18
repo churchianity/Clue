@@ -1,5 +1,4 @@
 
-
 #ifndef CLOSURE_H
 #define CLOSURE_H
 

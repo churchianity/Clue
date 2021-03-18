@@ -5,9 +5,6 @@
 #include "types.h"
 
 
-// these are the allocators used internally by clue. replace them with your own, if you want.
-
-
 void* pMalloc(u32 size) {
     void* p = malloc(size);
 

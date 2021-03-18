@@ -1,5 +1,4 @@
 
-
 #include <stdio.h> // @TODO snprintf -- needs replacing
 
 #include "clue.h"

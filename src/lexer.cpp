@@ -1,5 +1,4 @@
 
-
 #include "array.hpp"
 #include "lexer.h"
 #include "table.hpp"
@@ -42,20 +41,24 @@ static Table<const char, Keyword>* initKeywordTable() {
     t->insert("short",          5, keyword(TT_TYPE_SHORT));
     t->insert("int",            3, keyword(TT_TYPE_INT));
     t->insert("long",           4, keyword(TT_TYPE_LONG));
-    
+
     t->insert("u8",             2, keyword(TT_TYPE_U8));
     t->insert("u16",            3, keyword(TT_TYPE_U16));
     t->insert("u32",            3, keyword(TT_TYPE_U32));
     t->insert("u64",            3, keyword(TT_TYPE_U64));
-    
+
     t->insert("s8",             2, keyword(TT_TYPE_S8));
     t->insert("s16",            3, keyword(TT_TYPE_S16));
     t->insert("s32",            3, keyword(TT_TYPE_S32));
     t->insert("s64",            3, keyword(TT_TYPE_S64));
+
     t->insert("float",          5, keyword(TT_TYPE_FLOAT));
     t->insert("double",         6, keyword(TT_TYPE_DOUBLE));
+
     t->insert("f32",            3, keyword(TT_TYPE_F32));
     t->insert("f64",            3, keyword(TT_TYPE_F64));
+
+    t->insert("bool",           4, keyword(TT_TYPE_BOOL));
 
     return t;
 }

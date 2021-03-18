@@ -1,5 +1,4 @@
 
-
 #include <stdio.h> // stdin
 #include <math.h> // pow, remainder, floor, strtod
                   // @TODO replace?
