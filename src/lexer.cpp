@@ -27,15 +27,24 @@ static Table<const char, Keyword>* initKeywordTable() {
     auto t = new Table<const char, Keyword>();
 
     t->insert("import",         6, keyword(TT_IMPORT));
+
     t->insert("if",             2, keyword(TT_IF));
     t->insert("else",           4, keyword(TT_ELSE));
-    t->insert("do",             2, keyword(TT_DO));
+    t->insert("elseif",         6, keyword(TT_ELSEIF));
+
     t->insert("while",          5, keyword(TT_WHILE));
-    t->insert("return",         6, keyword(TT_RETURN));
+    t->insert("for",            3, keyword(TT_FOR));
+    t->insert("continue",       8, keyword(TT_CONTINUE));
+    t->insert("break",          5, keyword(TT_BREAK));
+    t->insert("do",             2, keyword(TT_DO));
+
     t->insert("and",            3, keyword(TT_AND));
     t->insert("or",             2, keyword(TT_OR));
     t->insert("not",            3, keyword(TT_NOT));
-    t->insert("elseif",         6, keyword(TT_ELSEIF));
+
+    t->insert("return",         6, keyword(TT_RETURN));
+
+    t->insert("as",             2, keyword(TT_AS));
 
     t->insert("byte",           4, keyword(TT_TYPE_BYTE));
     t->insert("short",          5, keyword(TT_TYPE_SHORT));
@@ -85,7 +94,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
     u32 column = 1;
     u32 length = 0;
 
-    TokenTypeEnum tt = TT_ANY;
+    TokenTypeEnum tt = (TokenTypeEnum) 0;
     u8 flags = 0;
 
     char* cursor = buffer;
@@ -176,8 +185,8 @@ normal_decimal:
                             // maybe 2..3 is a typo, meaning the float 2.3, but maybe also it's meant to express the range from 2 -> 3,
                             // or a concatenation of the string-casted numbers 2 and 3.
                             // if we want to add this operator, which I think we probably do, we need to rewind the cursor one step here
-                            // this is maybe the best example of why a 'maybeBad' flag might be worthwhile, so if the parser finds out later that some expression
-                            // '2..3' makes no sense, it can guess why - a typo of '2.3'
+                            // this is maybe the best example of why a 'maybeBad' flag might be worthwhile
+                            // If the parser finds out later that some expression '2..3' makes no sense, it can guess why - a typo of '2.3'
                             cursor--;
                             break;
                         }
@@ -229,8 +238,8 @@ normal_decimal:
             // many of the tokens we lex not having yet a defined purpose or grammar.
             //
             // there are some cases where we are pretty sure we don't want to use an operator at all, but lex it anyway for better reporting
-            // the best example of this is '&&' vs 'and'. We use 'and'. But it's probably a common enough case someone forgets, since we otherwise
-            // have C-like syntax, and they type '&&'. So we have a lot more options and power of what to do in case of a typo here.
+            // the best example of this is '&&' vs 'and'. We use 'and'.
+            // It's probably a common enough case someone forgets, since we otherwise have C-like syntax.
             tt = (TokenTypeEnum) *cursor;
 
             switch (*cursor) {
@@ -243,6 +252,9 @@ normal_decimal:
                     // after the first character in a symbol is fine though.
                     // @TODO check if there's a symbol after it so the reported message is accurate
                     // .. it could just be a typo
+                    //
+                    // this could be an operator which solves the problem of just sending 'hanging'
+                    // expressions to stdout
                     die("leading underscores aren't allowed in user-defined symbols, like variable or function names.\n");
                     continue;
 
@@ -303,11 +315,13 @@ normal_decimal:
                                 column += 2;
                                 cursor += 2;
                                 break;
+
                             } else {
                                 column++;
                             }
                         } while (*cursor != '\0');
                     } else {
+                        // single-line comment
                         while (*cursor != '\0') {
                             if (*cursor == '\n') {
                                 break;
@@ -335,9 +349,6 @@ normal_decimal:
                                 case '*': tt = TT_EXPONENTIATION_EQUALS; break;
                                 case '>': tt = TT_RIGHT_SHIFT_EQUALS; break;
                                 case '<': tt = TT_LEFT_SHIFT_EQUALS; break;
-                                case '^': tt = TT_LOGICAL_XOR_EQUALS; break;
-                                case '&': tt = TT_LOGICAL_AND_EQUALS; break;
-                                case '|': tt = TT_LOGICAL_OR_EQUALS; break;
                             }
                         } else {
                             switch (*cursor) {

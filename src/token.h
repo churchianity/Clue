@@ -8,8 +8,6 @@
 
 
 enum TokenTypeEnum {
-    TT_ANY                      = -1,
-
     // 0-255 ascii chars here
 
     // anything that the lexer considers to be a symbol
@@ -76,27 +74,32 @@ enum TokenTypeEnum {
     TT_RIGHT_SHIFT_EQUALS       = 309,  // >>=
     TT_LEFT_SHIFT_EQUALS        = 310,  // <<=
     TT_EXPONENTIATION_EQUALS    = 311,  // **=
-    TT_LOGICAL_XOR_EQUALS       = 312,  // ^^= // i'm fully aware that these 3 are stupid.
-    TT_LOGICAL_AND_EQUALS       = 313,  // &&=
-    TT_LOGICAL_OR_EQUALS        = 314,  // ||=
+    // TT_LOGICAL_XOR_EQUALS       = 312,  // ^^=
+    // TT_LOGICAL_AND_EQUALS       = 313,  // &&=
+    // TT_LOGICAL_OR_EQUALS        = 314,  // ||=
 
     // begin operators that look like symbols.
     // each token should have an entry in the lexer's keywords table.
     // everything below here is a reserved word, and can't be used as a variable name.
     TT_IMPORT                   = 400,  // import
+
     TT_IF                       = 401,  // if
     TT_ELSE                     = 402,  // else
     TT_WHILE                    = 403,  // while
     TT_RETURN                   = 404,  // return
-    TT_THEN                     = 405,  // then
+
     TT_DO                       = 406,  // do
     TT_AND                      = 407,  // and
     TT_OR                       = 408,  // or
     TT_NOT                      = 409,  // not
     TT_FOR                      = 410,  // for
     TT_ELSEIF                   = 411,  // elseif
+    TT_AS                       = 412,  // as
+    TT_BREAK                    = 413, // break
+    TT_CONTINUE                 = 414, // continue
 
-    TT_TYPE_BYTE 		= 500, // byte
+    // begin builtin type names.
+    TT_TYPE_BYTE                = 500, // byte
     TT_TYPE_SHORT               = 501, // short
     TT_TYPE_INT                 = 502, // int
     TT_TYPE_LONG                = 503, // long

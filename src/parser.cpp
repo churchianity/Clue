@@ -131,7 +131,6 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_RIGHT_SHIFT_EQUALS:
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
-        case TT_LOGICAL_XOR_EQUALS:
         case ':':
 
         // idk section
@@ -223,7 +222,6 @@ static inline s8 precedence(ASTNode* node) {
         case TT_RIGHT_SHIFT_EQUALS:
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
-        case TT_LOGICAL_XOR_EQUALS:
             return 0;
 
         case ',':

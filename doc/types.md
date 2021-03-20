@@ -45,7 +45,7 @@ The values nil and false are the only two values that make a conditional express
 
 Booleans (bool) will be a byte in size, unless they are inside of a struct which has other booleans - in which case they are packed into the bits of X bytes, where X is the smallest number of bytes that can accomodate the number of boolean present. The actual amount of space available depends on struct packing.
 
-You can perform logical operations on booleans, such as `true == true` or `true and false` or `not false`, but no other operations, even though while being shuttled around, they are often equivalent to a value of type `u8`.
+You can perform logical operations on booleans, such as `true == true` or `true and false` or `not false`, but no other operations, even though while being shuttled around, they are often equivalent to a value of type `u8`. Casting a `bool` to another type is not allowed.
 
 ## Escape Characters
 
