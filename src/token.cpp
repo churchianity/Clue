@@ -17,6 +17,17 @@ bool tokenTypeIsOperator(TokenTypeEnum tt) {
           || (tt == TT_STRING));
 }
 
+bool tokenTypeIsNullary(TokenTypeEnum tt) {
+    switch ((s32) tt) {
+        case TT_BREAK:
+        case TT_CONTINUE:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
 bool tokenTypeIsStatement(TokenTypeEnum tt) {
     if (!tokenTypeIsOperator(tt)) return false;
 

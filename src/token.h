@@ -147,6 +147,7 @@ struct Token {
     u8 flags;
 };
 
+bool tokenTypeIsNullary(TokenTypeEnum tt);
 bool tokenTypeIsStatement(TokenTypeEnum tt);
 bool tokenTypeIsOperator(TokenTypeEnum tt);
 bool tokenTypeIsAssignment(TokenTypeEnum tt);
