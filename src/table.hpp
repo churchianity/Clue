@@ -99,12 +99,14 @@ struct Table {
         return null;
     }
 
-    void clear() {
+    void clear(void (*entryCleanupFunction)(TableEntry<K, V>*) = ([] (TableEntry<K, V>* e) {})) {
         for (u32 i = 0; i < lanes; i++) {
             TableEntry<K, V>* entry = entries[i];
             TableEntry<K, V>* prev;
 
             while (entry) {
+                entryCleanupFunction(entry);
+
                 prev = entry;
                 pFree(prev);
                 entry = entry->next;

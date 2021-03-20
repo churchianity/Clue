@@ -2,7 +2,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include "closure.h"
+#include "scope.h"
 #include "types.h"
 #include "print.h"
 
@@ -134,7 +134,7 @@ struct Token {
     const char* filename;
     const char* tk;
 
-    Closure* closure;
+    Scope* scope;
 
     u32 line;
     u32 column;

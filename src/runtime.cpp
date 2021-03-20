@@ -195,6 +195,10 @@ void Runtime :: doIt(char* buffer, const char* filename) {
     printProgramTree(program);
 }
 
+Table<const char, Value>* Runtime :: getGlobalSymbolTable() {
+    return global;
+}
+
 void Runtime :: interactive() {
     const u32 CLUE_SANDBOX_MODE_MAX_LINE_LENGTH = 160;
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
@@ -211,6 +215,11 @@ void Runtime :: interactive() {
         switch (s[0]) {
             case '.':
                 print("Take it easy!\n");
+                return;
+
+            case '/':
+                print("` deleting everything...\n");
+                Lexer::clear();
                 return;
 
             case '#':

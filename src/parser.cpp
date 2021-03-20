@@ -5,6 +5,7 @@
 #include "reporter.h"
 #include "print.h"
 #include "message.h"
+#include "runtime.h"
 #include "token.h"
 
 
@@ -303,11 +304,15 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
     return false;
 }
 
-void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Closure* closure) {
+void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Scope* scope) {
     const auto node = os->pop();
     const s32 tt = node->token->tt;
 
-    if (tt == TT_IF || tt == TT_ELSEIF) {
+    if (tokenTypeIsNullary(node->token->tt)) {
+        es->push(node);
+        return;
+
+    } else if (tt == TT_IF || tt == TT_ELSEIF) {
         const auto top = es->peek();
 
         ASTNode* elseStatement = null;
@@ -421,7 +426,7 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Closur
             for (u32 i = 0; i < count; i++) {
                 const auto top = es->peek();
 
-                if (top->token->closure != closure) {
+                if (top->token->scope != scope) {
                     break;
                 }
 
@@ -459,6 +464,10 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
     const auto node = (ASTNode*) pCalloc(sizeof (ASTNode));
 
     node->token = tokens->data[i];
+
+    if (tokenTypeIsNullary(node->token->tt)) {
+        return node;
+    };
 
     if (i < 1 || tokenTypeIsOperator(tokens->data[i - 1]->tt)) {
         // we think it's a unary operator, but we could be wrong. check.
@@ -610,10 +619,10 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
     const auto es = new Array<ASTNode>();
     const auto os = new Array<ASTNode>();
 
-    auto closure = (Closure*) pMalloc(sizeof (Closure));
-    closure->name = "global";
-    closure->parent = null;
-    closure->table = new Table<const char, Value>();
+    auto scope = (Scope*) pMalloc(sizeof (Scope));
+    scope->name = "global";
+    scope->parent = null;
+    scope->table = Runtime::getGlobalSymbolTable();
 
     ASTNode* programRoot = (ASTNode*) pCalloc(sizeof (ASTNode));
     programRoot->children = new Array<ASTNode>();
@@ -623,7 +632,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
         const auto token = tokens->data[i];
         s32 tt = (s32) token->tt;
 
-        token->closure = closure;
+        token->scope = scope;
 
         switch (tt) {
             case ';': {
@@ -631,12 +640,12 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 while (!os->isEmpty()) {
                     const auto top = os->peek();
 
-                    if (top->token->closure != closure) {
-                        // the operator is in a different closure than us, so we don't want to continue.
+                    if (top->token->scope != scope) {
+                        // the operator is in a different scope than us, so we don't want to continue.
                         break;
                     }
 
-                    parseOperationIntoExpression(es, os, closure);
+                    parseOperationIntoExpression(es, os, scope);
                 }
 
                 if (es->isEmpty()) {
@@ -655,7 +664,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 while (!os->isEmpty()) {
                     if (os->peek()->token->tt == '(') break;
 
-                    parseOperationIntoExpression(es, os, closure);
+                    parseOperationIntoExpression(es, os, scope);
                 }
 
                 if (os->isEmpty()) {
@@ -665,7 +674,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 if ((os->peek()->flags & NF_CALL) == NF_CALL) {
                     // it's a function call.
                     // print("HIIII\n");
-                    parseOperationIntoExpression(es, os, closure);
+                    parseOperationIntoExpression(es, os, scope);
 
                 } else {
                     // discard open parens if it's just used to group
@@ -678,7 +687,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 while (!os->isEmpty()) {
                     if (os->peek()->token->tt == '[') break;
 
-                    parseOperationIntoExpression(es, os, closure);
+                    parseOperationIntoExpression(es, os, scope);
                 }
 
                 if (os->isEmpty()) {
@@ -686,16 +695,16 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     die("missing open bracket\n");
                 }
 
-                parseOperationIntoExpression(es, os, closure);
+                parseOperationIntoExpression(es, os, scope);
 
             } break;
 
             // reduce-parse a struct literal or code block
             case '}': {
-                parseOperationIntoExpression(es, os, closure);
+                parseOperationIntoExpression(es, os, scope);
 
-                // this is the end of a closure, so set the current one to the old's parent
-                closure = closure->parent;
+                // this is the end of a scope, so set the current one to the old's parent
+                scope = scope->parent;
 
                 if (i < (tokens->length - 1)) {
                     const s32 tt = tokens->data[i + 1]->tt;
@@ -713,7 +722,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     while (!os->isEmpty()) {
                         if (os->peek()->token->tt == '{') break;
 
-                        parseOperationIntoExpression(es, os, closure);
+                        parseOperationIntoExpression(es, os, scope);
                     }
                 }
             } break;
@@ -728,18 +737,18 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
             } break;
 
             case '{': {
-                // we have a new namespace/closure, make it before doing anything else.
-                const auto parent = closure;
-                closure = (Closure*) pMalloc(sizeof (Closure));
-                // closure->name = ""; // @TODO should be assigned later.
-                closure->parent = parent;
-                closure->table = new Table<const char, Value>();
+                // we have a new namespace/scope, make it before doing anything else.
+                const auto parent = scope;
+                scope = (Scope*) pMalloc(sizeof (Scope));
+                // scope->name = ""; // @TODO should be assigned later.
+                scope->parent = parent;
+                scope->table = new Table<const char, Value>();
             }
             default: {
                 const auto node = resolveOperatorNode(tokens, i);
 
                 // resolve precedence and associativity by re-arranging the stacks before pushing.
-                while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os, closure);
+                while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os, scope);
 
                 os->push(node);
             } break;
@@ -764,7 +773,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
             die("missing close brace");
         }
 
-        parseOperationIntoExpression(es, os, closure);
+        parseOperationIntoExpression(es, os, scope);
     }
 
     if (es->isEmpty()) {

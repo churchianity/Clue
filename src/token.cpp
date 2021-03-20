@@ -31,6 +31,8 @@ bool tokenTypeIsNullary(TokenTypeEnum tt) {
 bool tokenTypeIsStatement(TokenTypeEnum tt) {
     if (!tokenTypeIsOperator(tt)) return false;
 
+    // @TODO nullary?
+
     // could do tt / 100 == 4 if we move the types that are expression-returning operators,
     // like TT_AND and TT_OR to a different series of token type.
     switch ((s32) tt) {
@@ -62,9 +64,6 @@ bool tokenTypeIsAssignment(TokenTypeEnum tt) {
         case TT_BITWISE_AND_EQUALS:
         case TT_BITWISE_OR_EQUALS:
         case TT_BITWISE_XOR_EQUALS:
-
-        case TT_INCREMENT: // @NOTE, weird, but technically true, one more reason to remove them
-        case TT_DECREMENT:
             return true;
 
         default: return false;
@@ -103,8 +102,6 @@ s8 tokenTypeUnaryness(TokenTypeEnum tt) {
         case '@':
         case '#':
         case '$':
-        case TT_INCREMENT:
-        case TT_DECREMENT:
             return 1;
 
         default: return 0;

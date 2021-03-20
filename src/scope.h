@@ -1,15 +1,15 @@
 
-#ifndef CLOSURE_H
-#define CLOSURE_H
+#ifndef SCOPE_H
+#define SCOPE_H
 
 #include "table.hpp"
 #include "value.h"
 
 
-struct Closure {
+struct Scope {
     const char* name;
     Table<const char, Value>* table;
-    Closure* parent;
+    Scope* parent;
 };
 
 #endif

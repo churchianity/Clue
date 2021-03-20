@@ -33,7 +33,7 @@ struct ASTNode {
     Token* token;
     Array<ASTNode>* children;
     u8 flags;
-    // 16 wasted bytes :(
+    // wasted bytes :(
 };
 
 void prettyPrintTree(ASTNode* node, const char* indent = "", bool last = true);

@@ -11,7 +11,7 @@
 namespace Lexer {
     extern Array<Token>* tokens;
     extern Table<const char, void>* files;
-    extern void reset();
+    extern void clear();
     extern void print();
 
     extern Array<Token>* tokenize(char* buffer, const char* filename, u32 _line = 1);

@@ -40,3 +40,7 @@ void pFree(void* ptr) {
     free(ptr);
 }
 
+void pFreeConst(const void* ptr) {
+    free((void*) ptr);
+}
+
