@@ -17,7 +17,7 @@ CC=gcc
 #  				eventually, this option should be disabled.
 #  				read: https://anadoxin.org/blog/control-over-symbol-exports-in-gcc.html/
 
-COMPILER_FLAGS=-ansi -pedantic -Wall -g -std=c++11 -lstdc++ -lm -rdynamic -fshort-enums 
+COMPILER_FLAGS=-ansi -pedantic -Wall -g -std=c++11 -lstdc++ -lm -rdynamic -fshort-enums
 
 # not using llvm at the moment.
 #LLVM=`llvm-config --cxxflags --ldflags --system-libs --libs core`

@@ -25,27 +25,43 @@
 |              |                         |                  |
 | extended     | x87 extended 80 bit     | extended         |
 |              |                         |                  |
-| bool         | boolean; true or false**| _Bool/bool       |
+| bool         | boolean; true or false  | _Bool/bool       |
 |              |                         |                  |
-| char         |                         | char8_t**         |
+| char         |                         | char8_t          |
 
-* booleans will be a byte in size, unless they are inside of a struct which has other booleans - in which case they are packed into the bits of X bytes, where X is the smallest number of bytes that can accomodate the number of boolean present. The actual amount of space available depends on struct packing.
 
 # Special values
 
-| symbol       | description                         |
-| :----------: | :---------------------------------: |
-| nil          | a pointer which contains all zeroes |
-| false        | a pointer which contains all zeroes |
-| true         | 1                                   |
+| symbol       | description                                                                                    |
+| :----------: | :--------------------------------------------------------------------------------------------: |
+| nil          | the address that contains all zeroes. can be assigned to any pointer variable without casting  |
+|              |                                                                                                |
+| false        | boolean false                                                                                  |
+| true         | boolean true                                                                                   |
 
-All variables if not explicitly initialized are set to nil.
+## Booleans
 
 The values nil and false are the only two values that make a conditional expression false. All other values are true.
-Some boolean expression operators return true or false, and some return the other values which may resolve to true or false.
 
-`x == y` returns `true` if `x` is equal to `y`, and `false` otherwise. But, `x and y` returns `false` if `x` is `false` or `nil`, and returns `y` otherwise (which may be any value, including nil and false)
+Booleans (bool) will be a byte in size, unless they are inside of a struct which has other booleans - in which case they are packed into the bits of X bytes, where X is the smallest number of bytes that can accomodate the number of boolean present. The actual amount of space available depends on struct packing.
 
+You can perform logical operations on booleans, such as `true == true` or `true and false` or `not false`, but no other operations, even though while being shuttled around, they are often equivalent to a value of type `u8`.
+
+## Escape Characters
+
+In any string, these sequences of characters have special meaning. There is heavy overlap between how this works and how it works in C, and many, many other languages.
+
+| symbol       | description    |
+| :----------: | :------------: |
+| \r           |                |
+| \n           |                |
+| \t           |                |
+|              |                |
+
+
+
+
+## @TODO
 
 others:
 how to handle characters greater than 8 bits is a big unknown at the moment.
