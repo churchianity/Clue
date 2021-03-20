@@ -64,18 +64,6 @@ static Table<const char, Keyword>* initKeywordTable() {
     return t;
 }
 
-void Lexer :: clear() {
-    Lexer::files->clear([] (TableEntry<const char, void>* entry) {
-
-    });
-
-    for (u32 i = 0; i < Lexer :: tokens->length; i++) {
-        auto token = Lexer :: tokens->data[i];
-
-        pFreeConst(token->tk);
-    }
-}
-
 void Lexer :: print() {
     for (u32 i = 0; i < Lexer :: tokens->length; i++) {
         print(Lexer :: tokens->data[i]);

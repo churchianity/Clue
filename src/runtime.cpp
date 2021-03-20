@@ -199,6 +199,12 @@ Table<const char, Value>* Runtime :: getGlobalSymbolTable() {
     return global;
 }
 
+static void deleteEverything() {
+    Lexer::files->clear([] (TableEntry<const char, void>* entry) {
+        pFreeConst(entry->key);
+    });
+}
+
 void Runtime :: interactive() {
     const u32 CLUE_SANDBOX_MODE_MAX_LINE_LENGTH = 160;
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
@@ -219,8 +225,8 @@ void Runtime :: interactive() {
 
             case '/':
                 print("` deleting everything...\n");
-                Lexer::clear();
-                return;
+                deleteEverything();
+                continue;
 
             case '#':
                 print("` printing the state of the lexer...\n");
