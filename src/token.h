@@ -69,14 +69,10 @@ enum TokenTypeEnum {
     TT_BITWISE_AND_EQUALS       = 305,  // &=
     TT_BITWISE_OR_EQUALS        = 306,  // |=
     TT_BITWISE_XOR_EQUALS       = 307,  // ^=
-    // TT_BITWISE_NOT_EQUALS       = 308,  // ~= // doesn't make any sense
 
-    TT_RIGHT_SHIFT_EQUALS       = 309,  // >>=
-    TT_LEFT_SHIFT_EQUALS        = 310,  // <<=
-    TT_EXPONENTIATION_EQUALS    = 311,  // **=
-    // TT_LOGICAL_XOR_EQUALS       = 312,  // ^^=
-    // TT_LOGICAL_AND_EQUALS       = 313,  // &&=
-    // TT_LOGICAL_OR_EQUALS        = 314,  // ||=
+    TT_RIGHT_SHIFT_EQUALS       = 308,  // >>=
+    TT_LEFT_SHIFT_EQUALS        = 309,  // <<=
+    TT_EXPONENTIATION_EQUALS    = 310,  // **=
 
     // begin operators that look like symbols.
     // each token should have an entry in the lexer's keywords table.
@@ -97,6 +93,7 @@ enum TokenTypeEnum {
     TT_AS                       = 412,  // as
     TT_BREAK                    = 413, // break
     TT_CONTINUE                 = 414, // continue
+    TT_NIL                      = 415, // nil
 
     // begin builtin type names.
     TT_TYPE_BYTE                = 500, // byte
@@ -120,6 +117,7 @@ enum TokenTypeEnum {
     TT_TYPE_F64                 = 515, // f64
 
     TT_TYPE_BOOL                = 516, // bool
+    TT_TYPE_VOID                = 517, // void
 
     // TT_MAKE_IT_BIG              = 0xFFFFFFFFFFFFFFFF
 };

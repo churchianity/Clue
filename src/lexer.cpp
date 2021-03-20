@@ -27,47 +27,39 @@ static Table<const char, Keyword>* initKeywordTable() {
     auto t = new Table<const char, Keyword>();
 
     t->insert("import",         6, keyword(TT_IMPORT));
-
     t->insert("if",             2, keyword(TT_IF));
     t->insert("else",           4, keyword(TT_ELSE));
     t->insert("elseif",         6, keyword(TT_ELSEIF));
-
     t->insert("while",          5, keyword(TT_WHILE));
     t->insert("for",            3, keyword(TT_FOR));
     t->insert("continue",       8, keyword(TT_CONTINUE));
     t->insert("break",          5, keyword(TT_BREAK));
     t->insert("do",             2, keyword(TT_DO));
-
     t->insert("and",            3, keyword(TT_AND));
     t->insert("or",             2, keyword(TT_OR));
     t->insert("not",            3, keyword(TT_NOT));
-
     t->insert("return",         6, keyword(TT_RETURN));
-
     t->insert("as",             2, keyword(TT_AS));
+    t->insert("nil",            3, keyword(TT_NIL));
 
     t->insert("byte",           4, keyword(TT_TYPE_BYTE));
     t->insert("short",          5, keyword(TT_TYPE_SHORT));
     t->insert("int",            3, keyword(TT_TYPE_INT));
     t->insert("long",           4, keyword(TT_TYPE_LONG));
-
     t->insert("u8",             2, keyword(TT_TYPE_U8));
     t->insert("u16",            3, keyword(TT_TYPE_U16));
     t->insert("u32",            3, keyword(TT_TYPE_U32));
     t->insert("u64",            3, keyword(TT_TYPE_U64));
-
     t->insert("s8",             2, keyword(TT_TYPE_S8));
     t->insert("s16",            3, keyword(TT_TYPE_S16));
     t->insert("s32",            3, keyword(TT_TYPE_S32));
     t->insert("s64",            3, keyword(TT_TYPE_S64));
-
     t->insert("float",          5, keyword(TT_TYPE_FLOAT));
     t->insert("double",         6, keyword(TT_TYPE_DOUBLE));
-
     t->insert("f32",            3, keyword(TT_TYPE_F32));
     t->insert("f64",            3, keyword(TT_TYPE_F64));
-
     t->insert("bool",           4, keyword(TT_TYPE_BOOL));
+    t->insert("void",           4, keyword(TT_TYPE_VOID));
 
     return t;
 }
