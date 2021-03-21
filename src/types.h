@@ -2,6 +2,9 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+// these are the internal, c/c++ types used by this implementation of the compiler/interpreter/thing
+// , not the complete list of types used by the language itself
+
 #define null 0
 
 // bool is included by default for C++11

@@ -1,4 +1,5 @@
 
+
 # Types/Primitives
 
 | symbol       | description or standard | C/C++ equivalent |
@@ -39,6 +40,18 @@
 | false        | boolean false                                                                                  |
 | true         | boolean true                                                                                   |
 
+
+# Type modifiers
+
+
+## Pointers
+
+If you prepend the '@' operator to any type name, this denotes a pointer type. The type is an address, the value at which is expected to be of the type following the '@'.
+This can be done to any type, including another pointer type - so '@@int' is a valid type (the address of a variable which holds a value which is the address of an int).
+
+Pointer types can have arithmetic done on them. This is called 'pointer math' or 'pointer arithmetic'. @TODO It works more or less the same as it does in C.
+
+
 ## Booleans
 
 The values nil and false are the only two values that make a conditional expression false. All other values are true.
@@ -47,7 +60,8 @@ Booleans (bool) will be a byte in size, unless they are inside of a struct which
 
 You can perform logical operations on booleans, such as `true == true` or `true and false` or `not false`, but no other operations, even though while being shuttled around, they are often equivalent to a value of type `u8`. Casting a `bool` to another type is not allowed.
 
-## Escape Characters
+
+## Escape Characters, Special Characters, and Strings
 
 In any string, these sequences of characters have special meaning. There is heavy overlap between how this works and how it works in C, and many, many other languages.
 
@@ -58,7 +72,7 @@ In any string, these sequences of characters have special meaning. There is heav
 | \t           |                |
 |              |                |
 
-
+In Clue, all String constants are format strings. The '%' operator is overloaded to do String formatting.
 
 
 ## @TODO

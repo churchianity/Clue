@@ -370,7 +370,6 @@ char* Str :: concat(u32 argc, ...) {
  * Appends the null character, so the returned string is |length| + 1 in size.
  *
  * @TODO this is a bad, clobbery name
- * @TODO format string
  */
 char* Str :: read(const char* buffer, u32 length) {
     char* tk = (char*) pMalloc(sizeof (char) * length + 1);
