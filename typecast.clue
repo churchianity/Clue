@@ -1,0 +1,2 @@
+
+int as bool = false;

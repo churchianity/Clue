@@ -1,9 +1,7 @@
 
-
 #include "node.h"
 #include "string.h"
 #include "print.h"
-
 
 // stolen from https://stackoverflow.com/questions/1649027/how-do-i-print-out-a-tree-structure
 void prettyPrintTree(ASTNode* node, const char* indent, bool last) {

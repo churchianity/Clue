@@ -5,9 +5,6 @@
 #include "string.h"
 #include "types.h"
 
-#include "print.h"
-
-
 bool Str_isDigit(char c) {
     return (c >= '0') && (c <= '9');
 }
@@ -368,8 +365,6 @@ char* Str_concat(u32 argc, ...) {
 /**
  * Reads |length| characters from |buffer| into a newly allocated buffer and returns it.
  * Appends the null character, so the returned string is |length| + 1 in size.
- *
- * @TODO this is a bad, clobbery name
  */
 char* Str_read(const char* buffer, u32 length) {
     char* tk = (char*) pMalloc(sizeof (char) * length + 1);

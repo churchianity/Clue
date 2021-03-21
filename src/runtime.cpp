@@ -10,7 +10,6 @@
 #include "runtime.h"
 #include "value.h"
 
-
 static Table<const char, Value>* global = new Table<const char, Value>();
 static ASTNode* program = null;
 
@@ -207,7 +206,7 @@ static void deleteEverything() {
 }
 
 void Runtime_interactive() {
-    const u32 CLUE_SANDBOX_MODE_MAX_LINE_LENGTH = 160;
+    #define CLUE_SANDBOX_MODE_MAX_LINE_LENGTH 160
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
 
     u32 line = 1;
@@ -246,5 +245,7 @@ void Runtime_interactive() {
         line++;
 
     } while (true);
+
+    #undef CLUE_SANDBOX_MODE_MAX_LINE_LENGTH
 }
 

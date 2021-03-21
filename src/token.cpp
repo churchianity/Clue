@@ -1,7 +1,6 @@
 
-#include "print.h"
 #include "token.h"
-
+#include "print.h"
 
 // closing punctuators like ;, ), ] and } don't count, they never get any operands.
 // otherwise, because the primary way to identify a unary operator is that it is preceded by another operator,
@@ -43,6 +42,7 @@ bool tokenTypeIsStatement(TokenTypeEnum tt) {
 
         case TT_WHILE:
         case TT_DO:
+        case TT_FOR:
             return true;
 
         default:
@@ -95,6 +95,7 @@ s8 tokenTypeUnaryness(TokenTypeEnum tt) {
 
         case '~':
         case '!':
+        case TT_NOT:
         case '@':
         case '#':
         case '$':
@@ -127,6 +128,8 @@ s8 tokenTypeBinaryness(TokenTypeEnum tt) {
         case TT_RIGHT_SHIFT:
         case TT_LEFT_SHIFT:
 
+        case TT_AND:
+        case TT_OR:
         case TT_LOGICAL_AND:
         case TT_LOGICAL_OR:
         case TT_LOGICAL_XOR:
@@ -138,7 +141,9 @@ s8 tokenTypeBinaryness(TokenTypeEnum tt) {
         case '>':
         case TT_GREATER_THAN_OR_EQUAL:
 
+        case TT_AS:
         case ':':
+        case TT_QUESTION_MARK_COLON:
         case ',':
         case '.':
             return 1;

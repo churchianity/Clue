@@ -1,0 +1,2 @@
+
+x ?: String = "hi!\n";

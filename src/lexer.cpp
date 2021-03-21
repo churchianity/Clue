@@ -264,7 +264,6 @@ normal_decimal:
                 case ';':
                 case '.':
                 case ',':
-                case '?':
                     break;
 
                 case '\\':
@@ -372,6 +371,17 @@ normal_decimal:
                         }
 
                         length = 2;
+                    }
+
+                    break;
+
+                case '?':
+                    if (*(cursor + 1) == ':') {
+                        tt = TT_QUESTION_MARK_COLON;
+                        length = 2;
+
+                    } else {
+                        die("question mark without a colon after.\n");
                     }
 
                     break;
