@@ -19,6 +19,7 @@ bool tokenTypeIsOperator(TokenTypeEnum tt) {
 
 bool tokenTypeIsNullary(TokenTypeEnum tt) {
     switch ((s32) tt) {
+        case TT_RETURN:
         case TT_BREAK:
         case TT_CONTINUE:
             return true;
@@ -51,8 +52,8 @@ bool tokenTypeIsStatement(TokenTypeEnum tt) {
 
 bool tokenTypeIsAssignment(TokenTypeEnum tt) {
     switch ((s32) tt) {
-        case '=':
         case TT_COLON_EQUALS:
+        case '=':
         case TT_PLUS_EQUALS:
         case TT_MINUS_EQUALS:
         case TT_TIMES_EQUALS:
@@ -82,11 +83,6 @@ bool tokenTypeIsBitwise(TokenTypeEnum tt) {
 
         default: return false;
     }
-}
-
-bool tokenTypeIsPrimitiveType(TokenTypeEnum tt) {
-    // 500-series token types are for primitive data types.
-    return tt / 100 == 5;
 }
 
 // these are fuzzy because some operators ('+' and '-') are only sometimes (usually) binary

@@ -40,26 +40,6 @@ static Table<const char, Keyword>* initKeywordTable() {
     t->insert("not",            3, keyword(TT_NOT));
     t->insert("return",         6, keyword(TT_RETURN));
     t->insert("as",             2, keyword(TT_AS));
-    t->insert("nil",            3, keyword(TT_NIL));
-
-    t->insert("byte",           4, keyword(TT_TYPE_BYTE));
-    t->insert("short",          5, keyword(TT_TYPE_SHORT));
-    t->insert("int",            3, keyword(TT_TYPE_INT));
-    t->insert("long",           4, keyword(TT_TYPE_LONG));
-    t->insert("u8",             2, keyword(TT_TYPE_U8));
-    t->insert("u16",            3, keyword(TT_TYPE_U16));
-    t->insert("u32",            3, keyword(TT_TYPE_U32));
-    t->insert("u64",            3, keyword(TT_TYPE_U64));
-    t->insert("s8",             2, keyword(TT_TYPE_S8));
-    t->insert("s16",            3, keyword(TT_TYPE_S16));
-    t->insert("s32",            3, keyword(TT_TYPE_S32));
-    t->insert("s64",            3, keyword(TT_TYPE_S64));
-    t->insert("float",          5, keyword(TT_TYPE_FLOAT));
-    t->insert("double",         6, keyword(TT_TYPE_DOUBLE));
-    t->insert("f32",            3, keyword(TT_TYPE_F32));
-    t->insert("f64",            3, keyword(TT_TYPE_F64));
-    t->insert("bool",           4, keyword(TT_TYPE_BOOL));
-    t->insert("void",           4, keyword(TT_TYPE_VOID));
 
     return t;
 }
@@ -246,8 +226,8 @@ normal_decimal:
                     // .. it could just be a typo
                     //
                     // this could be an operator which solves the problem of just sending 'hanging'
-                    // expressions to stdout
-                    die("leading underscores aren't allowed in user-defined symbols, like variable or function names.\n");
+                    // expressions to stdout... maybe
+                    die("hanging underscore\n");
                     continue;
 
                 default: // invalid single-chars, probably weird whitespace/non-ascii

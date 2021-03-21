@@ -58,17 +58,14 @@ enum TokenTypeEnum {
     TT_LESS_THAN_OR_EQUAL       = 294,  // <=
 
     TT_COLON_EQUALS             = 299,  // :=
-
     TT_PLUS_EQUALS              = 300,  // +=
     TT_MINUS_EQUALS             = 301,  // -=
     TT_TIMES_EQUALS             = 302,  // *=
     TT_DIVIDE_EQUALS            = 303,  // /=
     TT_MODULO_EQUALS            = 304,  // %=
-
     TT_BITWISE_AND_EQUALS       = 305,  // &=
     TT_BITWISE_OR_EQUALS        = 306,  // |=
     TT_BITWISE_XOR_EQUALS       = 307,  // ^=
-
     TT_RIGHT_SHIFT_EQUALS       = 308,  // >>=
     TT_LEFT_SHIFT_EQUALS        = 309,  // <<=
     TT_EXPONENTIATION_EQUALS    = 310,  // **=
@@ -92,31 +89,6 @@ enum TokenTypeEnum {
     TT_AS                       = 412,  // as
     TT_BREAK                    = 413, // break
     TT_CONTINUE                 = 414, // continue
-    TT_NIL                      = 415, // nil
-
-    // begin builtin type names.
-    TT_TYPE_BYTE                = 500, // byte
-    TT_TYPE_SHORT               = 501, // short
-    TT_TYPE_INT                 = 502, // int
-    TT_TYPE_LONG                = 503, // long
-
-    TT_TYPE_U8                  = 504, // u8
-    TT_TYPE_U16                 = 505, // u16
-    TT_TYPE_U32                 = 506, // u32
-    TT_TYPE_U64                 = 507, // u64
-    TT_TYPE_S8                  = 508, // s8
-    TT_TYPE_S16                 = 509, // s16
-    TT_TYPE_S32                 = 510, // s32
-    TT_TYPE_S64                 = 511, // s64
-
-    TT_TYPE_FLOAT               = 512, // float
-    TT_TYPE_DOUBLE              = 513, // double
-
-    TT_TYPE_F32                 = 514, // f32
-    TT_TYPE_F64                 = 515, // f64
-
-    TT_TYPE_BOOL                = 516, // bool
-    TT_TYPE_VOID                = 517, // void
 
     // TT_MAKE_IT_BIG              = 0xFFFFFFFFFFFFFFFF
 };
@@ -139,7 +111,7 @@ typedef struct Token {
     u32 column;
     u32 length;
 
-    TokenTypeEnum tt;
+    TokenTypeEnum tt; // @TODO try and make this be 16 bits.
 
     u8 flags;
 } Token;
@@ -149,7 +121,6 @@ bool tokenTypeIsStatement(TokenTypeEnum tt);
 bool tokenTypeIsOperator(TokenTypeEnum tt);
 bool tokenTypeIsAssignment(TokenTypeEnum tt);
 bool tokenTypeIsBitwise(TokenTypeEnum tt);
-bool tokenTypeIsPrimitiveType(TokenTypeEnum tt);
 s8 tokenTypeUnaryness(TokenTypeEnum tt);
 s8 tokenTypeBinaryness(TokenTypeEnum tt);
 s8 tokenTypeIsPunctuator(TokenTypeEnum tt);
