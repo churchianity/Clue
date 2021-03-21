@@ -29,8 +29,8 @@ extern bool Str_isAsciiWhitespace(char c);
 // extern bool isUnicodeSpaceSeparator(wide character);
 
 // @TODO ALL OF THESE TRIMS
-extern char* Str_trimStart(const char* str, u32 count);
-extern char* Str_trimEnd(const char* str, u32 count);
+//extern char* Str_trimStart(const char* str, u32 count);
+//extern char* Str_trimEnd(const char* str, u32 count);
 extern char* Str_trim(const char* str, u32 count);
 
 extern char* Str_toLower(const char* str);

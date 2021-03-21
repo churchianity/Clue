@@ -261,13 +261,13 @@ bool Str_isUnicodeSpaceSeparator(char c) {
 /*
  * @TODO ALL OF THESE
  */
-char* Str_trimStart(const char* str, u32 count) {
-    return null;
-}
-
-char* Str_trimEnd(const char* str, u32 count) {
-    return null;
-}
+//char* Str_trimStart(const char* str, u32 count) {
+//    return null;
+//}
+//
+//char* Str_trimEnd(const char* str, u32 count) {
+//    return null;
+//}
 
 // @TODO test with weird counts
 char* Str_trim(const char* str, u32 count) {
