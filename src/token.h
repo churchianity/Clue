@@ -21,7 +21,7 @@ enum TokenTypeEnum {
     // TT_DOUBLE_TILDE          = 260,  // ~~ // bitwise not-not - makes no sense
     // TT_DOUBLE_BACKTICK       = 261,  // `` // this a multi-line comment, never gets parsed
     // TT_BOOL_CAST             = 262,  // !! // no.
-    // TT_DOUBLE_AT             = 263,  // @@ // impossible, just getting the address of the variable containing the address of something? can you even do this in C?
+    // TT_DOUBLE_AT             = 263,  // @@ // impossible
     // TT_DOUBLE_HASH           = 264,  // ## // @NOTE doesn't mean anything... probably
     // TT_DOUBLE_DOLLAR_SIGN    = 265,  // $$ // double dereference, never gets parsed, just two '$'
     // TT_DOUBLE_PERCENT        = 266,  // %% // @NOTE maybe string format operator if we don't want to overload '%'

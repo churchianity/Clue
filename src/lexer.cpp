@@ -364,13 +364,14 @@ normal_decimal:
 
                     break;
 
-                // @TODO
+
                 case '?':
                     if (*(cursor + 1) == ':') {
                         tt = TT_QUESTION_MARK_COLON;
                         length = 2;
 
                     } else {
+                        // @TODO
                         die("question mark without a colon after.\n");
                     }
 

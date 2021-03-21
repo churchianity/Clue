@@ -72,13 +72,8 @@ static inline void reportSpecificBinaryOperatorMissingOperand(ASTNode* node) {
 
 static inline OperatorAssociativityEnum associativity(ASTNode* node) {
     switch ((s32) node->token->tt) {
-        case TT_DO:
-        case TT_IF:
-        case TT_ELSEIF:
-        case TT_ELSE:
-        case TT_WHILE:
-        case TT_RETURN:
-
+        case ':':
+        case TT_QUESTION_MARK_COLON:
         case '=':
         case TT_COLON_EQUALS:
         case TT_PLUS_EQUALS:
@@ -92,6 +87,16 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_RIGHT_SHIFT_EQUALS:
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
+        case TT_EXPONENTIATION:
+        case ',':
+        case '~':
+        case '!':
+        case TT_NOT:
+        case '@':
+        case '$':
+        case '{':
+        case '(':
+        case '[':
             return OA_RIGHT_TO_LEFT;
 
         case '+':
@@ -102,47 +107,30 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case '*':
         case '/':
         case '%':
-
         case '&':
         case '|':
         case '^':
         case TT_LEFT_SHIFT:
         case TT_RIGHT_SHIFT:
-
         case '>':
         case '<':
         case TT_GREATER_THAN_OR_EQUAL:
         case TT_LESS_THAN_OR_EQUAL:
-
-
-        case TT_LOGICAL_AND:
-        case TT_LOGICAL_OR:
-        case TT_LOGICAL_XOR:
+        case TT_AND:
+        case TT_OR:
         case TT_EQUALITY:
         case TT_NOT_EQUALS:
-
         case TT_AS:
-
-        case ':':
-        case TT_QUESTION_MARK_COLON:
             return OA_LEFT_TO_RIGHT;
 
-        case TT_INCREMENT:
-        case TT_DECREMENT:
-            if ((node->flags & NF_POSTFIX) == NF_POSTFIX) {
-                return OA_LEFT_TO_RIGHT;
-            }
-        case TT_EXPONENTIATION:
-        case ',':
-        case '~':
-        case '!':
-        case '@':
         case '#':
-        case '$':
-        case '{':
-        case '(':
-        case '[':
-            return OA_RIGHT_TO_LEFT;
+        case TT_DO:
+        case TT_IF:
+        case TT_ELSEIF:
+        case TT_ELSE:
+        case TT_WHILE:
+        case TT_RETURN:
+            return OA_NONE;
 
         default:
             die("trying to get associativity of unknown operator type: %u\n", node->token->tt);
@@ -153,19 +141,21 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
 static inline s8 precedence(ASTNode* node) {
     switch ((s32) node->token->tt) {
         case '#':
-        case '(':
-            return -1;
+            return -2;
 
         case TT_IF:
         case TT_ELSEIF:
         case TT_ELSE:
-
         case TT_DO:
         case TT_WHILE:
         case TT_RETURN:
+            return -1;
 
+        case '(':
         case '[':
         case '{':
+        case ':':
+        case TT_QUESTION_MARK_COLON:
 
         case '=':
         case TT_COLON_EQUALS:
@@ -228,17 +218,11 @@ static inline s8 precedence(ASTNode* node) {
             // @TODO figure this out
             return 4;
 
-        case TT_INCREMENT:
-        case TT_DECREMENT:
-            if ((node->flags & NF_POSTFIX) == NF_POSTFIX) {
-                return 6;
-            }
-
         case '@':
         case '$':
         case '.':
-        case ':':
-        case TT_QUESTION_MARK_COLON:
+            return 8;
+
         case TT_AS:
             return 9;
 
@@ -529,7 +513,8 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
                 break;
 
             case '~':
-            case '!':
+            case '!': // @deprecate
+            case TT_NOT:
             case '@':
             case '#':
             case '$':
