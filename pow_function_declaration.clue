@@ -1,6 +1,6 @@
 
-` function which raises i to the 2nd power and returns it
-pow(i: s32): s32 {
-    return i ** 2;
+` function which raises |i| to |power| and returns it
+pow(i: s32, power: s32 = 2) {
+    return i ** power;
 }
 

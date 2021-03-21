@@ -8,52 +8,6 @@
 #include "runtime.h"
 #include "token.h"
 
-// lists of things (comma-separated) get parsed like:
-// ex: 4, 3, 2, 1
-// into:
-//      ,
-//      |- 4
-//      |- ,
-//         |- 3
-//         |- ,
-//            |- 2
-//            |- 1
-//
-// but it's usually more convienent to refer to a list as a single comma node with a variable number of children, like:
-//      ,
-//      |- 4
-//      |- 3
-//      |- 2
-//      |- 1
-//
-// this function converts the former into the latter
-static void unwrapCommas(ASTNode* parent) {
-    const auto children = new Array<ASTNode>();
-    const auto stack = new Array<ASTNode>();
-    auto cursor = parent;
-
-    while (true) {
-        children->push(cursor->children->data[0]);
-
-        if (cursor != null && cursor->children->data[1] && cursor->children->data[1]->token->tt == ',') {
-            stack->push(cursor->children->data[1]);
-
-            cursor = cursor->children->data[1];
-
-        } else {
-            children->push(cursor->children->data[1]);
-            break;
-        }
-    }
-
-    while (!stack->isEmpty()) {
-        delete stack->pop();
-    }
-
-    delete parent->children;
-    parent->children = children;
-}
-
 static inline void reportSpecificUnaryOperatorMissingOperand(ASTNode* node) {
     switch ((s32) node->token->tt) {
         case '~':
@@ -118,6 +72,13 @@ static inline void reportSpecificBinaryOperatorMissingOperand(ASTNode* node) {
 
 static inline OperatorAssociativityEnum associativity(ASTNode* node) {
     switch ((s32) node->token->tt) {
+        case TT_DO:
+        case TT_IF:
+        case TT_ELSEIF:
+        case TT_ELSE:
+        case TT_WHILE:
+        case TT_RETURN:
+
         case '=':
         case TT_COLON_EQUALS:
         case TT_PLUS_EQUALS:
@@ -131,16 +92,6 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_RIGHT_SHIFT_EQUALS:
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
-        case ':':
-        case TT_QUESTION_MARK_COLON:
-
-        // idk section
-        case TT_DO:
-        case TT_IF:
-        case TT_ELSEIF:
-        case TT_ELSE:
-        case TT_WHILE:
-        case TT_RETURN:
             return OA_RIGHT_TO_LEFT;
 
         case '+':
@@ -163,6 +114,7 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_GREATER_THAN_OR_EQUAL:
         case TT_LESS_THAN_OR_EQUAL:
 
+
         case TT_LOGICAL_AND:
         case TT_LOGICAL_OR:
         case TT_LOGICAL_XOR:
@@ -170,6 +122,9 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_NOT_EQUALS:
 
         case TT_AS:
+
+        case ':':
+        case TT_QUESTION_MARK_COLON:
             return OA_LEFT_TO_RIGHT;
 
         case TT_INCREMENT:
@@ -198,6 +153,7 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
 static inline s8 precedence(ASTNode* node) {
     switch ((s32) node->token->tt) {
         case '#':
+        case '(':
             return -1;
 
         case TT_IF:
@@ -208,7 +164,6 @@ static inline s8 precedence(ASTNode* node) {
         case TT_WHILE:
         case TT_RETURN:
 
-        case '(':
         case '[':
         case '{':
 
@@ -308,6 +263,53 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
     return false;
 }
 
+// lists of things (comma-separated) get parsed like:
+// ex: 4, 3, 2, 1
+// into:
+//      ,
+//      |- 4
+//      |- ,
+//         |- 3
+//         |- ,
+//            |- 2
+//            |- 1
+//
+// but it's usually more convienent to refer to a list as a single comma node with a variable number of children, like:
+//      ,
+//      |- 4
+//      |- 3
+//      |- 2
+//      |- 1
+//
+// this function converts the former into the latter
+static void unwrapCommas(ASTNode* parent) {
+    const auto children = new Array<ASTNode>();
+    const auto stack = new Array<ASTNode>();
+    auto cursor = parent;
+
+    while (true) {
+        children->push(cursor->children->data[0]);
+
+        if (cursor != null && cursor->children->data[1] && cursor->children->data[1]->token->tt == ',') {
+            stack->push(cursor->children->data[1]);
+
+            cursor = cursor->children->data[1];
+
+        } else {
+            children->push(cursor->children->data[1]);
+            break;
+        }
+    }
+
+    while (!stack->isEmpty()) {
+        delete stack->pop();
+    }
+
+    delete parent->children;
+    parent->children = children;
+}
+
+
 void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Scope* scope) {
     const auto node = os->pop();
     const s32 tt = node->token->tt;
@@ -394,23 +396,18 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Scope*
             node->children->push(body);
         }
     } else if (tt == '(') {
-        if ((node->flags & NF_CALL) == NF_CALL) {
-            const auto args = es->pop();
-            const auto name = es->pop();
+        // 'grouping' operators should never appear here. So this is eitherL
+        // 1. a named function call
+        // 2. a named function declaration
+        const auto block = es->pop();
+        const auto args = es->pop();
+        const auto name = es->pop();
 
-            if (name != null) {
-                node->children = new Array<ASTNode>(2);
-                node->children->push(name);
-                unwrapCommas(args);
-                node->children->push(args);
+        node->children = new Array<ASTNode>(3);
+        node->children->push(name);
+        node->children->push(args);
+        node->children->push(block);
 
-            } else {
-                node->children = new Array<ASTNode>(1);
-                node->children->push(args); // args is the function name.
-            }
-        } else {
-            die("should be parsing a function declaration operation but can't yet.\n");
-        }
     } else if (tt == '[') {
         if ((node->flags & NF_INDEXER) == NF_INDEXER) {
             die("should be parsing an indexer expression, but can't yet.\n");
@@ -677,8 +674,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
 
                 if ((os->peek()->flags & NF_CALL) == NF_CALL) {
                     // it's a function call.
-                    // print("HIIII\n");
-                    parseOperationIntoExpression(es, os, scope);
+                    // parseOperationIntoExpression(es, os, scope);
 
                 } else {
                     // discard open parens if it's just used to group
@@ -762,9 +758,10 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
     }
 
     while (!os->isEmpty()) {
-        s32 tt = (s32) os->peek()->token->tt;
+        const auto node = os->peek();
+        s32 tt = (s32) node->token->tt;
 
-        if (tt == '(') {
+        if (tt == '(' && ((node->flags & NF_CALL) == 0)) {
             // @REPORT
             die("missing close paren");
 

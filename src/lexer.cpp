@@ -74,7 +74,7 @@ Array<Token>* Lexer_tokenize(char* buffer, const char* filename, u32 _line) {
         length = 1;
         flags = 0;
 
-        if (Str_isAlpha(*cursor)) {
+        if (Str_isAlpha(*cursor) || *cursor == '_') {
             tt = TT_SYMBOL;
 
             do {
@@ -217,17 +217,6 @@ normal_decimal:
             switch (*cursor) {
                 case '\r':
                     // @TODO depending on compiler flag, report.
-                    continue;
-
-                case '_':
-                    // leading underscores aren't supported by the language
-                    // after the first character in a symbol is fine though.
-                    // @TODO check if there's a symbol after it so the reported message is accurate
-                    // .. it could just be a typo
-                    //
-                    // this could be an operator which solves the problem of just sending 'hanging'
-                    // expressions to stdout... maybe
-                    die("hanging underscore\n");
                     continue;
 
                 default: // invalid single-chars, probably weird whitespace/non-ascii
@@ -375,6 +364,7 @@ normal_decimal:
 
                     break;
 
+                // @TODO
                 case '?':
                     if (*(cursor + 1) == ':') {
                         tt = TT_QUESTION_MARK_COLON;
