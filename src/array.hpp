@@ -5,11 +5,8 @@
 #include <new> // operator new, operator delete
 
 #include "alloc.h" // allocators...
-#include "string.h" // memcpy
+#include "string.h" // Str_memcpy
 #include "types.h" // type definitions
-
-#include "print.h"
-
 
 template <class T>
 struct Array {

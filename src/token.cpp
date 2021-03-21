@@ -130,7 +130,6 @@ s8 tokenTypeBinaryness(TokenTypeEnum tt) {
         case TT_LOGICAL_AND:
         case TT_LOGICAL_OR:
         case TT_LOGICAL_XOR:
-
         case TT_EQUALITY:
         case TT_NOT_EQUALS:
 
@@ -173,7 +172,7 @@ const char* tokenTypeToString(TokenTypeEnum tt) {
 }
 
 void print(Token* token) {
-    print("&Token %p | r: %3d, q: %3d, l: %2d, tt: %3d | flags: %d | %s | tk: %s\n",
+    print("&Token %p | line: %3d, col: %3d, len: %2d, tt: %3d | flags: %d | %s | tk: %s\n",
           (void*) token, token->line, token->column, token->length, token->tt, token->flags, token->filename, token->tk);
 }
 

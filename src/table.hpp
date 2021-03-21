@@ -8,7 +8,6 @@
 #include "string.h"
 #include "types.h"
 
-
 template <class K, class V>
 struct TableEntry {
     TableEntry<K, V>* next;
