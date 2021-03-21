@@ -11,8 +11,8 @@
 #include "value.h"
 
 
-Table<const char, Value>* global = new Table<const char, Value>();
-ASTNode* program = null;
+static Table<const char, Value>* global = new Table<const char, Value>();
+static ASTNode* program = null;
 
 /*
 static inline s32 fToInt(double f) {
@@ -154,7 +154,7 @@ static inline Value evalOperator(ASTNode* node) {
 }
 */
 
-Value Runtime :: eval(ASTNode* node) {
+Value Runtime_eval(ASTNode* node) {
     Value v;
     v.type = VT_STRING;
     v.string = "";
@@ -183,29 +183,30 @@ Value Runtime :: eval(ASTNode* node) {
     return v;
 }
 
-void Runtime :: printProgramTree(ASTNode* program) {
+void Runtime_printProgramTree(ASTNode* program) {
     for (u32 i = 0; i < program->children->length; i++) {
         prettyPrintTree(program->children->data[i]);
     }
 }
 
-void Runtime :: doIt(char* buffer, const char* filename) {
-    Array<Token>* tokens = Lexer :: tokenize(buffer, filename);
-    program = Parser :: parse(tokens);
-    printProgramTree(program);
+void Runtime_doIt(char* buffer, const char* filename) {
+    Array<Token>* tokens = Lexer_tokenize(buffer, filename);
+    program = Parser_parse(tokens);
+    Runtime_printProgramTree(program);
 }
 
-Table<const char, Value>* Runtime :: getGlobalSymbolTable() {
+Table<const char, Value>* Runtime_getGlobalSymbolTable() {
     return global;
 }
 
+// @TODO
 static void deleteEverything() {
-    Lexer::files->clear([] (TableEntry<const char, void>* entry) {
+    Lexer_files->clear([] (TableEntry<const char, void>* entry) {
         pFreeConst(entry->key);
     });
 }
 
-void Runtime :: interactive() {
+void Runtime_interactive() {
     const u32 CLUE_SANDBOX_MODE_MAX_LINE_LENGTH = 160;
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
 
@@ -230,17 +231,17 @@ void Runtime :: interactive() {
 
             case '#':
                 print("` printing the state of the lexer...\n");
-                Lexer::print();
+                Lexer_print();
                 continue;
 
             case '?':
                 print("` printing program tree...\n");
-                printProgramTree(program);
+                Runtime_printProgramTree(program);
                 continue;
         }
 
-        Lexer :: tokenize(s, "stdin", line);
-        program = Parser :: parse(Lexer::tokens);
+        Lexer_tokenize(s, "stdin", line);
+        program = Parser_parse(Lexer_tokens);
 
         line++;
 

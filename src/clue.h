@@ -9,7 +9,6 @@
 
 #include "types.h"
 
-
 /**
  * Dependencies:
  *  C++14 if llvm, C++11 otherwise

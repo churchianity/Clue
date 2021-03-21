@@ -8,8 +8,8 @@
 #include "types.h"
 
 
-Array<Token>* Lexer::tokens = new Array<Token>();
-Table<const char, void>* Lexer::files = new Table<const char, void>();
+Array<Token>* Lexer_tokens = new Array<Token>();
+Table<const char, void>* Lexer_files = new Table<const char, void>();
 
 struct Keyword {
     TokenTypeEnum tt;
@@ -64,9 +64,9 @@ static Table<const char, Keyword>* initKeywordTable() {
     return t;
 }
 
-void Lexer :: print() {
-    for (u32 i = 0; i < Lexer :: tokens->length; i++) {
-        print(Lexer :: tokens->data[i]);
+void Lexer_print() {
+    for (u32 i = 0; i < Lexer_tokens->length; i++) {
+        print(Lexer_tokens->data[i]);
     }
 }
 
@@ -77,7 +77,7 @@ void Lexer :: print() {
  * The typical case of this happening is typing code in line-by-line in sandbox mode.
  * In most cases you won't provide it though, and it defaults to 1.
  */
-Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
+Array<Token>* Lexer_tokenize(char* buffer, const char* filename, u32 _line) {
     static auto keywords = initKeywordTable();
 
     Token* token = null;
@@ -94,13 +94,13 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
         length = 1;
         flags = 0;
 
-        if (Str :: isAlpha(*cursor)) {
+        if (Str_isAlpha(*cursor)) {
             tt = TT_SYMBOL;
 
             do {
                 cursor++;
 
-                if (!(Str :: isAlpha(*cursor) || Str :: isDigit(*cursor) || (*cursor == '_'))) {
+                if (!(Str_isAlpha(*cursor) || Str_isDigit(*cursor) || (*cursor == '_'))) {
                     break;
                 }
 
@@ -108,7 +108,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
 
             } while (*cursor != '\0');
 
-        } else if (Str :: isDigit(*cursor)) {
+        } else if (Str_isDigit(*cursor)) {
             tt = TT_NUMERIC;
 
             if (*cursor == '0') {
@@ -124,7 +124,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                         do {
                             cursor++;
 
-                            if (!Str :: isOctalDigit(*cursor)) break;
+                            if (!Str_isOctalDigit(*cursor)) break;
 
                             length++;
 
@@ -140,7 +140,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                         do {
                             cursor++;
 
-                            if (!Str :: isHexDigit(*cursor)) break;
+                            if (!Str_isHexDigit(*cursor)) break;
 
                             length++;
 
@@ -156,7 +156,7 @@ Array<Token>* Lexer :: tokenize(char* buffer, const char* filename, u32 _line) {
                         do {
                             cursor++;
 
-                            if (!Str :: isBinaryDigit(*cursor)) break;
+                            if (!Str_isBinaryDigit(*cursor)) break;
 
                             length++;
 
@@ -185,7 +185,7 @@ normal_decimal:
 
                         hasRadixPoint = true;
 
-                    } else if (!Str :: isDigit(*cursor)) {
+                    } else if (!Str_isDigit(*cursor)) {
                         break;
                     }
 
@@ -253,7 +253,7 @@ normal_decimal:
                 default: // invalid single-chars, probably weird whitespace/non-ascii
                     // @TODO do some work to find out what exactly caused the problem. this will probably most of the time be a paste-error
                     // - we can check if it's a Unicode space separator or other common case and report better.
-                    Reporter :: report(E_WEIRD_CODEPOINT, null, filename, line, column, (u32) *cursor);
+                    Reporter_report(E_WEIRD_CODEPOINT, null, filename, line, column, (u32) *cursor);
                     break;
 
                 case '\n':
@@ -407,7 +407,7 @@ normal_decimal:
         token->column   = column;
         token->length   = length;
         token->tt       = tt;
-        token->tk       = Str :: read(cursor - length, length);
+        token->tk       = Str_read(cursor - length, length);
         token->flags    = flags;
 
         if (token->tt == TT_SYMBOL) {
@@ -416,12 +416,12 @@ normal_decimal:
             if (entry) token->tt = entry->value->tt;
         }
 
-        Lexer :: tokens->push(token);
+        Lexer_tokens->push(token);
 
         column += token->length;
     }
 
-    return Lexer::tokens;
+    return Lexer_tokens;
 }
 
 

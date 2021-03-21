@@ -6,7 +6,6 @@
 #include "types.h"
 #include "print.h"
 
-
 enum TokenTypeEnum {
     // 0-255 ascii chars here
 
@@ -130,7 +129,7 @@ enum TokenFlagsEnum {
     TF_HEXADECIMAL  = 16
 };
 
-struct Token {
+typedef struct Token {
     const char* filename;
     const char* tk;
 
@@ -143,7 +142,7 @@ struct Token {
     TokenTypeEnum tt;
 
     u8 flags;
-};
+} Token;
 
 bool tokenTypeIsNullary(TokenTypeEnum tt);
 bool tokenTypeIsStatement(TokenTypeEnum tt);

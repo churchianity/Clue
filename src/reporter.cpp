@@ -70,9 +70,9 @@ static inline const char* reconstruct(const char* filename, u32 line) {
     const char* out = "";
 
     u32 i = 0;
-    for (; i < Lexer::tokens->length; i++) {
-        if (Str :: eq(Lexer::tokens->data[i]->filename, filename) && (Lexer::tokens->data[i]->line == line)) {
-            token = Lexer::tokens->data[i];
+    for (; i < Lexer_tokens->length; i++) {
+        if (Str_eq(Lexer_tokens->data[i]->filename, filename) && (Lexer_tokens->data[i]->line == line)) {
+            token = Lexer_tokens->data[i];
 
             // the -1 is because column counts are 1-indexed
             amountOfLeadingWhitespace = token->column - columnSoFar - 1;
@@ -80,7 +80,7 @@ static inline const char* reconstruct(const char* filename, u32 line) {
 
             char* leadingWhitespace = fillWithSpaces(amountOfLeadingWhitespace);
 
-            out = Str :: concat(3, out, leadingWhitespace, token->tk);
+            out = Str_concat(3, out, leadingWhitespace, token->tk);
             pFree(leadingWhitespace);
         }
     }
@@ -89,26 +89,26 @@ static inline const char* reconstruct(const char* filename, u32 line) {
 }
 
 // @STATEFUL
-void Reporter::rebuild(const char* filename) {
+void Reporter_rebuild(const char* filename) {
     u32 i = 0;
     u32 line = 1;
 
-    while (i < Lexer::tokens->length) {
-        if (Str :: eq(Lexer::tokens->data[i]->filename, filename)) {
-            line = Lexer::tokens->data[i]->line;
+    while (i < Lexer_tokens->length) {
+        if (Str_eq(Lexer_tokens->data[i]->filename, filename)) {
+            line = Lexer_tokens->data[i]->line;
 
             do {
                 i++;
 
-                if ((i < Lexer::tokens->length) || ((Lexer::tokens->data[i]->line != line) || Str :: eq(Lexer::tokens->data[i]->filename, filename))) {
+                if ((i < Lexer_tokens->length) || ((Lexer_tokens->data[i]->line != line) || Str_eq(Lexer_tokens->data[i]->filename, filename))) {
                     i++;
                     break;
                 }
 
-            } while ((i < Lexer::tokens->length) || Str :: eq(Lexer::tokens->data[i]->filename, filename));
+            } while ((i < Lexer_tokens->length) || Str_eq(Lexer_tokens->data[i]->filename, filename));
 
-            ::print(reconstruct(filename, line));
-            ::print("%d\n", i);
+            print(reconstruct(filename, line));
+            print("%d\n", i);
         }
 
         i++;
@@ -154,7 +154,7 @@ static void print(const Message* message) {
     pFree(pointyThing);
 }
 
-void Reporter :: flush() {
+void Reporter_flush() {
     messages->forEach(
         [] (Message* message) {
             print(message);
@@ -167,7 +167,7 @@ void Reporter :: flush() {
     messages = new Array<Message>();
 }
 
-void Reporter :: add(u32 id, const char* functionName, const char* filename, u32 line, u32 column, ...) {
+void Reporter_add(u32 id, const char* functionName, const char* filename, u32 line, u32 column, ...) {
     va_list args;
     va_start(args, column);
 
@@ -180,7 +180,7 @@ void Reporter :: add(u32 id, const char* functionName, const char* filename, u32
     // make the content string with the formatted varargs.
     // @TODO fix this is all completely fucked
     const u32 padding = 256; // @NOTE fix
-    u32 contentLength = Str :: len(messageId.content) + padding;
+    u32 contentLength = Str_len(messageId.content) + padding;
     char* content = (char*) pMalloc(sizeof (char) * contentLength);
     vsnprintf(content, contentLength, messageId.content, args); // @TODO replace vsnprintf.
 
@@ -195,31 +195,31 @@ void Reporter :: add(u32 id, const char* functionName, const char* filename, u32
     va_end(args);
 }
 
-void Reporter :: add(u32 id, const char* functionName, Token* token, ...) {
+void Reporter_add(u32 id, const char* functionName, Token* token, ...) {
     va_list args;
     va_start(args, token);
 
-    add(id, functionName, token->filename, token->line, token->column, args);
+    Reporter_add(id, functionName, token->filename, token->line, token->column, args);
     va_end(args);
 }
 
-void Reporter :: add(u32 id, ASTNode* node, ...) {
+void Reporter_add(u32 id, ASTNode* node, ...) {
     va_list args;
     va_start(args, node);
 
     // @TODO replace null with node->closure->name if it exists
-    add(id, null, node->token, args);
+    Reporter_add(id, null, node->token, args);
     va_end(args);
 }
 
-void Reporter :: report(u32 id, const char* functionName, const char* filename, u32 line, u32 column, ...) {
+void Reporter_report(u32 id, const char* functionName, const char* filename, u32 line, u32 column, ...) {
     static bool safe = true;
 
     va_list args;
     va_start(args, column);
 
-    add(id, functionName, filename, line, column, args);
-    Reporter::flush();
+    Reporter_add(id, functionName, filename, line, column, args);
+    Reporter_flush();
     va_end(args);
 
     // when we 'report' normally, this should exit the program.
@@ -237,20 +237,20 @@ void Reporter :: report(u32 id, const char* functionName, const char* filename, 
     #endif
 }
 
-void Reporter :: report(u32 id, const char* functionName, Token* token, ...) {
+void Reporter_report(u32 id, const char* functionName, Token* token, ...) {
     va_list args;
     va_start(args, token);
 
-    report(id, functionName, token->filename, token->line, token->column, args);
+    Reporter_report(id, functionName, token->filename, token->line, token->column, args);
     va_end(args);
 }
 
-void Reporter :: report(u32 id, ASTNode* node, ...) {
+void Reporter_report(u32 id, ASTNode* node, ...) {
     va_list args;
     va_start(args, node);
 
     // @TODO replace null with node->closure->name if it exists
-    report(id, null, node->token, args);
+    Reporter_report(id, null, node->token, args);
     va_end(args);
 }
 

@@ -2,7 +2,6 @@
 #ifndef VALUE_H
 #define VALUE_H
 
-
 enum ValueTypeEnum {
     VT_INTEGER,
     VT_NUMBER,
@@ -10,7 +9,7 @@ enum ValueTypeEnum {
     VT_POINTER
 };
 
-struct Value {
+typedef struct Value {
     ValueTypeEnum type;
 
     union {
@@ -19,7 +18,7 @@ struct Value {
         const char* string;
         void* pointer;
     };
-};
+} Value;
 
 #endif
 

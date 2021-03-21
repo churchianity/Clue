@@ -8,7 +8,6 @@
 #include "runtime.h"
 #include "token.h"
 
-
 // lists of things (comma-separated) get parsed like:
 // ex: 4, 3, 2, 1
 // into:
@@ -622,7 +621,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
     auto scope = (Scope*) pMalloc(sizeof (Scope));
     scope->name = "global";
     scope->parent = null;
-    scope->table = Runtime::getGlobalSymbolTable();
+    scope->table = Runtime_getGlobalSymbolTable();
 
     ASTNode* programRoot = (ASTNode*) pCalloc(sizeof (ASTNode));
     programRoot->children = new Array<ASTNode>();
@@ -791,7 +790,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
     return programRoot;
 }
 
-ASTNode* Parser :: parse(Array<Token>* tokens) {
+ASTNode* Parser_parse(Array<Token>* tokens) {
     return shuntingYard(tokens);
 }
 

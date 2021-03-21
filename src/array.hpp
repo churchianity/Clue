@@ -228,7 +228,7 @@ struct Array {
         u32 length = end > this->length ? this->length : end;
 
         for (u32 i = start; i < length; i++) {
-            Str :: memcpy(array->data[i], this->data[i], sizeof (T));
+            Str_memcpy(array->data[i], this->data[i], sizeof (T));
         }
 
         return array;

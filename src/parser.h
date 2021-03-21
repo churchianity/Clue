@@ -6,9 +6,7 @@
 #include "node.h"
 #include "token.h"
 
-namespace Parser {
-    extern ASTNode* parse(Array<Token>* tokens);
-}
+extern ASTNode* Parser_parse(Array<Token>* tokens);
 
 #endif
 

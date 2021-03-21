@@ -5,12 +5,11 @@
 #include "table.hpp"
 #include "value.h"
 
-
-struct Scope {
+typedef struct Scope {
     const char* name;
     Table<const char, Value>* table;
     Scope* parent;
-};
+} Scope;
 
 #endif
 

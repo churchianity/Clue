@@ -9,7 +9,6 @@
 #include "types.h"
 #include "value.h"
 
-
 enum OperatorAssociativityEnum {
     OA_LEFT_TO_RIGHT = -1,
     OA_NONE          = 0,
@@ -29,12 +28,12 @@ enum ASTNodeFlagsEnum {
     //
 };
 
-struct ASTNode {
+typedef struct ASTNode {
     Token* token;
     Array<ASTNode>* children;
     u8 flags;
     // wasted bytes :(
-};
+} ASTNode;
 
 void prettyPrintTree(ASTNode* node, const char* indent = "", bool last = true);
 void traverse(ASTNode* node, void (*callback) (ASTNode*), ...);

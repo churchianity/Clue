@@ -7,14 +7,11 @@
 #include "table.hpp"
 #include "value.h"
 
-
-namespace Runtime {
-    extern void interactive();
-    extern void doIt(char* buffer, const char* filename);
-    extern void printProgramTree(ASTNode* program);
-    extern Table<const char, Value>* getGlobalSymbolTable();
-    extern Value eval(ASTNode* node);
-}
+extern void Runtime_interactive();
+extern void Runtime_doIt(char* buffer, const char* filename);
+extern void Runtime_printProgramTree(ASTNode* program);
+extern Table<const char, Value>* Runtime_getGlobalSymbolTable();
+extern Value Runtime_eval(ASTNode* node);
 
 #endif
 

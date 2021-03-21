@@ -15,11 +15,11 @@ void prettyPrintTree(ASTNode* node, const char* indent, bool last) {
     print(indent);
     if (last) {
         print("\\-");
-        indent = Str :: concat(indent, "  ");
+        indent = Str_concat(indent, "  ");
 
     } else {
         print("|-");
-        indent = Str :: concat(indent, "| ");
+        indent = Str_concat(indent, "| ");
     }
     print(node);
 
