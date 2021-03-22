@@ -19,7 +19,7 @@ void prettyPrintTree(ASTNode* node, const char* indent, bool last) {
         print("|-");
         indent = Str_concat(indent, "| ");
     }
-    print(node);
+    print("%s%s%s\n", ANSI_YELLOW, node->token->tk, ANSI_RESET);
 
     if (node->children != null) {
         for (u32 i = 0; i < node->children->length; i++) {
@@ -45,15 +45,11 @@ void print(ASTNode* node) {
         print("null\n");
     }
 
-    if (node->token) {
-        if (node->flags != 0) {
-            print("%s%s%s\n", ANSI_YELLOW, node->token->tk, ANSI_RESET, node->flags);
+    if (node->children) {
+        print("%s%s%s | flags: %d | childrenCount: %u\n", ANSI_YELLOW, node->token->tk, ANSI_RESET, node->flags, node->children->length);
 
-        } else {
-            print("%s%s%s\n", ANSI_YELLOW, node->token->tk, ANSI_RESET);
-        }
     } else {
-        print("%s__PROGRAM_ROOT__%s\n", ANSI_YELLOW, ANSI_RESET);
+        print("%s%s%s | flags: %d\n", ANSI_YELLOW, node->token->tk, ANSI_RESET, node->flags);
     }
 }
 

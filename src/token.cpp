@@ -18,7 +18,6 @@ bool tokenTypeIsOperator(TokenTypeEnum tt) {
 
 bool tokenTypeIsNullary(TokenTypeEnum tt) {
     switch ((s32) tt) {
-        case TT_RETURN:
         case TT_BREAK:
         case TT_CONTINUE:
             return true;
@@ -30,8 +29,6 @@ bool tokenTypeIsNullary(TokenTypeEnum tt) {
 
 bool tokenTypeIsStatement(TokenTypeEnum tt) {
     if (!tokenTypeIsOperator(tt)) return false;
-
-    // @TODO nullary?
 
     // could do tt / 100 == 4 if we move the types that are expression-returning operators,
     // like TT_AND and TT_OR to a different series of token type.

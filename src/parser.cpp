@@ -318,15 +318,6 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Scope*
         const auto body = es->pop();
         const auto predicate = es->pop();
 
-        if (!body) {
-            // @REPORT if statement missing body
-            die("if statement missing body\n");
-        }
-        if (!predicate) {
-            // @REPORT if statement missing predicate
-            die("if statement missing predicate\n");
-        }
-
         node->children = new Array<ASTNode>(2);
         node->children->push(predicate);
         node->children->push(body);
@@ -346,55 +337,24 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Scope*
         node->children->push(es->pop());
 
     } else if (tt == TT_DO) {
-        ASTNode* block = null;
-        ASTNode* whileStatement = null;
+        die("should be parsing a 'do' statement but can't yet.\n");
 
-        auto top = es->peek();
-        if (!top || top->token->tt != '{' || ((top->flags & NF_STRUCT_LITERAL) == NF_STRUCT_LITERAL)) {
-            // @REPORT fatal
-            // @NOTE we fail to parse do-while statements at the moment, and they usually crash here.
-            // (the while statement greedily grabs the code block for itself, and ends up on top of the stack).
-            die("thing following a 'do' isn't a code block\n");
-
-        } else {
-            block = es->pop();
-        }
-
-        top = es->peek();
-        if (top && top->token->tt == TT_WHILE) {
-            node->children = new Array<ASTNode>(2);
-            node->children->push(block);
-            node->children->push(whileStatement);
-
-        } else {
-            node->children = new Array<ASTNode>(1);
-            node->children->push(block);
-        }
     } else if (tt == TT_WHILE) {
         const auto body = es->pop();
         const auto predicate = es->pop();
 
-        if (predicate == null) {
-            // body should be the predicate, and this while statement should be part of a do-while construct.
-            node->children = new Array<ASTNode>(1);
-            node->children->push(body);
+        node->children = new Array<ASTNode>(2);
+        node->children->push(predicate);
+        node->children->push(body);
 
-        } else {
-            node->children = new Array<ASTNode>(2);
-            node->children->push(predicate);
-            node->children->push(body);
-        }
     } else if (tt == '(') {
-        // 'grouping' operators should never appear here. So this is eitherL
-        // 1. a named function call
-        // 2. a named function declaration
         const auto block = es->pop();
         const auto args = es->pop();
         const auto name = es->pop();
 
         node->children = new Array<ASTNode>(3);
         node->children->push(name);
-        node->children->push(unwrapCommas(args));
+        node->children->push(args);
         node->children->push(block);
 
     } else if (tt == '[') {
@@ -404,7 +364,6 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Scope*
         } else {
             die("should be parsing an array literal, but can't yet\n");
         }
-
     } else if (tt == '{') {
         if ((node->flags & NF_STRUCT_LITERAL) == NF_STRUCT_LITERAL) {
             die("should be parsing a struct literal but can't yet.\n");
@@ -432,6 +391,8 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Scope*
 
         node->children = new Array<ASTNode>(1);
         node->children->push(child);
+
+        prettyPrintTree(node);
 
     } else {
         // assumed to be a binary operation.
@@ -510,7 +471,6 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
             case TT_DO:
             case TT_WHILE:
             case TT_ELSE:
-            case TT_RETURN:
                 // these aren't necessarily unary operators, but they can assume the position of one.
                 // if we see one here, that's fine.
                 // even the ones that are just 'normal' unary like 'else' or 'return' don't get the unary flag,
@@ -520,6 +480,7 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
             case '~':
             case '!': // @deprecate
             case TT_NOT:
+            case TT_RETURN:
             case '@':
             case '#':
             case '$':
@@ -638,17 +599,6 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
 
                     parseOperationIntoExpression(es, os, scope);
                 }
-
-                if (es->isEmpty()) {
-                    // @REPORT warn empty expression ex: ()
-                    // die("empty expression\n");
-
-                } else {
-                    if (0) {
-                        // @REPORT error leftover operands ex: (4 + 4 4)
-                        die("leftover operands");
-                    }
-                }
             } break;
 
             case ')': {
@@ -662,11 +612,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     die("missing open parens\n");
                 }
 
-                if ((os->peek()->flags & NF_CALL) == NF_CALL) {
-                    // it's a function call.
-                    // parseOperationIntoExpression(es, os, scope);
-
-                } else {
+                if ((os->peek()->flags & NF_GROUP) == NF_GROUP) {
                     // discard open parens if it's just used to group
                     os->pop();
                 }
@@ -686,7 +632,6 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 }
 
                 parseOperationIntoExpression(es, os, scope);
-
             } break;
 
             // reduce-parse a struct literal or code block
@@ -708,6 +653,8 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                     if (tt == TT_ELSEIF || tt == TT_ELSE || tt == TT_WHILE) {
                         break;
                     }
+
+
 
                     while (!os->isEmpty()) {
                         if (os->peek()->token->tt == '{') break;
@@ -737,6 +684,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
             default: {
                 const auto node = resolveOperatorNode(tokens, i);
 
+
                 // resolve precedence and associativity by re-arranging the stacks before pushing.
                 while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os, scope);
 
@@ -763,6 +711,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
             // @REPORT
             die("missing close brace");
         }
+
 
         parseOperationIntoExpression(es, os, scope);
     }
