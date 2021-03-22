@@ -364,7 +364,6 @@ normal_decimal:
 
                     break;
 
-
                 case '?':
                     if (*(cursor + 1) == ':') {
                         tt = TT_QUESTION_MARK_COLON;

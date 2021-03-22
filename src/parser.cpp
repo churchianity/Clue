@@ -72,8 +72,6 @@ static inline void reportSpecificBinaryOperatorMissingOperand(ASTNode* node) {
 
 static inline OperatorAssociativityEnum associativity(ASTNode* node) {
     switch ((s32) node->token->tt) {
-        case ':':
-        case TT_QUESTION_MARK_COLON:
         case '=':
         case TT_COLON_EQUALS:
         case TT_PLUS_EQUALS:
@@ -87,8 +85,9 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_RIGHT_SHIFT_EQUALS:
         case TT_LEFT_SHIFT_EQUALS:
         case TT_EXPONENTIATION_EQUALS:
+            return OA_NONE;
+
         case TT_EXPONENTIATION:
-        case ',':
         case '~':
         case '!':
         case TT_NOT:
@@ -121,6 +120,9 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
         case TT_EQUALITY:
         case TT_NOT_EQUALS:
         case TT_AS:
+        case ',':
+        case ':':
+        case TT_QUESTION_MARK_COLON:
             return OA_LEFT_TO_RIGHT;
 
         case '#':
@@ -154,8 +156,6 @@ static inline s8 precedence(ASTNode* node) {
         case '(':
         case '[':
         case '{':
-        case ':':
-        case TT_QUESTION_MARK_COLON:
 
         case '=':
         case TT_COLON_EQUALS:
@@ -173,6 +173,8 @@ static inline s8 precedence(ASTNode* node) {
             return 0;
 
         case ',':
+        case ':':
+        case TT_QUESTION_MARK_COLON:
             return 1;
 
         case TT_LOGICAL_AND:
@@ -242,9 +244,11 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
 
     } else if (associativity(node) == OA_RIGHT_TO_LEFT) {
         return precedence(node) < precedence(top);
-    }
 
-    return false;
+    } else {
+        // non-associative operators - @TODO investigate, not sure if it's always true
+        return true;
+    }
 }
 
 // lists of things (comma-separated) get parsed like:
@@ -266,7 +270,7 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
 //      |- 1
 //
 // this function converts the former into the latter
-static void unwrapCommas(ASTNode* parent) {
+static ASTNode* unwrapCommas(ASTNode* parent) {
     const auto children = new Array<ASTNode>();
     const auto stack = new Array<ASTNode>();
     auto cursor = parent;
@@ -291,6 +295,7 @@ static void unwrapCommas(ASTNode* parent) {
 
     delete parent->children;
     parent->children = children;
+    return parent;
 }
 
 
@@ -389,7 +394,7 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Scope*
 
         node->children = new Array<ASTNode>(3);
         node->children->push(name);
-        node->children->push(args);
+        node->children->push(unwrapCommas(args));
         node->children->push(block);
 
     } else if (tt == '[') {
