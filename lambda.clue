@@ -1,2 +1,2 @@
 
-(x, y) { return x + y };
+(x: Int, y: Int) { return x + y; };

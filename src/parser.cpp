@@ -246,7 +246,10 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
         return precedence(node) < precedence(top);
 
     } else {
-        // non-associative operators - @TODO investigate, not sure if it's always true
+        if (precedence(node) == precedence(top)) {
+            die("non-associative sub-expression\n\n");
+        }
+
         return true;
     }
 }
