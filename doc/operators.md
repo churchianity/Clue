@@ -39,8 +39,8 @@ this prevents you from having to wrap the expression in parens when desiring to 
 |          |             |                 |                    |
 | **       | 7           | r-l             | exponentiation.    |
 |          |             |                 |                    |
-| @        | 8           | r-l             |                    |
-| $        | 8           | r-l             |                    |
+| @        | 8           | r-l             | address-of         |
+| $        | 8           | r-l             | value-at (p deref) |
 | .        | 8           | l-r             |                    |
 |          |             |                 |                    |
 | cast     | 9           | none            |                    |

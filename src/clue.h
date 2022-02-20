@@ -11,7 +11,7 @@
 
 /**
  * Dependencies:
- *  C++14 if llvm, C++11 otherwise
+ *  C++11
  *
  *  stdlib.h
  *      malloc, calloc, realloc, free, exit, NULL

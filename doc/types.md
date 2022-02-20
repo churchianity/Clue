@@ -33,12 +33,12 @@
 
 # Special values
 
-| symbol       | description                                                                                    |
-| :----------: | :--------------------------------------------------------------------------------------------: |
-| nil          | the address that contains all zeroes. can be assigned to any pointer variable without casting  |
-|              |                                                                                                |
-| false        | boolean false                                                                                  |
-| true         | boolean true                                                                                   |
+| symbol       | description                                                                                              |
+| :----------: | :------------------------------------------------------------------------------------------------------: |
+| nil          | the (virtual) address that contains all zeroes. can be assigned to any pointer variable without casting  |
+|              |                                                                                                          |
+| false        | boolean false                                                                                            |
+| true         | boolean true                                                                                             |
 
 
 # Type modifiers

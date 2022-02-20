@@ -139,7 +139,7 @@ s32 main(s32 argc, const char* argv[]) {
     signal(SIGSEGV, handler);
     signal(SIGABRT, handler);
     // signal(SIGFPE, handler);
-    // signal(SIGILL, handler); // does this fire on using sprintf?
+    // signal(SIGILL, handler); // does this fire on using sprintf? (on one of my macs, using sprintf in the standard library is not allowed)
     signal(SIGINT, handler);
     signal(SIGTERM, handler);
 

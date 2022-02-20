@@ -302,7 +302,7 @@ static ASTNode* unwrapCommas(ASTNode* parent) {
 }
 
 
-void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Scope* scope) {
+void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     const auto node = os->pop();
     const s32 tt = node->token->tt;
 
@@ -310,47 +310,8 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Scope*
         es->push(node);
         return;
 
-    } else if (tt == TT_IF || tt == TT_ELSEIF) {
-        const auto top = es->peek();
-
-        ASTNode* elseStatement = null;
-        if (top->token->tt == TT_ELSEIF || top->token->tt == TT_ELSE) {
-            elseStatement = es->pop();
-        }
-
-        const auto body = es->pop();
-        const auto predicate = es->pop();
-
-        node->children = new Array<ASTNode>(2);
-        node->children->push(predicate);
-        node->children->push(body);
-
-        if (elseStatement != null) {
-            node->children->push(elseStatement);
-        }
-    } else if (tt == TT_ELSE) {
-        const auto top = es->peek();
-
-        if (!top || top->token->tt != '{' || ((top->flags & NF_STRUCT_LITERAL) == NF_STRUCT_LITERAL)) {
-            // @REPORT fatal
-            die("else statement missing body/body isn't a code block.\n");
-        }
-
-        node->children = new Array<ASTNode>(1);
-        node->children->push(es->pop());
-
-    } else if (tt == TT_DO) {
-        die("should be parsing a 'do' statement but can't yet.\n");
-
-    } else if (tt == TT_WHILE) {
-        const auto body = es->pop();
-        const auto predicate = es->pop();
-
-        node->children = new Array<ASTNode>(2);
-        node->children->push(predicate);
-        node->children->push(body);
-
     } else if (tt == '(') {
+        // should be a function call or grouping operation?
         const auto block = es->pop();
         const auto args = es->pop();
         const auto name = es->pop();
@@ -370,22 +331,6 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os, Scope*
     } else if (tt == '{') {
         if ((node->flags & NF_STRUCT_LITERAL) == NF_STRUCT_LITERAL) {
             die("should be parsing a struct literal but can't yet.\n");
-
-        } else {
-            node->children = new Array<ASTNode>();
-
-            u32 count = es->length;
-            for (u32 i = 0; i < count; i++) {
-                const auto top = es->peek();
-
-                if (top->token->scope != scope) {
-                    break;
-                }
-
-                node->children->push(es->pop());
-            }
-
-            node->children->reverse();
         }
     } else if ((node->flags & NF_UNARY) == NF_UNARY) {
         ASTNode* child = es->pop();
@@ -421,7 +366,7 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
 
     if (tokenTypeIsNullary(node->token->tt)) {
         return node;
-    };
+    }
 
     if (i < 1 || tokenTypeIsOperator(tokens->data[i - 1]->tt)) {
         // we think it's a unary operator, but we could be wrong. check.
@@ -570,101 +515,40 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
     return node;
 }
 
-static ASTNode* shuntingYard(Array<Token>* tokens) {
+// https://en.wikipedia.org/wiki/Shunting-yard_algorithm
+// the shunting yard algorithm is used to convert infix notation into reverse polish notation,
+// and happens to do a pretty good job of constructing an abstract syntax tree as it does this.
+// we use to it to construct expressions, which are code section that resolve to some value.
+// examples of expressions:
+//  -   4 + 2
+//  -   print(27*(9/3))
+//  -   goo(foo(x?.bar, array[p + i*2]))
+//
+static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex) {
     const auto es = new Array<ASTNode>();
     const auto os = new Array<ASTNode>();
 
-    auto scope = (Scope*) pMalloc(sizeof (Scope));
-    scope->name = "global";
-    scope->parent = null;
-    scope->table = Runtime_getGlobalSymbolTable();
-
-    ASTNode* programRoot = (ASTNode*) pCalloc(sizeof (ASTNode));
-    programRoot->children = new Array<ASTNode>();
-
-    u32 i = 0;
-    while (i < tokens->length) {
+    u32 i = startIndex;
+    while (i < endIndex) {
         const auto token = tokens->data[i];
         s32 tt = (s32) token->tt;
 
-        token->scope = scope;
+        print(token);
 
         switch (tt) {
-            case ';': {
-                // dump the stack - we should collect everything as a single expression.
-                while (!os->isEmpty()) {
-                    const auto top = os->peek();
-
-                    if (top->token->scope != scope) {
-                        // the operator is in a different scope than us, so we don't want to continue.
-                        break;
-                    }
-
-                    parseOperationIntoExpression(es, os, scope);
-                }
-            } break;
-
             case ')': {
                 while (!os->isEmpty()) {
                     if (os->peek()->token->tt == '(') break;
 
-                    parseOperationIntoExpression(es, os, scope);
+                    parseOperationIntoExpression(es, os);
                 }
 
                 if (os->isEmpty()) {
                     die("missing open parens\n");
                 }
 
-                if ((os->peek()->flags & NF_GROUP) == NF_GROUP) {
-                    // discard open parens if it's just used to group
-                    os->pop();
-                }
-            } break;
-
-            // reduce-parse array indexer or array literal
-            case ']': {
-                while (!os->isEmpty()) {
-                    if (os->peek()->token->tt == '[') break;
-
-                    parseOperationIntoExpression(es, os, scope);
-                }
-
-                if (os->isEmpty()) {
-                    // @REPORT
-                    die("missing open bracket\n");
-                }
-
-                parseOperationIntoExpression(es, os, scope);
-            } break;
-
-            // reduce-parse a struct literal or code block
-            case '}': {
-                parseOperationIntoExpression(es, os, scope);
-
-                // this is the end of a scope, so set the current one to the old's parent
-                scope = scope->parent;
-
-                if (i < (tokens->length - 1)) {
-                    const s32 tt = tokens->data[i + 1]->tt;
-
-                    // if the next token isn't one of these types, we should perform as many
-                    // stack reductions as we can, because we know there can't be any
-                    // outstanding operations that we cannot resolve.
-                    //
-                    // this is true because a closing brace, like a semicolon, is something that
-                    // many expressions/statements cannot cross.
-                    if (tt == TT_ELSEIF || tt == TT_ELSE || tt == TT_WHILE) {
-                        break;
-                    }
-
-
-
-                    while (!os->isEmpty()) {
-                        if (os->peek()->token->tt == '{') break;
-
-                        parseOperationIntoExpression(es, os, scope);
-                    }
-                }
+                // discard open parens if it's just used to group
+                os->pop();
             } break;
 
             case TT_SYMBOL:
@@ -673,23 +557,13 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
                 const auto node = (ASTNode*) pCalloc(sizeof (ASTNode));
                 node->token = token;
                 es->push(node);
-
             } break;
 
-            case '{': {
-                // we have a new namespace/scope, make it before doing anything else.
-                const auto parent = scope;
-                scope = (Scope*) pMalloc(sizeof (Scope));
-                // scope->name = ""; // @TODO should be assigned later.
-                scope->parent = parent;
-                scope->table = new Table<const char, Value>();
-            }
             default: {
                 const auto node = resolveOperatorNode(tokens, i);
 
-
                 // resolve precedence and associativity by re-arranging the stacks before pushing.
-                while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os, scope);
+                while (canPopAndApply(os, node)) parseOperationIntoExpression(es, os);
 
                 os->push(node);
             } break;
@@ -715,26 +589,47 @@ static ASTNode* shuntingYard(Array<Token>* tokens) {
             die("missing close brace");
         }
 
-
-        parseOperationIntoExpression(es, os, scope);
+        parseOperationIntoExpression(es, os);
     }
 
     if (es->isEmpty()) {
         // @REPORT warn
-        // die("empty program\n");
+        die("empty expression\n");
     }
 
+    const auto expression = es->pop();
     for (u32 i = 0; i < es->length; i++) {
-        programRoot->children->push(es->data[i]);
+        out->children->push(es->data[i]);
     }
 
     delete es;
     delete os;
 
-    return programRoot;
+    return expression;
 }
 
 ASTNode* Parser_parse(Array<Token>* tokens) {
-    return shuntingYard(tokens);
+    ASTNode* programRoot = (ASTNode*) pCalloc(sizeof (ASTNode));
+    programRoot->children = new Array<ASTNode>();
+
+    auto scope = (Scope*) pMalloc(sizeof (Scope));
+    scope->name = "__global";
+    scope->parent = null;
+    scope->table = Runtime_getGlobalSymbolTable();
+
+    u32 i = 0;
+    while (i < tokens->length) {
+        const auto token = tokens->data[i];
+        s32 tt = (s32) token->tt;
+
+        switch(tt) {
+            case ';': {
+                return shuntingYard(tokens, 0, i);
+            } break;
+        }
+        i++;
+    }
+
+    return programRoot;
 }
 
