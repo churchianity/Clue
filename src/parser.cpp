@@ -523,7 +523,7 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
 //  -   4 + 2
 //  -   print(27*(9/3))
 //  -   goo(foo(x?.bar, array[p + i*2]))
-//
+//  -   sin(max(2,3)/3*PI)
 static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex) {
     const auto es = new Array<ASTNode>();
     const auto os = new Array<ASTNode>();
@@ -532,8 +532,6 @@ static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex)
     while (i < endIndex) {
         const auto token = tokens->data[i];
         s32 tt = (s32) token->tt;
-
-        print(token);
 
         switch (tt) {
             case ')': {
@@ -547,7 +545,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex)
                     die("missing open parens\n");
                 }
 
-                // discard open parens if it's just used to group
+                // discard open parens
                 os->pop();
             } break;
 
@@ -599,7 +597,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex)
 
     const auto expression = es->pop();
     for (u32 i = 0; i < es->length; i++) {
-        out->children->push(es->data[i]);
+        expression->children->push(es->data[i]);
     }
 
     delete es;
@@ -624,7 +622,8 @@ ASTNode* Parser_parse(Array<Token>* tokens) {
 
         switch(tt) {
             case ';': {
-                return shuntingYard(tokens, 0, i);
+                const auto node = shuntingYard(tokens, 0, i);
+                programRoot->children->push(node);
             } break;
         }
         i++;

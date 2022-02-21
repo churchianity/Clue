@@ -1,0 +1,12 @@
+
+
+` function definition
+function f: Int = (a: Int, b: Int) {
+
+}
+
+` anonymous function
+(a: Int, b: Int) {
+
+}
+
