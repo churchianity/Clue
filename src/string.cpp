@@ -5,6 +5,7 @@
 #include "string.h"
 #include "types.h"
 
+
 bool Str_isDigit(char c) {
     return (c >= '0') && (c <= '9');
 }
@@ -43,7 +44,7 @@ bool Str_isAsciiWhitespace(char c) {
     }
 }
 
-char* Str_intToString(u64 integer) {
+char* Str_s32ToString(u64 s32eger) {
     u32 capacity = 10;
     u32* remainders = (u32*) pMalloc(sizeof (u32) * capacity);
 
@@ -55,11 +56,11 @@ char* Str_intToString(u64 integer) {
             remainders = (u32*) pRealloc(remainders, sizeof (u32) * capacity);
         }
 
-        remainders[count++] = integer % 10;
+        remainders[count++] = s32eger % 10;
 
-        integer /= 10;
+        s32eger /= 10;
 
-        if (integer == 0) {
+        if (s32eger == 0) {
             break;
         }
     }
@@ -78,7 +79,7 @@ char* Str_intToString(u64 integer) {
 }
 
 // @NOTE breaks if you don't verify the string is a valid hex string.
-u64 Str_hexStringToInt(const char* str) {
+u64 Str_hexStringTos32(const char* str) {
     u64 out = 0;
 
     while (*str != '\0') {
@@ -176,7 +177,7 @@ void Str_memcpy(void* dest, void* src, u32 size) {
 }
 
 const char* Str_lastCharOccurence(const char* string, u32 length, char c) {
-    for (s32 i = length - 1; i >= 0; i--) { // @NOTE 'i' needs to be a signed int here...
+    for (s32 i = length - 1; i >= 0; i--) { // @NOTE 'i' needs to be a signed s32 here...
         if (*(string + i) == c) {
             return string + i;
         }
@@ -218,7 +219,7 @@ bool Str_isAscii(const char* buffer, u32 length) {
     const unsigned char* ubuffer = (const unsigned char*) buffer;
 
     for (u32 i = 0; i < length; i++) {
-        if (ubuffer[i] & 128) { // binary: 0b 1000 0000
+        if (ubuffer[i] & 128) { // 0b10000000
             return false;
         }
     }
@@ -363,7 +364,7 @@ char* Str_concat(u32 argc, ...) {
 }
 
 /**
- * Reads |length| characters from |buffer| into a newly allocated buffer and returns it.
+ * Reads |length| characters from |buffer| s32o a newly allocated buffer and returns it.
  * Appends the null character, so the returned string is |length| + 1 in size.
  */
 char* Str_read(const char* buffer, u32 length) {
@@ -380,5 +381,88 @@ char* Str_read(const char* buffer, u32 length) {
     tk[i] = '\0';
 
     return tk;
+}
+
+
+s32 Str_b64idx(s32 c) {
+    if (c < 26) {
+        return c + 'A';
+    } else if (c < 52) {
+        return c - 26 + 'a';
+    } else if (c < 62) {
+        return c - 52 + '0';
+    } else {
+        return c == 62 ? '+' : '/';
+    }
+}
+
+s32 Str_b64Rev(s32 c) {
+    if (c >= 'A' && c <= 'Z') {
+        return c - 'A';
+    } else if (c >= 'a' && c <= 'z') {
+        return c + 26 - 'a';
+    } else if (c >= '0' && c <= '9') {
+        return c + 52 - '0';
+    } else if (c == '+') {
+        return 62;
+    } else if (c == '/') {
+        return 63;
+    } else if (c == '=') {
+        return 64;
+    } else {
+        return -1;
+    }
+}
+
+s32 Str_b64Update(unsigned char ch, char *to, s32 n) {
+    unsigned char rem = (n & 3) % 3;
+    if (rem == 0) {
+        to[n] = b64idx(ch >> 2);
+        to[++n] = (ch & 3) << 4;
+    } else if (rem == 1) {
+        to[n] = b64idx(to[n] | (ch >> 4));
+        to[++n] = (ch & 15) << 2;
+    } else {
+        to[n] = b64idx(to[n] | (ch >> 6));
+        to[++n] = b64idx(ch & 63);
+        n++;
+    }
+    return n;
+}
+
+s32 Str_b64Final(char *to, s32 n) {
+    s32 saved = n;
+    // prs32f("---[%.*s]\n", n, to);
+    if (n & 3) n = b64_update(0, to, n);
+    if ((saved & 3) == 2) n--;
+    // prs32f("    %d[%.*s]\n", n, n, to);
+    while (n & 3) to[n++] = '=';
+    to[n] = '\0';
+    return n;
+}
+
+s32 Str_b64Encode(const unsigned char *p, s32 n, char *to) {
+    s32 i, len = 0;
+    for (i = 0; i < n; i++) len = b64_update(p[i], to, len);
+    len = b64_final(to, len);
+    return len;
+}
+
+s32 Str_b64Decode(const char *src, s32 n, char *dst) {
+    const char *end = src + n;
+    s32 len = 0;
+    while (src + 3 < end) {
+        s32 a = b64rev(src[0]), b = b64rev(src[1]), c = b64rev(src[2]),
+            d = b64rev(src[3]);
+        if (a == 64 || a < 0 || b == 64 || b < 0 || c < 0 || d < 0) return 0;
+        dst[len++] = (a << 2) | (b >> 4);
+        if (src[2] != '=') {
+            dst[len++] = (b << 4) | (c >> 2);
+            if (src[3] != '=') dst[len++] = (c << 6) | d;
+        }
+        src += 4;
+    }
+    dst[len] = '\0';
+    return len;
 }
 

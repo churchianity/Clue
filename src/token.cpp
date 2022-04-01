@@ -41,6 +41,8 @@ bool tokenTypeIsStatement(TokenTypeEnum tt) {
         case TT_WHILE:
         case TT_DO:
         case TT_FOR:
+
+        case TT_FUNCTION:
             return true;
 
         default:

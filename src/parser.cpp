@@ -145,14 +145,6 @@ static inline s8 precedence(ASTNode* node) {
         case '#':
             return -2;
 
-        case TT_IF:
-        case TT_ELSEIF:
-        case TT_ELSE:
-        case TT_DO:
-        case TT_WHILE:
-        case TT_RETURN:
-            return -1;
-
         case '(':
         case '[':
         case '{':
@@ -301,7 +293,6 @@ static ASTNode* unwrapCommas(ASTNode* parent) {
     return parent;
 }
 
-
 void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     const auto node = os->pop();
     const s32 tt = node->token->tt;
@@ -311,15 +302,13 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
         return;
 
     } else if (tt == '(') {
-        // should be a function call or grouping operation?
-        const auto block = es->pop();
+        // should be a function call
         const auto args = es->pop();
         const auto name = es->pop();
 
-        node->children = new Array<ASTNode>(3);
+        node->children = new Array<ASTNode>(2);
         node->children->push(name);
         node->children->push(args);
-        node->children->push(block);
 
     } else if (tt == '[') {
         if ((node->flags & NF_INDEXER) == NF_INDEXER) {
@@ -340,8 +329,6 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
         node->children = new Array<ASTNode>(1);
         node->children->push(child);
 
-        prettyPrintTree(node);
-
     } else {
         // assumed to be a binary operation.
         ASTNode* rhs = es->pop();
@@ -352,6 +339,10 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
         node->children = new Array<ASTNode>(2);
         node->children->push(lhs);
         node->children->push(rhs);
+
+        if (node->token->tt == ',') {
+            unwrapCommas(node);
+        }
     }
 
     es->push(node);
@@ -442,9 +433,9 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
         if (i < (tokens->length - 1)) {
             const auto next = tokens->data[i + 1];
 
-            // if the next token is a colon or a brace, then it's a function declaration
+            // if the next token is a brace, then it's a function declaration
             // otherwise it's an invocation
-            if (!(next->tt == ':' || next->tt == '{')) {
+            if (!(next->tt == '{')) {
                 node->flags |= NF_CALL;
             }
         } else {
@@ -545,8 +536,10 @@ static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex)
                     die("missing open parens\n");
                 }
 
-                // discard open parens
-                os->pop();
+                if ((os->peek()->flags & NF_GROUP) == NF_GROUP) {
+                    // discard open parens if it's just used to group
+                    os->pop();
+                }
             } break;
 
             case TT_SYMBOL:
@@ -626,6 +619,7 @@ ASTNode* Parser_parse(Array<Token>* tokens) {
                 programRoot->children->push(node);
             } break;
         }
+
         i++;
     }
 

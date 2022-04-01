@@ -40,6 +40,7 @@ static Table<const char, Keyword>* initKeywordTable() {
     t->insert("not",            3, keyword(TT_NOT));
     t->insert("return",         6, keyword(TT_RETURN));
     t->insert("as",             2, keyword(TT_AS));
+    t->insert("function",       8, keyword(TT_FUNCTION));
 
     return t;
 }
@@ -232,6 +233,8 @@ normal_decimal:
                     continue;
 
                 case '\t':
+                    // @TODO many people make tabs be visually 4 spaces, but plenty of people also use 2 spaces, or other values.
+                    // not really sure what the best approach here is.
                     column += 4;
                     cursor++;
                     continue;
@@ -256,6 +259,7 @@ normal_decimal:
                     break;
 
                 case '\\':
+                    // @TODO?
                     break;
 
                 case '`': {
@@ -403,7 +407,4 @@ normal_decimal:
 
     return Lexer_tokens;
 }
-
-
-
 

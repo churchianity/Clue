@@ -5,6 +5,7 @@
 #include "scope.h"
 #include "types.h"
 
+
 enum TokenTypeEnum {
     // 0-255 ascii chars here
 
@@ -90,6 +91,8 @@ enum TokenTypeEnum {
     TT_AS                       = 412, // as
     TT_BREAK                    = 413, // break
     TT_CONTINUE                 = 414, // continue
+
+    TT_FUNCTION                 = 415, // function
 
     // TT_MAKE_IT_BIG              = 0xFFFFFFFFFFFFFFFF
 };

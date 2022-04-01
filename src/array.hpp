@@ -8,6 +8,7 @@
 #include "string.h" // Str_memcpy
 #include "types.h" // type definitions
 
+
 // this is a dynamic array (grows as needed)
 // it only works with pointer data types
 // performance aside, i really like the ECMAscript Array spec as a programming interface
