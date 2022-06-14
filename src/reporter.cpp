@@ -9,6 +9,7 @@
 #include "runtime.h"
 #include "token.h"
 
+
 static Array<Message>* messages = new Array<Message>();
 
 static inline const char* messageSeverityToColor(MessageSeverityEnum severity) {

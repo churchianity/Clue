@@ -40,6 +40,8 @@ void pFree(void* ptr) {
     free(ptr);
 }
 
+// if you don't believe that you should be able to free const pointers then just delete this and the corresponding
+// def in alloc.h
 void pFreeConst(const void* ptr) {
     free((void*) ptr);
 }

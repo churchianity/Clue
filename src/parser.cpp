@@ -8,6 +8,7 @@
 #include "runtime.h"
 #include "token.h"
 
+
 static inline void reportSpecificUnaryOperatorMissingOperand(ASTNode* node) {
     switch ((s32) node->token->tt) {
         case '~':
@@ -599,7 +600,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex)
 
     const auto expression = es->pop();
     for (u32 i = 0; i < es->length; i++) {
-        out->children->push(es->data[i]);
+        expression->children->push(es->data[i]);
     }
 
     delete es;
@@ -624,9 +625,13 @@ ASTNode* Parser_parse(Array<Token>* tokens) {
 
         switch(tt) {
             case ';': {
-                return shuntingYard(tokens, 0, i);
+                const auto node = shuntingYard(tokens, 0, i);
+                if (node != null) {
+                    programRoot->children->push(node);
+                }
             } break;
         }
+
         i++;
     }
 

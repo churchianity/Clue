@@ -2,6 +2,17 @@
 #ifndef STRING_H
 #define STRING_H
 
+typedef struct SmallString {
+    char data[23];
+    u8 remaining;
+} SmallString;
+
+typedef struct String {
+    union {
+    }
+    char* data;
+} String;
+
 extern bool Str_isDigit(char c);
 extern bool Str_isAlpha(char c);
 extern bool Str_isHexDigit(char c);
