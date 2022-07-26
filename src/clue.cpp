@@ -135,13 +135,13 @@ static inline void handleCommandLineArguments(s32 argc, const char* argv[]) {
     }
 }
 
-s32 main(s32 argc, const char* argv[]) {
-    signal(SIGSEGV, handler);
-    signal(SIGABRT, handler);
-    // signal(SIGFPE, handler);
-    // signal(SIGILL, handler); // does this fire on using sprintf? (on one of my macs, using sprintf in the standard library is not allowed)
-    signal(SIGINT, handler);
-    signal(SIGTERM, handler);
+s32 main(s32 argc, const char* argv[], const char* envp[]) {
+    if (signal(SIGSEGV, handler) == SIG_ERR) die("failed to set SIGSEGV handler... zzz...\n");
+    if (signal(SIGABRT, handler) == SIG_ERR) die("failed to set SIGABRT handler... zzz...\n");
+    if (signal(SIGFPE,  handler) == SIG_ERR) die("failed to set SIGFPE handler... zzz...\n");
+    if (signal(SIGILL,  handler) == SIG_ERR) die("failed to set SIGILL handler... zzz...\n"); // does this fire on using sprintf (on Catalina)?
+    if (signal(SIGINT,  handler) == SIG_ERR) die("failed to set SIGINT handler... zzz...\n");
+    if (signal(SIGTERM, handler) == SIG_ERR) die("failed to set SIGTERM handler... zzz...\n");
 
     // pretty sure this is stupid and doesn't matter
     if (CHAR_BIT != 8) die("CHAR BIT is %d, not 8\n", CHAR_BIT);

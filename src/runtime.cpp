@@ -3,6 +3,7 @@
 #include <math.h> // pow, remainder, floor, strtod
                   // @TODO replace?
 
+#include "clue.h"
 #include "token.h"
 #include "lexer.h"
 #include "parser.h"
@@ -209,8 +210,18 @@ void Runtime_interactive() {
     #define CLUE_SANDBOX_MODE_MAX_LINE_LENGTH 160
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
 
-    u32 line = 1;
 
+    print(
+        "Clue line-by-line interpreter, version %s\n"
+        "Lines containing a single character can have special meaning:\n"
+        "\t'.' - exit the program\n"
+        "\t'/' - destroy the program as it currently exists, but keep running the interpreter\n"
+        "\t'#' - print the state of the lexer\n"
+        "\t'?' - print the abstract syntax tree\n"
+        , __CLUE_VERSION_NUMBER__
+    );
+
+    u32 line = 1;
     do {
         print(">>> ");
 

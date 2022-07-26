@@ -361,7 +361,7 @@ void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
 // given an array of tokens and a position in the array which points to an operator,
 // figure out what kind of operator it is, and return it as an ASTNode*
 static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
-    const auto node = (ASTNode*) pCalloc(sizeof (ASTNode));
+    const auto node = (ASTNode*) pCalloc(1, sizeof (ASTNode));
 
     node->token = tokens->data[i];
 
@@ -555,7 +555,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex)
             case TT_SYMBOL:
             case TT_STRING:
             case TT_NUMERIC: {
-                const auto node = (ASTNode*) pCalloc(sizeof (ASTNode));
+                const auto node = (ASTNode*) pCalloc(1, sizeof (ASTNode));
                 node->token = token;
                 es->push(node);
             } break;
@@ -610,7 +610,7 @@ static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex)
 }
 
 ASTNode* Parser_parse(Array<Token>* tokens) {
-    ASTNode* programRoot = (ASTNode*) pCalloc(sizeof (ASTNode));
+    ASTNode* programRoot = (ASTNode*) pCalloc(1, sizeof (ASTNode));
     programRoot->children = new Array<ASTNode>();
 
     auto scope = (Scope*) pMalloc(sizeof (Scope));

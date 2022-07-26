@@ -404,6 +404,3 @@ normal_decimal:
     return Lexer_tokens;
 }
 
-
-
-
