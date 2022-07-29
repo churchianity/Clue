@@ -3,6 +3,7 @@
 #include <math.h> // pow, remainder, floor, strtod
                   // @TODO replace?
 
+#include "clue.h"
 #include "token.h"
 #include "lexer.h"
 #include "parser.h"
@@ -183,6 +184,10 @@ Value Runtime_eval(ASTNode* node) {
 }
 
 void Runtime_printProgramTree(ASTNode* program) {
+    if (!program) {
+        print("No program.");
+    }
+
     for (u32 i = 0; i < program->children->length; i++) {
         prettyPrintTree(program->children->data[i]);
     }
@@ -205,12 +210,30 @@ static void deleteEverything() {
     });
 }
 
+void Runtime_help() {
+    print(
+        "This is the Clue interpreter. It parses Clue source code line-by-line, incrementally.\n"
+        "\n"
+        "Lines containing exactly one character can have special meaning:\n"
+        "\t'.' - exit the interpreter\n"
+        "\t'/' - destroy the program as it currently exists, but keep running the interpreter\n"
+        "\t'#' - print the state of the lexer\n"
+        "\t'*' - print the abstract syntax tree\n"
+        "\t'?' - show this help text\n"
+    );
+}
+
 void Runtime_interactive() {
     #define CLUE_SANDBOX_MODE_MAX_LINE_LENGTH 160
     char s[CLUE_SANDBOX_MODE_MAX_LINE_LENGTH];
 
-    u32 line = 1;
+    print(
+        "Clue line-by-line interpreter, version %s\n"
+        "For help, consult the docs, or type '?' and hit enter.\n"
+        , __CLUE_VERSION_NUMBER__
+    );
 
+    u32 line = 1;
     do {
         print(">>> ");
 
@@ -218,25 +241,31 @@ void Runtime_interactive() {
             die("error reading line and storing it here: %p\n", (void*) s);
         }
 
-        switch (s[0]) {
-            case '.':
-                print("Take it easy!\n");
-                return;
+        if (Str_len(s) == 2) {
+            switch (s[0]) {
+                case '.':
+                    print("Bye!\n");
+                    return;
 
-            case '/':
-                print("` deleting everything...\n");
-                deleteEverything();
-                continue;
+                case '/':
+                    print("` deleting everything...\n");
+                    deleteEverything();
+                    continue;
 
-            case '#':
-                print("` printing the state of the lexer...\n");
-                Lexer_print();
-                continue;
+                case '#':
+                    print("` printing the state of the lexer...\n");
+                    Lexer_print();
+                    continue;
 
-            case '?':
-                print("` printing program tree...\n");
-                Runtime_printProgramTree(program);
-                continue;
+                case '*':
+                    print("` printing program tree...\n");
+                    Runtime_printProgramTree(program);
+                    continue;
+
+                case '?':
+                    Runtime_help();
+                    continue;
+            }
         }
 
         Lexer_tokenize(s, "stdin", line);

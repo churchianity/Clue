@@ -2,6 +2,7 @@
 #ifndef STRING_H
 #define STRING_H
 
+
 extern bool Str_isDigit(char c);
 extern bool Str_isAlpha(char c);
 extern bool Str_isHexDigit(char c);

@@ -32,8 +32,8 @@ enum TokenTypeEnum {
     // TT_IMPOSSIBLE_1          = 270,  // ((
     // TT_IMPOSSIBLE_2          = 271,  // ))
     // TT_IMPOSSIBLE_3          = 272,  // __
-    TT_DECREMENT                = 273, // -- // @NOTE probably remove these two.
-    TT_INCREMENT                = 274, // ++ // or make it configurable.
+    // TT_DECREMENT                = 273, // -- // @NOTE probably remove these two.
+    // TT_INCREMENT                = 274, // ++ // or make it configurable.
     TT_EQUALITY                 = 275, // ==
     // TT_DOUBLE_OPEN_BRACE     = 276,  // {{ // @NOTE probably don't touch these 4
     // TT_DOUBLE_CLOSE_BRACE    = 277,  // }}
@@ -50,7 +50,7 @@ enum TokenTypeEnum {
     TT_RIGHT_SHIFT              = 288, // >>
     // TT_DOUBLE_DOT            = 289,  // .. // loop range thing? concatenate if we don't want to overload '+'? see complication in numeric case of lexer.
     // TT_DOUBLE_QMARK          = 290,  // ?? // probably not.
-    // TT_DOUBLE_FORWARD_SLASH     = 291,  // // // floor/integer division?
+    TT_DOUBLE_FORWARD_SLASH     = 291,  // // // floor/integer division?
 
     // comparison/logical
     TT_NOT_EQUALS               = 292, // !=
@@ -81,19 +81,6 @@ enum TokenTypeEnum {
     TT_ELSE                     = 402, // else
     TT_WHILE                    = 403, // while
     TT_RETURN                   = 404, // return
-
-    TT_DO                       = 406, // do
-    TT_AND                      = 407, // and
-    TT_OR                       = 408, // or
-    TT_NOT                      = 409, // not
-    TT_FOR                      = 410, // for
-    TT_ELSEIF                   = 411, // elseif
-    TT_AS                       = 412, // as
-    TT_BREAK                    = 413, // break
-    TT_CONTINUE                 = 414, // continue
-
-    TT_FUNCTION                 = 415, // function
-
     // TT_MAKE_IT_BIG              = 0xFFFFFFFFFFFFFFFF
 };
 

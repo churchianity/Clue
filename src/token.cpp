@@ -19,9 +19,9 @@ bool tokenTypeIsOperator(TokenTypeEnum tt) {
 
 bool tokenTypeIsNullary(TokenTypeEnum tt) {
     switch ((s32) tt) {
-        case TT_BREAK:
-        case TT_CONTINUE:
-            return true;
+        //case TT_BREAK:
+        //case TT_CONTINUE:
+        //    return true;
 
         default:
             return false;
@@ -34,9 +34,9 @@ bool tokenTypeIsStatement(TokenTypeEnum tt) {
     // could do tt / 100 == 4 if we move the types that are expression-returning operators,
     // like TT_AND and TT_OR to a different series of token type.
     switch ((s32) tt) {
-        case TT_IF:
-        case TT_ELSEIF:
-        case TT_ELSE:
+        //case TT_IF:
+        //case TT_ELSEIF:
+        //case TT_ELSE:
 
         case TT_WHILE:
         case TT_DO:
@@ -95,7 +95,6 @@ s8 tokenTypeUnaryness(TokenTypeEnum tt) {
 
         case '~':
         case '!':
-        case TT_NOT:
         case '@':
         case '#':
         case '$':
@@ -128,20 +127,17 @@ s8 tokenTypeBinaryness(TokenTypeEnum tt) {
         case TT_RIGHT_SHIFT:
         case TT_LEFT_SHIFT:
 
-        case TT_AND:
-        case TT_OR:
         case TT_LOGICAL_AND:
         case TT_LOGICAL_OR:
         case TT_LOGICAL_XOR:
+
         case TT_EQUALITY:
         case TT_NOT_EQUALS:
-
         case '<':
         case TT_LESS_THAN_OR_EQUAL:
         case '>':
         case TT_GREATER_THAN_OR_EQUAL:
 
-        case TT_AS:
         case ':':
         case TT_QUESTION_MARK_COLON:
         case ',':
