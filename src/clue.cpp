@@ -64,9 +64,9 @@ static inline void help(const char* arg) {
             "\n"
             "Usage: clue <options*> main.clue\n"
             "  you usually will run clue with just a single file argument, which is the file containing the 'main' function for your program\n"
-            "  files don't need to be named anything in particular, aside from having the .clue suffix\n"
+            "  files don't need to be named anything in particular. having a '.clue' suffix will help the compiler find files in some circumstances\n"
             "  imports are pulled in and compiled automatically - there's no need to provide them in the argument list\n"
-            "  if you do provide multiple files, they will be treated as separate programs, and multiple executables will be produced\n"
+            "  if you do provide multiple files, they will be treated as separate programs, and multiple executables will be produced, assuming they each have a 'main'\n"
             "\n"
             "Options:\n"
             "  -h --help <option?>    - if an option listed below is provided, provide additional info on that option, otherwise show this message\n"
@@ -84,7 +84,7 @@ static inline void help(const char* arg) {
 }
 
 static inline void handleCommandLineArguments(s32 argc, const char* argv[]) {
-    if (argc == 1) {
+    if (argc < 2) {
         help(null); exit(0);
     }
 
@@ -93,7 +93,6 @@ static inline void handleCommandLineArguments(s32 argc, const char* argv[]) {
 
     char** files = (char**) pMalloc(sizeof (char*) * capacity);
 
-    // skip the first arg, it's the name of the program itself.
     for (s32 i = 1; i < argc; ++i) {
         char* arg = Str_toLower(argv[i]);
 
@@ -155,6 +154,8 @@ s32 main(s32 argc, const char* argv[], const char* envp[]) {
     if (CLAs.interactive) {
         Runtime_interactive();
     }
+
+    pFree(CLAs.files);
 
     return 0;
 }

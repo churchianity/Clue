@@ -25,6 +25,8 @@ void prettyPrintTree(ASTNode* node, const char* indent, bool last) {
         for (u32 i = 0; i < node->children->length; i++) {
             prettyPrintTree(node->children->data[i], indent, i == (node->children->length - 1));
         }
+
+        pFree(indent);
     }
 }
 

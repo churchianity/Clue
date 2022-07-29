@@ -11,7 +11,7 @@
 
 /**
  * Dependencies:
- *  C++11
+ *  C++11 (14 to build on windows?)
  *
  *  stdlib.h
  *      malloc, calloc, realloc, free, exit, NULL
@@ -34,14 +34,10 @@
  *  signal.h
  *      SIGSEGV, SIGABRT, signal()
  *
- *  llvm MAYBE
  */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
 struct {
-    // whether or not to drop the user into interactive mode after reading source files (if present)
-    bool interactive;
-
     // the name of the directory that is the root of the source tree of whatever project you are in
     // note that this is an assumption some percentage of the time, because the only way to be 100%
     // positive is to ask the user (and even then there's user error), which we don't want to make mandatory
@@ -49,6 +45,9 @@ struct {
 
     char** files;
     u32 filec;
+
+    // whether or not to drop the user into interactive mode after reading source files (if present)
+    bool interactive;
 } CLAs;
 #pragma GCC diagnostic pop
 

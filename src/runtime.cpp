@@ -206,7 +206,7 @@ Table<const char, Value>* Runtime_getGlobalSymbolTable() {
 // @TODO
 static void deleteEverything() {
     Lexer_files->clear([] (TableEntry<const char, void>* entry) {
-        pFreeConst(entry->key);
+        pFree(entry->key);
     });
 }
 

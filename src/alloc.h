@@ -23,7 +23,8 @@ void* pRealloc(void* buffer, u32 newSize);
 void* pRealloc(void* buffer, u32 newSize, void* allocatorState);
 void pFree(void* ptr);
 void pFree(void* ptr, void* allocatorState);
-void pFreeConst(const void* ptr);
+void pFree(const void* ptr);
+void pFree(const void* ptr, void* allocatorState);
 
 // Scratch/Arena
 typedef struct Arena {

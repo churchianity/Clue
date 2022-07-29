@@ -26,39 +26,6 @@ static inline Keyword* keyword(TokenTypeEnum tt) {
 static Table<const char, Keyword>* initKeywordTable() {
     auto t = new Table<const char, Keyword>();
 
-<<<<<<< HEAD
-    t->insert("import",         6, keyword(TT_IMPORT));
-    t->insert("if",             2, keyword(TT_IF));
-    t->insert("else",           4, keyword(TT_ELSE));
-    t->insert("elseif",         6, keyword(TT_ELSEIF));
-    t->insert("while",          5, keyword(TT_WHILE));
-    t->insert("for",            3, keyword(TT_FOR));
-    t->insert("continue",       8, keyword(TT_CONTINUE));
-    t->insert("break",          5, keyword(TT_BREAK));
-    t->insert("do",             2, keyword(TT_DO));
-    t->insert("and",            3, keyword(TT_AND));
-    t->insert("or",             2, keyword(TT_OR));
-    t->insert("not",            3, keyword(TT_NOT));
-    t->insert("return",         6, keyword(TT_RETURN));
-    t->insert("as",             2, keyword(TT_AS));
-    t->insert("function",       8, keyword(TT_FUNCTION));
-=======
-    //t->insert("import",         6, keyword(TT_IMPORT));
-    //t->insert("if",             2, keyword(TT_IF));
-    //t->insert("else",           4, keyword(TT_ELSE));
-    //t->insert("elseif",         6, keyword(TT_ELSEIF));
-    //t->insert("while",          5, keyword(TT_WHILE));
-    //t->insert("for",            3, keyword(TT_FOR));
-    //t->insert("continue",       8, keyword(TT_CONTINUE));
-    //t->insert("break",          5, keyword(TT_BREAK));
-    //t->insert("do",             2, keyword(TT_DO));
-    //t->insert("and",            3, keyword(TT_AND));
-    //t->insert("or",             2, keyword(TT_OR));
-    //t->insert("not",            3, keyword(TT_NOT));
-    //t->insert("return",         6, keyword(TT_RETURN));
-    //t->insert("as",             2, keyword(TT_AS));
->>>>>>> b9488b0b33be70e128df9dd5a185ab82a75e1842
-
     return t;
 }
 
@@ -250,13 +217,7 @@ normal_decimal:
                     continue;
 
                 case '\t':
-<<<<<<< HEAD
-                    // @TODO many people make tabs be visually 4 spaces, but plenty of people also use 2 spaces, or other values.
-                    // not really sure what the best approach here is.
-                    column += 4;
-=======
-                    column += 4; // this is not a robust way to do column count. many people set their tab width to be not 4.
->>>>>>> b9488b0b33be70e128df9dd5a185ab82a75e1842
+                    column += 4; // @TODO this is not a robust way to do column count. many people set their tab width to be not 4.
                     cursor++;
                     continue;
 
@@ -355,10 +316,10 @@ normal_decimal:
                 case '=':
                     if (*(cursor + 1) == *cursor) {
                         switch (*cursor) {
-                            case '+': 
+                            case '+':
                                 die("clue doesn't support the increment operator. use '+= 1'");
                                 break;
-                            case '-': 
+                            case '-':
                                 die("clue doesn't support the decrement operator. use '-= 1'");
                                 break;
 

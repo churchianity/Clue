@@ -267,43 +267,10 @@ static ASTNode* unwrapCommas(ASTNode* parent) {
     return parent;
 }
 
-<<<<<<< HEAD
-void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
-    const auto node = os->pop();
-    const s32 tt = node->token->tt;
-
-    if (tokenTypeIsNullary(node->token->tt)) {
-        es->push(node);
-        return;
-
-    } else if (tt == '(') {
-        // should be a function call
-        const auto args = es->pop();
-        const auto name = es->pop();
-
-        node->children = new Array<ASTNode>(2);
-        node->children->push(name);
-        node->children->push(args);
-
-    } else if (tt == '[') {
-        if ((node->flags & NF_INDEXER) == NF_INDEXER) {
-            die("should be parsing an indexer expression, but can't yet.\n");
-
-        } else {
-            die("should be parsing an array literal, but can't yet\n");
-        }
-    } else if (tt == '{') {
-        if ((node->flags & NF_STRUCT_LITERAL) == NF_STRUCT_LITERAL) {
-            die("should be parsing a struct literal but can't yet.\n");
-        }
-    } else if ((node->flags & NF_UNARY) == NF_UNARY) {
-=======
-
 static void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     const auto node = os->pop();
 
     if ((node->flags & NF_UNARY) == NF_UNARY) {
->>>>>>> b9488b0b33be70e128df9dd5a185ab82a75e1842
         ASTNode* child = es->pop();
 
         if (!child) reportSpecificUnaryOperatorMissingOperand(node);

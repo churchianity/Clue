@@ -54,10 +54,14 @@ void pFree(void* ptr) {
 }
 
 void pFree(void* ptr, void* allocatorState) {
-    pFree(ptr);
+    free(ptr);
 }
 
-void pFreeConst(const void* ptr) {
+void pFree(const void* ptr) {
+    free((void*) ptr);
+}
+
+void pFree(const void* ptr, void* allocatorState) {
     free((void*) ptr);
 }
 

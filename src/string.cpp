@@ -383,8 +383,7 @@ char* Str_read(const char* buffer, u32 length) {
     return tk;
 }
 
-
-s32 Str_b64idx(s32 c) {
+static s32 b64idx(s32 c) {
     if (c < 26) {
         return c + 'A';
     } else if (c < 52) {
@@ -396,7 +395,7 @@ s32 Str_b64idx(s32 c) {
     }
 }
 
-s32 Str_b64Rev(s32 c) {
+static s32 b64Rev(s32 c) {
     if (c >= 'A' && c <= 'Z') {
         return c - 'A';
     } else if (c >= 'a' && c <= 'z') {
@@ -414,7 +413,7 @@ s32 Str_b64Rev(s32 c) {
     }
 }
 
-s32 Str_b64Update(unsigned char ch, char *to, s32 n) {
+static s32 b64Update(unsigned char ch, char *to, s32 n) {
     unsigned char rem = (n & 3) % 3;
     if (rem == 0) {
         to[n] = b64idx(ch >> 2);
@@ -430,10 +429,10 @@ s32 Str_b64Update(unsigned char ch, char *to, s32 n) {
     return n;
 }
 
-s32 Str_b64Final(char *to, s32 n) {
+static s32 b64Final(char *to, s32 n) {
     s32 saved = n;
     // prs32f("---[%.*s]\n", n, to);
-    if (n & 3) n = b64_update(0, to, n);
+    if (n & 3) n = b64Update(0, to, n);
     if ((saved & 3) == 2) n--;
     // prs32f("    %d[%.*s]\n", n, n, to);
     while (n & 3) to[n++] = '=';
@@ -443,8 +442,8 @@ s32 Str_b64Final(char *to, s32 n) {
 
 s32 Str_b64Encode(const unsigned char *p, s32 n, char *to) {
     s32 i, len = 0;
-    for (i = 0; i < n; i++) len = b64_update(p[i], to, len);
-    len = b64_final(to, len);
+    for (i = 0; i < n; i++) len = b64Update(p[i], to, len);
+    len = b64Final(to, len);
     return len;
 }
 
@@ -452,8 +451,8 @@ s32 Str_b64Decode(const char *src, s32 n, char *dst) {
     const char *end = src + n;
     s32 len = 0;
     while (src + 3 < end) {
-        s32 a = b64rev(src[0]), b = b64rev(src[1]), c = b64rev(src[2]),
-            d = b64rev(src[3]);
+        s32 a = b64Rev(src[0]), b = b64Rev(src[1]), c = b64Rev(src[2]),
+            d = b64Rev(src[3]);
         if (a == 64 || a < 0 || b == 64 || b < 0 || c < 0 || d < 0) return 0;
         dst[len++] = (a << 2) | (b >> 4);
         if (src[2] != '=') {
