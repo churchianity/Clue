@@ -5,7 +5,7 @@ binary operators are operators that take two operands, and unary operators are o
 
 there are debatably other operators, some which take any number of operands, and some which take no operands, but precendence and associativity are not relevant for them, so they won't be covered in the next few sections, which are on precedence and associativity.
 
-there are even more binary operators not listed below, which aren't relevant for precedence or associativity, because they never get mixed with other operators in any potentially ambiguous way. 
+there are even more binary operators not listed below, which aren't relevant for precedence or associativity, because they never get mixed with other operators in any potentially ambiguous way.
 *assignment operators fall under this category*
 
 # Precedence
@@ -18,7 +18,7 @@ associativity determines the order in which operators are evaluated when multipl
 
 for example the expression `4 - 1 + 5 + 3` evaluates to `11` if you evaluate it left-to-right, or `-5` if you evaluate it right-to-left.
 
-binary operators have left-to-right associativity. 
+binary operators have left-to-right associativity.
 *we almost made exponentiation right-to-left, but it would have been the only exception, so we decided against it. There is not an agreed upon way to do associativity for exponentiation, though some math folks argue heavily in favor of right-to-left, many others think it doesn't matter. we're closer to the latter, and voted in favor of consistency.*
 
 unary operators have right-to-left associativity.
@@ -29,7 +29,7 @@ effort was made to make the precedence and associativity be such that you can wr
 | operator | precedence  | associativity   | notes                  |
 |----------|-------------|-----------------|------------------------|
 | &&       | 2           | l-r             | logical and            |
-| ||       | 2           | l-r             | logical or             |
+| \|\|     | 2           | l-r             | logical or             |
 | ^^       | 2           | l-r             | logical xor            |
 |          |             |                 |                        |
 | ==       | 3           | none            | equality               |
