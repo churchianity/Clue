@@ -74,29 +74,25 @@ static inline void reportSpecificBinaryOperatorMissingOperand(ASTNode* node) {
 static inline OperatorAssociativityEnum associativity(ASTNode* node) {
     switch ((s32) node->token->tt) {
         case '=':
+        case ':':
         case TT_COLON_EQUALS:
         case TT_PLUS_EQUALS:
-        case TT_MINUS_EQUALS:
-        case TT_TIMES_EQUALS:
-        case TT_DIVIDE_EQUALS:
-        case TT_MODULO_EQUALS:
-        case TT_BITWISE_AND_EQUALS:
-        case TT_BITWISE_OR_EQUALS:
-        case TT_BITWISE_XOR_EQUALS:
-        case TT_RIGHT_SHIFT_EQUALS:
-        case TT_LEFT_SHIFT_EQUALS:
+        case TT_MINUS_EQUALS:         
+        case TT_TIMES_EQUALS:         
+        case TT_DIVIDE_EQUALS:        
+        case TT_MODULO_EQUALS:        
+        case TT_BITWISE_AND_EQUALS:   
+        case TT_BITWISE_OR_EQUALS:    
+        case TT_BITWISE_XOR_EQUALS:   
+        case TT_RIGHT_SHIFT_EQUALS:   
+        case TT_LEFT_SHIFT_EQUALS:    
         case TT_EXPONENTIATION_EQUALS:
             return OA_NONE;
 
-        case TT_EXPONENTIATION:
         case '~':
         case '!':
-        case TT_NOT:
         case '@':
         case '$':
-        case '{':
-        case '(':
-        case '[':
             return OA_RIGHT_TO_LEFT;
 
         case '+':
@@ -104,35 +100,23 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
             if ((node->flags & NF_UNARY) == NF_UNARY) {
                 return OA_RIGHT_TO_LEFT;
             }
+        case TT_LOGICAL_AND:
+        case TT_LOGICAL_OR:
+        case TT_LOGICAL_XOR:
         case '*':
         case '/':
+        case TT_DOUBLE_FORWARD_SLASH:
         case '%':
         case '&':
         case '|':
         case '^':
-        case TT_LEFT_SHIFT:
         case TT_RIGHT_SHIFT:
-        case '>':
-        case '<':
-        case TT_GREATER_THAN_OR_EQUAL:
-        case TT_LESS_THAN_OR_EQUAL:
-        case TT_AND:
-        case TT_OR:
-        case TT_EQUALITY:
-        case TT_NOT_EQUALS:
-        case TT_AS:
-        case ',':
-        case ':':
-        case TT_QUESTION_MARK_COLON:
+        case TT_LEFT_SHIFT:
+        case '.':
+        case TT_EXPONENTIATION:
             return OA_LEFT_TO_RIGHT;
 
-        case '#':
-        case TT_DO:
-        case TT_IF:
-        case TT_ELSEIF:
-        case TT_ELSE:
-        case TT_WHILE:
-        case TT_RETURN:
+        case '(':
             return OA_NONE;
 
         default:
@@ -143,91 +127,67 @@ static inline OperatorAssociativityEnum associativity(ASTNode* node) {
 
 static inline s8 precedence(ASTNode* node) {
     switch ((s32) node->token->tt) {
-        case '#':
-            return -2;
-
-        case TT_IF:
-        case TT_ELSEIF:
-        case TT_ELSE:
-        case TT_DO:
-        case TT_WHILE:
-        case TT_RETURN:
-            return -1;
-
         case '(':
-        case '[':
-        case '{':
-
-        case '=':
-        case TT_COLON_EQUALS:
-        case TT_PLUS_EQUALS:
-        case TT_MINUS_EQUALS:
-        case TT_TIMES_EQUALS:
-        case TT_DIVIDE_EQUALS:
-        case TT_MODULO_EQUALS:
-        case TT_BITWISE_AND_EQUALS:
-        case TT_BITWISE_OR_EQUALS:
-        case TT_BITWISE_XOR_EQUALS:
-        case TT_RIGHT_SHIFT_EQUALS:
-        case TT_LEFT_SHIFT_EQUALS:
-        case TT_EXPONENTIATION_EQUALS:
             return 0;
 
-        case ',':
+        case '=':
         case ':':
-        case TT_QUESTION_MARK_COLON:
+        case TT_COLON_EQUALS:
+        case TT_PLUS_EQUALS:
+        case TT_MINUS_EQUALS:         
+        case TT_TIMES_EQUALS:         
+        case TT_DIVIDE_EQUALS:        
+        case TT_MODULO_EQUALS:        
+        case TT_BITWISE_AND_EQUALS:   
+        case TT_BITWISE_OR_EQUALS:    
+        case TT_BITWISE_XOR_EQUALS:   
+        case TT_RIGHT_SHIFT_EQUALS:   
+        case TT_LEFT_SHIFT_EQUALS:    
+        case TT_EXPONENTIATION_EQUALS:
             return 1;
 
         case TT_LOGICAL_AND:
         case TT_LOGICAL_OR:
         case TT_LOGICAL_XOR:
-        case TT_AND:
-        case TT_OR:
             return 2;
 
         case TT_EQUALITY:
         case TT_NOT_EQUALS:
-        case '>':
         case '<':
-        case TT_GREATER_THAN_OR_EQUAL:
         case TT_LESS_THAN_OR_EQUAL:
+        case '>':
+        case TT_GREATER_THAN_OR_EQUAL:
             return 3;
 
         case '+':
         case '-':
-            if ((node->flags & NF_UNARY) != 0) {
+            if ((node->flags & NF_UNARY) == NF_UNARY) {
                 return 6;
             }
-
             return 4;
 
         case '*':
         case '/':
+        case TT_DOUBLE_FORWARD_SLASH:
         case '%':
         case '&':
         case '|':
         case '^':
-        case TT_LEFT_SHIFT:
         case TT_RIGHT_SHIFT:
+        case TT_LEFT_SHIFT:
             return 5;
 
         case '~':
         case '!':
-        case TT_NOT:
             return 6;
 
         case TT_EXPONENTIATION:
-            // I have no idea why, but changing this to 4 from 7 fixes a precedence bug with exponentiation
-            // @TODO figure this out
-            return 4;
+            return 7;
 
         case '@':
         case '$':
         case '.':
             return 8;
-
-        case TT_AS:
-            return 9;
 
         default:
             die("trying to get precedence of unknown operator type: %u\n", node->token->tt);
@@ -247,11 +207,13 @@ static inline bool canPopAndApply(Array<ASTNode>* os, ASTNode* node) {
         return precedence(node) < precedence(top);
 
     } else {
+        print(node);
+        print(top);
         if (precedence(node) == precedence(top)) {
             die("non-associative sub-expression\n\n");
         }
 
-        return true;
+        return false;
     }
 }
 
@@ -303,45 +265,16 @@ static ASTNode* unwrapCommas(ASTNode* parent) {
 }
 
 
-void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
+static void parseOperationIntoExpression(Array<ASTNode>* es, Array<ASTNode>* os) {
     const auto node = os->pop();
-    const s32 tt = node->token->tt;
 
-    if (tokenTypeIsNullary(node->token->tt)) {
-        es->push(node);
-        return;
-
-    } else if (tt == '(') {
-        // should be a function call or grouping operation?
-        const auto block = es->pop();
-        const auto args = es->pop();
-        const auto name = es->pop();
-
-        node->children = new Array<ASTNode>(3);
-        node->children->push(name);
-        node->children->push(args);
-        node->children->push(block);
-
-    } else if (tt == '[') {
-        if ((node->flags & NF_INDEXER) == NF_INDEXER) {
-            die("should be parsing an indexer expression, but can't yet.\n");
-
-        } else {
-            die("should be parsing an array literal, but can't yet\n");
-        }
-    } else if (tt == '{') {
-        if ((node->flags & NF_STRUCT_LITERAL) == NF_STRUCT_LITERAL) {
-            die("should be parsing a struct literal but can't yet.\n");
-        }
-    } else if ((node->flags & NF_UNARY) == NF_UNARY) {
+    if ((node->flags & NF_UNARY) == NF_UNARY) {
         ASTNode* child = es->pop();
 
         if (!child) reportSpecificUnaryOperatorMissingOperand(node);
 
         node->children = new Array<ASTNode>(1);
         node->children->push(child);
-
-        prettyPrintTree(node);
 
     } else {
         // assumed to be a binary operation.
@@ -364,72 +297,21 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
     const auto node = (ASTNode*) pCalloc(1, sizeof (ASTNode));
 
     node->token = tokens->data[i];
+    const auto tt = tokens->data[i]->tt;
 
-    if (tokenTypeIsNullary(node->token->tt)) {
-        return node;
-    }
-
-    if (i < 1 || tokenTypeIsOperator(tokens->data[i - 1]->tt)) {
+    if (i < 1 || tokenTypeIsOperator(tokens->data[i - 1]->tt)) { // @NOTE we can remove the 'i < 1' if we change how pre-processor statements are done
         // we think it's a unary operator, but we could be wrong. check.
         switch ((s32) node->token->tt) {
             default:
                 die("unexpected operator that we thought would be unary or a punctuator: %d\n", tokens->data[i]->tt);
                 break;
-
-            // can only be an empty group or function call w/ no args
-            case ')':
-                // @TODO it isn't obvious that this should be done. check.
-                if (tokens->data[i - 1]->tt != '(') {
-                    // @TODO report hanging close parens.
-                    die("hanging close parens\n");
-                }
-                break;
-
-            // can only be an empty array literal
-            case ']':
-                // @TODO it isn't obvious that this should be done. check.
-                if (tokens->data[i - 1]->tt != '[') {
-                    // @TODO report hanging close bracket.
-                    die("hanging close bracket\n");
-                }
-                break;
-
-            // can only be an empty dict literal
-            case '}':
-                // @TODO it isn't obvious that this should be done. check.
-                if (tokens->data[i - 1]->tt != '{') {
-                    // @TODO report hanging close brace.
-                    die("hanging close brace\n");
-                }
-                break;
-
-            // should be a 'grouping' operator.
+            
             case '(':
                 node->flags |= NF_GROUP;
                 break;
 
-            // should be an array literal.
-            case '[': break;
-
-            // should be a dict literal
-            // unless it's the first token, or the previous is a semicolon, or the previous is a closing brace - then it's a code block.
-           case '{': break;
-
-            case TT_IF:
-            case TT_FOR:
-            case TT_DO:
-            case TT_WHILE:
-            case TT_ELSE:
-                // these aren't necessarily unary operators, but they can assume the position of one.
-                // if we see one here, that's fine.
-                // even the ones that are just 'normal' unary like 'else' or 'return' don't get the unary flag,
-                // because they are handled explicitly.
-                break;
-
             case '~':
-            case '!': // @deprecate
-            case TT_NOT:
-            case TT_RETURN:
+            case '!': 
             case '@':
             case '#':
             case '$':
@@ -439,25 +321,11 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
                 node->flags |= NF_UNARY;
                 break;
         }
-    } else if ((tokens->data[i]->tt == '(') && (tokens->data[i - 1]->tt == TT_SYMBOL)) {
-        if (i < (tokens->length - 1)) {
-            const auto next = tokens->data[i + 1];
-
-            // if the next token is a colon or a brace, then it's a function declaration
-            // otherwise it's an invocation
-            if (!(next->tt == ':' || next->tt == '{')) {
-                node->flags |= NF_CALL;
-            }
-        } else {
-            // @REPORT fatal, unexpected end of input - possibly/probably a missing semicolon at the end of a function call which is the last line of the program.
-            die("unexpected end of input\n");
-        }
-    } else if ((tokens->data[i]->tt == '[') && (tokens->data[i - 1]->tt == TT_SYMBOL)) {
+    } else if ((tt == '[') && (tokens->data[i - 1]->tt == TT_SYMBOL)) {
         node->flags |= NF_INDEXER;
 
-    } else if ((tokens->data[i]->tt == TT_INCREMENT) || (tokens->data[i]->tt == TT_DECREMENT)) {
-        node->flags |= NF_UNARY;
-        node->flags |= NF_POSTFIX;
+    } else if ((tt == '(') && (tokens->data[i - 1]->tt == TT_SYMBOL)) {
+        node->flags |= NF_CALL;
 
     } else {
         // it's probably a normal binary operator.
@@ -466,6 +334,7 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
         // ie:
         //      "string"[0];
         //              ^ parser thinks we are indexing a string literal
+        //                maybe should actually be legal code...
         //      4(foo);
         //       ^ parser thinks we are calling a function named '4'
         //
@@ -523,7 +392,7 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
 // examples of expressions:
 //  -   4 + 2
 //  -   print(27*(9/3))
-//  -   goo(foo(x?.bar, array[p + i*2]))
+//  -   baz(foo(x?.bar, array[p + i*2]))
 //
 static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex) {
     const auto es = new Array<ASTNode>();
@@ -533,8 +402,6 @@ static ASTNode* shuntingYard(Array<Token>* tokens, u32 startIndex, u32 endIndex)
     while (i < endIndex) {
         const auto token = tokens->data[i];
         s32 tt = (s32) token->tt;
-
-        print(token);
 
         switch (tt) {
             case ')': {
@@ -618,6 +485,7 @@ ASTNode* Parser_parse(Array<Token>* tokens) {
     scope->parent = null;
     scope->table = Runtime_getGlobalSymbolTable();
 
+    u32 lastExpressionParseIndex = 0;
     u32 i = 0;
     while (i < tokens->length) {
         const auto token = tokens->data[i];
@@ -625,10 +493,12 @@ ASTNode* Parser_parse(Array<Token>* tokens) {
 
         switch(tt) {
             case ';': {
-                const auto node = shuntingYard(tokens, 0, i);
+                const auto node = shuntingYard(tokens, lastExpressionParseIndex, i);
                 if (node != null) {
                     programRoot->children->push(node);
                 }
+                lastExpressionParseIndex = ++i;
+                continue;
             } break;
         }
 

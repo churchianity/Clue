@@ -1,4 +1,12 @@
 
+# ( [ { } ] )
+Curly Braces (`{}`) are for grouping things in a key-value manner.
+
+Square Brackets (`[]`) are for grouping things in an indexed or contiguous manner.
+
+Parentheses are for grouping things 
+
+
 # 'normal' keywords
 Keywords that you might see in just about every language that probably don't differ wildly go here.
 
