@@ -338,11 +338,12 @@ static ASTNode* resolveOperatorNode(Array<Token>* tokens, u32 i) {
         // certain punctuators and statements can trick the parser into thinking that they are binary if the
         // prev token is not an operator or a symbol, check for that here.
         // ie:
+        //      4(foo);
+        //       ^ parser thinks we are calling a function named '4'
+        //
         //      "string"[0];
         //              ^ parser thinks we are indexing a string literal
         //                maybe should actually be legal code...
-        //      4(foo);
-        //       ^ parser thinks we are calling a function named '4'
         //
         //       if 1 { ... }
         //            ^ parser thinks the opener of a code block is a binary operator,

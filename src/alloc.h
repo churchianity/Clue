@@ -8,7 +8,7 @@
 // define a consistent memory allocation interface
 // trailing void* is a pointer to some allocator state, if relevant.·
 // will be unused for malloc/calloc/realloc/free, as the allocator state is internal to the OS
-// overloads should exist which do nothing with the trailing paramter.
+// overloads should exist which do nothing with the trailing paramter, in that case.
 typedef void* (*mallocator)(u32, void*);
 typedef void* (*callocator)(u32, u32, void*);
 typedef void* (*reallocator)(void*, u32, void*);
