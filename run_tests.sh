@@ -14,11 +14,11 @@ else
 fi
 
 if [ $? -ne 0 ]; then
-    echo -e "\n${red}Compilation failed, not running any tests.${reset}\n"
+    echo -e "\n${red}Compilation failed; not running any tests.${reset}\n"
     exit
 fi
 
-clue_path="./bin/clue"
+clue_path="./clue"
 search_dir="./test"
 echo -e "\n${yellow}Running tests...${reset}"
 for entry in "$search_dir"/*.clue
