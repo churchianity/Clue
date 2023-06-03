@@ -14,7 +14,7 @@ else
 fi
 
 if [ $? -ne 0 ]; then
-    echo -e "\n${red}Compilation failed, not running any tests.${reset}\n"
+    echo -e "\n${red}Compilation failed; not running any tests.${reset}\n"
     exit
 fi
 

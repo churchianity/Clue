@@ -1,35 +1,49 @@
 
-SHELL := /bin/bash
+CXX=clang++
+CXXFLAGS=-ansi -pedantic -Wall -g -std=c++11 -rdynamic -fshort-enums -MMD -MP
+LDFLAGS=-lstdc++ -lm
 
-# we are a c++ codebase, but the c++ features we use are relatively minimal compared to the norm
-# https://stackoverflow.com/questions/172587/what-is-the-difference-between-g-and-gcc
-#CC=clang
-CC=gcc
-# -ansi -pedantic -Wall		be annoying
-# -g 				produce debuging information for use with gdb
-# -std=c++(version)		what standard of c++ are we using
-# -lstdc++			link the standard library (unfortunately)
-#  				new, delete, __cxa_guard_* ?
-#
-# -lm				link the math library
-# -fshort-enums			make enums be as small as possible. not necessarily a good idea
-# -rdynamic			export all symbols for debugging with backtrace
-#  				eventually, this option should be disabled.
-#  				read: https://anadoxin.org/blog/control-over-symbol-exports-in-gcc.html/
+CLUE_PATH=./clue
 
-COMPILER_FLAGS=-ansi -pedantic -Wall -g -std=c++11 -lstdc++ -lm -rdynamic -fshort-enums
+BUILD_DIR := ./build
+SRC       := ./src
 
-# not using llvm at the moment.
-#LLVM=`llvm-config --cxxflags --ldflags --system-libs --libs core`
+# Find all the C and C++ files we want to compile
+# Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
+SRC_FILES := $(shell find $(SRC) -name '*.cpp')
 
 SRC=./src/
 SRC_FILES=$(SRC)alloc.cpp $(SRC)clue.cpp $(SRC)runtime.cpp $(SRC)lexer.cpp $(SRC)parser.cpp $(SRC)reporter.cpp $(SRC)string.cpp $(SRC)print.cpp $(SRC)token.cpp $(SRC)node.cpp $(SRC)expression.cpp
+# Prepends BUILD_DIR and appends .o to every src file
+# As an example, ./your_dir/hello.cpp turns into ./build/./your_dir/hello.cpp.o
+OBJS := $(SRC_FILES:%=$(BUILD_DIR)/%.o)
 
-OUTPUT_FILTER=2>&1 | head -n 40; test $${PIPESTATUS[0]} -eq 0
+# String substitution (suffix version without %).
+# As an example, ./build/hello.cpp.o turns into ./build/hello.cpp.d
+DEPS := $(OBJS:.o=.d)
 
-compile:
-	$(CC) $(SRC_FILES) $(COMPILER_FLAGS) -o clue $(OUTPUT_FILTER)
+#OUTPUT_FILTER=2>&1 | head -n 40; test $${PIPESTATUS[0]} -eq 0
 
-time:
-	time $(CC) $(SRC_FILES) $(COMPILER_FLAGS) -o clue $(OUTPUT_FILTER)
+# The final build step.
+$(CLUE_PATH): $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+
+# Build step for C source
+$(BUILD_DIR)/%.c.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CXXFLAGS) $(CFLAGS) -c $< -o $@
+
+# Build step for C++ source
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS) -c $< -o $@
+
+.PHONY: clean
+clean:
+	rm -r $(CLUE_PATH) $(BUILD_DIR)
+
+# Include the .d makefiles. The - at the front suppresses the errors of missing
+# Makefiles. Initially, all the .d files will be missing, and we don't want those
+# errors to show up.
+-include $(DEPS)
 
