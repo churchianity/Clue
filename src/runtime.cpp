@@ -184,7 +184,7 @@ Value Runtime_eval(ASTNode* node) {
 }
 
 void Runtime_printProgramTree(ASTNode* program) {
-    if (!program) {
+    if (program == null) {
         print("No program.");
     }
 

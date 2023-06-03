@@ -1,6 +1,22 @@
 
+# What's in a function?
+
+```
+{
+
+
+}
+```
+
+
 # Functions
-Functions are declared with the
 
 
 # Macros
+
+
+
+# Anonymous Functions / Lambdas
+
+
+

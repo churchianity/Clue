@@ -18,12 +18,14 @@ if [ $? -ne 0 ]; then
     exit
 fi
 
-clue_path="./bin/clue"
+logfile=$(date +"%Y-%m-%dT%H:%M:%S%z").log
+clue_path="./clue"
 search_dir="./test"
 echo -e "\n${yellow}Running tests...${reset}"
 for entry in "$search_dir"/*.clue
 do
-    $clue_path "$entry" &>/dev/null
+    $clue_path "$entry" >> "$logfile"
+    #&>/dev/null
     code=$?
 
     if [ $code -eq 127 ]; then
